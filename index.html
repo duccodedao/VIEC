@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VIEC - Vietnam Coin</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom right, #f9f9f9, #e0f7fa);
+      color: #333;
+    }
+    .wallet-fixed {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 999;
+    }
+    .wallet-btn {
+      font-weight: bold;
+      padding: 8px 16px;
+      border-radius: 8px;
+      background: #fff;
+      color: #c21807;
+      border: none;
+      cursor: pointer;
+    }
+    .wallet-display {
+      background: #ffffffee;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 14px;
+      border-radius: 25px;
+      position: relative;
+    }
+    .wallet-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+    }
+    .wallet-menu {
+      position: absolute;
+      top: 120%;
+      right: 0;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      padding: 8px;
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 150px;
+    }
+    .wallet-menu button {
+      background: none;
+      border: none;
+      text-align: left;
+      width: 100%;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    .wallet-display:hover .wallet-menu {
+      display: flex;
+    }
+    .modal-wallet {
+      background: rgba(0,0,0,0.6);
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .wallet-options {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      width: 300px;
+      text-align: center;
+    }
+    .wallet-options button {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .hero {
+      background: linear-gradient(to right, #c21807, #f6b800);
+      color: white;
+      padding: 100px 0;
+      text-align: center;
+      clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+    }
+    .hero img {
+      width: 140px;
+      margin-bottom: 20px;
+      transition: transform 0.3s ease;
+    }
+    .hero img:hover {
+      transform: scale(1.1);
+    }
+    .section-title {
+      margin-top: 80px;
+      margin-bottom: 30px;
+      font-size: 2rem;
+    }
+    footer {
+      background: linear-gradient(to right, #222, #333);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .tokenomics-box {
+      border-radius: 12px;
+      padding: 20px;
+      background: white;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s ease;
+    }
+    .tokenomics-box:hover {
+      transform: translateY(-5px);
+    }
+    .network-info {
+      background: #eaf4ff;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 40px;
+    }
+    .roadmap li {
+      background: #ffffff;
+      margin-bottom: 10px;
+      border-left: 6px solid #da251d;
+      padding: 10px 15px;
+    }
+    section, header {
+      opacity: 0;
+      transform: translateY(50px);
+      transition: all 0.6s ease-in-out;
+    }
+    section.reveal, header.reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wallet-fixed" id="walletSection">
+    <button class="wallet-btn" id="connectBtn">Connect Wallet</button>
+  </div>
+
+  <header class="hero">
+    <img src="logo.png" alt="VIEC Logo" />
+    <h1>VIEC - Vietnam Coin</h1>
+    <p>Empowering Vietnam in the Web3 Economy</p>
+  </header>
+
+  <section class="container">
+    <h2 class="text-center section-title">About VIEC</h2>
+    <p class="text-center">
+      VIEC (Vietnam Coin) is a blockchain-based token created to represent the innovation, work ethic, and digital contributions of Vietnamese people. It is a decentralized asset used for freelance work, staking rewards, governance, and more.
+    </p>
+  </section>
+
+  <section class="container">
+    <h2 class="text-center section-title">Network Information</h2>
+    <div class="network-info">
+      <div class="row">
+        <div class="col-md-6">
+          <strong>Contract Address:</strong>
+          <p>0x1234567890abcdef1234567890abcdef12345678</p>
+        </div>
+        <div class="col-md-6">
+          <strong>Network:</strong>
+          <p>BSC (Binance Smart Chain)</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container">
+    <h2 class="text-center section-title">Tokenomics</h2>
+    <div class="row text-center">
+      <div class="col-md-4">
+        <div class="tokenomics-box">
+          <h5>Total Supply</h5>
+          <p>1,000,000,000 VIEC</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="tokenomics-box">
+          <h5>Distribution</h5>
+          <ul class="list-unstyled">
+            <li>Community: 40%</li>
+            <li>Team & Advisors: 20%</li>
+            <li>Marketing & Partnerships: 20%</li>
+            <li>Reserve & Liquidity: 20%</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="tokenomics-box">
+          <h5>Utility</h5>
+          <ul class="list-unstyled">
+            <li>Staking</li>
+            <li>Rewards</li>
+            <li>Freelance Payment</li>
+            <li>NFT Access</li>
+            <li>Governance Voting</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container">
+    <h2 class="text-center section-title">Roadmap</h2>
+    <ul class="roadmap list-unstyled">
+      <li>Q3 2025: Whitepaper, Token Launch, Airdrop Campaign</li>
+      <li>Q4 2025: DEX Listing, Freelance Platform MVP</li>
+      <li>Q1 2026: Launch Staking Pools, Community Voting</li>
+      <li>Q2 2026: NFT Integration & DAO Launch</li>
+      <li>Q3 2026: VIEC Wallet App</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 VIEC - Vietnam Coin. All rights reserved.</p>
+  </footer>
+
+  <div id="walletModal" class="modal-wallet" style="display:none">
+    <div class="wallet-options">
+      <h5>Connect Wallet</h5>
+      <button class="btn btn-outline-primary" onclick="connectWallet()">MetaMask (BSC)</button>
+      <button class="btn btn-outline-secondary" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    const connectBtn = document.getElementById('connectBtn');
+    const walletSection = document.getElementById('walletSection');
+    const walletModal = document.getElementById('walletModal');
+
+    connectBtn.addEventListener('click', () => walletModal.style.display = 'flex');
+    function closeModal() { walletModal.style.display = 'none'; }
+
+    async function connectWallet() {
+      closeModal();
+      if (typeof window.ethereum !== 'undefined') {
+        const web3 = new Web3(window.ethereum);
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          const address = accounts[0];
+          const shortened = address.slice(0, 6) + '...' + address.slice(-4);
+
+          walletSection.innerHTML = `
+            <div class="wallet-display">
+              <img src="https://www.gravatar.com/avatar/${address.slice(2,10)}?d=identicon" class="wallet-avatar" alt="avatar">
+              <span>${shortened}</span>
+              <div class="wallet-menu">
+                <button onclick="navigator.clipboard.writeText('${address}')">📋 Copy Address</button>
+                <button onclick="disconnectWallet()">❌ Disconnect</button>
+              </div>
+            </div>`;
+        } catch (err) {
+          alert('Wallet connection rejected.');
+        }
+      } else {
+        alert('No Ethereum provider found');
+      }
+    }
+
+    function disconnectWallet() {
+      walletSection.innerHTML = '<button class="wallet-btn" id="connectBtn">Connect Wallet</button>';
+      document.getElementById('connectBtn').addEventListener('click', () => walletModal.style.display = 'flex');
+    }
+
+    const reveals = document.querySelectorAll('section, header');
+    const revealOnScroll = () => {
+      reveals.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight - 100) {
+          el.classList.add('reveal');
+        }
+      });
+    };
+    window.addEventListener('scroll', revealOnScroll);
+    window.addEventListener('load', revealOnScroll);
+  </script>
+</body>
+
+</html>
