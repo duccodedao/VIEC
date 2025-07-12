@@ -351,16 +351,42 @@
 }
 
 
+
+
+
+
+
+
+
+.partner-logos .partner-img {
+  max-height: 60px;
+  object-fit: contain;
+  filter: grayscale(100%);
+  transition: all 0.3s ease;
+  margin: 0 auto;
+}
+
+.partner-logos .partner-img:hover {
+  filter: none;
+  transform: scale(1.05);
+}
+
+.partner-logos p {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-top: 8px;
+}
+
   </style>
 </head>
 <body>
 
 <!-- Wallet Bar -->
 <div class="wallet-fixed">
-  <img src="/img/ton.jpg" alt="TON" />
+  <img src="duccodedao.github.io/VIEC/img/ton.jpg" alt="TON" />
   <span class="balance" id="tonBalance">0</span>
 
-  <img src="/img/logo.png" alt="VIEC" />
+  <img src="duccodedao.github.io/VIEC/img/logo.png" alt="VIEC" />
   <span class="balance" id="viecBalance">0</span>
 
   <div id="ton-connect"></div>
@@ -368,7 +394,7 @@
 </div>
 <!-- Hero -->
 <header class="hero">
-  <img src="/img/logo.png" alt="VIEC Logo" />
+  <img src="duccodedao.github.io/VIEC/img/logo_viewc.png" alt="VIEC Logo" />
   <h1>VIEC - Vietnam Coin</h1>
   <p>Thúc đẩy Việt Nam trong nền kinh tế Web3</p>
 </header>
@@ -377,7 +403,7 @@
 <section class="container">
   <h2 class="text-center section-title">Giới thiệu VIEC</h2>
   <p class="text-center">
-    VIEC (Vietnam Coin) là một token trên mạng TON, đại diện cho tinh thần đổi mới và đóng góp kỹ thuật số của người Việt.
+    Vietnam Coin (VIEC) là một loại token được phát triển trên nền tảng The Open Network (TON), nhằm mục tiêu đại diện cho cộng đồng người Việt trong không gian Web3 toàn cầu. VIEC không chỉ đơn thuần là một tài sản kỹ thuật số, mà còn là biểu tượng của sự sáng tạo, đổi mới và đóng góp công nghệ từ người Việt vào nền kinh tế phi tập trung.
   </p>
 </section>
 
@@ -387,7 +413,7 @@
   <div class="network-info">
     <div class="row">
       <div class="col-md-6"><strong>Mạng Token:</strong><p>The Open Network (TON)</p></div>
-      <div class="col-md-6"><strong>Tiêu chuẩn Token:</strong><p>Jetton (TBA)</p></div>
+      <div class="col-md-6"><strong>Tiêu chuẩn Token:</strong><p>EQA5JIIDkiPljbagP_S9R7fZQLAhLZjNhIPRVSWkuicj5M_f</p></div>
     </div>
   </div>
 </section>
@@ -485,12 +511,12 @@
     <!-- From: VIEC -->
     <div class="token-input">
       <div class="token-info">
-        <img src="/img/logo.png" alt="VIEC"> VIEC
+        <img src="duccodedao.github.io/VIEC/img/logo.png" alt="VIEC"> VIEC
       </div>
       <input 
         type="number" 
         id="viecInput" 
-        placeholder="Nhập số lượng VIEC (≥100)" 
+        placeholder="Số lượng" 
         min="100" 
         step="1" 
         required 
@@ -505,19 +531,19 @@
     <!-- To: TON -->
     <div class="token-input">
       <div class="token-info">
-        <img src="/img/ton.jpg" alt="TON"> TON
+        <img src="duccodedao.github.io/VIEC/img/ton.jpg" alt="TON"> TON
       </div>
       <input 
         type="text" 
         id="tonAmount" 
-        placeholder="Số TON sẽ trả" 
+        placeholder="TON" 
         readonly
       >
     </div>
 
     <!-- Nút swap -->
     <button type="submit" class="btn btn-gradient mt-3">
-      <i class="fa fa-bolt me-2"></i> Swap ngay
+      <i class="fa fa-bolt me-2"></i> Mua ngay
     </button>
 
     <!-- Tỷ giá -->
@@ -525,6 +551,38 @@
       Tỷ giá: <span>1 VIEC = 0.001 TON</span> (~ <span id="priceVND">...</span> VND)
     </p>
   </form>
+</section>
+
+<section class="container my-5">
+  <h2 class="text-center section-title">Đối Tác & Nhà Đầu Tư</h2>
+  <p class="text-center mb-4">
+    VIEC tự hào đồng hành cùng các đối tác chiến lược trong hệ sinh thái Web3 toàn cầu.
+  </p>
+
+  <div class="row justify-content-center align-items-center partner-logos">
+
+
+    <div class="col-6 col-md-4 text-center mb-4">
+      <img src="duccodedao.github.io/VIEC/img/tonkeeper.png" alt="Tonkeeper" class="partner-img" style="height:50px;">
+      <p class="mt-2"></p>
+    </div>
+
+    <div class="col-6 col-md-4 text-center mb-4">
+      <img src="duccodedao.github.io/VIEC/img/tonf.png" alt="TON Foundation" class="partner-img">
+      <p class="mt-2"></p>
+    </div>
+
+    <div class="col-6 col-md-4 text-center mb-4">
+      <img src="duccodedao.github.io/VIEC/img/dedust.png" alt="DeDust" class="partner-img" style="height:55px;">
+      <p class="mt-2"></p>
+    </div>
+
+    <div class="col-6 col-md-4 text-center mb-4">
+      <img src="duccodedao.github.io/VIEC/img/stonfi.png" alt="STON.fi" class="partner-img" style="height:50px;">
+      <p class="mt-2"></p>
+    </div>
+
+  </div>
 </section>
 
 <!-- Footer -->
