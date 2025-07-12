@@ -288,6 +288,69 @@
       }
     }
 
+
+
+
+
+.roadmap {
+  max-width: 800px;
+  margin: 60px auto;
+  padding: 0 15px;
+}
+
+.roadmap-item {
+  position: relative;
+  margin-bottom: 40px;
+}
+
+.roadmap-label {
+  display: inline-block;
+  background: #da251d;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.roadmap-content {
+  background: #fff;
+  padding: 20px 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+
+.roadmap-content h5 {
+  color: #c21807;
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.roadmap-content p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+@media (max-width: 576px) {
+  .roadmap {
+    padding: 0 10px;
+  }
+
+  .roadmap-label {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+  }
+
+  .roadmap-content {
+    padding: 16px;
+  }
+}
+
+
   </style>
 </head>
 <body>
@@ -357,6 +420,64 @@
   </div>
 </section>
 
+<section class="container">
+  <h2 class="text-center section-title">Lộ trình phát triển</h2>
+  <div class="roadmap">
+
+    <div class="roadmap-item">
+      <div class="roadmap-label">Q4/2025</div>
+      <div class="roadmap-content">
+        <h5>Ra mắt dự án</h5>
+        <p>Khởi động website chính thức, tích hợp ví TON Connect, phát hành tài liệu dự án (whitepaper) và bắt đầu chiến dịch truyền thông cộng đồng.</p>
+      </div>
+    </div>
+
+    <div class="roadmap-item">
+      <div class="roadmap-label">Q1/2026</div>
+      <div class="roadmap-content">
+        <h5>Pre‑Sale VIEC (10%)</h5>
+        <p>Mở bán trước 100 triệu VIEC với giá ưu đãi. Giao dịch qua ví TON.</p>
+      </div>
+    </div>
+
+    <div class="roadmap-item">
+      <div class="roadmap-label">Q2/2026</div>
+      <div class="roadmap-content">
+        <h5>Niêm yết trên DEX</h5>
+        <p>Niêm yết VIEC lên các sàn phi tập trung (DEX) như STON.fi và DeDust. Kèm theo triển khai pool thanh khoản và staking VIEC.</p>
+      </div>
+    </div>
+
+    <div class="roadmap-item">
+      <div class="roadmap-label">Q3/2026</div>
+      <div class="roadmap-content">
+        <h5>Ra mắt nền tảng Freelance</h5>
+        <p>Xây dựng hệ sinh thái freelance sử dụng VIEC làm phương tiện thanh toán. Kết nối người dùng Việt với thị trường toàn cầu.</p>
+      </div>
+    </div>
+
+    <div class="roadmap-item">
+      <div class="roadmap-label">Q4/2026</div>
+      <div class="roadmap-content">
+        <h5>Phát triển ứng dụng di động</h5>
+        <p>Triển khai ứng dụng mobile trên Android và iOS. Hỗ trợ quản lý ví, staking, swap và lịch sử giao dịch bằng VIEC.</p>
+      </div>
+    </div>
+
+    <div class="roadmap-item">
+      <div class="roadmap-label">2027+</div>
+      <div class="roadmap-content">
+        <h5>Mở rộng hệ sinh thái</h5>
+        <p>Hợp tác với doanh nghiệp và startup Việt Nam để áp dụng VIEC trong thanh toán thực tế. Mở rộng sang các lĩnh vực NFT, Metaverse và DAO quản trị.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+
+
 <!-- Swap -->
 <section class="swap-section">
   <form class="swap-box" onsubmit="event.preventDefault(); buyViec();">
@@ -417,7 +538,7 @@
 
   <!-- Scripts -->
 <script>
-  const destination = "EQABa48hjKzg09hN_HjxOic7r8d6e3fd048811a26c01aaef6c126636164663401a";
+  const destination = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
   const tokenPriceTon = 0.001;
   let tonToVnd = 0;
   let currentWallet = "";
@@ -552,6 +673,19 @@
     fetchTonPrice();
     revealOnScroll();
   });
+
+
+
+
+
+
+  window.addEventListener('scroll', () => {
+  document.querySelectorAll('.roadmap-item').forEach(item => {
+    if (item.getBoundingClientRect().top < window.innerHeight - 100) {
+      item.classList.add('reveal');
+    }
+  });
+});
 </script>
 
 
