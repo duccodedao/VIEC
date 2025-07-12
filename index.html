@@ -427,6 +427,43 @@
   text-decoration: underline;
 }
 
+
+
+
+
+
+
+.team-card {
+  background: #fff;
+  transition: all 0.3s ease;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+}
+
+.team-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.team-avatar {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid #f6b800;
+}
+
+.social-icons a {
+  color: #444;
+  margin: 0 8px;
+  font-size: 18px;
+  transition: color 0.3s;
+}
+
+.social-icons a:hover {
+  color: #da251d;
+}
+
   </style>
 </head>
 <body>
@@ -644,6 +681,37 @@
 
   </div>
 </section>
+
+
+
+
+
+
+
+<!-- CEO & Team Section -->
+<section class="container py-5">
+  <h2 class="text-center section-title">CEO & Đội Ngũ</h2>
+  <div class="row justify-content-center">
+
+    <!-- CEO -->
+    <div class="col-md-4">
+      <div class="team-card text-center shadow p-4 rounded">
+        <img src="https://duccodedao.github.io/VIEC/img/ton.jpg" alt="CEO" class="team-avatar mb-3">
+        <h5 class="mb-1">Sơn Lý Hồng Đức</h5>
+        <p class="text-muted">Founder & CEO</p>
+        <p>Là người sáng lập Vietnam Coin (VIEC), định hướng phát triển token trên mạng TON dành cho cộng đồng người Việt.</p>
+      </div>
+    </div>
+
+    <!-- Có thể thêm các thành viên khác ở đây nếu muốn -->
+
+  </div>
+</section>
+
+
+
+
+
 
 <!-- Footer -->
 <footer>
