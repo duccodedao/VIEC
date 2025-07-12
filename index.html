@@ -123,6 +123,14 @@
       border-left:6px solid #da251d;
       padding:10px 15px;
     }
+    .network-info p {
+  word-wrap: break-word;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  white-space: normal;
+  user-select: all;
+}
+
     section, header {
       opacity:0; transform: translateY(50px);
       transition: all .6s ease-in-out;
@@ -377,6 +385,22 @@
   margin-top: 8px;
 }
 
+
+
+
+.contract-link {
+  display: inline-block;
+  word-break: break-all;
+  color: #0d6efd;
+  text-decoration: none;
+  font-weight: 500;
+  user-select: all;
+}
+
+.contract-link:hover {
+  text-decoration: underline;
+}
+
   </style>
 </head>
 <body>
@@ -407,16 +431,26 @@
   </p>
 </section>
 
-<!-- Mạng lưới -->
-<section class="container">
-  <h2 class="text-center section-title">Thông tin mạng lưới</h2>
-  <div class="network-info">
-    <div class="row">
-      <div class="col-md-6"><strong>Mạng Token:</strong><p>The Open Network (TON)</p></div>
-      <div class="col-md-6"><strong>Tiêu chuẩn Token:</strong><p>EQA5JIIDkiPljbagP_S9R7fZQLAhLZjNhIPRVSWkuicj5M_f</p></div>
+
+
+<div class="network-info">
+  <div class="row">
+    <div class="col-md-6"><strong>Mạng Token:</strong><p>The Open Network (TON)</p></div>
+    <div class="col-md-6">
+      <strong>Mã Hợp Đồng:</strong>
+      <p>
+        <a href="https://tonviewer.com/EQA5JIIDkiPljbagP_S9R7fZQLAhLZjNhIPRVSWkuicj5M_f" 
+           target="_blank" 
+           class="contract-link">
+          EQA5JIIDkiPljbagP_S9R7fZQLAhLZjNhIPRVSWkuicj5M_f
+        </a>
+      </p>
     </div>
   </div>
-</section>
+</div>
+
+
+
 
 <!-- Tokenomics -->
 <section class="container">
