@@ -1,10 +1,7 @@
 {
-  "url": "https://duccodedao.github.io/VIEC",
-  "name": "VIEC",
-  "network": "mainnet",
-  "manifest_version": "0.1.0",
-  "icon_url": "https://duccodedao.github.io/VIEC/logo.png",
-  "terms_of_use_url": "https://duccodedao.github.io/VIEC/termsterms",
-  "privacy_policy_url": "https://duccodedao.github.io/VIEC/privacy",
-  "platforms": ["telegram", "web"]
+    "url": "https://duccodedao.github.io/VIEC",  
+    "name": "VIE Group",
+    "iconUrl": "https://duccodedao.github.io/VIEC/img/logo.png",
+    "termsOfUseUrl": "https://duccodedao.github.io/VIEC/terms",  
+    "privacyPolicyUrl": "https://duccodedao.github.io/VIEC/privacy"  
 }
