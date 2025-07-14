@@ -1,81 +1,95 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>VIEC DEX - Swap TON ↔ VIEC</title>
-  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+  <meta charset="UTF-8" />
+  <title>Swap TON → VIEC</title>
+  <script src="https://unpkg.com/@tonconnect/sdk"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f3f3f3;
-      padding: 20px;
-      text-align: center;
-    }
-    .balance {
-      margin-top: 20px;
-      font-size: 18px;
-    }
-    iframe {
-      width: 100%;
-      max-width: 500px;
-      height: 500px;
-      border: none;
-      border-radius: 20px;
-      margin-top: 30px;
-    }
+    body { font-family: Arial; padding: 20px; max-width: 600px; margin: auto; }
+    input, button { padding: 10px; margin: 5px 0; width: 100%; }
+    .info { margin-top: 15px; background: #f0f0f0; padding: 10px; border-radius: 8px; }
   </style>
 </head>
 <body>
+  <h2>Swap TON → VIEC</h2>
+  <p><strong>1 TON = 1000 VIEC</strong></p>
 
-  <h1>🌐 VIEC DEX</h1>
-  <div id="ton-connect-button"></div>
+  <button id="connectButton">🔗 Kết nối ví TON</button>
+  <div id="walletInfo" class="info" style="display:none;"></div>
 
-  <div class="balance" id="balances">
-    Đang kiểm tra số dư ví...
-  </div>
+  <input type="number" id="amountTon" placeholder="Nhập số TON muốn swap" min="0.1" step="0.1" />
 
-  <iframe src="https://app.ston.fi/swap?from=TON&to=EQA5JIIDkiPljbagP_S9R7fZQLAhLZjNhIPRVSWkuicj5M_f&amount=1&slippage=1"
-          allow="clipboard-write"
-          loading="lazy">
-  </iframe>
+  <button id="swapButton">Gửi TON và nhận VIEC</button>
 
-  <script type="module">
-    import { TonConnectUI } from "https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js";
+  <div id="jettonWalletInfo" class="info" style="display:none;"></div>
 
-    const tonConnectUI = new TonConnectUI({
-      manifestUrl: 'https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json',
-      buttonRootId: 'ton-connect-button',
-    });
+  <script>
+    const connector = new TonConnect();
+    const connectBtn = document.getElementById("connectButton");
+    const swapBtn = document.getElementById("swapButton");
+    const walletInfo = document.getElementById("walletInfo");
+    const jettonWalletInfo = document.getElementById("jettonWalletInfo");
 
-    // Lấy số dư
-    async function fetchBalances() {
-      const connectedWallet = await tonConnectUI.connectedWallet;
-      if (!connectedWallet) {
-        document.getElementById("balances").innerText = "Vui lòng kết nối ví để xem số dư.";
-        return;
-      }
+    let userAddress = null;
 
-      const walletAddress = connectedWallet.account.address;
-      const apiUrl = `https://tonapi.io/v2/accounts/${walletAddress}/jettons`;
+    // 1. Kết nối ví
+    connectBtn.onclick = async () => {
+      await connector.restoreConnection();
+      const wallet = await connector.connectWallet();
+      userAddress = wallet.account.address;
 
-      const res = await fetch(apiUrl);
-      const data = await res.json();
-      let tonBalance = parseFloat(data.balance.coins) / 1e9;
-      let viecBalance = "0";
+      walletInfo.style.display = "block";
+      walletInfo.innerHTML = `<strong>Đã kết nối ví:</strong><br>${userAddress}`;
+    };
 
-      for (const jetton of data.balances) {
-        if (jetton.jetton.master === "EQA5JIIDkiPljbagP_S9R7fZQLAhLZjNhIPRVSWkuicj5M_f") {
-          viecBalance = parseFloat(jetton.balance) / 1e9;
+    // 2. Gửi TON và hiện Jetton Wallet Address
+    swapBtn.onclick = async () => {
+      if (!userAddress) return alert("Hãy kết nối ví trước.");
+
+      const tonAmount = parseFloat(document.getElementById("amountTon").value);
+      if (!tonAmount || tonAmount <= 0) return alert("Số TON không hợp lệ.");
+
+      const nanoTon = (tonAmount * 1e9).toFixed(0);
+
+      // Địa chỉ ví bạn
+      const yourAddress = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
+
+      // 3. Gửi giao dịch
+      try {
+        await connector.sendTransaction({
+          validUntil: Math.floor(Date.now() / 1000) + 600,
+          messages: [{
+            address: yourAddress,
+            amount: nanoTon,
+            payload: "" // có thể thêm ghi chú
+          }]
+        });
+        alert("Gửi TON thành công. Bạn sẽ nhận VIEC sớm!");
+
+        // 4. Gọi tonapi.io để lấy Jetton Wallet Address
+        const jettonMaster = "EQA5JIIDkiPljbagP_S9R7fZQLAhLZjNhIPRVSWkuicj5M_f";
+        const apiUrl = `https://tonapi.io/v2/jettons/wallets/${userAddress}?jetton=${jettonMaster}`;
+
+        const res = await fetch(apiUrl);
+        const data = await res.json();
+        const jettonWalletAddress = data?.address;
+
+        if (jettonWalletAddress) {
+          jettonWalletInfo.style.display = "block";
+          jettonWalletInfo.innerHTML = `
+            <strong>Địa chỉ Jetton Wallet (VIEC) của bạn:</strong><br>
+            ${jettonWalletAddress}<br>
+            <br><i>Chúng tôi sẽ gửi ${tonAmount * 1000} VIEC đến địa chỉ này.</i>
+          `;
+        } else {
+          jettonWalletInfo.innerHTML = "❌ Không tìm thấy Jetton Wallet VIEC.";
         }
+
+      } catch (e) {
+        console.error(e);
+        alert("Gửi TON thất bại hoặc bị huỷ.");
       }
-
-      document.getElementById("balances").innerText =
-        `Số dư TON: ${tonBalance.toFixed(3)} | Số dư VIEC: ${viecBalance}`;
-    }
-
-    setInterval(fetchBalances, 5000);
-    fetchBalances();
+    };
   </script>
-
 </body>
 </html>
