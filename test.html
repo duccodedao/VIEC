@@ -1,73 +1,60 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Transfer Jetton (call contract)</title>
+  <meta charset="UTF-8" />
+  <title>Gửi 0.005 TON để nhận 1000 Jetton</title>
   <script src="https://unpkg.com/@tonconnect/sdk@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@ton/core@0.0.6-alpha.2/dist/index.umd.js"></script>
 </head>
 <body>
-  <h2>Transfer Token Jetton</h2>
+  <h2>Gửi 0.005 TON để nhận 1000 token VIEC</h2>
 
-  <button id="connect">Kết nối ví</button><br><br>
+  <button id="connect">Kết nối ví</button>
+  <div id="status"></div>
 
-  <input type="text" id="jettonWallet" placeholder="Jetton Wallet Address (ví token của bạn)" size="60"><br>
-  <input type="text" id="recipient" placeholder="Địa chỉ nhận (hoặc contract swap)" size="60"><br>
-  <input type="number" id="amount" placeholder="Số lượng token"><br>
-  <button id="send">Gửi token</button>
+  <button id="send" disabled>Gửi 0.005 TON</button>
 
   <script>
-    const { beginCell, toNano, Address } = window["@ton/core"];
     const connector = new TonConnect();
+    const myWallet = "EQCvxJy4eG8hyHBFsZ7eePxrRsUQSFE_jpptRAYBmcG_DOGS"; // ví nhận TON
+    const sendAmount = "5000000"; // 0.005 TON = 5,000,000 nanotons
 
-    let connectedWallet = null;
+    let userAddress = null;
 
     document.getElementById("connect").onclick = async () => {
-      await connector.restoreConnection();
-      const wallet = await connector.connectWallet();
-      connectedWallet = wallet;
-      alert("Kết nối thành công: " + wallet.account.address);
+      try {
+        await connector.restoreConnection();
+        const wallet = await connector.connectWallet();
+        userAddress = wallet.account.address;
+        document.getElementById("status").innerText = "Đã kết nối ví: " + userAddress;
+        document.getElementById("send").disabled = false;
+      } catch (err) {
+        alert("Không thể kết nối ví.");
+      }
     };
 
     document.getElementById("send").onclick = async () => {
-      if (!connectedWallet) {
-        alert("Cần kết nối ví trước.");
+      if (!userAddress) {
+        alert("Hãy kết nối ví trước.");
         return;
       }
-
-      const jettonWallet = document.getElementById("jettonWallet").value;
-      const recipient = document.getElementById("recipient").value;
-      const amount = parseFloat(document.getElementById("amount").value);
-      const nanoAmount = toNano(amount.toString());
-
-      const payloadCell = beginCell()
-        .storeUint(0xf8a7ea5, 32)          // op
-        .storeUint(0, 64)                  // query_id
-        .storeCoins(nanoAmount)           // amount
-        .storeAddress(Address.parse(recipient)) // recipient address
-        .storeAddress(Address.parse(connectedWallet.account.address)) // response addr
-        .storeBit(0)                       // custom_payload = null
-        .storeCoins(toNano("0"))          // forward TON amount = 0
-        .storeBit(0)                       // no payload
-        .endCell();
 
       const tx = {
         validUntil: Math.floor(Date.now() / 1000) + 600,
         messages: [
           {
-            address: jettonWallet,
-            amount: toNano("0.05").toString(), // Phí cho tx (0.05 TON)
-            payload: payloadCell.toBoc().toString("base64"),
+            address: myWallet,
+            amount: sendAmount,
+            payload: "", // payload rỗng
           }
         ]
       };
 
       try {
         await connector.sendTransaction(tx);
-        alert("Đã gửi Jetton thành công!");
-      } catch (e) {
-        console.error(e);
-        alert("Lỗi khi gửi token.");
+        alert("Giao dịch gửi 0.005 TON thành công!\nBạn sẽ nhận được 1000 token VIEC sau vài giây.");
+      } catch (err) {
+        console.error(err);
+        alert("Lỗi gửi giao dịch.");
       }
     };
   </script>
