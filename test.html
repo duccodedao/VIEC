@@ -2,88 +2,90 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Swap TON to VIEC</title>
-  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@ton/core@0.0.6-alpha.2/dist/index.umd.js"></script>
+  <title>TON Wallet Web</title>
+  <script src="https://unpkg.com/@tonconnect/sdk@latest"></script>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+    button { padding: 10px 20px; margin: 10px 0; }
+    #txs li { margin-bottom: 6px; }
+  </style>
 </head>
 <body>
-  <h2>🔄 Gửi 0.005 TON để nhận 1000 VIEC</h2>
-  <div id="ton-connect" style="margin-bottom: 10px;"></div>
-  <button id="swap" disabled>⚡ Gửi 0.005 TON và nhận 1000 VIEC</button>
+
+  <h1>Kết nối ví TON</h1>
+  <button id="connect-btn">Kết nối ví</button>
+  <div id="wallet-info"></div>
+
+  <h2>Số dư ví</h2>
+  <div id="balance">0 TON</div>
+
+  <h2>Lịch sử giao dịch</h2>
+  <ul id="txs"></ul>
+
+  <h2>Gửi TON</h2>
+  <input type="text" id="to" placeholder="Địa chỉ nhận" style="width:100%">
+  <input type="number" id="amount" placeholder="Số TON" style="width:100%">
+  <button id="send-btn">Gửi</button>
 
   <script>
-    const { Address, beginCell, toNano } = window["@ton/core"];
-
-    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-      manifestUrl: "https://duccodedao.github.io/VIEC/tonconnect-manifest.json",
-      buttonRootId: "ton-connect"
+    const connector = new TON_CONNECT_UI.TonConnectUI({
+      manifestUrl: 'https://ton.org/tonconnect-manifest.json',
+      buttonRootId: 'connect-btn',
     });
 
-    // Địa chỉ ví của bạn (nơi nhận TON và chứa Jetton)
-    const OWNER_WALLET = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
-    const JETTON_MASTER = "EQA5JIIDkiPljbagP_S9R7fZQLAhLZjNhIPRVSWkuicj5M_f";
+    let userAddress = '';
+    const apiKey = ''; // TonAPI client-side key nếu bạn có (nếu không có thì bỏ qua)
+    const tonApiUrl = 'https://tonapi.io/v2/accounts';
 
-    let userAddress = null;
-
-    tonConnectUI.onStatusChange((walletInfo) => {
-      if (walletInfo && walletInfo.account?.address) {
+    connector.onStatusChange(async walletInfo => {
+      if (walletInfo) {
         userAddress = walletInfo.account.address;
-        document.getElementById("swap").disabled = false;
+        document.getElementById('wallet-info').innerText = 'Địa chỉ ví: ' + userAddress;
+        getBalance();
+        getTxHistory();
       }
     });
 
-    document.getElementById("swap").onclick = async () => {
-      if (!userAddress) {
-        alert("❗ Bạn chưa kết nối ví!");
-        return;
-      }
+    async function getBalance() {
+      const res = await fetch(`${tonApiUrl}/${userAddress}`, {
+        headers: apiKey ? { 'Authorization': 'Bearer ' + apiKey } : {}
+      });
+      const data = await res.json();
+      const ton = Number(data.balance) / 1e9;
+      document.getElementById('balance').innerText = ton.toFixed(3) + ' TON';
+    }
 
-      const recipient = Address.parse(userAddress);
+    async function getTxHistory() {
+      const res = await fetch(`${tonApiUrl}/${userAddress}/transactions?limit=5`, {
+        headers: apiKey ? { 'Authorization': 'Bearer ' + apiKey } : {}
+      });
+      const data = await res.json();
+      const txList = data.transactions.map(tx => {
+        const amount = tx.in_msg?.value ? (Number(tx.in_msg.value) / 1e9).toFixed(3) : '0';
+        const addr = tx.in_msg?.source?.address || 'unknown';
+        return `<li>+${amount} TON từ ${addr}</li>`;
+      });
+      document.getElementById('txs').innerHTML = txList.join('');
+    }
 
-      // Bước 1: Gửi 0.005 TON đến ví của bạn
-      const sendTonTx = {
-        validUntil: Math.floor(Date.now() / 1000) + 600,
-        messages: [
-          {
-            address: OWNER_WALLET,
-            amount: toNano("0.005").toString()
-          }
-        ]
-      };
+    document.getElementById('send-btn').onclick = async () => {
+      const to = document.getElementById('to').value;
+      const amountTON = parseFloat(document.getElementById('amount').value);
+      if (!to || !amountTON) return alert('Điền đầy đủ');
 
-      try {
-        await tonConnectUI.sendTransaction(sendTonTx);
-        alert("✅ Đã gửi 0.005 TON. Đang gửi lại 1000 VIEC...");
+      const amountNano = (amountTON * 1e9).toString();
 
-        // Bước 2: Gửi lại 1000 Jetton (VIEC) từ ví bạn đến user
-        const jettonTransferPayload = beginCell()
-          .storeUint(0xf8a7ea5, 32) // Jetton transfer OP
-          .storeUint(0, 64) // query_id
-          .storeCoins(toNano("1000")) // amount
-          .storeAddress(recipient) // recipient
-          .storeAddress(recipient) // response_address
-          .storeBit(0) // no custom payload
-          .storeCoins(toNano("0.01")) // forward TON
-          .storeBit(0) // no forward payload
-          .endCell();
+      await connector.sendTransaction({
+        validUntil: Math.floor(Date.now() / 1000) + 360,
+        messages: [{
+          address: to,
+          amount: amountNano,
+        }]
+      });
 
-        const jettonTx = {
-          validUntil: Math.floor(Date.now() / 1000) + 600,
-          messages: [
-            {
-              address: JETTON_MASTER,
-              amount: toNano("0.05").toString(), // phí
-              payload: jettonTransferPayload.toBoc().toString("base64")
-            }
-          ]
-        };
-
-        await tonConnectUI.sendTransaction(jettonTx);
-        alert("🎉 Gửi lại 1000 VIEC thành công!");
-      } catch (e) {
-        console.error(e);
-        alert("❌ Lỗi: " + e.message);
-      }
+      alert('Gửi thành công!');
+      getBalance();
+      getTxHistory();
     };
   </script>
 </body>
