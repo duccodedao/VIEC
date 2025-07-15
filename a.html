@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TON Connect Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 40px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #007aff;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #007aff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #005fcc;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #333;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <h1>TON Connect Proof Demo</h1>
+  <button id="connectBtn">Kết nối ví TON</button>
+  <div id="result"></div>
+
+  <script type="module">
+    import { TonConnect } from "https://unpkg.com/@tonconnect/sdk@0.0.44/dist/tonconnect-sdk.min.js";
+
+    const connectBtn = document.getElementById("connectBtn");
+    const resultDiv = document.getElementById("result");
+
+    const connector = new TonConnect({
+      manifestUrl: "https://ton-connect.github.io/demo-dapp-with-backend/tonconnect-manifest.json"
+    });
+
+    connectBtn.addEventListener("click", async () => {
+      try {
+        resultDiv.textContent = "🔄 Đang tạo payload từ backend...";
+        const payloadRes = await fetch("https://your-backend-host.com/ton-proof/generate-payload");
+        const payloadData = await payloadRes.json();
+
+        const connection = await connector.connect({
+          tonProof: {
+            payload: payloadData.payload
+          }
+        });
+
+        const proof = connection?.tonProof;
+        const address = connection?.account?.address;
+
+        if (!proof || !address) {
+          resultDiv.textContent = "⚠️ Không nhận được proof từ ví.";
+          return;
+        }
+
+        resultDiv.textContent = "✅ Đã nhận proof, đang gửi lên backend để xác minh...";
+
+        const checkRes = await fetch("https://your-backend-host.com/ton-proof/check-proof", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            address: address,
+            network: "-239",
+            proof
+          })
+        });
+
+        const checkData = await checkRes.json();
+
+        if (checkData.token) {
+          resultDiv.innerHTML = `<strong>✅ Xác thực thành công!</strong><br/>Địa chỉ: ${address}<br/>Token: ${checkData.token}`;
+        } else {
+          resultDiv.textContent = "❌ Xác thực thất bại.";
+        }
+      } catch (err) {
+        console.error(err);
+        resultDiv.textContent = "❌ Lỗi xảy ra khi kết nối.";
+      }
+    });
+  </script>
+</body>
+</html>
