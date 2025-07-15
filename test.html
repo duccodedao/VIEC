@@ -3,262 +3,376 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TON Connect UI Reference Sample</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>My TON Connect Wallet</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: Arial, sans-serif;
+            margin: 20px;
             background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
             color: #333;
         }
-        .container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 100%;
-            max-width: 450px;
-            box-sizing: border-box;
-            border: 1px solid #e0e0e0;
-        }
-        h1 {
-            color: #007bff;
-            margin-bottom: 25px;
-            font-size: 28px;
-            font-weight: 700;
-        }
-        #wallet-status {
-            margin-bottom: 25px;
-            font-size: 16px;
-            color: #555;
-            min-height: 20px; /* To prevent layout shift */
-        }
-        /* The div where TonConnectUI's button will be inserted */
-        #ton-connect {
-            margin-bottom: 20px;
-            /* TonConnectUI adds its own button styles, but you can wrap it */
-        }
-        .input-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #444;
-        }
-        .input-group input[type="text"],
-        .input-group input[type="number"] {
-            width: calc(100% - 20px);
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 16px;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
-            transition: border-color 0.3s ease;
-        }
-        .input-group input[type="text"]:focus,
-        .input-group input[type="number"]:focus {
-            border-color: #007bff;
-            outline: none;
-        }
-        .message-box {
-            background-color: #e9ecef;
-            border: 1px solid #dee2e6;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            word-wrap: break-word;
-            font-size: 14px;
-            color: #495057;
-            text-align: left;
-            box-sizing: border-box;
-        }
-        .message-box.info { background-color: #e0f7fa; border-color: #80deea; color: #00796b; }
-        .message-box.success { background-color: #e6ffed; border-color: #82e982; color: #1a6d36; }
-        .message-box.warning { background-color: #fffbe6; border-color: #ffe082; color: #8a6d01; }
-        .message-box.error { background-color: #ffe6e6; border-color: #ffadad; color: #d9534f; }
 
-        /* Styling for the Disconnect and Send Transaction buttons */
-        .action-button {
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 {
+            color: #007bff;
+        }
+
+        button {
             background-color: #007bff;
             color: white;
-            padding: 12px 25px;
+            padding: 10px 15px;
             border: none;
-            border-radius: 8px;
+            border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
-            font-weight: 500;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            margin: 8px;
-            min-width: 150px;
+            margin-top: 10px;
+            margin-right: 10px; /* Thêm khoảng cách giữa các nút */
         }
-        .action-button:hover {
+
+        button:hover {
             background-color: #0056b3;
-            transform: translateY(-2px);
         }
-        .action-button:active {
-            transform: translateY(0);
+
+        input[type="text"], input[type="number"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
-        .action-button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
+
+        .jetton-item, .collectible-item {
+            border: 1px solid #eee;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
         }
-        #disconnect-button {
-            background-color: #dc3545; /* Red for disconnect */
+
+        .jetton-item strong, .collectible-item strong {
+            color: #333;
+            margin-right: 5px;
         }
-        #disconnect-button:hover {
-            background-color: #c82333;
+
+        .nft-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        .status-message {
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
     </style>
-    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>TON Connect UI Sample</h1>
-        <div id="wallet-status">Wallet Status: Disconnected</div>
+    <header>
+        <h1>Ví TON Connect của tôi</h1>
+        <div id="ton-connect-button"></div>
+    </header>
 
-        <div id="ton-connect"></div>
+    <main>
+        <section id="wallet-info" style="display: none;">
+            <h2>Thông tin Ví</h2>
+            <p><strong>Địa chỉ:</strong> <span id="walletAddress"></span></p>
+            <p><strong>Số dư (TON):</strong> <span id="tonBalance"></span></p>
+            <button id="disconnectWallet">Ngắt kết nối</button>
+        </section>
 
-        <button id="disconnect-button" class="action-button" style="display: none;">Disconnect Wallet</button>
+        <section id="jetton-list" style="display: none;">
+            <h2>Jetton của bạn</h2>
+            <div id="jettonsContainer">
+                <p>Vui lòng kết nối ví để xem Jetton.</p>
+            </div>
+        </section>
 
-        <h2>Send Transaction</h2>
-        <div class="input-group">
-            <label for="recipient-address">Recipient Address:</label>
-            <input type="text" id="recipient-address" value="UQUD8u8yZSZxAykRWQ_JW4_DEBGbAG4gQ7ZwxSZjWRwMnACHRd" placeholder="Enter recipient address">
-        </div>
-        <div class="input-group">
-            <label for="amount">Amount (TON):</label>
-            <input type="number" id="amount" value="0.001" step="0.0001" min="0">
-        </div>
-        <div class="input-group">
-            <label for="string-tail">String Tail (Payload):</label>
-            <input type="text" id="string-tail" value="m" placeholder="Enter string payload">
-        </div>
+        <section id="collectibles-history" style="display: none;">
+            <h2>Lịch sử Sưu tầm (NFTs)</h2>
+            <div id="collectiblesContainer">
+                <p>Vui lòng kết nối ví để xem Sưu tầm.</p>
+            </div>
+        </section>
 
-        <button id="send-transaction-button" class="action-button" disabled>Send Transaction</button>
+        <section id="send-ton" style="display: none;">
+            <h2>Gửi TON</h2>
+            <input type="text" id="sendToAddress" placeholder="Địa chỉ người nhận (vd: kQB....)" value="">
+            <input type="number" id="sendAmount" placeholder="Số lượng TON (vd: 0.1)" step="0.000000001">
+            <button id="sendTonButton">Gửi TON</button>
+            <p id="sendTonStatus" class="status-message"></p>
+        </section>
 
-        <div class="message-box" id="response-message" style="display: none;"></div>
-    </div>
+    </main>
 
     <script>
-        const manifestUrl = 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json';
-        const twaReturnUrl = 'https://t.me/bmassk3_bot/?startapp='; // URL trả về cho Telegram Web App
+        // Khởi tạo TON Connect UI
+        // BẠN PHẢI thay thế 'https://your-app-domain.com/tonconnect-manifest.json'
+        // bằng URL thực tế nơi file tonconnect-manifest.json của bạn được lưu trữ.
+        // Đối với phát triển cục bộ, bạn có thể cần một máy chủ web cục bộ.
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: 'https://your-app-domain.com/tonconnect-manifest.json', // !!! QUAN TRỌNG: Cập nhật URL này !!!
+            buttonRootId: 'ton-connect-button'
+        });
 
-        let tonConnectUI = null; // Khai báo biến toàn cục
+        const walletInfoSection = document.getElementById('wallet-info');
+        const walletAddressSpan = document.getElementById('walletAddress');
+        const tonBalanceSpan = document.getElementById('tonBalance');
+        const disconnectWalletButton = document.getElementById('disconnectWallet');
 
-        const walletStatusDiv = document.getElementById('wallet-status');
-        const disconnectButton = document.getElementById('disconnect-button');
-        const sendTransactionButton = document.getElementById('send-transaction-button');
-        const recipientAddressInput = document.getElementById('recipient-address');
-        const amountInput = document.getElementById('amount');
-        const stringTailInput = document.getElementById('string-tail');
-        const responseMessageDiv = document.getElementById('response-message');
+        const jettonListSection = document.getElementById('jetton-list');
+        const jettonsContainer = document.getElementById('jettonsContainer');
 
-        // Hàm hiển thị thông báo
-        function displayMessage(message, type) {
-            responseMessageDiv.textContent = message;
-            responseMessageDiv.className = `message-box ${type}`;
-            responseMessageDiv.style.display = 'block';
+        const collectiblesHistorySection = document.getElementById('collectibles-history');
+        const collectiblesContainer = document.getElementById('collectiblesContainer');
+
+        const sendTonSection = document.getElementById('send-ton');
+        const sendToAddressInput = document.getElementById('sendToAddress');
+        const sendAmountInput = document.getElementById('sendAmount');
+        const sendTonButton = document.getElementById('sendTonButton');
+        const sendTonStatus = document.getElementById('sendTonStatus');
+
+        // Hàm định dạng địa chỉ để hiển thị
+        function formatAddress(address) {
+            if (!address) return 'N/A';
+            // Ví dụ: EQCD39VS...xqB2N
+            return `${address.substring(0, 8)}...${address.substring(address.length - 8)}`;
         }
 
-        // Khởi tạo TonConnectUI khi DOM đã sẵn sàng
-        document.addEventListener('DOMContentLoaded', () => {
-            try {
-                tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-                    manifestUrl: manifestUrl,
-                    buttonRootId: 'ton-connect', // TonConnectUI sẽ chèn nút vào div này
-                    actionsConfiguration: {
-                        twaReturnUrl: twaReturnUrl // Thiết lập URL trả về cho TWA
-                    }
-                });
+        // Hàm cập nhật thông báo trạng thái
+        function setStatusMessage(element, message, type = '') {
+            element.textContent = message;
+            element.className = 'status-message'; // Đặt lại các lớp
+            if (type === 'success') {
+                element.classList.add('status-success');
+            } else if (type === 'error') {
+                element.classList.add('status-error');
+            }
+        }
 
-                // Lắng nghe sự thay đổi trạng thái ví
-                tonConnectUI.onStatusChange(wallet => {
-                    if (wallet) {
-                        walletStatusDiv.textContent = `Wallet Status: Connected (${wallet.account.address})`;
-                        disconnectButton.style.display = 'inline-block';
-                        sendTransactionButton.disabled = false;
-                        displayMessage(`Connected to wallet: ${wallet.account.address}`, 'success');
-                    } else {
-                        walletStatusDiv.textContent = 'Wallet Status: Disconnected';
-                        disconnectButton.style.display = 'none';
-                        sendTransactionButton.disabled = true;
-                        displayMessage('Wallet disconnected.', 'info');
-                    }
-                });
+        // Hàm lấy và hiển thị thông tin ví
+        async function fetchWalletInfo(address) {
+            try {
+                const response = await fetch(`https://tonapi.io/v2/accounts/${address}`);
+                if (!response.ok) throw new Error(`Lỗi HTTP! Trạng thái: ${response.status}`);
+                const data = await response.json();
+
+                // Hiển thị số dư TON
+                const balanceNano = data.balance; // Số dư tính bằng nanotons
+                tonBalanceSpan.textContent = `${(balanceNano / 1e9).toFixed(4)} TON`; // Chuyển đổi sang TON
+
+                // Hiển thị các phần
+                walletInfoSection.style.display = 'block';
+                jettonListSection.style.display = 'block';
+                collectiblesHistorySection.style.display = 'block';
+                sendTonSection.style.display = 'block';
 
             } catch (error) {
-                console.error("Lỗi khi khởi tạo TonConnectUI:", error);
-                displayMessage(`Lỗi khởi tạo TonConnectUI: ${error.message}. Vui lòng kiểm tra console.`, 'error');
+                console.error('Lỗi khi lấy thông tin ví:', error);
+                tonBalanceSpan.textContent = 'Lỗi tải số dư.';
+                setStatusMessage(sendTonStatus, `Lỗi tải thông tin ví: ${error.message}`, 'error');
+            }
+        }
+
+        // Hàm lấy và hiển thị Jetton
+        async function fetchJettons(address) {
+            jettonsContainer.innerHTML = '<p>Đang tải Jetton...</p>';
+            try {
+                const response = await fetch(`https://tonapi.io/v2/accounts/${address}/jettons`);
+                if (!response.ok) throw new Error(`Lỗi HTTP! Trạng thái: ${response.status}`);
+                const data = await response.json();
+
+                if (data.balances && data.balances.length > 0) {
+                    jettonsContainer.innerHTML = ''; // Xóa thông báo tải
+                    data.balances.forEach(jetton => {
+                        const jettonDiv = document.createElement('div');
+                        jettonDiv.classList.add('jetton-item');
+                        const balance = parseFloat(jetton.balance) / (10 ** jetton.jetton.decimals);
+                        jettonDiv.innerHTML = `
+                            <strong>${jetton.jetton.symbol || 'N/A'}</strong>: ${balance.toFixed(Math.min(jetton.jetton.decimals, 6))} (${jetton.jetton.name || 'Không xác định'})
+                        `;
+                        jettonsContainer.appendChild(jettonDiv);
+                    });
+                } else {
+                    jettonsContainer.innerHTML = '<p>Không tìm thấy Jetton nào cho địa chỉ này.</p>';
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy Jetton:', error);
+                jettonsContainer.innerHTML = '<p>Lỗi tải Jetton.</p>';
+            }
+        }
+
+        // Hàm lấy và hiển thị lịch sử Sưu tầm (NFTs)
+        async function fetchCollectiblesHistory(address) {
+            collectiblesContainer.innerHTML = '<p>Đang tải Sưu tầm...</p>';
+            try {
+                // Endpoint của TONAPI cho NFTs liên quan đến một tài khoản
+                const response = await fetch(`https://tonapi.io/v2/accounts/${address}/nfts`);
+                if (!response.ok) throw new Error(`Lỗi HTTP! Trạng thái: ${response.status}`);
+                const data = await response.json();
+
+                if (data.nft_items && data.nft_items.length > 0) {
+                    collectiblesContainer.innerHTML = ''; // Xóa thông báo tải
+                    data.nft_items.forEach(nft => {
+                        const nftDiv = document.createElement('div');
+                        nftDiv.classList.add('collectible-item');
+
+                        const imageUrl = nft.previews && nft.previews.length > 0 ? nft.previews[0].url : 'https://via.placeholder.com/50?text=NFT';
+                        
+                        nftDiv.innerHTML = `
+                            <img src="${imageUrl}" alt="${nft.metadata.name || 'Ảnh NFT'}" class="nft-image">
+                            <div>
+                                <strong>${nft.metadata.name || 'NFT không tên'}</strong>
+                                <p>Bộ sưu tập: ${nft.collection.name || 'Bộ sưu tập không xác định'}</p>
+                            </div>
+                        `;
+                        collectiblesContainer.appendChild(nftDiv);
+                    });
+                } else {
+                    collectiblesContainer.innerHTML = '<p>Không tìm thấy Sưu tầm nào cho địa chỉ này.</p>';
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy Sưu tầm:', error);
+                collectiblesContainer.innerHTML = '<p>Lỗi tải Sưu tầm.</p>';
+            }
+        }
+
+        // Xử lý thay đổi trạng thái kết nối ví
+        tonConnectUI.onStatusChange(async (wallet) => {
+            if (wallet && wallet.account) {
+                const connectedAddress = wallet.account.address;
+                walletAddressSpan.textContent = formatAddress(connectedAddress);
+                console.log('Ví đã kết nối:', connectedAddress);
+
+                // Lấy và hiển thị dữ liệu ví
+                await fetchWalletInfo(connectedAddress);
+                await fetchJettons(connectedAddress);
+                await fetchCollectiblesHistory(connectedAddress);
+
+            } else {
+                // Ví đã ngắt kết nối hoặc chưa kết nối
+                console.log('Ví đã ngắt kết nối.');
+                walletInfoSection.style.display = 'none';
+                jettonListSection.style.display = 'none';
+                collectiblesHistorySection.style.display = 'none';
+                sendTonSection.style.display = 'none';
+                walletAddressSpan.textContent = 'N/A';
+                tonBalanceSpan.textContent = 'N/A';
+                jettonsContainer.innerHTML = '<p>Vui lòng kết nối ví để xem Jetton.</p>';
+                collectiblesContainer.innerHTML = '<p>Vui lòng kết nối ví để xem Sưu tầm.</p>';
+                setStatusMessage(sendTonStatus, '', ''); // Xóa trạng thái gửi
             }
         });
 
-        // Xử lý sự kiện cho nút Disconnect Wallet
-        disconnectButton.addEventListener('click', async () => {
-            if (!tonConnectUI) return;
-            try {
-                await tonConnectUI.disconnect();
-                displayMessage('Ví đã ngắt kết nối.', 'info');
-            } catch (error) {
-                console.error("Lỗi khi ngắt kết nối ví:", error);
-                displayMessage(`Lỗi khi ngắt kết nối: ${error.message}`, 'error');
-            }
+        // Lắng nghe sự kiện click nút ngắt kết nối
+        disconnectWalletButton.addEventListener('click', () => {
+            tonConnectUI.disconnect();
+            setStatusMessage(sendTonStatus, '', ''); // Xóa trạng thái gửi khi ngắt kết nối
         });
 
-        // Xử lý sự kiện cho nút Send Transaction
-        sendTransactionButton.addEventListener('click', async () => {
-            if (!tonConnectUI || !tonConnectUI.connected) {
-                displayMessage("Vui lòng kết nối ví của bạn trước.", 'warning');
+        // Chức năng gửi TON
+        sendTonButton.addEventListener('click', async () => {
+            const recipientAddress = sendToAddressInput.value.trim();
+            const amountTon = parseFloat(sendAmountInput.value);
+
+            if (!recipientAddress || !amountTon || isNaN(amountTon) || amountTon <= 0) {
+                setStatusMessage(sendTonStatus, 'Vui lòng nhập địa chỉ người nhận hợp lệ và số lượng dương.', 'error');
                 return;
             }
 
-            const recipientAddress = recipientAddressInput.value.trim();
-            const amountTON = parseFloat(amountInput.value);
-            const stringTail = stringTailInput.value;
-
-            if (!recipientAddress || isNaN(amountTON) || amountTON <= 0) {
-                displayMessage("Vui lòng nhập địa chỉ người nhận hợp lệ và số tiền lớn hơn 0.", 'warning');
+            if (!tonConnectUI.wallet) {
+                setStatusMessage(sendTonStatus, 'Vui lòng kết nối ví trước.', 'error');
                 return;
             }
 
-            const amountNanoTONs = (amountTON * 1_000_000_000).toString();
+            // Chuyển đổi TON sang nanotons
+            const amountNano = Math.round(amountTon * 1e9);
 
             try {
-                displayMessage("Đang gửi giao dịch...", 'info');
+                setStatusMessage(sendTonStatus, 'Đang gửi giao dịch...', '');
                 const transaction = {
-                    validUntil: Math.floor(Date.now() / 1000) + 360,
+                    validUntil: Math.floor(Date.now() / 1000) + 60, // Hiệu lực 60 giây
                     messages: [
                         {
                             address: recipientAddress,
-                            amount: amountNanoTONs,
-                            payload: {
-                                text: stringTail, // StringTail của bạn
-                            },
-                        },
-                    ],
+                            amount: amountNano.toString(),
+                        }
+                    ]
                 };
 
                 const result = await tonConnectUI.sendTransaction(transaction);
+                console.log('Giao dịch đã gửi:', result);
+                setStatusMessage(sendTonStatus, `Giao dịch đã gửi thành công! TXID: ${result.boc.substring(0, 30)}...`, 'success');
+                
+                // Tùy chọn: Cập nhật số dư sau khi giao dịch thành công
+                if (tonConnectUI.wallet && tonConnectUI.wallet.account) {
+                    await fetchWalletInfo(tonConnectUI.wallet.account.address);
+                }
 
-                console.log('Giao dịch gửi thành công:', result);
-                displayMessage(`Giao dịch gửi thành công! Tx BOC: ${result.boc}`, 'success');
             } catch (error) {
                 console.error('Lỗi khi gửi giao dịch:', error);
-                if (error.name === 'UserRejectsError') {
-                    displayMessage('Giao dịch đã bị người dùng từ chối.', 'warning');
-                } else {
-                    displayMessage(`Gửi giao dịch thất bại: ${error.message}`, 'error');
+                let errorMessage = 'Không thể gửi giao dịch.';
+                if (error.message.includes('User rejected the transaction')) {
+                    errorMessage = 'Giao dịch bị người dùng từ chối.';
+                } else if (error.message.includes('Invalid address')) {
+                    errorMessage = 'Địa chỉ người nhận không hợp lệ.';
                 }
+                setStatusMessage(sendTonStatus, `${errorMessage} Chi tiết: ${error.message}`, 'error');
             }
         });
+
+        // Kiểm tra ban đầu nếu ví đã kết nối khi tải trang
+        if (tonConnectUI.wallet && tonConnectUI.wallet.account) {
+            tonConnectUI.onStatusChange((wallet) => {
+                if (wallet && wallet.account) {
+                    const connectedAddress = wallet.account.address;
+                    walletAddressSpan.textContent = formatAddress(connectedAddress);
+                    fetchWalletInfo(connectedAddress);
+                    fetchJettons(connectedAddress);
+                    fetchCollectiblesHistory(connectedAddress);
+                }
+            }, true); // Tham số `true` sẽ gọi lại callback ngay lập tức nếu ví đã kết nối.
+        }
     </script>
 </body>
 </html>
