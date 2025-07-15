@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TON DEX Lite Demo</title>
+    <title>TON DEX Lite Demo (Updated)</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -93,6 +93,7 @@
             padding: 12px;
             border-radius: 8px;
             font-weight: 500;
+            word-break: break-all; /* Allow long messages to wrap */
         }
         .message.success {
             background-color: #d4edda;
@@ -126,13 +127,13 @@
         }
         .swap-inputs input, .swap-inputs select {
             margin-bottom: 0;
-            width: calc(100% - 2px); /* Adjust for border */
+            width: calc(100% - 2px);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>TON DEX Lite Demo</h1>
+        <h1>TON DEX Lite Demo (Updated)</h1>
 
         <div class="section" id="connectWalletSection">
             <h2>Kết nối ví TON</h2>
@@ -140,6 +141,7 @@
             <div id="walletInfo" style="display: none;">
                 <p>Địa chỉ ví: <span id="walletAddressDisplay"></span></p>
                 <p>Số dư TON: <span id="walletBalanceDisplay"></span></p>
+                <button id="disconnectWalletBtn" class="btn-secondary">Ngắt kết nối ví</button>
             </div>
             <p class="message" id="connectionMessage"></p>
         </div>
@@ -170,17 +172,10 @@
             <button id="swapBtn">Swap Now</button>
             <p class="message" id="swapMessage"></p>
         </div>
-
-        <div class="section" id="liquidityFunctions" style="display: none;">
-            <h2>Cung cấp thanh khoản (Tùy chọn)</h2>
-            <p>Tính năng này yêu cầu các smart contract phức tạp hơn để thêm/bớt thanh khoản.</p>
-            <button disabled>Thêm thanh khoản (Chưa hỗ trợ)</button>
-            <button disabled>Bớt thanh khoản (Chưa hỗ trợ)</button>
-        </div>
     </div>
 
     <script src="https://unpkg.com/tonweb/dist/tonweb.js"></script>
-    <script src="https://unpkg.com/@tonconnect/sdk@2.3.0/dist/ton-connect-sdk.js"></script>
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
     <script>
         // --- CẤU HÌNH ---
@@ -188,23 +183,31 @@
         // TRONG THỰC TẾ, ĐÂY PHẢI LÀ ĐỊA CHỈ HỢP ĐỒNG AMM CỦA BẠN ĐÃ TRIỂN KHAI.
         const AMM_CONTRACT_ADDRESS = 'EQDk_XjY48E4o3u47tqPj6d1r1C3Vw7hP2Z7sN0o9a2w3L4p'; // Một địa chỉ testnet ngẫu nhiên
         const TON_API_URL = 'https://testnet.toncenter.com/api/v2/jsonRPC'; // Sử dụng Testnet
+        
+        // MANIFEST URL: CỰC KỲ QUAN TRỌNG CHO TON CONNECT
+        // Đây là một file JSON mô tả ứng dụng của bạn cho ví.
+        // Nó phải được host trên một máy chủ công khai và an toàn (HTTPS).
+        // Thay thế URL này bằng URL manifest của riêng bạn.
+        // Ví dụ này sử dụng manifest mẫu từ TON Connect SDK, có thể cần cập nhật tùy theo phiên bản và mục đích sử dụng.
+        const MANIFEST_URL = 'https://raw.githubusercontent.com/ton-community/tutorials/main/03-client_side_deeplinks/tonconnect-manifest.json';
+
 
         // --- GLOBAL VARIABLES ---
         const tonweb = new TonWeb(new TonWeb.HttpProvider(TON_API_URL));
-        let tonConnectUI = null; // Biến cho TON Connect UI
+        let tonConnectUI = null;
         let walletConnected = false;
         let userAddress = null;
 
         // --- DOM Elements ---
         const connectWalletSection = document.getElementById('connectWalletSection');
         const connectWalletBtn = document.getElementById('connectWalletBtn');
+        const disconnectWalletBtn = document.getElementById('disconnectWalletBtn');
         const walletInfo = document.getElementById('walletInfo');
         const walletAddressDisplay = document.getElementById('walletAddressDisplay');
         const walletBalanceDisplay = document.getElementById('walletBalanceDisplay');
         const connectionMessage = document.getElementById('connectionMessage');
 
         const dexFunctions = document.getElementById('dexFunctions');
-        const liquidityFunctions = document.getElementById('liquidityFunctions');
         const fromAmountInput = document.getElementById('fromAmount');
         const fromTokenSelect = document.getElementById('fromToken');
         const toAmountInput = document.getElementById('toAmount');
@@ -227,16 +230,19 @@
 
         async function updateWalletInfo() {
             if (tonConnectUI && tonConnectUI.connected) {
+                walletConnected = true;
                 userAddress = tonConnectUI.account.address;
                 walletAddressDisplay.textContent = userAddress;
                 walletInfo.style.display = 'block';
                 dexFunctions.style.display = 'block';
-                // liquidityFunctions.style.display = 'block'; // Có thể hiển thị hoặc ẩn tùy ý
-                connectWalletBtn.textContent = 'Đã kết nối';
-                connectWalletBtn.disabled = true;
+                connectWalletBtn.style.display = 'none'; // Ẩn nút kết nối khi đã kết nối
+                disconnectWalletBtn.style.display = 'block'; // Hiển thị nút ngắt kết nối
 
                 // Lấy số dư TON
                 try {
+                    // Để lấy số dư, chúng ta cần một đối tượng TonWeb.Wallet
+                    // Tuy nhiên, tonConnectUI.account không cung cấp secretKey,
+                    // nên chúng ta chỉ có thể query số dư bằng địa chỉ.
                     const wallet = new TonWeb.Experimental.Wallet({
                         address: new TonWeb.utils.Address(userAddress),
                         tonweb: tonweb
@@ -251,45 +257,47 @@
                     displayMessage(connectionMessage, `Lỗi khi lấy số dư: ${error.message}`, 'error');
                 }
             } else {
+                walletConnected = false;
                 walletInfo.style.display = 'none';
                 dexFunctions.style.display = 'none';
-                // liquidityFunctions.style.display = 'none';
-                connectWalletBtn.textContent = 'Kết nối ví (Tonkeeper / MyTonWallet)';
-                connectWalletBtn.disabled = false;
+                connectWalletBtn.style.display = 'block'; // Hiển thị lại nút kết nối
+                disconnectWalletBtn.style.display = 'none'; // Ẩn nút ngắt kết nối
                 userAddress = null;
+                walletBalanceDisplay.textContent = '';
             }
         }
 
         // --- TON Connect Integration ---
         async function initTonConnect() {
             if (!window.TonConnectUI) {
-                displayMessage(connectionMessage, "Thư viện TON Connect SDK không được tải. Vui lòng kiểm tra kết nối mạng.", 'error');
+                displayMessage(connectionMessage, "Thư viện TON Connect UI SDK không được tải. Vui lòng kiểm tra kết nối mạng hoặc thử lại.", 'error');
                 return;
             }
 
-            // Khởi tạo TON Connect UI
-            tonConnectUI = new TonConnectUI.TonConnectUI({
-                manifestUrl: 'https://raw.githubusercontent.com/ton-community/tutorials/main/03-client_side_deeplinks/tonconnect-manifest.json', // Thay bằng manifest của bạn
-                connector: new TonConnectSDK.TonConnect({
-                    manifestUrl: 'https://raw.githubusercontent.com/ton-community/tutorials/main/03-client_side_deeplinks/tonconnect-manifest.json'
-                })
-            });
+            try {
+                // Khởi tạo TonConnectUI
+                tonConnectUI = new TonConnectUI.TonConnectUI({
+                    manifestUrl: MANIFEST_URL,
+                    // Bạn có thể thêm các tùy chọn khác tại đây nếu cần
+                });
 
-            // Lắng nghe trạng thái kết nối
-            tonConnectUI.onStatusChange(async (wallet) => {
-                if (wallet) {
-                    walletConnected = true;
-                    displayMessage(connectionMessage, `Đã kết nối với ví: ${wallet.account.address}`, 'success');
-                } else {
-                    walletConnected = false;
-                    displayMessage(connectionMessage, "Ví đã bị ngắt kết nối.", 'error');
-                }
-                await updateWalletInfo();
-            });
+                // Lắng nghe trạng thái kết nối
+                tonConnectUI.onStatusChange(async (wallet) => {
+                    if (wallet) {
+                        displayMessage(connectionMessage, `Đã kết nối với ví: ${wallet.account.address}`, 'success');
+                    } else {
+                        displayMessage(connectionMessage, "Ví đã bị ngắt kết nối.", 'error');
+                    }
+                    await updateWalletInfo(); // Cập nhật giao diện dựa trên trạng thái kết nối
+                });
 
-            // Cố gắng tự động kết nối nếu có session cũ
-            await tonConnectUI.restoreConnection();
-            await updateWalletInfo();
+                // Cố gắng tự động khôi phục kết nối nếu có session cũ
+                await tonConnectUI.restoreConnection();
+                await updateWalletInfo(); // Cập nhật giao diện sau khi khôi phục
+            } catch (error) {
+                console.error("Lỗi khởi tạo TON Connect UI:", error);
+                displayMessage(connectionMessage, `Lỗi khởi tạo TON Connect UI: ${error.message}. Đảm bảo manifestUrl đúng và có thể truy cập.`, 'error');
+            }
         }
 
         // --- Swap Logic (Minh họa) ---
@@ -314,14 +322,8 @@
                 return;
             }
 
-            // --- ĐÂY LÀ PHẦN QUAN TRỌNG NHẤT CỦA DEX: GỌI SMART CONTRACT AMM ---
-            // Trong một DEX thực tế:
-            // 1. Bạn sẽ cần gọi một phương thức "get" trên hợp đồng AMM để ước tính số lượng token nhận được.
-            //    Ví dụ: await ammMockContract.methods.getAmountOut(fromAmount, fromToken, toToken).call();
-            // 2. Nếu swap từ Jetton, bạn cần gửi lệnh "deposit" hoặc "transfer" Jetton tới hợp đồng AMM.
-            // 3. Nếu swap từ TON, bạn sẽ gửi TON trực tiếp đến hợp đồng AMM với một payload cụ thể.
-
-            let estimatedReceiveAmount = fromAmount * 0.99; // Ước tính đơn giản cho demo (trừ phí)
+            // Ước tính số lượng nhận được (chỉ là minh họa, không phải tính toán AMM thực tế)
+            let estimatedReceiveAmount = fromAmount * 0.99; 
 
             displayMessage(swapMessage, `Đang chuẩn bị giao dịch swap ${fromAmount} ${fromToken} lấy ${toToken}...`, 'success');
             swapBtn.disabled = true;
@@ -331,31 +333,29 @@
 
                 // Payload cho giao dịch swap
                 // Đây là một ví dụ MINH HỌA về cấu trúc payload
-                // Payload thực tế sẽ phụ thuộc vào thiết kế smart contract AMM của bạn
-                // Thường sẽ là Cell để định nghĩa loại giao dịch, số lượng tối thiểu nhận được, v.v.
+                // Payload thực tế sẽ PHỤ THUỘC vào thiết kế smart contract AMM của bạn
+                // Thường sẽ là một Cell để định nghĩa loại giao dịch, số lượng tối thiểu nhận được, v.v.
                 const payload = new TonWeb.boc.Builder()
                     .storeUint(0x1, 32) // Opcode cho swap (giả định)
-                    .storeUint(0, 64) // Query ID
-                    .storeCoins(amountInNano) // Lượng token gửi đi
+                    .storeUint(0, 64)   // Query ID (giả định)
                     .storeAddress(new TonWeb.utils.Address(userAddress)) // Địa chỉ người nhận sau swap
-                    .storeUint(1, 1) // Ví dụ: 1 cho TON, 0 cho Jetton (để swap từ)
-                    .endCell();
+                    .endCell(); // Thêm các tham số khác tùy theo hợp đồng AMM của bạn
 
                 const transaction = {
                     validUntil: Math.floor(Date.now() / 1000) + 300, // Giao dịch hợp lệ trong 5 phút
                     messages: [
                         {
-                            address: AMM_CONTRACT_ADDRESS, // Địa chỉ hợp đồng AMM của bạn
+                            address: AMM_CONTRACT_ADDRESS, // Địa chỉ hợp đồng AMM của bạn (giả định)
                             amount: amountInNano.toString(), // Số lượng TON gửi đi (nếu swap từ TON)
-                            payload: payload.toBoc().toString('base64'), // Payload đã mã hóa
+                            payload: payload.toBoc().toString('base64'), // Payload đã mã hóa thành base64
                         },
                     ],
                 };
 
-                // Gửi giao dịch thông qua ví của người dùng
+                // Gửi giao dịch thông qua ví của người dùng bằng TON Connect UI
                 const result = await tonConnectUI.sendTransaction(transaction);
 
-                displayMessage(swapMessage, `Swap thành công! TX Hash: ${result.boc}\nKiểm tra trên explorer.`, 'success');
+                displayMessage(swapMessage, `Swap thành công! TX BOC Hash: ${result.boc.slice(0, 30)}...\nKiểm tra trên explorer.`, 'success');
                 fromAmountInput.value = '';
                 toAmountInput.value = '';
                 await updateWalletInfo(); // Cập nhật số dư sau swap
@@ -363,7 +363,10 @@
                 console.error("Lỗi khi swap:", error);
                 if (error.message.includes('User rejected the transaction')) {
                      displayMessage(swapMessage, "Người dùng đã từ chối giao dịch.", 'error');
-                } else {
+                } else if (error.message.includes('Invalid address') || error.message.includes('Invalid wallet address')) {
+                    displayMessage(swapMessage, "Địa chỉ hợp đồng AMM không hợp lệ. Vui lòng kiểm tra lại cấu hình hoặc đảm bảo đây là địa chỉ ví TON hợp lệ.", 'error');
+                }
+                else {
                      displayMessage(swapMessage, `Lỗi khi swap: ${error.message}`, 'error');
                 }
             } finally {
@@ -372,11 +375,24 @@
         }
 
         // --- Event Listeners ---
-        connectWalletBtn.addEventListener('click', () => {
+        connectWalletBtn.addEventListener('click', async () => {
             if (tonConnectUI) {
-                tonConnectUI.connectWallet();
+                try {
+                    // Gọi tonConnectUI.connectWallet() để hiển thị modal kết nối ví
+                    await tonConnectUI.connectWallet();
+                } catch (error) {
+                    console.error("Lỗi khi gọi connectWallet:", error);
+                    displayMessage(connectionMessage, `Không thể mở cửa sổ kết nối ví: ${error.message}. Đảm bảo bạn đã cài đặt ví TON (như Tonkeeper) và trình duyệt cho phép pop-up.`, 'error');
+                }
             } else {
-                displayMessage(connectionMessage, "TON Connect SDK chưa được khởi tạo.", 'error');
+                displayMessage(connectionMessage, "TON Connect UI SDK chưa được khởi tạo. Vui lòng thử tải lại trang.", 'error');
+            }
+        });
+
+        disconnectWalletBtn.addEventListener('click', async () => {
+            if (tonConnectUI) {
+                await tonConnectUI.disconnect();
+                displayMessage(connectionMessage, "Đã ngắt kết nối ví.", 'success');
             }
         });
 
@@ -393,7 +409,7 @@
         });
 
 
-        // Khởi tạo TON Connect khi trang tải
+        // Khởi tạo TON Connect UI khi DOM đã tải hoàn chỉnh
         document.addEventListener('DOMContentLoaded', initTonConnect);
     </script>
 </body>
