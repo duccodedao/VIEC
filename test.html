@@ -1,121 +1,462 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>TON Wallet Web</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- TON Libraries -->
-  <script src="https://unpkg.com/@ton/crypto@latest"></script>
-  <script src="https://unpkg.com/@ton/core@latest"></script>
-  <script src="https://unpkg.com/@ton/ton@latest"></script>
-  <style>
-    body { font-family: sans-serif; padding: 20px; background: #f7f9fc; }
-    h2 { color: #007acc; }
-    textarea, input { width: 100%; padding: 10px; margin: 5px 0; font-size: 14px; }
-    button { padding: 10px 20px; margin: 10px 0; background: #007acc; color: white; border: none; cursor: pointer; }
-    .box { background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 0 10px #ccc; margin-top: 20px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TON Web Wallet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        h1 {
+            color: #007bff;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+        .section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+        .section h2 {
+            color: #007bff;
+            margin-top: 0;
+            font-size: 1.4em;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            text-align: left;
+        }
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: calc(100% - 20px);
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            margin-top: 10px;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .wallet-info p {
+            word-break: break-all;
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: left;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        .wallet-info strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+        #walletFunctions {
+            display: none; /* Ẩn cho đến khi ví được tạo/nhập */
+        }
+        .tab-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        .tab-button {
+            background-color: #e9ecef;
+            color: #333;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+        .tab-button.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        #accountBalance, #tonAddressDisplay {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #28a745; /* Green for balance */
+        }
+    </style>
 </head>
 <body>
-  <h2>🦄 TON Wallet Web</h2>
+    <div class="container">
+        <h1>TON Web Wallet</h1>
 
-  <button onclick="createWallet()">Tạo ví mới</button>
-  <button onclick="loadWallet()">Đăng nhập bằng private key</button>
+        <div id="authSection" class="section">
+            <h2>Tạo / Đăng nhập ví</h2>
+            <button id="createWalletBtn">Tạo ví mới</button>
+            <p style="margin: 15px 0;">Hoặc</p>
+            <label for="privateKeyInput">Nhập Private Key hoặc Seed Phrase:</label>
+            <textarea id="privateKeyInput" rows="3" placeholder="Nhập Private Key (HEX) hoặc 24 từ Seed Phrase của bạn..."></textarea>
+            <button id="importWalletBtn">Đăng nhập</button>
+            <p class="message" id="authMessage"></p>
+        </div>
 
-  <div id="wallet" class="box" style="display:none;">
-    <h3>🎒 Ví của bạn</h3>
-    <p><b>Địa chỉ:</b> <span id="wallet-address"></span></p>
-    <p><b>Số dư:</b> <span id="wallet-balance"></span> TON</p>
+        <div id="walletFunctions">
+            <div class="section wallet-info">
+                <h2>Thông tin ví</h2>
+                <p>Địa chỉ ví: <span id="tonAddressDisplay"></span></p>
+                <p>Số dư: <span id="accountBalance">0.00</span> TON</p>
+                <p class="message" id="balanceMessage"></p>
+                <button id="refreshBalanceBtn" class="btn-secondary">Cập nhật số dư</button>
+            </div>
 
-    <h4>Gửi TON hoặc Jetton</h4>
-    <input type="text" id="to-address" placeholder="Địa chỉ người nhận">
-    <input type="number" id="amount" placeholder="Số TON hoặc Jetton">
-    <input type="text" id="jetton" placeholder="Jetton Address (để trống nếu gửi TON)">
-    <button onclick="send()">Gửi</button>
-  </div>
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="sendTab">Gửi TON</button>
+                <button class="tab-button" data-tab="receiveTab">Nhận TON</button>
+            </div>
 
-  <div class="box" id="keys-box" style="display:none;">
-    <h4>🔐 Private Key hoặc Seed</h4>
-    <textarea id="wallet-keys" rows="4"></textarea>
-  </div>
+            <div id="sendTab" class="tab-content active section">
+                <h2>Gửi TON</h2>
+                <label for="recipientAddress">Địa chỉ người nhận:</label>
+                <input type="text" id="recipientAddress" placeholder="E.g., EQxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
 
-  <script>
-    const { mnemonicNew, mnemonicToPrivateKey } = tonCrypto;
-    const { TonClient, WalletContractV4, Address, fromNano, toNano } = ton;
+                <label for="amountToSend">Số lượng TON:</label>
+                <input type="number" id="amountToSend" step="0.000000001" placeholder="0.00">
 
-    let client, wallet;
+                <label for="sendComment">Ghi chú (tùy chọn):</label>
+                <input type="text" id="sendComment" placeholder="Ghi chú giao dịch">
 
-    async function createWallet() {
-      const mnemonics = await mnemonicNew(24);
-      const key = await mnemonicToPrivateKey(mnemonics);
-      wallet = WalletContractV4.create({ workchain: 0, publicKey: key.publicKey });
-      localStorage.setItem("pk", Buffer.from(key.secretKey).toString("hex"));
+                <button id="sendTonBtn">Gửi TON</button>
+                <p class="message" id="sendMessage"></p>
+            </div>
 
-      document.getElementById("wallet-keys").value = mnemonics.join(" ");
-      document.getElementById("keys-box").style.display = "block";
-      await showWallet();
-    }
+            <div id="receiveTab" class="tab-content section">
+                <h2>Nhận TON</h2>
+                <p>Chia sẻ địa chỉ ví của bạn để nhận TON:</p>
+                <p class="wallet-info"><strong style="color: #007bff;">Địa chỉ của bạn:</strong> <span id="receiveAddressDisplay"></span></p>
+                <p>Bạn có thể quét mã QR này:</p>
+                <div id="qrcode" style="margin: 20px auto; width: 128px; height: 128px;"></div>
+            </div>
 
-    async function loadWallet() {
-      const pk = prompt("Nhập private key (hex):");
-      if (!pk) return;
-      const key = {
-        publicKey: tonCrypto.keyPairFromSecretKey(Buffer.from(pk, "hex")).publicKey,
-        secretKey: Buffer.from(pk, "hex")
-      };
-      wallet = WalletContractV4.create({ workchain: 0, publicKey: key.publicKey });
-      localStorage.setItem("pk", pk);
-      await showWallet();
-    }
+            <button id="logoutBtn" class="btn-secondary">Đăng xuất</button>
+        </div>
+    </div>
 
-    async function showWallet() {
-      client = new TonClient({ endpoint: "https://toncenter.com/api/v2/jsonRPC" });
+    <script src="https://unpkg.com/tonweb/dist/tonweb.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
-      const addr = wallet.address.toString({ testOnly: false });
-      document.getElementById("wallet-address").textContent = addr;
+    <script>
+        // Khởi tạo TonWeb với endpoint Toncenter Testnet (hoặc Mainnet nếu có API Key)
+        // **LƯU Ý:** Để chạy trên Mainnet hoặc truy cập Toncenter API ổn định,
+        // bạn có thể cần đăng ký API Key từ Toncenter (toncenter.com) hoặc sử dụng các nhà cung cấp khác.
+        // Để demo, chúng ta dùng Testnet công cộng.
+        const TON_API_URL = 'https://testnet.toncenter.com/api/v2/jsonRPC';
+        const tonweb = new TonWeb(new TonWeb.HttpProvider(TON_API_URL));
 
-      const balance = await client.getBalance(wallet.address);
-      document.getElementById("wallet-balance").textContent = fromNano(balance);
+        let currentWallet = null;
+        let currentKeyPair = null;
+        let currentWalletAddress = null;
 
-      document.getElementById("wallet").style.display = "block";
-    }
+        // --- DOM Elements ---
+        const authSection = document.getElementById('authSection');
+        const walletFunctions = document.getElementById('walletFunctions');
+        const createWalletBtn = document.getElementById('createWalletBtn');
+        const importWalletBtn = document.getElementById('importWalletBtn');
+        const privateKeyInput = document.getElementById('privateKeyInput');
+        const authMessage = document.getElementById('authMessage');
 
-    async function send() {
-      const to = document.getElementById("to-address").value;
-      const amount = document.getElementById("amount").value;
-      const jetton = document.getElementById("jetton").value;
+        const tonAddressDisplay = document.getElementById('tonAddressDisplay');
+        const accountBalance = document.getElementById('accountBalance');
+        const balanceMessage = document.getElementById('balanceMessage');
+        const refreshBalanceBtn = document.getElementById('refreshBalanceBtn');
 
-      const seqno = await wallet.getSeqno(client);
-      const secretKey = Buffer.from(localStorage.getItem("pk"), "hex");
-      const keyPair = tonCrypto.keyPairFromSecretKey(secretKey);
+        const recipientAddressInput = document.getElementById('recipientAddress');
+        const amountToSendInput = document.getElementById('amountToSend');
+        const sendCommentInput = document.getElementById('sendComment');
+        const sendTonBtn = document.getElementById('sendTonBtn');
+        const sendMessage = document.getElementById('sendMessage');
 
-      if (!jetton) {
-        // Gửi TON
-        await wallet.sendTransfer({
-          secretKey,
-          seqno,
-          messages: [{
-            to: Address.parse(to),
-            value: toNano(amount),
-            body: null
-          }]
-        }, client);
-        alert("Đã gửi TON!");
-      } else {
-        // Gửi Jetton
-        const { JettonWallet } = ton;
-        const jettonWallet = await JettonWallet.create(client, Address.parse(jetton), wallet.address);
-        await jettonWallet.sendTransfer({
-          secretKey,
-          to: Address.parse(to),
-          amount: toNano(amount),
-          seqno
+        const receiveAddressDisplay = document.getElementById('receiveAddressDisplay');
+        const qrcodeDiv = document.getElementById('qrcode');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // --- Helper Functions ---
+        function displayMessage(element, message, type) {
+            element.textContent = message;
+            element.className = `message ${type}`;
+            element.style.display = 'block';
+        }
+
+        function hideMessage(element) {
+            element.textContent = '';
+            element.className = 'message';
+            element.style.display = 'none';
+        }
+
+        function showWalletUI() {
+            authSection.style.display = 'none';
+            walletFunctions.style.display = 'block';
+            tonAddressDisplay.textContent = currentWalletAddress;
+            receiveAddressDisplay.textContent = currentWalletAddress;
+            // Generate QR Code for receive address
+            qrcodeDiv.innerHTML = ''; // Clear previous QR
+            new QRCode(qrcodeDiv, {
+                text: currentWalletAddress,
+                width: 128,
+                height: 128,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+            updateBalance(); // Update balance immediately after login/creation
+        }
+
+        function hideWalletUI() {
+            authSection.style.display = 'block';
+            walletFunctions.style.display = 'none';
+            privateKeyInput.value = ''; // Clear input on logout
+            hideMessage(authMessage);
+            hideMessage(balanceMessage);
+            hideMessage(sendMessage);
+            currentWallet = null;
+            currentKeyPair = null;
+            currentWalletAddress = null;
+        }
+
+        async function createNewWallet() {
+            hideMessage(authMessage);
+            try {
+                // Tạo cặp khóa mới ngẫu nhiên
+                currentKeyPair = TonWeb.utils.newKeyPair();
+
+                // Lấy ví dựa trên public key
+                currentWallet = tonweb.wallet.create({ publicKey: currentKeyPair.publicKey });
+                currentWalletAddress = (await currentWallet.getAddress()).toString(true, true, true); // Chuỗi địa chỉ chuẩn
+
+                const privateKeyHex = TonWeb.utils.bytesToHex(currentKeyPair.secretKey);
+                
+                // Tạo seed phrase từ private key (thường người dùng sẽ lưu seed phrase)
+                // Lưu ý: tonweb không có sẵn hàm mnemonicToKeyPair() để chuyển trực tiếp từ private key sang seed phrase
+                // Thay vào đó, bạn sẽ tạo seed phrase trước, rồi tạo keypair từ seed phrase đó.
+                // Để đơn giản, ví dụ này sẽ hiển thị Private Key HEX.
+                // Trong thực tế, bạn sẽ tạo mnemonic trước:
+                // const mnemonic = await TonWeb.mnemonic.generateMnemonic();
+                // currentKeyPair = await TonWeb.mnemonic.mnemonicToKeyPair(mnemonic);
+                // Sau đó hiển thị 'mnemonic' và 'privateKeyHex'.
+
+                displayMessage(authMessage, `Ví đã được tạo thành công! Địa chỉ: ${currentWalletAddress}\n\nLƯU Ý QUAN TRỌNG: Private Key của bạn: ${privateKeyHex}\n\nHãy lưu lại Private Key này ở nơi AN TOÀN nhất! Chúng tôi không lưu trữ nó.`, 'success');
+                privateKeyInput.value = privateKeyHex; // Đặt vào ô input để người dùng dễ copy
+                showWalletUI();
+            } catch (error) {
+                console.error("Lỗi khi tạo ví:", error);
+                displayMessage(authMessage, `Lỗi khi tạo ví: ${error.message}`, 'error');
+            }
+        }
+
+        async function importWallet() {
+            hideMessage(authMessage);
+            const input = privateKeyInput.value.trim();
+            if (!input) {
+                displayMessage(authMessage, "Vui lòng nhập Private Key hoặc Seed Phrase.", 'error');
+                return;
+            }
+
+            try {
+                if (input.split(' ').length === 24) { // Có vẻ là seed phrase
+                    currentKeyPair = await TonWeb.mnemonic.mnemonicToKeyPair(input.split(' '));
+                } else if (input.length === 64 || input.length === 128) { // Có vẻ là private key HEX
+                    currentKeyPair = TonWeb.utils.newKeyPair(TonWeb.utils.hexToBytes(input));
+                } else {
+                    throw new Error("Định dạng Private Key hoặc Seed Phrase không hợp lệ.");
+                }
+
+                currentWallet = tonweb.wallet.create({ publicKey: currentKeyPair.publicKey });
+                currentWalletAddress = (await currentWallet.getAddress()).toString(true, true, true);
+
+                displayMessage(authMessage, `Đăng nhập thành công! Địa chỉ ví: ${currentWalletAddress}`, 'success');
+                showWalletUI();
+            } catch (error) {
+                console.error("Lỗi khi đăng nhập ví:", error);
+                displayMessage(authMessage, `Lỗi khi đăng nhập ví: ${error.message}`, 'error');
+            }
+        }
+
+        async function updateBalance() {
+            hideMessage(balanceMessage);
+            if (!currentWallet) {
+                displayMessage(balanceMessage, "Vui lòng tạo hoặc đăng nhập ví trước.", 'error');
+                return;
+            }
+            try {
+                const balanceNano = await currentWallet.getBalance();
+                const balanceTon = TonWeb.utils.fromNano(balanceNano);
+                accountBalance.textContent = parseFloat(balanceTon).toFixed(4); // Hiển thị 4 chữ số thập phân
+                displayMessage(balanceMessage, "Số dư đã được cập nhật.", 'success');
+            } catch (error) {
+                console.error("Lỗi khi lấy số dư:", error);
+                displayMessage(balanceMessage, `Lỗi khi lấy số dư: ${error.message}`, 'error');
+            }
+        }
+
+        async function sendTon() {
+            hideMessage(sendMessage);
+            if (!currentWallet || !currentKeyPair) {
+                displayMessage(sendMessage, "Vui lòng tạo hoặc đăng nhập ví trước.", 'error');
+                return;
+            }
+
+            const recipientAddress = recipientAddressInput.value.trim();
+            const amountStr = amountToSendInput.value.trim();
+            const comment = sendCommentInput.value.trim();
+
+            if (!recipientAddress || !amountStr) {
+                displayMessage(sendMessage, "Vui lòng nhập địa chỉ người nhận và số lượng.", 'error');
+                return;
+            }
+
+            let amountNano;
+            try {
+                amountNano = TonWeb.utils.toNano(amountStr);
+                if (amountNano.lte(0)) throw new Error("Số lượng phải lớn hơn 0.");
+            } catch (e) {
+                displayMessage(sendMessage, "Số lượng TON không hợp lệ.", 'error');
+                return;
+            }
+
+            try {
+                // Lấy seqno để đảm bảo giao dịch duy nhất
+                const seqno = await currentWallet.methods.seqno().call();
+                console.log("Current Seqno:", seqno);
+
+                // Tạo giao dịch chuyển tiền
+                const transfer = currentWallet.methods.transfer({
+                    secretKey: currentKeyPair.secretKey, // Private key để ký
+                    toAddress: new TonWeb.utils.Address(recipientAddress),
+                    amount: amountNano,
+                    seqno: seqno,
+                    sendMode: 3, // Gửi ngay lập tức và bao gồm tất cả số dư
+                    // Lưu ý: Fees sẽ được trừ tự động từ số dư
+                    // Bạn có thể thêm payload cho Jetton transfer tại đây nếu cần
+                });
+
+                if (comment) {
+                    transfer.payload = await tonweb.boc.Cell.oneFromBuilder(
+                        new TonWeb.boc.Builder().storeUint(0, 32).storeString(comment)
+                    );
+                }
+
+                displayMessage(sendMessage, "Đang gửi giao dịch, vui lòng chờ...", 'success');
+
+                // Gửi giao dịch đã ký
+                const result = await transfer.send();
+                console.log("Kết quả gửi giao dịch:", result);
+                displayMessage(sendMessage, `Giao dịch đã được gửi thành công! TX Hash: ${result.hash}\nXem tại: https://testnet.tonviewer.com/transaction/${result.hash}`, 'success');
+
+                // Xóa form sau khi gửi thành công
+                recipientAddressInput.value = '';
+                amountToSendInput.value = '';
+                sendCommentInput.value = '';
+                updateBalance(); // Cập nhật lại số dư
+            } catch (error) {
+                console.error("Lỗi khi gửi TON:", error);
+                displayMessage(sendMessage, `Lỗi khi gửi TON: ${error.message}\nKiểm tra số dư và địa chỉ.`, 'error');
+            }
+        }
+
+        // --- Event Listeners ---
+        createWalletBtn.addEventListener('click', createNewWallet);
+        importWalletBtn.addEventListener('click', importWallet);
+        refreshBalanceBtn.addEventListener('click', updateBalance);
+        sendTonBtn.addEventListener('click', sendTon);
+        logoutBtn.addEventListener('click', hideWalletUI);
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetTab = button.dataset.tab;
+
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                tabContents.forEach(content => content.classList.remove('active'));
+                document.getElementById(targetTab).classList.add('active');
+            });
         });
-        alert("Đã gửi Jetton!");
-      }
 
-      await showWallet();
-    }
-  </script>
+        // Tự động kiểm tra nếu có ví đã lưu (chỉ cho mục đích demo)
+        // Trong ứng dụng thực tế, không nên lưu khóa riêng tư trong LocalStorage.
+        // if (localStorage.getItem('tonPrivateKey')) {
+        //     privateKeyInput.value = localStorage.getItem('tonPrivateKey');
+        //     importWallet();
+        // }
+    </script>
 </body>
 </html>
