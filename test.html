@@ -97,7 +97,14 @@
             font-size: 14px;
             color: #495057;
             text-align: left;
+            /* Added for consistent display */
+            box-sizing: border-box; 
         }
+        .message-box.info { background-color: #e0f7fa; border-color: #80deea; color: #00796b; }
+        .message-box.success { background-color: #e6ffed; border-color: #82e982; color: #1a6d36; }
+        .message-box.warning { background-color: #fffbe6; border-color: #ffe082; color: #8a6d01; }
+        .message-box.error { background-color: #ffe6e6; border-color: #ffadad; color: #d9534f; }
+
     </style>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 </head>
@@ -129,7 +136,7 @@
 
     <script>
         const manifestUrl = 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json';
-        let tonConnectUI = null;
+        let tonConnectUI = null; // Khởi tạo biến toàn cục
 
         const walletStatusDiv = document.getElementById('wallet-status');
         const connectButton = document.getElementById('connect-button');
@@ -140,81 +147,102 @@
         const stringTailInput = document.getElementById('string-tail');
         const responseMessageDiv = document.getElementById('response-message');
 
-        // Initialize TonConnectUI
-        document.addEventListener('DOMContentLoaded', () => {
-            tonConnectUI = new TonConnectUI({
-                manifestUrl: manifestUrl,
-                actionsConfiguration: {
-                    twaReturnUrl: 'https://duccodedao.github.io/VIEC/' // Your website's URL
-                }
-            });
+        // Hàm hiển thị thông báo
+        function displayMessage(message, type) {
+            responseMessageDiv.textContent = message;
+            responseMessageDiv.className = `message-box ${type}`; // Thêm class để đổi màu
+            responseMessageDiv.style.display = 'block';
+        }
 
-            // Listen for wallet connection status changes
-            tonConnectUI.onStatusChange(wallet => {
-                if (wallet) {
-                    walletStatusDiv.textContent = `Wallet Status: Connected (${wallet.account.address})`;
-                    connectButton.style.display = 'none';
-                    disconnectButton.style.display = 'inline-block';
-                    sendTransactionButton.disabled = false;
-                } else {
-                    walletStatusDiv.textContent = 'Wallet Status: Disconnected';
-                    connectButton.style.display = 'inline-block';
-                    disconnectButton.style.display = 'none';
-                    sendTransactionButton.disabled = true;
-                }
-            });
+        // Khởi tạo TonConnectUI sau khi DOM đã sẵn sàng
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                tonConnectUI = new TonConnectUI({
+                    manifestUrl: manifestUrl,
+                    actionsConfiguration: {
+                        twaReturnUrl: 'https://duccodedao.github.io/VIEC/' // Đảm bảo URL này khớp với miền của bạn
+                    }
+                });
+
+                // Lắng nghe sự thay đổi trạng thái ví
+                tonConnectUI.onStatusChange(wallet => {
+                    if (wallet) {
+                        walletStatusDiv.textContent = `Wallet Status: Connected (${wallet.account.address})`;
+                        connectButton.style.display = 'none';
+                        disconnectButton.style.display = 'inline-block';
+                        sendTransactionButton.disabled = false;
+                        displayMessage(`Connected to wallet: ${wallet.account.address}`, 'success');
+                    } else {
+                        walletStatusDiv.textContent = 'Wallet Status: Disconnected';
+                        connectButton.style.display = 'inline-block';
+                        disconnectButton.style.display = 'none';
+                        sendTransactionButton.disabled = true;
+                        displayMessage('Wallet disconnected.', 'info');
+                    }
+                });
+
+            } catch (error) {
+                console.error("Lỗi khi khởi tạo TonConnectUI:", error);
+                displayMessage(`Lỗi khởi tạo TonConnectUI: ${error.message}. Vui lòng kiểm tra console.`, 'error');
+            }
         });
 
-        // Event listener for Connect Wallet button
+        // Xử lý sự kiện cho nút Connect Wallet
         connectButton.addEventListener('click', async () => {
+            if (!tonConnectUI) {
+                displayMessage("TonConnectUI chưa được khởi tạo. Vui lòng tải lại trang và kiểm tra lỗi.", 'error');
+                return;
+            }
             try {
+                displayMessage("Đang mở cửa sổ kết nối ví...", 'info');
                 await tonConnectUI.openModal();
             } catch (error) {
-                console.error("Error opening connect modal:", error);
-                displayMessage(`Error connecting: ${error.message}`, 'error');
+                console.error("Lỗi khi mở cửa sổ kết nối:", error);
+                displayMessage(`Lỗi kết nối: ${error.message}`, 'error');
             }
         });
 
-        // Event listener for Disconnect Wallet button
+        // Xử lý sự kiện cho nút Disconnect Wallet
         disconnectButton.addEventListener('click', async () => {
+            if (!tonConnectUI) return; // Bảo vệ khỏi lỗi nếu tonConnectUI chưa khởi tạo
             try {
                 await tonConnectUI.disconnect();
-                displayMessage('Wallet disconnected.', 'info');
+                displayMessage('Ví đã ngắt kết nối.', 'info');
             } catch (error) {
-                console.error("Error disconnecting wallet:", error);
-                displayMessage(`Error disconnecting: ${error.message}`, 'error');
+                console.error("Lỗi khi ngắt kết nối ví:", error);
+                displayMessage(`Lỗi khi ngắt kết nối: ${error.message}`, 'error');
             }
         });
 
-        // Event listener for Send Transaction button
+        // Xử lý sự kiện cho nút Send Transaction
         sendTransactionButton.addEventListener('click', async () => {
-            if (!tonConnectUI.connected) {
-                displayMessage("Please connect your wallet first.", 'warning');
+            if (!tonConnectUI || !tonConnectUI.connected) {
+                displayMessage("Vui lòng kết nối ví của bạn trước.", 'warning');
                 return;
             }
 
-            const recipientAddress = recipientAddressInput.value;
+            const recipientAddress = recipientAddressInput.value.trim();
             const amountTON = parseFloat(amountInput.value);
             const stringTail = stringTailInput.value;
 
             if (!recipientAddress || isNaN(amountTON) || amountTON <= 0) {
-                displayMessage("Please enter a valid recipient address and amount.", 'warning');
+                displayMessage("Vui lòng nhập địa chỉ người nhận hợp lệ và số tiền lớn hơn 0.", 'warning');
                 return;
             }
 
-            // Convert TON to nanoTONs (1 TON = 1,000,000,000 nanoTONs)
+            // Chuyển đổi TON sang nanoTONs (1 TON = 1,000,000,000 nanoTONs)
             const amountNanoTONs = (amountTON * 1_000_000_000).toString();
 
             try {
-                displayMessage("Sending transaction...", 'info');
+                displayMessage("Đang gửi giao dịch...", 'info');
                 const transaction = {
-                    validUntil: Math.floor(Date.now() / 1000) + 360, // 6 minutes validity
+                    validUntil: Math.floor(Date.now() / 1000) + 360, // Giao dịch hợp lệ trong 6 phút
                     messages: [
                         {
                             address: recipientAddress,
                             amount: amountNanoTONs,
                             payload: {
-                                text: stringTail, // Your "StringTail" data goes here
+                                text: stringTail, // Dữ liệu "StringTail" của bạn được đưa vào đây
                             },
                         },
                     ],
@@ -222,33 +250,18 @@
 
                 const result = await tonConnectUI.sendTransaction(transaction);
 
-                console.log('Transaction sent successfully:', result);
-                displayMessage(`Transaction sent successfully! Tx BOC: ${result.boc}`, 'success');
+                console.log('Giao dịch gửi thành công:', result);
+                displayMessage(`Giao dịch gửi thành công! Tx BOC: ${result.boc}`, 'success');
             } catch (error) {
-                console.error('Error sending transaction:', error);
-                displayMessage(`Failed to send transaction: ${error.message}`, 'error');
+                console.error('Lỗi khi gửi giao dịch:', error);
+                // Kiểm tra nếu lỗi là do người dùng từ chối
+                if (error.name === 'UserRejectsError') {
+                    displayMessage('Giao dịch đã bị người dùng từ chối.', 'warning');
+                } else {
+                    displayMessage(`Gửi giao dịch thất bại: ${error.message}`, 'error');
+                }
             }
         });
-
-        function displayMessage(message, type) {
-            responseMessageDiv.textContent = message;
-            responseMessageDiv.style.display = 'block';
-            responseMessageDiv.style.backgroundColor = {
-                'info': '#e0f7fa',
-                'success': '#e6ffed',
-                'warning': '#fffbe6',
-                'error': '#ffe6e6'
-            }[type] || '#e9ecef';
-            responseMessageDiv.style.borderColor = {
-                'info': '#80deea',
-                'success': '#82e982',
-                'warning': '#ffe082',
-                'error': '#ffadad'
-            }[type] || '#dee2e6';
-        }
     </script>
 </body>
 </html>
-
-
-
