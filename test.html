@@ -1,92 +1,82 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>TON Wallet Web</title>
-  <script src="https://unpkg.com/@tonconnect/sdk@latest"></script>
+  <meta charset="UTF-8" />
+  <title>BMHD Airdrop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://unpkg.com/@tonconnect/ui/dist/tonconnect-ui.min.js"></script>
+  <script src="https://unpkg.com/@ton/core"></script>
   <style>
-    body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; }
-    button { padding: 10px 20px; margin: 10px 0; }
-    #txs li { margin-bottom: 6px; }
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1a1a1a, #2e2e2e);
+      color: white;
+      text-align: center;
+      padding: 50px 20px;
+    }
+    h1 { color: #00ffcc; }
+    #connect-button { margin: 20px auto; }
+    button {
+      padding: 12px 24px;
+      font-size: 18px;
+      background: #00ffcc;
+      color: black;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:disabled {
+      background: gray;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
+  <h1>Nhận token BMHD</h1>
+  <p>Kết nối ví TON của bạn để nhận phần thưởng!</p>
 
-  <h1>Kết nối ví TON</h1>
-  <button id="connect-btn">Kết nối ví</button>
-  <div id="wallet-info"></div>
+  <div id="connect-button"></div>
 
-  <h2>Số dư ví</h2>
-  <div id="balance">0 TON</div>
-
-  <h2>Lịch sử giao dịch</h2>
-  <ul id="txs"></ul>
-
-  <h2>Gửi TON</h2>
-  <input type="text" id="to" placeholder="Địa chỉ nhận" style="width:100%">
-  <input type="number" id="amount" placeholder="Số TON" style="width:100%">
-  <button id="send-btn">Gửi</button>
+  <button id="claim-button" disabled>Nhận BMHD</button>
 
   <script>
-    const connector = new TON_CONNECT_UI.TonConnectUI({
-      manifestUrl: 'https://ton.org/tonconnect-manifest.json',
-      buttonRootId: 'connect-btn',
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+      manifest: {
+        manifest_version: "0.1.0",
+        name: "BMHD Airdrop",
+        url: "https://hongduc101010.000webhostapp.com/",
+        iconUrl: "https://hongduc101010.000webhostapp.com/icon.png",
+        termsOfUseUrl: "https://hongduc101010.000webhostapp.com/terms",
+        privacyPolicyUrl: "https://hongduc101010.000webhostapp.com/privacy"
+      },
+      buttonRootId: "connect-button"
     });
 
-    let userAddress = '';
-    const apiKey = ''; // TonAPI client-side key nếu bạn có (nếu không có thì bỏ qua)
-    const tonApiUrl = 'https://tonapi.io/v2/accounts';
-
-    connector.onStatusChange(async walletInfo => {
-      if (walletInfo) {
-        userAddress = walletInfo.account.address;
-        document.getElementById('wallet-info').innerText = 'Địa chỉ ví: ' + userAddress;
-        getBalance();
-        getTxHistory();
-      }
+    // Bật nút nếu ví đã kết nối
+    tonConnectUI.onStatusChange(wallet => {
+      document.getElementById("claim-button").disabled = !wallet;
     });
 
-    async function getBalance() {
-      const res = await fetch(`${tonApiUrl}/${userAddress}`, {
-        headers: apiKey ? { 'Authorization': 'Bearer ' + apiKey } : {}
-      });
-      const data = await res.json();
-      const ton = Number(data.balance) / 1e9;
-      document.getElementById('balance').innerText = ton.toFixed(3) + ' TON';
-    }
+    // Khi bấm nút claim
+    document.getElementById("claim-button").addEventListener("click", async () => {
+      const payload = TON_CORE.beginCell()
+        .storeUint(0x12345678, 32) // opcode của claim() - có thể thay đổi
+        .endCell()
+        .toBoc()
+        .toString("base64");
 
-    async function getTxHistory() {
-      const res = await fetch(`${tonApiUrl}/${userAddress}/transactions?limit=5`, {
-        headers: apiKey ? { 'Authorization': 'Bearer ' + apiKey } : {}
-      });
-      const data = await res.json();
-      const txList = data.transactions.map(tx => {
-        const amount = tx.in_msg?.value ? (Number(tx.in_msg.value) / 1e9).toFixed(3) : '0';
-        const addr = tx.in_msg?.source?.address || 'unknown';
-        return `<li>+${amount} TON từ ${addr}</li>`;
-      });
-      document.getElementById('txs').innerHTML = txList.join('');
-    }
-
-    document.getElementById('send-btn').onclick = async () => {
-      const to = document.getElementById('to').value;
-      const amountTON = parseFloat(document.getElementById('amount').value);
-      if (!to || !amountTON) return alert('Điền đầy đủ');
-
-      const amountNano = (amountTON * 1e9).toString();
-
-      await connector.sendTransaction({
-        validUntil: Math.floor(Date.now() / 1000) + 360,
+      await tonConnectUI.sendTransaction({
+        validUntil: Math.floor(Date.now() / 1000) + 60,
         messages: [{
-          address: to,
-          amount: amountNano,
+          address: "EQCvxJy4eG8hyHBFsZ7eePxrRsUQSFE_jpptRAYBmcG_DOGS", // địa chỉ contract BMHD
+          amount: "20000000", // 0.02 TON phí gas
+          payload: payload
         }]
       });
 
-      alert('Gửi thành công!');
-      getBalance();
-      getTxHistory();
-    };
+      alert("Giao dịch gửi đi thành công!");
+    });
   </script>
 </body>
 </html>
