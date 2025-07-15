@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TON Connect Transaction</title>
+    <title>TON Connect UI Auto Button</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -38,30 +38,11 @@
             font-size: 16px;
             color: #555;
         }
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            margin: 8px;
-            min-width: 150px;
+        /* Style for the TonConnectUI's auto-generated button container */
+        #ton-connect {
+            margin-bottom: 20px;
         }
-        button:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
-        }
-        button:active {
-            transform: translateY(0);
-        }
-        button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
+        /* Basic styling for inputs and message box */
         .input-group {
             margin-bottom: 15px;
             text-align: left;
@@ -97,14 +78,38 @@
             font-size: 14px;
             color: #495057;
             text-align: left;
-            /* Added for consistent display */
-            box-sizing: border-box; 
+            box-sizing: border-box;
         }
         .message-box.info { background-color: #e0f7fa; border-color: #80deea; color: #00796b; }
         .message-box.success { background-color: #e6ffed; border-color: #82e982; color: #1a6d36; }
         .message-box.warning { background-color: #fffbe6; border-color: #ffe082; color: #8a6d01; }
         .message-box.error { background-color: #ffe6e6; border-color: #ffadad; color: #d9534f; }
 
+        /* Style for the send transaction button */
+        #send-transaction-button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin: 8px;
+            min-width: 150px;
+        }
+        #send-transaction-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        #send-transaction-button:active {
+            transform: translateY(0);
+        }
+        #send-transaction-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
     </style>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 </head>
@@ -113,8 +118,7 @@
         <h1>TON Connect Transaction</h1>
         <div id="wallet-status">Wallet Status: Disconnected</div>
 
-        <button id="connect-button">Connect Wallet</button>
-        <button id="disconnect-button" style="display: none;">Disconnect Wallet</button>
+        <div id="ton-connect"></div>
 
         <div class="input-group">
             <label for="recipient-address">Recipient Address:</label>
@@ -136,11 +140,9 @@
 
     <script>
         const manifestUrl = 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json';
-        let tonConnectUI = null; // Khởi tạo biến toàn cục
+        let tonConnectUI = null; // Khai báo biến toàn cục
 
         const walletStatusDiv = document.getElementById('wallet-status');
-        const connectButton = document.getElementById('connect-button');
-        const disconnectButton = document.getElementById('disconnect-button');
         const sendTransactionButton = document.getElementById('send-transaction-button');
         const recipientAddressInput = document.getElementById('recipient-address');
         const amountInput = document.getElementById('amount');
@@ -150,7 +152,7 @@
         // Hàm hiển thị thông báo
         function displayMessage(message, type) {
             responseMessageDiv.textContent = message;
-            responseMessageDiv.className = `message-box ${type}`; // Thêm class để đổi màu
+            responseMessageDiv.className = `message-box ${type}`;
             responseMessageDiv.style.display = 'block';
         }
 
@@ -159,8 +161,9 @@
             try {
                 tonConnectUI = new TonConnectUI({
                     manifestUrl: manifestUrl,
+                    buttonRootId: 'ton-connect', // TonConnectUI sẽ tự động chèn nút vào đây
                     actionsConfiguration: {
-                        twaReturnUrl: 'https://duccodedao.github.io/VIEC/' // Đảm bảo URL này khớp với miền của bạn
+                        twaReturnUrl: 'https://duccodedao.github.io/VIEC/'
                     }
                 });
 
@@ -168,14 +171,10 @@
                 tonConnectUI.onStatusChange(wallet => {
                     if (wallet) {
                         walletStatusDiv.textContent = `Wallet Status: Connected (${wallet.account.address})`;
-                        connectButton.style.display = 'none';
-                        disconnectButton.style.display = 'inline-block';
                         sendTransactionButton.disabled = false;
                         displayMessage(`Connected to wallet: ${wallet.account.address}`, 'success');
                     } else {
                         walletStatusDiv.textContent = 'Wallet Status: Disconnected';
-                        connectButton.style.display = 'inline-block';
-                        disconnectButton.style.display = 'none';
                         sendTransactionButton.disabled = true;
                         displayMessage('Wallet disconnected.', 'info');
                     }
@@ -184,33 +183,6 @@
             } catch (error) {
                 console.error("Lỗi khi khởi tạo TonConnectUI:", error);
                 displayMessage(`Lỗi khởi tạo TonConnectUI: ${error.message}. Vui lòng kiểm tra console.`, 'error');
-            }
-        });
-
-        // Xử lý sự kiện cho nút Connect Wallet
-        connectButton.addEventListener('click', async () => {
-            if (!tonConnectUI) {
-                displayMessage("TonConnectUI chưa được khởi tạo. Vui lòng tải lại trang và kiểm tra lỗi.", 'error');
-                return;
-            }
-            try {
-                displayMessage("Đang mở cửa sổ kết nối ví...", 'info');
-                await tonConnectUI.openModal();
-            } catch (error) {
-                console.error("Lỗi khi mở cửa sổ kết nối:", error);
-                displayMessage(`Lỗi kết nối: ${error.message}`, 'error');
-            }
-        });
-
-        // Xử lý sự kiện cho nút Disconnect Wallet
-        disconnectButton.addEventListener('click', async () => {
-            if (!tonConnectUI) return; // Bảo vệ khỏi lỗi nếu tonConnectUI chưa khởi tạo
-            try {
-                await tonConnectUI.disconnect();
-                displayMessage('Ví đã ngắt kết nối.', 'info');
-            } catch (error) {
-                console.error("Lỗi khi ngắt kết nối ví:", error);
-                displayMessage(`Lỗi khi ngắt kết nối: ${error.message}`, 'error');
             }
         });
 
@@ -230,19 +202,18 @@
                 return;
             }
 
-            // Chuyển đổi TON sang nanoTONs (1 TON = 1,000,000,000 nanoTONs)
             const amountNanoTONs = (amountTON * 1_000_000_000).toString();
 
             try {
                 displayMessage("Đang gửi giao dịch...", 'info');
                 const transaction = {
-                    validUntil: Math.floor(Date.now() / 1000) + 360, // Giao dịch hợp lệ trong 6 phút
+                    validUntil: Math.floor(Date.now() / 1000) + 360,
                     messages: [
                         {
                             address: recipientAddress,
                             amount: amountNanoTONs,
                             payload: {
-                                text: stringTail, // Dữ liệu "StringTail" của bạn được đưa vào đây
+                                text: stringTail,
                             },
                         },
                     ],
@@ -254,7 +225,6 @@
                 displayMessage(`Giao dịch gửi thành công! Tx BOC: ${result.boc}`, 'success');
             } catch (error) {
                 console.error('Lỗi khi gửi giao dịch:', error);
-                // Kiểm tra nếu lỗi là do người dùng từ chối
                 if (error.name === 'UserRejectsError') {
                     displayMessage('Giao dịch đã bị người dùng từ chối.', 'warning');
                 } else {
