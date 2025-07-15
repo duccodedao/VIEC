@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ví dụ Trang Web TON</title>
+    <!-- Tải Ton Connect SDK -->
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; margin: 0; padding: 20px; background-color: #f4f4f9; color: #333; }
+        .container { max-width: 800px; margin: auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1, h2 { color: #007aff; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        #ton-connect-button { display: flex; justify-content: flex-end; margin-bottom: 20px;}
+        .info-section { margin-bottom: 25px; }
+        .info-section p, .info-section ul { word-wrap: break-word; }
+        .info-section ul { list-style-type: none; padding-left: 0; }
+        .info-section li { background: #f9f9f9; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; border-radius: 5px; }
+        #nft-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+        .nft-item { border: 1px solid #ddd; border-radius: 5px; padding: 10px; text-align: center; }
+        .nft-item img { max-width: 100%; height: auto; border-radius: 4px; margin-bottom: 5px; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #007aff; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Thông tin Ví TON</h1>
+        <div id="ton-connect-button"></div>
+
+        <div id="wallet-info" class="hidden">
+            <div class="info-section">
+                <h2><a href="https://tonapi.io/documentation" target="_blank">Thông tin Tài khoản</a></h2>
+                <p><strong>Địa chỉ:</strong> <span id="address"></span></p>
+                <p><strong>Số dư TON:</strong> <span id="balance"></span></p>
+            </div>
+
+            <div class="info-section">
+                <h2>Jettons</h2>
+                <div id="jettons-loader" class="loader hidden"></div>
+                <ul id="jetton-list"></ul>
+            </div>
+
+            <div class="info-section">
+                <h2>Lịch sử Giao dịch</h2>
+                <div id="history-loader" class="loader hidden"></div>
+                <ul id="history-list"></ul>
+            </div>
+
+            <div class="info-section">
+                <h2>Bộ sưu tập NFT</h2>
+                <div id="nft-loader" class="loader hidden"></div>
+                <div id="nft-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tonConnectUI = new tonconnectUI.TonConnectUI({
+                manifestUrl: 'https://viec.vercel.app/tonconnect-manifest.json', // !!! QUAN TRỌNG: Thay thế bằng URL thực tế của bạn
+                buttonRootId: 'ton-connect-button'
+            });
+
+            const walletInfoEl = document.getElementById('wallet-info');
+            const addressEl = document.getElementById('address');
+            const balanceEl = document.getElementById('balance');
+            const jettonListEl = document.getElementById('jetton-list');
+            const historyListEl = document.getElementById('history-list');
+            const nftContainerEl = document.getElementById('nft-container');
+
+            const jettonsLoader = document.getElementById('jettons-loader');
+            const historyLoader = document.getElementById('history-loader');
+            const nftLoader = document.getElementById('nft-loader');
+
+            // API endpoint
+            const tonApiUrl = 'https://tonapi.io/v2/';
+
+            // Đăng ký theo dõi thay đổi trạng thái kết nối
+            tonConnectUI.onStatusChange(async wallet => {
+                if (wallet) {
+                    walletInfoEl.classList.remove('hidden');
+                    updateUI(wallet.account);
+                } else {
+                    walletInfoEl.classList.add('hidden');
+                    // Xóa dữ liệu cũ khi ngắt kết nối
+                    addressEl.textContent = '';
+                    balanceEl.textContent = '';
+                    jettonListEl.innerHTML = '';
+                    historyListEl.innerHTML = '';
+                    nftContainerEl.innerHTML = '';
+                }
+            });
+
+            async function updateUI(account) {
+                const address = tonconnectUI.toUserFriendlyAddress(account.address);
+                addressEl.textContent = address;
+                
+                // Reset và hiển thị loader
+                balanceEl.textContent = 'Đang tải...';
+                jettonListEl.innerHTML = '';
+                historyListEl.innerHTML = '';
+                nftContainerEl.innerHTML = '';
+                jettonsLoader.classList.remove('hidden');
+                historyLoader.classList.remove('hidden');
+                nftLoader.classList.remove('hidden');
+                
+                try {
+                    // Sử dụng Promise.all để tìm nạp song song
+                    await Promise.all([
+                        fetchBalance(address),
+                        fetchJettons(address),
+                        fetchHistory(address),
+                        fetchNFTs(address)
+                    ]);
+                } catch (error) {
+                    console.error('Lỗi khi cập nhật UI:', error);
+                    alert('Đã xảy ra lỗi khi tải dữ liệu từ TonAPI.');
+                }
+            }
+
+            async function fetchBalance(address) {
+                const response = await fetch(`${tonApiUrl}blockchain/accounts/${address}`);
+                const data = await response.json();
+                balanceEl.textContent = (data.balance / 10**9).toFixed(4) + ' TON';
+            }
+
+            async function fetchJettons(address) {
+                jettonsLoader.classList.remove('hidden');
+                const response = await fetch(`${tonApiUrl}accounts/${address}/jettons`);
+                const data = await response.json();
+                jettonListEl.innerHTML = ''; // Xóa danh sách cũ
+                if (data.balances.length === 0) {
+                    jettonListEl.innerHTML = '<li>Không có Jetton nào.</li>';
+                } else {
+                    data.balances.forEach(item => {
+                        const li = document.createElement('li');
+                        const balance = parseInt(item.balance) / (10 ** item.jetton.decimals);
+                        li.textContent = `${balance.toFixed(4)} ${item.jetton.symbol} (${item.jetton.name})`;
+                        jettonListEl.appendChild(li);
+                    });
+                }
+                jettonsLoader.classList.add('hidden');
+            }
+
+            async function fetchHistory(address) {
+                historyLoader.classList.remove('hidden');
+                const response = await fetch(`${tonApiUrl}accounts/${address}/events?limit=25`);
+                const data = await response.json();
+                historyListEl.innerHTML = ''; // Xóa danh sách cũ
+                 if (data.events.length === 0) {
+                    historyListEl.innerHTML = '<li>Không có giao dịch nào.</li>';
+                } else {
+                    data.events.forEach(event => {
+                        const li = document.createElement('li');
+                        const date = new Date(event.timestamp * 1000).toLocaleString('vi-VN');
+                        li.innerHTML = `<strong>${date}:</strong> Có ${event.actions.length} hành động. <a href="https://tonscan.org/tx/${event.lt}" target="_blank">Xem chi tiết</a>`;
+                        historyListEl.appendChild(li);
+                    });
+                }
+                historyLoader.classList.add('hidden');
+            }
+
+            async function fetchNFTs(address) {
+                nftLoader.classList.remove('hidden');
+                const response = await fetch(`${tonApiUrl}accounts/${address}/nfts?limit=10&collection=true`);
+                const data = await response.json();
+                nftContainerEl.innerHTML = ''; // Xóa danh sách cũ
+                if (data.nft_items.length === 0) {
+                    nftContainerEl.innerHTML = '<p>Không có NFT nào.</p>';
+                } else {
+                    data.nft_items.forEach(item => {
+                        const nftEl = document.createElement('div');
+                        nftEl.className = 'nft-item';
+                        const name = item.metadata?.name || 'Không có tên';
+                        const image = item.previews?.find(p => p.resolution === '100x100')?.url || 'https://via.placeholder.com/100';
+                        nftEl.innerHTML = `
+                            <img src="${image}" alt="${name}" loading="lazy">
+                            <strong>${name}</strong>
+                        `;
+                        nftContainerEl.appendChild(nftEl);
+                    });
+                }
+                nftLoader.classList.add('hidden');
+            }
+        });
+    </script>
+
+</body>
+</html>
