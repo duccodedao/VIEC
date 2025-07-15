@@ -2,80 +2,80 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>BMHD Airdrop</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TON DApp - Claim Token</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- TonConnect UI & Core CDN -->
   <script src="https://unpkg.com/@tonconnect/ui/dist/tonconnect-ui.min.js"></script>
   <script src="https://unpkg.com/@ton/core"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #1a1a1a, #2e2e2e);
-      color: white;
+      padding: 30px;
       text-align: center;
-      padding: 50px 20px;
+      background: #f5f7fa;
     }
-    h1 { color: #00ffcc; }
-    #connect-button { margin: 20px auto; }
+    h1 {
+      color: #007acc;
+    }
     button {
-      padding: 12px 24px;
-      font-size: 18px;
-      background: #00ffcc;
-      color: black;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
+      padding: 10px 20px;
+      font-size: 16px;
       margin-top: 20px;
+      cursor: pointer;
+      border-radius: 6px;
+      background: #007acc;
+      color: white;
+      border: none;
     }
-    button:disabled {
-      background: gray;
-      cursor: not-allowed;
+    #connect-button {
+      margin: 20px auto;
+      display: flex;
+      justify-content: center;
     }
   </style>
 </head>
 <body>
-  <h1>Nhận token BMHD</h1>
-  <p>Kết nối ví TON của bạn để nhận phần thưởng!</p>
+  <h1>TON DApp - Claim Token</h1>
 
+  <!-- TonConnect Button -->
   <div id="connect-button"></div>
 
-  <button id="claim-button" disabled>Nhận BMHD</button>
+  <!-- Gửi giao dịch -->
+  <button id="claim-button" disabled>Claim Token</button>
 
   <script>
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-      manifest: {
-        manifest_version: "0.1.0",
-        name: "BMHD Airdrop",
-        url: "https://hongduc101010.000webhostapp.com/",
-        iconUrl: "https://hongduc101010.000webhostapp.com/icon.png",
-        termsOfUseUrl: "https://hongduc101010.000webhostapp.com/terms",
-        privacyPolicyUrl: "https://hongduc101010.000webhostapp.com/privacy"
-      },
+      manifestUrl: "https://your-domain.com/tonconnect-manifest.json", // THAY ĐỊA CHỈ NÀY
       buttonRootId: "connect-button"
     });
 
-    // Bật nút nếu ví đã kết nối
     tonConnectUI.onStatusChange(wallet => {
       document.getElementById("claim-button").disabled = !wallet;
     });
 
-    // Khi bấm nút claim
     document.getElementById("claim-button").addEventListener("click", async () => {
       const payload = TON_CORE.beginCell()
-        .storeUint(0x12345678, 32) // opcode của claim() - có thể thay đổi
+        .storeUint(0x12345678, 32) // opcode của hàm claim (DEMO)
         .endCell()
         .toBoc()
-        .toString("base64");
+        .toString('base64');
 
-      await tonConnectUI.sendTransaction({
-        validUntil: Math.floor(Date.now() / 1000) + 60,
-        messages: [{
-          address: "EQCvxJy4eG8hyHBFsZ7eePxrRsUQSFE_jpptRAYBmcG_DOGS", // địa chỉ contract BMHD
-          amount: "20000000", // 0.02 TON phí gas
-          payload: payload
-        }]
-      });
+      try {
+        await tonConnectUI.sendTransaction({
+          validUntil: Math.floor(Date.now() / 1000) + 60,
+          messages: [
+            {
+              address: "EQCxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // THAY BẰNG ĐỊA CHỈ SMART CONTRACT
+              amount: "10000000", // 0.01 TON
+              payload: payload
+            }
+          ]
+        });
 
-      alert("Giao dịch gửi đi thành công!");
+        alert("Giao dịch đã gửi thành công!");
+      } catch (err) {
+        alert("Lỗi khi gửi giao dịch: " + err.message);
+      }
     });
   </script>
 </body>
