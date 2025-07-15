@@ -51,7 +51,7 @@
             cursor: pointer;
             font-size: 16px;
             margin-top: 10px;
-            margin-right: 10px; /* Thêm khoảng cách giữa các nút */
+            margin-right: 10px;
         }
 
         button:hover {
@@ -66,7 +66,7 @@
             border-radius: 4px;
         }
 
-        .jetton-item, .collectible-item {
+        .jetton-item, .collectible-item, .transaction-item {
             border: 1px solid #eee;
             padding: 10px;
             margin-bottom: 5px;
@@ -75,17 +75,21 @@
             align-items: center;
         }
 
-        .jetton-item strong, .collectible-item strong {
+        .jetton-item strong, .collectible-item strong, .transaction-item strong {
             color: #333;
             margin-right: 5px;
         }
 
-        .nft-image {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
+        .jetton-logo, .nft-image {
+            width: 40px; /* Nhỏ hơn một chút cho logo */
+            height: 40px;
+            object-fit: contain; /* Để logo không bị méo */
             border-radius: 4px;
             margin-right: 10px;
+        }
+        
+        .nft-image {
+            object-fit: cover; /* Giữ nguyên cover cho NFT */
         }
 
         .status-message {
@@ -105,6 +109,12 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+
+        .transaction-details {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -121,6 +131,14 @@
             <button id="disconnectWallet">Ngắt kết nối</button>
         </section>
 
+        <section id="send-ton" style="display: none;">
+            <h2>Gửi TON</h2>
+            <input type="text" id="sendToAddress" placeholder="Địa chỉ người nhận (vd: kQB....)" value="">
+            <input type="number" id="sendAmount" placeholder="Số lượng TON (vd: 0.1)" step="0.000000001">
+            <button id="sendTonButton">Gửi TON</button>
+            <p id="sendTonStatus" class="status-message"></p>
+        </section>
+
         <section id="jetton-list" style="display: none;">
             <h2>Jetton của bạn</h2>
             <div id="jettonsContainer">
@@ -135,12 +153,11 @@
             </div>
         </section>
 
-        <section id="send-ton" style="display: none;">
-            <h2>Gửi TON</h2>
-            <input type="text" id="sendToAddress" placeholder="Địa chỉ người nhận (vd: kQB....)" value="">
-            <input type="number" id="sendAmount" placeholder="Số lượng TON (vd: 0.1)" step="0.000000001">
-            <button id="sendTonButton">Gửi TON</button>
-            <p id="sendTonStatus" class="status-message"></p>
+        <section id="transaction-history" style="display: none;">
+            <h2>Lịch sử Giao dịch</h2>
+            <div id="transactionsContainer">
+                <p>Vui lòng kết nối ví để xem lịch sử giao dịch.</p>
+            </div>
         </section>
 
     </main>
@@ -151,7 +168,7 @@
         // bằng URL thực tế nơi file tonconnect-manifest.json của bạn được lưu trữ.
         // Đối với phát triển cục bộ, bạn có thể cần một máy chủ web cục bộ.
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-            manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json', // !!! QUAN TRỌNG: Cập nhật URL này !!!
+            manifestUrl: 'https://your-app-domain.com/tonconnect-manifest.json', // !!! QUAN TRỌNG: Cập nhật URL này !!!
             buttonRootId: 'ton-connect-button'
         });
 
@@ -165,6 +182,9 @@
 
         const collectiblesHistorySection = document.getElementById('collectibles-history');
         const collectiblesContainer = document.getElementById('collectiblesContainer');
+
+        const transactionHistorySection = document.getElementById('transaction-history');
+        const transactionsContainer = document.getElementById('transactionsContainer');
 
         const sendTonSection = document.getElementById('send-ton');
         const sendToAddressInput = document.getElementById('sendToAddress');
@@ -205,6 +225,7 @@
                 walletInfoSection.style.display = 'block';
                 jettonListSection.style.display = 'block';
                 collectiblesHistorySection.style.display = 'block';
+                transactionHistorySection.style.display = 'block';
                 sendTonSection.style.display = 'block';
 
             } catch (error) {
@@ -228,8 +249,13 @@
                         const jettonDiv = document.createElement('div');
                         jettonDiv.classList.add('jetton-item');
                         const balance = parseFloat(jetton.balance) / (10 ** jetton.jetton.decimals);
+                        const logoUrl = jetton.jetton.image; // Lấy logo từ trường image
+
                         jettonDiv.innerHTML = `
-                            <strong>${jetton.jetton.symbol || 'N/A'}</strong>: ${balance.toFixed(Math.min(jetton.jetton.decimals, 6))} (${jetton.jetton.name || 'Không xác định'})
+                            <img src="${logoUrl || 'https://via.placeholder.com/40?text=Jetton'}" alt="${jetton.jetton.name || 'Jetton'}" class="jetton-logo">
+                            <div>
+                                <strong>${jetton.jetton.symbol || 'N/A'}</strong>: ${balance.toFixed(Math.min(jetton.jetton.decimals, 6))} (${jetton.jetton.name || 'Không xác định'})
+                            </div>
                         `;
                         jettonsContainer.appendChild(jettonDiv);
                     });
@@ -246,7 +272,6 @@
         async function fetchCollectiblesHistory(address) {
             collectiblesContainer.innerHTML = '<p>Đang tải Sưu tầm...</p>';
             try {
-                // Endpoint của TONAPI cho NFTs liên quan đến một tài khoản
                 const response = await fetch(`https://tonapi.io/v2/accounts/${address}/nfts`);
                 if (!response.ok) throw new Error(`Lỗi HTTP! Trạng thái: ${response.status}`);
                 const data = await response.json();
@@ -257,13 +282,21 @@
                         const nftDiv = document.createElement('div');
                         nftDiv.classList.add('collectible-item');
 
-                        const imageUrl = nft.previews && nft.previews.length > 0 ? nft.previews[0].url : 'https://via.placeholder.com/50?text=NFT';
-                        
+                        let imageUrl = 'https://via.placeholder.com/50?text=NFT'; // Mặc định ảnh giữ chỗ
+                        if (nft.previews && nft.previews.length > 0) {
+                            // Ưu tiên ảnh preview lớn nhất có thể
+                            const largePreview = nft.previews.find(p => p.resolution === '1080x1080' || p.resolution === '720x720');
+                            imageUrl = largePreview ? largePreview.url : nft.previews[0].url;
+                        } else if (nft.metadata && nft.metadata.image) {
+                            // Thử lấy từ metadata nếu có
+                            imageUrl = nft.metadata.image;
+                        }
+
                         nftDiv.innerHTML = `
-                            <img src="${imageUrl}" alt="${nft.metadata.name || 'Ảnh NFT'}" class="nft-image">
+                            <img src="${imageUrl}" alt="${nft.metadata.name || 'NFT Image'}" class="nft-image" onerror="this.onerror=null;this.src='https://via.placeholder.com/50?text=Error';">
                             <div>
                                 <strong>${nft.metadata.name || 'NFT không tên'}</strong>
-                                <p>Bộ sưu tập: ${nft.collection.name || 'Bộ sưu tập không xác định'}</p>
+                                <p>Bộ sưu tập: ${nft.collection.name || 'Không xác định'}</p>
                             </div>
                         `;
                         collectiblesContainer.appendChild(nftDiv);
@@ -273,7 +306,86 @@
                 }
             } catch (error) {
                 console.error('Lỗi khi lấy Sưu tầm:', error);
-                collectiblesContainer.innerHTML = '<p>Lỗi tải Sưu tầm.</p>';
+                collectiblesContainer.innerHTML = '<p>Lỗi tải Sưu tầm. Vui lòng thử lại sau.</p>';
+            }
+        }
+
+        // Hàm lấy và hiển thị lịch sử giao dịch (TON và Jetton)
+        async function fetchTransactionHistory(address) {
+            transactionsContainer.innerHTML = '<p>Đang tải lịch sử giao dịch...</p>';
+            try {
+                // Lấy các giao dịch cho địa chỉ
+                const response = await fetch(`https://tonapi.io/v2/accounts/${address}/transactions?limit=20`); // Lấy 20 giao dịch gần nhất
+                if (!response.ok) throw new Error(`Lỗi HTTP! Trạng thái: ${response.status}`);
+                const data = await response.json();
+
+                if (data.transactions && data.transactions.length > 0) {
+                    transactionsContainer.innerHTML = ''; // Xóa thông báo tải
+                    data.transactions.forEach(tx => {
+                        const txDiv = document.createElement('div');
+                        txDiv.classList.add('transaction-item');
+
+                        const date = new Date(tx.utime * 1000).toLocaleString(); // Chuyển đổi timestamp sang ngày giờ
+                        let transactionType = 'Unknown';
+                        let amount = 'N/A';
+                        let asset = 'TON';
+                        let direction = '';
+                        let counterparty = '';
+
+                        // Xác định loại giao dịch (TON hoặc Jetton) và hướng
+                        if (tx.in_msg && tx.in_msg.value) { // Incoming TON transaction
+                            amount = (parseInt(tx.in_msg.value) / 1e9).toFixed(4);
+                            direction = 'Nhận';
+                            counterparty = formatAddress(tx.in_msg.source || 'N/A');
+                            transactionType = `Nhận TON từ ${counterparty}`;
+                        } else if (tx.out_msgs && tx.out_msgs.length > 0 && tx.out_msgs[0].value) { // Outgoing TON transaction
+                            amount = (parseInt(tx.out_msgs[0].value) / 1e9).toFixed(4);
+                            direction = 'Gửi';
+                            counterparty = formatAddress(tx.out_msgs[0].destination || 'N/A');
+                            transactionType = `Gửi TON tới ${counterparty}`;
+                        }
+
+                        // Kiểm tra các giao dịch Jetton nếu có
+                        if (tx.out_msgs) {
+                            for (const msg of tx.out_msgs) {
+                                if (msg.decoded_body && msg.decoded_body.type === 'JettonTransfer') {
+                                    const transfer = msg.decoded_body;
+                                    amount = (parseInt(transfer.amount) / (10 ** transfer.jetton_info.decimals)).toFixed(Math.min(transfer.jetton_info.decimals, 6));
+                                    asset = transfer.jetton_info.symbol || 'Jetton';
+                                    direction = 'Gửi';
+                                    counterparty = formatAddress(transfer.destination || 'N/A');
+                                    transactionType = `Gửi ${amount} ${asset} tới ${counterparty}`;
+                                    break; // Chỉ xử lý giao dịch jetton đầu tiên trong một tin nhắn ra
+                                }
+                            }
+                        }
+                        if (tx.in_msg && tx.in_msg.decoded_body && tx.in_msg.decoded_body.type === 'JettonTransfer') {
+                            const transfer = tx.in_msg.decoded_body;
+                            amount = (parseInt(transfer.amount) / (10 ** transfer.jetton_info.decimals)).toFixed(Math.min(transfer.jetton_info.decimals, 6));
+                            asset = transfer.jetton_info.symbol || 'Jetton';
+                            direction = 'Nhận';
+                            counterparty = formatAddress(transfer.source || 'N/A');
+                            transactionType = `Nhận ${amount} ${asset} từ ${counterparty}`;
+                        }
+
+
+                        txDiv.innerHTML = `
+                            <strong>${transactionType}</strong>
+                            <div class="transaction-details">
+                                <p>Ngày: ${date}</p>
+                                <p>Hash: ${tx.hash.substring(0, 15)}...</p>
+                                <p>Hướng: ${direction}</p>
+                                <p>Số lượng: ${amount} ${asset}</p>
+                            </div>
+                        `;
+                        transactionsContainer.appendChild(txDiv);
+                    });
+                } else {
+                    transactionsContainer.innerHTML = '<p>Không tìm thấy giao dịch nào cho địa chỉ này.</p>';
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy lịch sử giao dịch:', error);
+                transactionsContainer.innerHTML = '<p>Lỗi tải lịch sử giao dịch. Vui lòng thử lại sau.</p>';
             }
         }
 
@@ -288,6 +400,7 @@
                 await fetchWalletInfo(connectedAddress);
                 await fetchJettons(connectedAddress);
                 await fetchCollectiblesHistory(connectedAddress);
+                await fetchTransactionHistory(connectedAddress); // Lấy lịch sử giao dịch
 
             } else {
                 // Ví đã ngắt kết nối hoặc chưa kết nối
@@ -295,11 +408,14 @@
                 walletInfoSection.style.display = 'none';
                 jettonListSection.style.display = 'none';
                 collectiblesHistorySection.style.display = 'none';
+                transactionHistorySection.style.display = 'none'; // Ẩn lịch sử giao dịch
                 sendTonSection.style.display = 'none';
+                
                 walletAddressSpan.textContent = 'N/A';
                 tonBalanceSpan.textContent = 'N/A';
                 jettonsContainer.innerHTML = '<p>Vui lòng kết nối ví để xem Jetton.</p>';
                 collectiblesContainer.innerHTML = '<p>Vui lòng kết nối ví để xem Sưu tầm.</p>';
+                transactionsContainer.innerHTML = '<p>Vui lòng kết nối ví để xem lịch sử giao dịch.</p>'; // Đặt lại thông báo
                 setStatusMessage(sendTonStatus, '', ''); // Xóa trạng thái gửi
             }
         });
@@ -344,9 +460,11 @@
                 console.log('Giao dịch đã gửi:', result);
                 setStatusMessage(sendTonStatus, `Giao dịch đã gửi thành công! TXID: ${result.boc.substring(0, 30)}...`, 'success');
                 
-                // Tùy chọn: Cập nhật số dư sau khi giao dịch thành công
+                // Tùy chọn: Cập nhật số dư và lịch sử sau khi giao dịch thành công
                 if (tonConnectUI.wallet && tonConnectUI.wallet.account) {
-                    await fetchWalletInfo(tonConnectUI.wallet.account.address);
+                    const connectedAddress = tonConnectUI.wallet.account.address;
+                    await fetchWalletInfo(connectedAddress);
+                    await fetchTransactionHistory(connectedAddress);
                 }
 
             } catch (error) {
@@ -370,6 +488,7 @@
                     fetchWalletInfo(connectedAddress);
                     fetchJettons(connectedAddress);
                     fetchCollectiblesHistory(connectedAddress);
+                    fetchTransactionHistory(connectedAddress);
                 }
             }, true); // Tham số `true` sẽ gọi lại callback ngay lập tức nếu ví đã kết nối.
         }
