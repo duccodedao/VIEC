@@ -289,7 +289,7 @@
                     fetch(`${TON_API_BASE}/accounts/${rawAddress}`).then(res => res.json()),
                     fetch(`${TON_API_BASE}/accounts/${rawAddress}/jettons`).then(res => res.json()),
                     fetch(`${TON_API_BASE}/accounts/${rawAddress}/nfts?limit=20&indirect_ownership=false`).then(res => res.json()),
-                    fetch(`${TON_API_BASE}/accounts/${rawAddress}/events?limit=25`).then(res => res.json())
+                    fetch(`${TON_API_BASE}/accounts/${rawAddress}/events?limit=100`).then(res => res.json())
                 ]);
 
                 renderMainAssets(accountInfo, jettonsInfo.balances);
