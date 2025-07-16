@@ -167,9 +167,9 @@
         };
         const shortenAddress = (addr) => addr ? (addr.includes('.') ? addr : `${addr.slice(0, 4)}...${addr.slice(-4)}`) : 'Unknown';
 
-        // **FIXED**: New robust address helpers
-        const getRawAddressForCheck = (addrObj) => addrObj?.raw_form || (typeof addrObj?.address === 'string' ? addrObj.address : null);
-        const getBestAddress = (addrObj) => addrObj?.name || addrObj?.bounceable?.address || getRawAddressForCheck(addrObj);
+        // **FIXED & FINAL**: New robust address helpers
+        const getRaw = (addrObj) => addrObj?.raw_form || (typeof addrObj?.address === 'string' ? addrObj.address : null);
+        const getFriendly = (addrObj) => addrObj?.name || addrObj?.bounceable?.address || getRaw(addrObj);
         
         const renderMainAssets = (accountInfo) => {
             if (!accountInfo) { mainAssetsContent.innerHTML = `<p class="text-danger">Could not load account data.</p>`; return; }
@@ -177,7 +177,7 @@
                 <div class="d-flex align-items-center"><img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;">
                     <div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div></div>
                 <h4 class="m-0">${Number((accountInfo.balance / 1e9).toPrecision(6))}</h4></div>`;
-            const userFriendlyAddress = getBestAddress(accountInfo.address);
+            const userFriendlyAddress = getFriendly(accountInfo.address);
             if (userFriendlyAddress) {
                  mainAssetsContent.innerHTML += `<div class="d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center">
@@ -261,7 +261,7 @@
                     const nftsInfo = nftsRes.status === 'fulfilled' && nftsRes.value.ok ? await nftsRes.value.json() : { nft_items: [] };
                     const eventsInfo = eventsRes.status === 'fulfilled' && eventsRes.value.ok ? await eventsRes.value.json() : { events: [] };
 
-                    const userFriendlyAddress = getBestAddress(accountInfo.address);
+                    const userFriendlyAddress = getFriendly(accountInfo.address);
                     const validLogs = (eventsInfo.events ?? []).flatMap(event => parseEvent(event, rawAddress, userFriendlyAddress));
                     
                     renderMainAssets(accountInfo);
@@ -308,70 +308,53 @@
             for (const action of event.actions) {
                 try {
                     const log = { timestamp: event.timestamp * 1000, status: action.status };
-                    // **FIXED**: The logic to determine the 'other party' is now centralized here.
-                    const processParty = (partyObj) => {
-                        const rawPartyAddress = getRawAddressForCheck(partyObj);
-                        return rawPartyAddress === userRawAddress ? userFriendlyAddress : getBestAddress(partyObj);
-                    };
+                    const processParty = (partyObj) => (getRaw(partyObj) === userRawAddress) ? userFriendlyAddress : getFriendly(partyObj);
 
                     if (action.type === 'TonTransfer' && action.TonTransfer) {
                         const t = action.TonTransfer;
-                        const senderRaw = getRawAddressForCheck(t.sender);
-                        const recipientRaw = getRawAddressForCheck(t.recipient);
-                        if (!senderRaw || !recipientRaw) continue;
-                        
-                        log.direction = senderRaw === userRawAddress ? 'out' : 'in';
+                        if (!getRaw(t.sender) || !getRaw(t.recipient)) continue;
+                        log.direction = getRaw(t.sender) === userRawAddress ? 'out' : 'in';
                         log.title = "TON Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
                         log.amount = Number((t.amount / 1e9).toPrecision(15));
                         log.symbol = 'TON'; log.party_title = log.direction === 'out' ? 'To' : 'From';
                         log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
                         log.image = 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
                         if (log.party) logs.push(log);
-
                     } else if (action.type === 'JettonTransfer' && action.JettonTransfer) {
                         const t = action.JettonTransfer;
-                        const senderRaw = getRawAddressForCheck(t.sender);
-                        const recipientRaw = getRawAddressForCheck(t.recipient);
-                        if (!senderRaw || !recipientRaw) continue;
-                        
-                        log.direction = senderRaw === userRawAddress ? 'out' : 'in';
+                        if (!getRaw(t.sender) || !getRaw(t.recipient)) continue;
+                        log.direction = getRaw(t.sender) === userRawAddress ? 'out' : 'in';
                         log.title = "Jetton Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
                         log.amount = Number((Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9))).toPrecision(15));
                         log.symbol = t.jetton?.symbol || 'Token'; log.party_title = log.direction === 'out' ? 'To' : 'From';
                         log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
                         log.image = t.jetton?.image || 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
                         if (log.party) logs.push(log);
-
                     } else if (action.type === 'JettonMint' && action.JettonMint) {
                          const t = action.JettonMint;
-                         if (getRawAddressForCheck(t.recipient) !== userRawAddress) continue;
+                         if (getRaw(t.recipient) !== userRawAddress) continue;
                          log.direction = 'in'; log.title = "Minted"; log.sign = '+';
                          log.amount = Number((Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9))).toPrecision(15));
                          log.symbol = t.jetton?.symbol || 'Token'; log.party_title = "From";
-                         log.party = getBestAddress(t.jetton); log.image = t.jetton?.image || 'https://ton.org/download/ton_symbol.png';
+                         log.party = getFriendly(t.jetton); log.image = t.jetton?.image || 'https://ton.org/download/ton_symbol.png';
                          if (log.party) logs.push(log);
-
                     } else if (action.type === 'NftItemTransfer' && action.NftItemTransfer) {
                         const t = action.NftItemTransfer;
-                        const senderRaw = getRawAddressForCheck(t.sender);
-                        const recipientRaw = getRawAddressForCheck(t.recipient);
-                        if (!senderRaw || !recipientRaw) continue;
-
-                        log.direction = senderRaw === userRawAddress ? 'out' : 'in';
+                        if (!getRaw(t.sender) || !getRaw(t.recipient)) continue;
+                        log.direction = getRaw(t.sender) === userRawAddress ? 'out' : 'in';
                         log.title = "NFT Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
                         log.amount = ''; log.symbol = t.nft_item?.metadata?.name || 'NFT';
                         log.party_title = log.direction === 'out' ? 'To' : 'From';
                         log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
                         log.image = t.nft_item?.previews?.[0]?.url || 'https://www.svgrepo.com/show/444957/nft-coin.svg';
                         if (log.party) logs.push(log);
-
                     } else if (action.type === 'SmartContractExec' && action.SmartContractExec) {
                          const t = action.SmartContractExec;
-                         if (getRawAddressForCheck(t.executor) !== userRawAddress || !t.ton_attached || t.ton_attached === 0) continue;
+                         if (getRaw(t.executor) !== userRawAddress || !t.ton_attached || t.ton_attached === 0) continue;
                          log.direction = 'out'; log.title = "Contract Call"; log.sign = '-';
                          log.amount = Number((t.ton_attached / 1e9).toPrecision(15));
                          log.symbol = 'TON'; log.party_title = "To Contract";
-                         log.party = getBestAddress(t.contract);
+                         log.party = getFriendly(t.contract);
                          log.image = 'https://www.svgrepo.com/show/443422/smart-contract.svg';
                          if (log.party) logs.push(log);
                     }
