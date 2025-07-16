@@ -102,14 +102,12 @@
                             <div class="card-glass">
                                 <h5 class="card-title">Core Assets</h5>
                                 <div id="main-assets-content"></div>
-                                <hr style="border-color: var(--border-color); margin: 1.5rem 0;" />
-                                <div id="wallet-address-container"></div>
                             </div>
                         </div>
                         <div class="col-md-12">
                              <div class="card-glass">
                                 <h5 class="card-title">Activity Feed</h5>
-                                <div id="activity-feed-content" style="max-height: 450px; overflow-y: auto; padding-right: 10px;"></div>
+                                <div id="activity-feed-content" style="max-height: 480px; overflow-y: auto; padding-right: 10px;"></div>
                             </div>
                         </div>
                     </div>
@@ -158,12 +156,10 @@
         const activityFeedContent = document.getElementById('activity-feed-content');
         const otherTokensContent = document.getElementById('other-tokens-content');
         const nftGalleryContent = document.getElementById('nft-gallery-content');
-        const walletAddressContainer = document.getElementById('wallet-address-container');
 
         // --- SKELETON LOADER TEMPLATES ---
         const skeletonAsset = `<div class="d-flex align-items-center justify-content-between mb-3"><div class="d-flex align-items-center"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div><div class="skeleton-loader skeleton-line w-50"></div><div class="skeleton-loader skeleton-line" style="width: 80px;"></div></div></div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div></div>`;
         const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 30px; height: 30px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
-        const skeletonAddress = `<div class="skeleton-loader skeleton-line w-50 mx-auto"></div>`;
 
         // --- TONCONNECT ---
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
@@ -180,7 +176,6 @@
         };
         const setSkeletonLoaders = () => {
             mainAssetsContent.innerHTML = skeletonAsset + skeletonAsset;
-            walletAddressContainer.innerHTML = skeletonAddress;
             otherTokensContent.innerHTML = skeletonAsset;
             nftGalleryContent.innerHTML = `<div class="row g-3"><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div></div>`;
             activityFeedContent.innerHTML = skeletonTx.repeat(5);
@@ -188,65 +183,47 @@
         const shortenAddress = (addr) => addr ? `${addr.slice(0, 4)}...${addr.slice(-4)}` : '';
 
         // --- UI RENDERING FUNCTIONS ---
-        // **FIXED**: Renders user-friendly (UQ/EQ) address from the full account info object
-        const renderWalletAddress = (accountInfo) => {
-            const userFriendlyAddress = accountInfo?.address?.bounceable?.address;
-            if (userFriendlyAddress) {
-                 walletAddressContainer.innerHTML = `<div class="text-center" title="Your Address: ${userFriendlyAddress}" style="cursor: help;">
-                    <p class="m-0 text-secondary">Wallet Address</p>
-                    <h6 class="m-0" style="color: var(--accent-secondary); letter-spacing: 1px;">${shortenAddress(userFriendlyAddress)}</h6>
-                </div>`;
-            } else {
-                walletAddressContainer.innerHTML = '';
-            }
-        };
-        
-        const renderMainAssets = (accountInfo, jettons) => {
+        // **CHANGED**: This function now renders both TON balance and the Wallet Address.
+        const renderMainAssets = (accountInfo) => {
             mainAssetsContent.innerHTML = '';
-            // TON
+            
+            // TON Balance
             mainAssetsContent.innerHTML += `<div class="d-flex align-items-center justify-content-between mb-4">
                 <div class="d-flex align-items-center"><img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;">
                     <div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div></div>
                 <h4 class="m-0">${(accountInfo.balance / 1e9).toFixed(4)}</h4></div>`;
             
-            // VIEC
-            const viecData = jettons.find(b => b.jetton.address === VIEC_JETTON_ROOT);
-            let viecBalance = '0';
-            // **FIXED**: Use BigInt and dynamic decimals for accurate balance calculation
-            if (viecData) {
-                try {
-                    const balance = BigInt(viecData.balance);
-                    const decimals = viecData.jetton.decimals || 9; // Fallback to 9
-                    const divisor = 10n ** BigInt(decimals);
-                    
-                    // Convert to a standard number for display formatting with toLocaleString
-                    const displayBalance = Number(balance) / Number(divisor);
-                    viecBalance = displayBalance.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 4
-                    });
-                } catch(e) {
-                    console.error("Could not parse VIEC balance:", e);
-                    viecBalance = "Error";
-                }
+            // Wallet Address (replaces VIEC)
+            const userFriendlyAddress = accountInfo?.address?.bounceable?.address;
+            if (userFriendlyAddress) {
+                 mainAssetsContent.innerHTML += `<div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-wallet me-3" style="width: 48px; font-size: 24px; text-align: center; color: var(--accent-secondary);"></i>
+                        <div><h5 class="m-0">Address</h5><p class="m-0 text-secondary">Your Wallet</p></div>
+                    </div>
+                    <h6 class="m-0" style="font-family: monospace; cursor: help;" title="${userFriendlyAddress}">${shortenAddress(userFriendlyAddress)}</h6>
+                </div>`;
             }
-            mainAssetsContent.innerHTML += `<div class="d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center"><img src="https://duccodedao.github.io/VIEC/img/logo_viewc.png" class="me-3" style="width: 48px;">
-                    <div><h5 class="m-0">VIEC</h5><p class="m-0 text-secondary">Vietnam Coin</p></div></div>
-                <h4 class="m-0">${viecBalance}</h4></div>`;
         };
         
         const renderOtherTokens = (jettons) => {
             otherTokensContent.innerHTML = '';
-            const otherJettons = jettons.filter(j => j.jetton.address !== VIEC_JETTON_ROOT);
+            // VIEC will now appear here along with other tokens
+            const otherJettons = jettons; // No longer filtering VIEC out
             if(otherJettons.length > 0) {
                 otherJettons.forEach(j => {
-                    const balance = (BigInt(j.balance) / (10n ** BigInt(j.jetton.decimals))).toLocaleString(undefined, { maximumFractionDigits: 4 });
+                    // Use BigInt for safety with large numbers
+                    const balanceBigInt = BigInt(j.balance);
+                    const decimals = j.jetton.decimals || 9;
+                    const divisor = 10n ** BigInt(decimals);
+                    const displayBalance = Number(balanceBigInt) / Number(divisor);
+                    const formattedBalance = displayBalance.toLocaleString(undefined, { maximumFractionDigits: 4 });
+
                     otherTokensContent.innerHTML += `<div class="d-flex align-items-center justify-content-between mb-3">
                         <div class="d-flex align-items-center"><img src="${j.jetton.image}" class="me-3" style="width: 32px; height: 32px; border-radius: 50%;">
-                        <div><h6 class="m-0">${j.jetton.symbol}</h6></div></div><h6 class="m-0">${balance}</h6></div>`;
+                        <div><h6 class="m-0">${j.jetton.symbol}</h6></div></div><h6 class="m-0">${formattedBalance}</h6></div>`;
                 });
-            } else { otherTokensContent.innerHTML = `<p class="text-secondary">No other tokens found.</p>`; }
+            } else { otherTokensContent.innerHTML = `<p class="text-secondary">No tokens found.</p>`; }
         };
 
         const renderNFTs = (nfts) => {
@@ -295,12 +272,11 @@
                     fetch(`${TON_API_BASE}/accounts/${rawAddress}`).then(res => res.json()),
                     fetch(`${TON_API_BASE}/accounts/${rawAddress}/jettons`).then(res => res.json()),
                     fetch(`${TON_API_BASE}/accounts/${rawAddress}/nfts?limit=100&indirect_ownership=false`).then(res => res.json()),
-                    fetch(`${TON_API_BASE}/accounts/${rawAddress}/events?limit=100`).then(res => res.json())
+                    fetch(`${TON_API_BASE}/accounts/${rawAddress}/events?limit=1000`).then(res => res.json())
                 ]);
 
-                // Pass the whole accountInfo object to render the user-friendly address
-                renderWalletAddress(accountInfo); 
-                renderMainAssets(accountInfo, jettonsInfo.balances);
+                // **CHANGED**: Pass only accountInfo as jettons are no longer needed here.
+                renderMainAssets(accountInfo); 
                 renderOtherTokens(jettonsInfo.balances);
                 renderNFTs(nftsInfo);
                 renderActivity(eventsInfo, rawAddress);
