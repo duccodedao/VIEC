@@ -12,6 +12,8 @@
     <!-- Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <!-- **NEW**: Telegram WebApp script -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
     <!-- Fonts -->
@@ -49,7 +51,9 @@
         
         .main-container { max-width: 1400px; padding: 2rem 1rem; margin: auto; }
         .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 2rem; }
-        .header-logo img { height: 40px; }
+        .header-logo { display: flex; align-items: center; text-decoration: none; color: var(--text-primary); gap: 10px; }
+        .header-logo img { height: 40px; width: 40px; object-fit: cover; transition: all 0.3s ease; }
+        .header-logo span { font-size: 1.1rem; font-weight: 600; }
         
         .card-glass { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 1.5rem; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: all 0.3s ease; height: 100%; }
         .card-glass:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
@@ -62,7 +66,6 @@
         .skeleton-loader { background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); background-size: 200% 100%; border-radius: 8px; animation: shimmer 1.5s infinite; }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         .skeleton-line { height: 20px; margin-bottom: 10px; }
-        .skeleton-line.w-50 { width: 50%; }
         
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -78,10 +81,10 @@
         .verified-tick { color: var(--color-verified); margin-left: 5px; font-size: 0.9em; }
 
         #custom-wallet-button { background: var(--accent-primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 500; cursor: pointer; }
-        #wallet-dropdown { display: none; position: absolute; right: 1rem; top: 100%; background-color: #171b30; border: 1px solid var(--border-color); border-radius: 8px; z-index: 1000; min-width: 160px; box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
+        #wallet-dropdown { display: none; position: absolute; right: 0; top: calc(100% + 5px); background-color: #171b30; border: 1px solid var(--border-color); border-radius: 8px; z-index: 1000; min-width: 160px; box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
         #wallet-dropdown a { color: var(--text-primary); padding: 12px 16px; text-decoration: none; display: block; font-size: 0.9rem; }
         #wallet-dropdown a:hover { background-color: rgba(145, 94, 255, 0.2); }
-        #wallet-dropdown a i { margin-right: 10px; }
+        #wallet-dropdown a i { margin-right: 10px; width: 15px; text-align: center; }
 
         @media (min-width: 768px) {
             .hero-section h1 { font-size: 3.5rem; }
@@ -93,7 +96,10 @@
 
     <div class="main-container">
         <header class="header">
-            <a href="#" class="header-logo"><img src="https://duccodedao.github.io/VIEC/img/logo_viewc.png" alt="NEURALIS Logo"></a>
+            <a href="#" class="header-logo" id="app-logo-container">
+                <img id="app-logo-img" src="https://duccodedao.github.io/VIEC/img/logo_viewc.png" alt="App Logo">
+                <span id="app-logo-text"></span>
+            </a>
             <div class="position-relative">
                 <div id="ton-connect-button-root"></div>
                 <div id="custom-wallet-button-container" style="display: none;">
@@ -107,7 +113,7 @@
         </header>
 
         <main id="dashboard" style="display: none;">
-            <div class="row g-4">
+             <div class="row g-4">
                 <div class="col-lg-7">
                     <div class="row g-4">
                         <div class="col-md-12"><div class="card-glass"><h5 class="card-title">Core Assets</h5><div id="main-assets-content"></div></div></div>
@@ -148,9 +154,28 @@
         const walletDropdown = document.getElementById('wallet-dropdown');
         const copyAddressBtn = document.getElementById('copy-address-btn');
         const disconnectBtn = document.getElementById('disconnect-btn');
+        
+        const appLogoImg = document.getElementById('app-logo-img');
+        const appLogoText = document.getElementById('app-logo-text');
+        const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo_viewc.png';
+        const BMASS_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo.png'; 
 
         const skeletonAsset = `<div class="d-flex align-items-center justify-content-between mb-3"><div class="d-flex align-items-center"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div><div class="skeleton-loader skeleton-line w-50"></div><div class="skeleton-loader skeleton-line" style="width: 80px;"></div></div></div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div></div>`;
         const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
+
+        // **FIXED & FINAL**: The correct way to get Telegram User data.
+        let telegramUserData = null;
+        try {
+            if (window.Telegram && window.Telegram.WebApp) {
+                const tg = window.Telegram.WebApp;
+                tg.ready();
+                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                    telegramUserData = tg.initDataUnsafe.user;
+                }
+            }
+        } catch (e) {
+            console.error("Could not initialize Telegram Web App:", e);
+        }
 
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json', buttonRootId: 'ton-connect-button-root' });
         connectWalletHeroBtn.addEventListener('click', () => tonConnectUI.openModal());
@@ -167,7 +192,6 @@
         };
         const shortenAddress = (addr) => addr ? (addr.includes('.') ? addr : `${addr.slice(0, 4)}...${addr.slice(-4)}`) : 'Unknown';
 
-        // **FIXED & FINAL**: The definitive, simplified address helpers.
         const getRaw = (addrObj) => addrObj?.raw_form || (typeof addrObj?.address === 'string' ? addrObj.address : null);
         const getFriendly = (addrObj) => addrObj?.name || addrObj?.bounceable?.address || getRaw(addrObj) || 'Unknown Address';
         
@@ -177,7 +201,7 @@
                 <div class="d-flex align-items-center"><img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;">
                     <div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div></div>
                 <h4 class="m-0">${Number((accountInfo.balance / 1e9).toPrecision(6))}</h4></div>`;
-            const userFriendlyAddress = getFriendly(accountInfo); // Pass the whole accountInfo object
+            const userFriendlyAddress = getFriendly(accountInfo);
             if (userFriendlyAddress) {
                  mainAssetsContent.innerHTML += `<div class="d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center">
@@ -242,6 +266,17 @@
 
         tonConnectUI.onStatusChange(async (wallet) => {
             if (wallet) {
+                // **FIXED & FINAL**: The definitive logic for updating the app logo.
+                if (telegramUserData) {
+                    appLogoImg.src = telegramUserData.photo_url || DEFAULT_LOGO_SRC;
+                    appLogoImg.style.borderRadius = '50%';
+                    appLogoText.textContent = `@${telegramUserData.username}` || 'Telegram User';
+                } else {
+                    appLogoImg.src = BMASS_LOGO_SRC;
+                    appLogoImg.style.borderRadius = '0';
+                    appLogoText.textContent = 'Bmass Wallet';
+                }
+
                 showDashboard(true);
                 setSkeletonLoaders();
                 try {
@@ -261,7 +296,7 @@
                     const nftsInfo = nftsRes.status === 'fulfilled' && nftsRes.value.ok ? await nftsRes.value.json() : { nft_items: [] };
                     const eventsInfo = eventsRes.status === 'fulfilled' && eventsRes.value.ok ? await eventsRes.value.json() : { events: [] };
 
-                    const userFriendlyAddress = getFriendly(accountInfo); // Pass the whole object
+                    const userFriendlyAddress = getFriendly(accountInfo);
                     const validLogs = (eventsInfo.events ?? []).flatMap(event => parseEvent(event, rawAddress, userFriendlyAddress));
                     
                     renderMainAssets(accountInfo);
@@ -284,6 +319,10 @@
                 showDashboard(false);
                 tonConnectButtonRoot.style.display = 'block';
                 customWalletContainer.style.display = 'none';
+                
+                appLogoImg.src = DEFAULT_LOGO_SRC;
+                appLogoImg.style.borderRadius = '0';
+                appLogoText.textContent = '';
             }
         });
         
