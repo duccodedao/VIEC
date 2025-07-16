@@ -50,7 +50,7 @@
         
         .main-container { max-width: 1400px; padding: 2rem 1rem; margin: auto; }
         .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 2rem; }
-        .header-logo { display: flex; align-items: center; text-decoration: none; color: var(--text-primary); gap: 10px; }
+        .header-logo { display: flex; align-items: center; text-decoration: none; color: var(--text-primary); gap: 10px; z-index: 1100; }
         .header-logo img { height: 40px; width: 40px; object-fit: cover; transition: all 0.3s ease; }
         .header-logo span { font-size: 1.1rem; font-weight: 600; }
         
@@ -81,12 +81,6 @@
 
         .jetton-item { cursor: pointer; transition: background-color 0.2s; border-radius: 8px; }
         .jetton-item:hover { background-color: rgba(145, 94, 255, 0.1); }
-
-        #custom-wallet-button { background: var(--accent-primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 500; cursor: pointer; }
-        #wallet-dropdown { display: none; position: absolute; right: 0; top: calc(100% + 5px); background-color: #171b30; border: 1px solid var(--border-color); border-radius: 8px; z-index: 1056; min-width: 160px; box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
-        #wallet-dropdown a { color: var(--text-primary); padding: 12px 16px; text-decoration: none; display: block; font-size: 0.9rem; }
-        #wallet-dropdown a:hover { background-color: rgba(145, 94, 255, 0.2); }
-        #wallet-dropdown a i { margin-right: 10px; width: 15px; text-align: center; }
         
         #search-results-container { max-height: 40vh; overflow-y: auto; }
         .search-result-item { cursor: pointer; padding: 10px; border-radius: 8px; transition: background-color 0.2s ease; }
@@ -112,6 +106,60 @@
         .news-card-title { font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .news-card-source { font-size: 0.8rem; color: var(--text-secondary); }
 
+        /* --- START: Sidebar and Hamburger Menu --- */
+        .hamburger-btn {
+            width: 40px; height: 40px;
+            background: transparent; border: none;
+            padding: 0; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            gap: 5px; cursor: pointer; z-index: 1100;
+        }
+        .hamburger-btn span {
+            display: block; width: 24px; height: 2px;
+            background-color: var(--text-primary);
+            border-radius: 2px; transition: all 0.3s ease-in-out;
+        }
+        .hamburger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger-btn.open span:nth-child(2) { opacity: 0; }
+        .hamburger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        .sidebar {
+            position: fixed; top: 0; left: 0;
+            width: 280px; height: 100%;
+            background: var(--bg-color);
+            padding: 6rem 2rem 2rem;
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 1050; display: flex; flex-direction: column;
+        }
+        .sidebar.open { transform: translateX(0); box-shadow: 10px 0px 50px -20px rgba(0,0,0,0.5); }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+        .sidebar-link {
+            color: var(--text-secondary); text-decoration: none; font-size: 1.1rem;
+            font-weight: 500; padding: 10px; border-radius: 8px;
+            transition: color 0.3s, background-color 0.3s;
+        }
+        .sidebar-link:hover { color: var(--text-primary); background-color: var(--border-color); }
+        
+        .sidebar-wallet-connect { margin-top: auto; }
+        #custom-wallet-button { background: var(--accent-primary); color: white; border: none; padding: 10px 16px; width: 100%; border-radius: 8px; font-weight: 500; cursor: pointer; text-align: center; }
+        #wallet-dropdown { display: none; position: absolute; right: 0; bottom: calc(100% + 10px); background-color: #171b30; border: 1px solid var(--border-color); border-radius: 8px; z-index: 1056; min-width: 100%; box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
+        #wallet-dropdown a { color: var(--text-primary); padding: 12px 16px; text-decoration: none; display: block; font-size: 0.9rem; }
+        #wallet-dropdown a:hover { background-color: rgba(145, 94, 255, 0.2); }
+        #wallet-dropdown a i { margin-right: 10px; width: 15px; text-align: center; }
+
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+            z-index: 1040;
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.4s, visibility 0.4s;
+        }
+        .sidebar-overlay.open { opacity: 1; visibility: visible; }
+        /* --- END: Sidebar and Hamburger Menu --- */
+
         @media (min-width: 768px) {
             .hero-section h1 { font-size: 3.5rem; }
             .card-glass { padding: 2rem; }
@@ -119,13 +167,14 @@
     </style>
 </head>
 <body>
-
-    <div class="main-container">
-        <header class="header">
-            <a href="#" class="header-logo" id="app-logo-container">
-                <img id="app-logo-img" src="https://duccodedao.github.io/VIEC/img/logo_viewc.png" alt="App Logo">
-                <span id="app-logo-text"></span>
-            </a>
+    <div id="sidebar-overlay"></div>
+    <nav id="sidebar-menu" class="sidebar">
+        <div class="sidebar-nav">
+            <a href="#" class="sidebar-link">Dashboard</a>
+            <a href="#" class="sidebar-link">Wallet</a>
+        </div>
+        
+        <div class="sidebar-wallet-connect">
             <div class="position-relative">
                 <div id="ton-connect-button-root"></div>
                 <div id="custom-wallet-button-container" style="display: none;">
@@ -136,6 +185,20 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </nav>
+    
+    <div class="main-container">
+        <header class="header">
+            <a href="#" class="header-logo" id="app-logo-container">
+                <img id="app-logo-img" src="https://duccodedao.github.io/VIEC/img/logo_viewc.png" alt="App Logo">
+                <span id="app-logo-text"></span>
+            </a>
+            <button id="hamburger-menu-btn" class="hamburger-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </header>
 
         <main id="dashboard" style="display: none;">
@@ -177,7 +240,7 @@
             <div class="container">
                 <h1 class="mb-4">Welcome to the <span class="highlight">Neuralis</span><br/>Web3 Experience</h1>
                 <p class="lead text-secondary col-md-8 mx-auto mb-4">Connect your wallet to visualize your assets and interact with the VIEC ecosystem in a stunning, next-generation interface.</p>
-                <button id="connect-wallet-hero-btn" class="btn px-5 py-3" style="background-color: var(--accent-primary); color: white; font-weight: 600;">Connect Wallet</button>
+                <div id="connect-wallet-hero-btn-container"></div>
             </div>
         </section>
 
@@ -217,7 +280,6 @@
         const TON_API_BASE = 'https://tonapi.io/v2';
         const dashboardEl = document.getElementById('dashboard');
         const heroEl = document.getElementById('hero-section');
-        const connectWalletHeroBtn = document.getElementById('connect-wallet-hero-btn');
         const mainAssetsContent = document.getElementById('main-assets-content');
         const activityFeedContent = document.getElementById('activity-feed-content');
         const otherTokensContent = document.getElementById('other-tokens-content');
@@ -225,6 +287,15 @@
         const newsSection = document.getElementById('crypto-news-feed');
         const newsContentArea = document.getElementById('news-content-area');
 
+        // NEW: Sidebar elements
+        const hamburgerBtn = document.getElementById('hamburger-menu-btn');
+        const sidebarMenu = document.getElementById('sidebar-menu');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+        
+        // Connect button moved from Hero, new container
+        const connectWalletHeroBtnContainer = document.getElementById('connect-wallet-hero-btn-container');
+
+        // Original wallet elements are now inside the sidebar
         const tonConnectButtonRoot = document.getElementById('ton-connect-button-root');
         const customWalletContainer = document.getElementById('custom-wallet-button-container');
         const customWalletButton = document.getElementById('custom-wallet-button');
@@ -259,9 +330,32 @@
             }
         } catch (e) { console.error("Could not initialize Telegram Web App:", e); }
 
-        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json', buttonRootId: 'ton-connect-button-root' });
-        connectWalletHeroBtn.addEventListener('click', () => tonConnectUI.openModal());
+        // Initialize TonConnectUI for BOTH sidebar and hero section
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ 
+            manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json',
+            buttonRootId: 'ton-connect-button-root' 
+        });
+
+        // We'll create a standalone button for the hero section
+        // as the default one is now inside the hidden sidebar.
+        const heroConnectButton = document.createElement('button');
+        heroConnectButton.id = 'connect-wallet-hero-btn';
+        heroConnectButton.className = 'btn px-5 py-3';
+        heroConnectButton.style = 'background-color: var(--accent-primary); color: white; font-weight: 600;';
+        heroConnectButton.textContent = 'Connect Wallet';
+        heroConnectButton.addEventListener('click', () => tonConnectUI.openModal());
+        connectWalletHeroBtnContainer.appendChild(heroConnectButton);
         
+        // --- NEW: Sidebar Logic ---
+        const toggleSidebar = () => {
+            hamburgerBtn.classList.toggle('open');
+            sidebarMenu.classList.toggle('open');
+            sidebarOverlay.classList.toggle('open');
+        };
+        hamburgerBtn.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+
+
         // --- Core Functions ---
         const showDashboard = (show) => {
             dashboardEl.style.display = show ? 'block' : 'none';
@@ -275,7 +369,7 @@
             activityFeedContent.innerHTML = skeletonTx.repeat(5);
         };
 
-        const shortenAddress = (addr, start = 4, end = 4) => addr ? (addr.includes('.') ? addr : `${addr.slice(0, start)}...${addr.slice(-end)}`) : 'Unknown';
+        const shortenAddress = (addr, start = 6, end = 6) => addr ? (addr.includes('.') ? addr : `${addr.slice(0, start)}...${addr.slice(-end)}`) : 'Unknown';
         const getRaw = (addrObj) => addrObj?.raw_form || (typeof addrObj?.address === 'string' ? addrObj.address : null);
         const getDisplayAddress = (addrObj) => addrObj?.bounceable?.address || addrObj?.name || getRaw(addrObj) || 'Unknown Address';
         
@@ -306,7 +400,7 @@
                 renderMainAssets(accountInfo);
                 renderOtherTokens(jettonsInfo.balances ?? []);
                 renderNFTs(nftsInfo.nft_items ?? []);
-                renderActivity(validLogs); // Call the restored function
+                renderActivity(validLogs);
             } catch (error) {
                 console.error("Error fetching account data:", error);
                 mainAssetsContent.innerHTML = `<p class="text-danger"><strong>Error:</strong> Could not load data for this account. It might be uninitialized.</p>`;
@@ -360,7 +454,6 @@
                 nftGalleryContent.innerHTML = html;
             } else { nftGalleryContent.innerHTML = `<p class="text-secondary">No NFTs found.</p>`; }
         };
-        // *** RESTORED FUNCTION ***
         const renderActivity = (validLogs) => {
             activityFeedContent.innerHTML = '';
             if (validLogs && validLogs.length > 0) {
@@ -408,6 +501,9 @@
                 customWalletContainer.style.display = 'block';
                 customWalletButton.textContent = friendlyAddress;
                 copyAddressBtn.dataset.address = wallet.account.address;
+
+                if(sidebarMenu.classList.contains('open')) toggleSidebar();
+
             } else {
                 connectedWalletAddress = null;
                 showDashboard(false);
@@ -428,7 +524,7 @@
             if (address) navigator.clipboard.writeText(address).then(() => { textSpan.textContent = 'Copied!'; setTimeout(() => { textSpan.textContent = 'Copy Address'; }, 2000); });
         });
         window.addEventListener('click', (e) => { 
-            if (!customWalletContainer.contains(e.target)) walletDropdown.style.display = 'none';
+            if (customWalletContainer && !customWalletContainer.contains(e.target)) walletDropdown.style.display = 'none';
             if (!document.getElementById('account-search-section').contains(e.target)) searchResultsContainer.style.display = 'none';
         });
 
@@ -539,7 +635,6 @@
             } else { holdersEl.innerHTML = `<p class="text-danger">Failed to load holders.</p>`; }
         }
 
-        // *** RESTORED FUNCTION ***
         function parseEvent(event, userRawAddress, userFriendlyAddress) {
             const logs = [];
             if (!event?.actions) return logs;
@@ -601,7 +696,6 @@
             return logs;
         }
 
-        // *** RESTORED FUNCTION ***
         async function fetchCryptoNews() {
             const API_URL = 'https://min-api.cryptocompare.com/data/v2/news/?lang=EN&limit=20';
             newsContentArea.innerHTML = `<div class="news-grid">${skeletonTx.repeat(3)}</div>`;
