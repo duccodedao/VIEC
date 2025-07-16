@@ -75,17 +75,14 @@
         .status-icon { font-size: 0.7rem; margin-right: 6px; }
         .status-ok { color: var(--color-in); }
         .status-failed { color: var(--color-failed); }
-
         .verified-tick { color: var(--color-verified); margin-left: 5px; font-size: 0.9em; }
 
-        /* Custom Wallet Button Styles */
         #custom-wallet-button { background: var(--accent-primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 500; cursor: pointer; }
         #wallet-dropdown { display: none; position: absolute; right: 1rem; top: 100%; background-color: #171b30; border: 1px solid var(--border-color); border-radius: 8px; z-index: 1000; min-width: 160px; box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
         #wallet-dropdown a { color: var(--text-primary); padding: 12px 16px; text-decoration: none; display: block; font-size: 0.9rem; }
         #wallet-dropdown a:hover { background-color: rgba(145, 94, 255, 0.2); }
         #wallet-dropdown a i { margin-right: 10px; }
 
-        /* Responsive Font Sizes */
         @media (min-width: 768px) {
             .hero-section h1 { font-size: 3.5rem; }
             .card-glass { padding: 2rem; }
@@ -145,8 +142,6 @@
         const activityFeedContent = document.getElementById('activity-feed-content');
         const otherTokensContent = document.getElementById('other-tokens-content');
         const nftGalleryContent = document.getElementById('nft-gallery-content');
-        
-        // Custom Wallet Button elements
         const tonConnectButtonRoot = document.getElementById('ton-connect-button-root');
         const customWalletContainer = document.getElementById('custom-wallet-button-container');
         const customWalletButton = document.getElementById('custom-wallet-button');
@@ -180,7 +175,7 @@
             mainAssetsContent.innerHTML = `<div class="d-flex align-items-center justify-content-between mb-4">
                 <div class="d-flex align-items-center"><img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;">
                     <div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div></div>
-                <h4 class="m-0">${(accountInfo.balance / 1e9).toFixed(4)}</h4></div>`;
+                <h4 class="m-0">${Number((accountInfo.balance / 1e9).toFixed(9))}</h4></div>`;
             const userFriendlyAddress = getFriendlyDisplayAddress(accountInfo.address);
             if (userFriendlyAddress) {
                  mainAssetsContent.innerHTML += `<div class="d-flex align-items-center justify-content-between">
@@ -196,19 +191,19 @@
             otherTokensContent.innerHTML = '';
             if (jettons && jettons.length > 0) {
                 jettons.forEach(j => {
-                    const displayBalance = (Number(BigInt(j.balance)) / (10 ** (j.jetton.decimals || 9))).toLocaleString(undefined, { maximumFractionDigits: 4 });
+                    const displayBalance = Number((Number(BigInt(j.balance)) / (10 ** (j.jetton.decimals || 9))).toPrecision(15));
                     const verifiedTick = j.jetton.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
                     otherTokensContent.innerHTML += `<div class="d-flex align-items-center justify-content-between mb-3">
                         <div class="d-flex align-items-center"><img src="${j.jetton.image}" class="me-3" style="width: 32px; height: 32px; border-radius: 50%;">
-                        <div><h6 class="m-0">${j.jetton.symbol}${verifiedTick}</h6></div></div><h6 class="m-0">${displayBalance}</h6></div>`;
+                        <div><h6 class="m-0">${j.jetton.symbol}${verifiedTick}</h6></div></div><h6 class="m-0">${displayBalance.toLocaleString()}</h6></div>`;
                 });
             } else { otherTokensContent.innerHTML = `<p class="text-secondary">No tokens found.</p>`; }
         };
         const renderNFTs = (nfts) => {
             nftGalleryContent.innerHTML = '';
             if (nfts && nfts.length > 0) {
-                let html = '<div class="row g-3">';
-                nfts.slice(0, 18).forEach(nft => { // **CHANGED** col-3 to show more smaller nfts
+                let html = '<div class="row g-2">'; // g-2 for less space
+                nfts.slice(0, 18).forEach(nft => {
                     const imgUrl = nft.previews?.[nft.previews.length - 1]?.url || nft.metadata?.image || 'https://via.placeholder.com/100';
                     html += `<div class="col-3"><div title="${nft.metadata?.name || 'NFT'}" style="cursor: pointer;">
                                <img src="${imgUrl}" style="width: 100%; border-radius: 12px; aspect-ratio: 1/1; object-fit: cover;" onerror="this.src='https://via.placeholder.com/100'">
@@ -268,18 +263,15 @@
                     const userFriendlyAddress = getFriendlyDisplayAddress(accountInfo.address);
                     const validLogs = (eventsInfo.events ?? []).flatMap(event => parseEvent(event, rawAddress, userFriendlyAddress));
                     
-                    // Update UI
                     renderMainAssets(accountInfo);
                     renderOtherTokens(jettonsInfo.balances ?? []);
                     renderNFTs(nftsInfo.nft_items ?? []);
                     renderActivity(validLogs);
 
-                    // **NEW**: Handle custom wallet button UI
                     tonConnectButtonRoot.style.display = 'none';
                     customWalletContainer.style.display = 'block';
                     customWalletButton.textContent = shortenAddress(userFriendlyAddress);
                     copyAddressBtn.dataset.address = userFriendlyAddress;
-
                 } catch (error) {
                     console.error("A critical error occurred while fetching data:", error);
                     mainAssetsContent.innerHTML = `<p class="text-danger"><strong>Error:</strong> Could not load wallet data. Please try refreshing.</p>`;
@@ -289,23 +281,13 @@
                 }
             } else {
                 showDashboard(false);
-                // **NEW**: Revert to default TonConnect button on disconnect
                 tonConnectButtonRoot.style.display = 'block';
                 customWalletContainer.style.display = 'none';
             }
         });
         
-        // **NEW**: Event listeners for custom wallet dropdown
-        customWalletButton.addEventListener('click', () => {
-            walletDropdown.style.display = walletDropdown.style.display === 'block' ? 'none' : 'block';
-        });
-
-        disconnectBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            tonConnectUI.disconnect();
-            walletDropdown.style.display = 'none';
-        });
-
+        customWalletButton.addEventListener('click', () => { walletDropdown.style.display = walletDropdown.style.display === 'block' ? 'none' : 'block'; });
+        disconnectBtn.addEventListener('click', (e) => { e.preventDefault(); tonConnectUI.disconnect(); walletDropdown.style.display = 'none'; });
         copyAddressBtn.addEventListener('click', (e) => {
             e.preventDefault();
             const address = e.currentTarget.dataset.address;
@@ -317,13 +299,7 @@
                 });
             }
         });
-        
-        // Hide dropdown if clicked outside
-        window.addEventListener('click', (e) => {
-            if (!customWalletContainer.contains(e.target)) {
-                walletDropdown.style.display = 'none';
-            }
-        });
+        window.addEventListener('click', (e) => { if (!customWalletContainer.contains(e.target)) { walletDropdown.style.display = 'none'; } });
 
         function parseEvent(event, userRawAddress, userFriendlyAddress) {
             const logs = [];
@@ -338,7 +314,7 @@
                         if (!getRawAddress(t.sender) || !getRawAddress(t.recipient)) continue;
                         log.direction = getRawAddress(t.sender) === userRawAddress ? 'out' : 'in';
                         log.title = "TON Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
-                        log.amount = (parseInt(t.amount) / 1e9).toFixed(4);
+                        log.amount = Number((t.amount / 1e9).toPrecision(15));
                         log.symbol = 'TON'; log.party_title = log.direction === 'out' ? 'To' : 'From';
                         log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
                         log.image = 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
@@ -348,7 +324,7 @@
                         if (!getRawAddress(t.sender) || !getRawAddress(t.recipient)) continue;
                         log.direction = getRawAddress(t.sender) === userRawAddress ? 'out' : 'in';
                         log.title = "Jetton Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
-                        log.amount = (Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9))).toLocaleString(undefined, { maximumFractionDigits: 4 });
+                        log.amount = Number((Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9))).toPrecision(15));
                         log.symbol = t.jetton?.symbol || 'Token'; log.party_title = log.direction === 'out' ? 'To' : 'From';
                         log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
                         log.image = t.jetton?.image || 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
@@ -357,7 +333,7 @@
                          const t = action.JettonMint;
                          if (getRawAddress(t.recipient) !== userRawAddress) continue;
                          log.direction = 'in'; log.title = "Minted"; log.sign = '+';
-                         log.amount = (Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9))).toLocaleString(undefined, { maximumFractionDigits: 4 });
+                         log.amount = Number((Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9))).toPrecision(15));
                          log.symbol = t.jetton?.symbol || 'Token'; log.party_title = "From";
                          log.party = getFriendlyDisplayAddress(t.jetton); log.image = t.jetton?.image || 'https://ton.org/download/ton_symbol.png';
                          if (log.party) logs.push(log);
@@ -375,7 +351,7 @@
                          const t = action.SmartContractExec;
                          if (getRawAddress(t.executor) !== userRawAddress || !t.ton_attached || t.ton_attached === 0) continue;
                          log.direction = 'out'; log.title = "Contract Call"; log.sign = '-';
-                         log.amount = (parseInt(t.ton_attached) / 1e9).toFixed(5);
+                         log.amount = Number((t.ton_attached / 1e9).toPrecision(15));
                          log.symbol = 'TON'; log.party_title = "To Contract";
                          log.party = getFriendlyDisplayAddress(t.contract);
                          log.image = 'https://www.svgrepo.com/show/443422/smart-contract.svg';
