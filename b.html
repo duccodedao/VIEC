@@ -46,24 +46,11 @@
             100% { background-position: 0% 50%; }
         }
         
-        /* Main Container */
-        .main-container {
-            max-width: 1400px;
-            padding: 2rem;
-            margin: auto;
-        }
+        .main-container { max-width: 1400px; padding: 2rem; margin: auto; }
         
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 1rem;
-            margin-bottom: 2rem;
-        }
+        .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 2rem; }
         .header-logo img { height: 40px; }
         
-        /* Card Glass */
         .card-glass {
             background: var(--card-color);
             border: 1px solid var(--border-color);
@@ -75,25 +62,13 @@
             transition: all 0.3s ease;
             height: 100%;
         }
-        .card-glass:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 0 25px rgba(145, 94, 255, 0.3);
-            border-color: var(--accent-primary);
-        }
+        .card-glass:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
         .card-title { font-weight: 600; margin-bottom: 1.5rem; }
         
-        /* Hero Section */
-        .hero-section {
-            text-align: center;
-            padding: 4rem 0;
-        }
-        .hero-section h1 {
-            font-size: 3.5rem;
-            font-weight: 700;
-        }
+        .hero-section { text-align: center; padding: 4rem 0; }
+        .hero-section h1 { font-size: 3.5rem; font-weight: 700; }
         .hero-section .highlight { color: var(--accent-primary); }
 
-        /* Skeleton Loader */
         .skeleton-loader {
             background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
             background-size: 200% 100%;
@@ -104,7 +79,6 @@
         .skeleton-line { height: 20px; margin-bottom: 10px; }
         .skeleton-line.w-50 { width: 50%; }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
@@ -124,7 +98,6 @@
                 <!-- Left Column -->
                 <div class="col-lg-7">
                     <div class="row g-4">
-                        <!-- Main Assets -->
                         <div class="col-md-12">
                             <div class="card-glass">
                                 <h5 class="card-title">Core Assets</h5>
@@ -133,7 +106,6 @@
                                 <div id="wallet-address-container"></div>
                             </div>
                         </div>
-                        <!-- Activity Feed -->
                         <div class="col-md-12">
                              <div class="card-glass">
                                 <h5 class="card-title">Activity Feed</h5>
@@ -145,14 +117,12 @@
                 <!-- Right Column -->
                 <div class="col-lg-5">
                      <div class="row g-4">
-                        <!-- Other Tokens -->
                          <div class="col-12">
                              <div class="card-glass">
                                 <h5 class="card-title">Token Portfolio</h5>
                                 <div id="other-tokens-content" style="max-height: 250px; overflow-y: auto; padding-right: 10px;"></div>
                             </div>
                          </div>
-                        <!-- NFT Gallery -->
                         <div class="col-12">
                             <div class="card-glass">
                                 <h5 class="card-title">NFT Gallery</h5>
@@ -215,14 +185,20 @@
             nftGalleryContent.innerHTML = `<div class="row g-3"><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div></div>`;
             activityFeedContent.innerHTML = skeletonTx.repeat(5);
         };
-        const shortenAddress = (addr) => `${addr.slice(0, 4)}...${addr.slice(-4)}`;
+        const shortenAddress = (addr) => addr ? `${addr.slice(0, 4)}...${addr.slice(-4)}` : '';
 
         // --- UI RENDERING FUNCTIONS ---
-        const renderWalletAddress = (address) => {
-            walletAddressContainer.innerHTML = `<div class="text-center" title="Your Address: ${address}" style="cursor: help;">
-                <p class="m-0 text-secondary">Wallet Address</p>
-                <h6 class="m-0" style="color: var(--accent-secondary); letter-spacing: 1px;">${shortenAddress(address)}</h6>
-            </div>`;
+        // **FIXED**: Renders user-friendly (UQ/EQ) address from the full account info object
+        const renderWalletAddress = (accountInfo) => {
+            const userFriendlyAddress = accountInfo?.address?.bounceable?.address;
+            if (userFriendlyAddress) {
+                 walletAddressContainer.innerHTML = `<div class="text-center" title="Your Address: ${userFriendlyAddress}" style="cursor: help;">
+                    <p class="m-0 text-secondary">Wallet Address</p>
+                    <h6 class="m-0" style="color: var(--accent-secondary); letter-spacing: 1px;">${shortenAddress(userFriendlyAddress)}</h6>
+                </div>`;
+            } else {
+                walletAddressContainer.innerHTML = '';
+            }
         };
         
         const renderMainAssets = (accountInfo, jettons) => {
@@ -232,9 +208,28 @@
                 <div class="d-flex align-items-center"><img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;">
                     <div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div></div>
                 <h4 class="m-0">${(accountInfo.balance / 1e9).toFixed(4)}</h4></div>`;
+            
             // VIEC
             const viecData = jettons.find(b => b.jetton.address === VIEC_JETTON_ROOT);
-            const viecBalance = viecData ? (parseInt(viecData.balance) / 1e9).toLocaleString() : '0';
+            let viecBalance = '0';
+            // **FIXED**: Use BigInt and dynamic decimals for accurate balance calculation
+            if (viecData) {
+                try {
+                    const balance = BigInt(viecData.balance);
+                    const decimals = viecData.jetton.decimals || 9; // Fallback to 9
+                    const divisor = 10n ** BigInt(decimals);
+                    
+                    // Convert to a standard number for display formatting with toLocaleString
+                    const displayBalance = Number(balance) / Number(divisor);
+                    viecBalance = displayBalance.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 4
+                    });
+                } catch(e) {
+                    console.error("Could not parse VIEC balance:", e);
+                    viecBalance = "Error";
+                }
+            }
             mainAssetsContent.innerHTML += `<div class="d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center"><img src="https://duccodedao.github.io/VIEC/img/logo_viewc.png" class="me-3" style="width: 48px;">
                     <div><h5 class="m-0">VIEC</h5><p class="m-0 text-secondary">Vietnam Coin</p></div></div>
@@ -246,7 +241,7 @@
             const otherJettons = jettons.filter(j => j.jetton.address !== VIEC_JETTON_ROOT);
             if(otherJettons.length > 0) {
                 otherJettons.forEach(j => {
-                    const balance = (parseInt(j.balance) / (10 ** j.jetton.decimals)).toLocaleString(undefined, { maximumFractionDigits: 4 });
+                    const balance = (BigInt(j.balance) / (10n ** BigInt(j.jetton.decimals))).toLocaleString(undefined, { maximumFractionDigits: 4 });
                     otherTokensContent.innerHTML += `<div class="d-flex align-items-center justify-content-between mb-3">
                         <div class="d-flex align-items-center"><img src="${j.jetton.image}" class="me-3" style="width: 32px; height: 32px; border-radius: 50%;">
                         <div><h6 class="m-0">${j.jetton.symbol}</h6></div></div><h6 class="m-0">${balance}</h6></div>`;
@@ -258,8 +253,7 @@
             nftGalleryContent.innerHTML = '';
             if (nfts.nft_items && nfts.nft_items.length > 0) {
                 let html = '<div class="row g-3">';
-                nfts.nft_items.slice(0, 12).forEach(nft => { // Limit to 12 for display
-                    // **FIXED**: Better image URL detection
+                nfts.nft_items.slice(0, 12).forEach(nft => {
                     const imgUrl = nft.previews?.[nft.previews.length - 1]?.url || nft.metadata?.image || 'https://via.placeholder.com/100';
                     html += `<div class="col-3"><div title="${nft.metadata?.name || 'NFT'}" style="cursor: pointer;">
                                <img src="${imgUrl}" style="width: 100%; border-radius: 12px; aspect-ratio: 1/1; object-fit: cover;" onerror="this.src='https://via.placeholder.com/100'">
@@ -301,11 +295,11 @@
                     fetch(`${TON_API_BASE}/accounts/${rawAddress}`).then(res => res.json()),
                     fetch(`${TON_API_BASE}/accounts/${rawAddress}/jettons`).then(res => res.json()),
                     fetch(`${TON_API_BASE}/accounts/${rawAddress}/nfts?limit=100&indirect_ownership=false`).then(res => res.json()),
-                    // **CHANGED**: Increased history limit
-                    fetch(`${TON_API_BASE}/accounts/${rawAddress}/events?limit=1000`).then(res => res.json())
+                    fetch(`${TON_API_BASE}/accounts/${rawAddress}/events?limit=50`).then(res => res.json())
                 ]);
 
-                renderWalletAddress(rawAddress); // Render wallet address
+                // Pass the whole accountInfo object to render the user-friendly address
+                renderWalletAddress(accountInfo); 
                 renderMainAssets(accountInfo, jettonsInfo.balances);
                 renderOtherTokens(jettonsInfo.balances);
                 renderNFTs(nftsInfo);
@@ -316,14 +310,33 @@
             }
         });
         
-        // This parser needs to be available
         const parseEventToLog = (event, userAddress) => {
             if (!event || !Array.isArray(event.actions) || event.actions.length === 0) return null;
             const action = event.actions[0]; if (!action) return null;
             const log = { type: action.type, timestamp: event.timestamp * 1000 };
-            if (log.type === 'TonTransfer' && action.TonTransfer) { log.direction = action.TonTransfer.sender.address === userAddress ? 'out' : 'in'; log.amount = (parseInt(action.TonTransfer.amount) / 1e9).toFixed(4); log.symbol = 'TON'; log.party = log.direction === 'out' ? action.TonTransfer.recipient.address : action.TonTransfer.sender.address; return log; }
-            if (log.type === 'JettonTransfer' && action.JettonTransfer) { log.direction = action.JettonTransfer.sender.address === userAddress ? 'out' : 'in'; const decimals = action.JettonTransfer.jetton.decimals || 9; log.amount = (parseInt(action.JettonTransfer.amount) / (10 ** decimals)).toLocaleString(); log.symbol = action.JettonTransfer.jetton.symbol; log.party = log.direction === 'out' ? action.JettonTransfer.recipient.address : action.JettonTransfer.sender.address; return log; }
-            if (log.type === 'NftItemTransfer' && action.NftItemTransfer) { log.direction = action.NftItemTransfer.sender?.address === userAddress ? 'out' : 'in'; log.symbol = action.NftItemTransfer.nft_item?.metadata?.name || 'NFT'; log.amount = ''; log.party = log.direction === 'out' ? action.NftItemTransfer.recipient?.address : action.NftItemTransfer.sender?.address; if(log.party) return log; }
+
+            if (log.type === 'TonTransfer' && action.TonTransfer) { 
+                log.direction = action.TonTransfer.sender.address === userAddress ? 'out' : 'in'; 
+                log.amount = (parseInt(action.TonTransfer.amount) / 1e9).toFixed(4); 
+                log.symbol = 'TON'; 
+                log.party = log.direction === 'out' ? action.TonTransfer.recipient.address.bounceable.address : action.TonTransfer.sender.address.bounceable.address; 
+                return log; 
+            }
+            if (log.type === 'JettonTransfer' && action.JettonTransfer) { 
+                log.direction = action.JettonTransfer.sender?.address === userAddress ? 'out' : 'in'; 
+                const decimals = action.JettonTransfer.jetton.decimals || 9; 
+                log.amount = (Number(BigInt(action.JettonTransfer.amount)) / (10 ** decimals)).toLocaleString();
+                log.symbol = action.JettonTransfer.jetton.symbol; 
+                log.party = log.direction === 'out' ? action.JettonTransfer.recipient?.address.bounceable.address : action.JettonTransfer.sender?.address.bounceable.address;
+                if(log.party) return log;
+            }
+            if (log.type === 'NftItemTransfer' && action.NftItemTransfer) { 
+                log.direction = action.NftItemTransfer.sender?.address === userAddress ? 'out' : 'in'; 
+                log.symbol = action.NftItemTransfer.nft_item?.metadata?.name || 'NFT'; 
+                log.amount = ''; 
+                log.party = log.direction === 'out' ? action.NftItemTransfer.recipient?.address.bounceable.address : action.NftItemTransfer.sender?.address.bounceable.address; 
+                if(log.party) return log;
+            }
             return null;
         };
     });
