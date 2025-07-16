@@ -28,6 +28,9 @@
             --accent-secondary: #2BCBC4;
             --text-primary: #f1f2f6;
             --text-secondary: #aaa6c3;
+            --color-in: #2BCBC4;
+            --color-out: #ff6b6b;
+            --color-failed: #ffcc00;
         }
 
         body {
@@ -40,28 +43,13 @@
             overflow-x: hidden;
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
         .main-container { max-width: 1400px; padding: 2rem; margin: auto; }
-        
         .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 2rem; }
         .header-logo img { height: 40px; }
         
-        .card-glass {
-            background: var(--card-color);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 2rem;
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            transition: all 0.3s ease;
-            height: 100%;
-        }
+        .card-glass { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 2rem; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: all 0.3s ease; height: 100%; }
         .card-glass:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
         .card-title { font-weight: 600; margin-bottom: 1.5rem; }
         
@@ -69,12 +57,7 @@
         .hero-section h1 { font-size: 3.5rem; font-weight: 700; }
         .hero-section .highlight { color: var(--accent-primary); }
 
-        .skeleton-loader {
-            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
-            background-size: 200% 100%;
-            border-radius: 8px;
-            animation: shimmer 1.5s infinite;
-        }
+        .skeleton-loader { background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); background-size: 200% 100%; border-radius: 8px; animation: shimmer 1.5s infinite; }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         .skeleton-line { height: 20px; margin-bottom: 10px; }
         .skeleton-line.w-50 { width: 50%; }
@@ -83,6 +66,13 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
+
+        .activity-item-icon { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+        .amount-in { color: var(--color-in); }
+        .amount-out { color: var(--color-out); }
+        .status-icon { font-size: 0.7rem; margin-right: 6px; }
+        .status-ok { color: var(--color-in); }
+        .status-failed { color: var(--color-failed); }
     </style>
 </head>
 <body>
@@ -94,20 +84,30 @@
         </header>
 
         <main id="dashboard" style="display: none;">
+            <!-- **RE-ORDERED LAYOUT** -->
             <div class="row g-4">
                 <!-- Left Column -->
                 <div class="col-lg-7">
                     <div class="row g-4">
+                        <!-- 1. Core Assets -->
                         <div class="col-md-12">
                             <div class="card-glass">
                                 <h5 class="card-title">Core Assets</h5>
                                 <div id="main-assets-content"></div>
                             </div>
                         </div>
-                        <div class="col-md-12">
+                        <!-- 2. Token Portfolio -->
+                         <div class="col-12">
                              <div class="card-glass">
-                                <h5 class="card-title">Activity Feed</h5>
-                                <div id="activity-feed-content" style="max-height: 480px; overflow-y: auto; padding-right: 10px;"></div>
+                                <h5 class="card-title">Token Portfolio</h5>
+                                <div id="other-tokens-content" style="max-height: 250px; overflow-y: auto; padding-right: 10px;"></div>
+                            </div>
+                         </div>
+                        <!-- 3. NFT Gallery -->
+                        <div class="col-md-12">
+                            <div class="card-glass">
+                                <h5 class="card-title">NFT Gallery</h5>
+                                <div id="nft-gallery-content" style="max-height: 420px; overflow-y: auto;"></div>
                             </div>
                         </div>
                     </div>
@@ -115,16 +115,18 @@
                 <!-- Right Column -->
                 <div class="col-lg-5">
                      <div class="row g-4">
-                         <div class="col-12">
-                             <div class="card-glass">
-                                <h5 class="card-title">Token Portfolio</h5>
-                                <div id="other-tokens-content" style="max-height: 250px; overflow-y: auto; padding-right: 10px;"></div>
-                            </div>
-                         </div>
-                        <div class="col-12">
+                        <!-- 3. NFT Gallery -->
+                        <div class="col-md-12">
                             <div class="card-glass">
                                 <h5 class="card-title">NFT Gallery</h5>
-                                <div id="nft-gallery-content" style="max-height: 250px; overflow-y: auto;"></div>
+                                <div id="nft-gallery-content" style="max-height: 420px; overflow-y: auto;"></div>
+                            </div>
+                        </div>
+                         <!-- 4. Activity Feed -->
+                        <div class="col-12">
+                             <div class="card-glass">
+                                <h5 class="card-title">Activity Feed</h5>
+                                <div id="activity-feed-content" style="max-height: 525px; overflow-y: auto; padding-right: 10px;"></div>
                             </div>
                         </div>
                      </div>
@@ -144,11 +146,7 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // --- CONFIG ---
-        const VIEC_JETTON_ROOT = "EQA5JIIDkiPljbagP_S9R7fZQLAhLZjNhIPRVSWkuicj5M_f";
         const TON_API_BASE = 'https://tonapi.io/v2';
-        
-        // --- UI ELEMENTS ---
         const dashboardEl = document.getElementById('dashboard');
         const heroEl = document.getElementById('hero-section');
         const connectWalletHeroBtn = document.getElementById('connect-wallet-hero-btn');
@@ -156,20 +154,12 @@
         const activityFeedContent = document.getElementById('activity-feed-content');
         const otherTokensContent = document.getElementById('other-tokens-content');
         const nftGalleryContent = document.getElementById('nft-gallery-content');
-
-        // --- SKELETON LOADER TEMPLATES ---
         const skeletonAsset = `<div class="d-flex align-items-center justify-content-between mb-3"><div class="d-flex align-items-center"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div><div class="skeleton-loader skeleton-line w-50"></div><div class="skeleton-loader skeleton-line" style="width: 80px;"></div></div></div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div></div>`;
-        const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 30px; height: 30px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
+        const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
 
-        // --- TONCONNECT ---
-        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-            manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json',
-            buttonRootId: 'ton-connect-button-root'
-        });
-
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json', buttonRootId: 'ton-connect-button-root' });
         connectWalletHeroBtn.addEventListener('click', () => tonConnectUI.openModal());
 
-        // --- HELPERS ---
         const showDashboard = (show) => {
             dashboardEl.style.display = show ? 'block' : 'none';
             heroEl.style.display = show ? 'none' : 'flex';
@@ -177,24 +167,21 @@
         const setSkeletonLoaders = () => {
             mainAssetsContent.innerHTML = skeletonAsset + skeletonAsset;
             otherTokensContent.innerHTML = skeletonAsset;
-            nftGalleryContent.innerHTML = `<div class="row g-3"><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div></div>`;
+            nftGalleryContent.innerHTML = `<div class="row g-3"><div class="col-4"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div><div class="col-4"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div><div class="col-4"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div></div>`;
             activityFeedContent.innerHTML = skeletonTx.repeat(5);
         };
-        const shortenAddress = (addr) => addr ? `${addr.slice(0, 4)}...${addr.slice(-4)}` : '';
+        const shortenAddress = (addr) => addr ? (addr.includes('.') ? addr : `${addr.slice(0, 4)}...${addr.slice(-4)}`) : 'Unknown';
 
-        // --- UI RENDERING FUNCTIONS ---
-        // **CHANGED**: This function now renders both TON balance and the Wallet Address.
+        const getRawAddress = (addrObj) => addrObj?.raw_form || (typeof addrObj?.address === 'string' ? addrObj.address : null);
+        const getFriendlyDisplayAddress = (addrObj) => addrObj?.name || addrObj?.bounceable?.address || getRawAddress(addrObj);
+        
         const renderMainAssets = (accountInfo) => {
-            mainAssetsContent.innerHTML = '';
-            
-            // TON Balance
-            mainAssetsContent.innerHTML += `<div class="d-flex align-items-center justify-content-between mb-4">
+            if (!accountInfo) { mainAssetsContent.innerHTML = `<p class="text-danger">Could not load account data.</p>`; return; }
+            mainAssetsContent.innerHTML = `<div class="d-flex align-items-center justify-content-between mb-4">
                 <div class="d-flex align-items-center"><img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;">
                     <div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div></div>
                 <h4 class="m-0">${(accountInfo.balance / 1e9).toFixed(4)}</h4></div>`;
-            
-            // Wallet Address (replaces VIEC)
-            const userFriendlyAddress = accountInfo?.address?.bounceable?.address;
+            const userFriendlyAddress = getFriendlyDisplayAddress(accountInfo.address);
             if (userFriendlyAddress) {
                  mainAssetsContent.innerHTML += `<div class="d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center">
@@ -205,34 +192,24 @@
                 </div>`;
             }
         };
-        
         const renderOtherTokens = (jettons) => {
             otherTokensContent.innerHTML = '';
-            // VIEC will now appear here along with other tokens
-            const otherJettons = jettons; // No longer filtering VIEC out
-            if(otherJettons.length > 0) {
-                otherJettons.forEach(j => {
-                    // Use BigInt for safety with large numbers
-                    const balanceBigInt = BigInt(j.balance);
-                    const decimals = j.jetton.decimals || 9;
-                    const divisor = 10n ** BigInt(decimals);
-                    const displayBalance = Number(balanceBigInt) / Number(divisor);
-                    const formattedBalance = displayBalance.toLocaleString(undefined, { maximumFractionDigits: 4 });
-
+            if (jettons && jettons.length > 0) {
+                jettons.forEach(j => {
+                    const displayBalance = (Number(BigInt(j.balance)) / (10 ** (j.jetton.decimals || 9))).toLocaleString(undefined, { maximumFractionDigits: 4 });
                     otherTokensContent.innerHTML += `<div class="d-flex align-items-center justify-content-between mb-3">
                         <div class="d-flex align-items-center"><img src="${j.jetton.image}" class="me-3" style="width: 32px; height: 32px; border-radius: 50%;">
-                        <div><h6 class="m-0">${j.jetton.symbol}</h6></div></div><h6 class="m-0">${formattedBalance}</h6></div>`;
+                        <div><h6 class="m-0">${j.jetton.symbol}</h6></div></div><h6 class="m-0">${displayBalance}</h6></div>`;
                 });
             } else { otherTokensContent.innerHTML = `<p class="text-secondary">No tokens found.</p>`; }
         };
-
         const renderNFTs = (nfts) => {
             nftGalleryContent.innerHTML = '';
-            if (nfts.nft_items && nfts.nft_items.length > 0) {
+            if (nfts && nfts.length > 0) {
                 let html = '<div class="row g-3">';
-                nfts.nft_items.slice(0, 12).forEach(nft => {
+                nfts.slice(0, 12).forEach(nft => {
                     const imgUrl = nft.previews?.[nft.previews.length - 1]?.url || nft.metadata?.image || 'https://via.placeholder.com/100';
-                    html += `<div class="col-3"><div title="${nft.metadata?.name || 'NFT'}" style="cursor: pointer;">
+                    html += `<div class="col-4"><div title="${nft.metadata?.name || 'NFT'}" style="cursor: pointer;">
                                <img src="${imgUrl}" style="width: 100%; border-radius: 12px; aspect-ratio: 1/1; object-fit: cover;" onerror="this.src='https://via.placeholder.com/100'">
                              </div></div>`;
                 });
@@ -240,81 +217,132 @@
                 nftGalleryContent.innerHTML = html;
             } else { nftGalleryContent.innerHTML = `<p class="text-secondary">No NFTs found.</p>`; }
         };
-
-        const renderActivity = (events, userAddress) => {
+        const renderActivity = (validLogs) => {
             activityFeedContent.innerHTML = '';
-            if(events.events && events.events.length > 0) {
-                events.events.forEach(event => {
-                    const log = parseEventToLog(event, userAddress);
-                    if (log) {
-                         const icon = log.direction === 'in' ? 'fa-arrow-down' : 'fa-arrow-up';
-                         const color = log.direction === 'in' ? 'var(--accent-secondary)' : '#ff6b6b';
-                         const title = `${log.direction === 'in' ? 'Received' : 'Sent'} ${log.symbol}`;
-                         const party = log.direction === 'in' ? `From: ${shortenAddress(log.party)}` : `To: ${shortenAddress(log.party)}`;
-                         activityFeedContent.innerHTML += `<div class="d-flex align-items-center py-2 border-bottom border-secondary border-opacity-25">
-                            <i class="fas ${icon} me-3 p-2" style="background: ${color}20; color: ${color}; border-radius: 50%;"></i>
-                            <div class="flex-grow-1"><p class="m-0 fw-bold">${title}</p><p class="m-0 text-secondary" style="font-size: 0.8rem;">${party}</p></div>
-                            <div class="text-end"><p class="m-0 fw-bold">${log.amount} ${log.amount ? log.symbol : ''}</p><p class="m-0 text-secondary" style="font-size: 0.8rem;">${new Date(log.timestamp).toLocaleDateString()}</p></div>
-                         </div>`;
-                    }
+            if (validLogs && validLogs.length > 0) {
+                validLogs.forEach(log => {
+                    const statusIcon = log.status === 'ok' ? `<i class="fas fa-check-circle status-icon status-ok"></i>` : `<i class="fas fa-exclamation-circle status-icon status-failed"></i>`;
+                    const titleText = log.status !== 'ok' ? `<span class="text-warning">${log.title} (Failed)</span>` : log.title;
+                    const colorClass = log.direction === 'in' ? 'amount-in' : 'amount-out';
+                    const amountDisplay = log.amount ? `<p class="m-0 fw-bold ${colorClass}">${log.sign} ${log.amount} ${log.symbol}</p>` : `<p class="m-0 fw-bold">${log.symbol} Transfer</p>`;
+                    const commentDisplay = log.comment ? `<div class="w-100 mt-2"><p class="m-0 text-secondary" style="font-size: 0.8rem; font-style: italic;"><i class="fas fa-comment-dots me-2"></i>${log.comment}</p></div>` : '';
+                    activityFeedContent.innerHTML += `
+                     <div class="d-flex flex-wrap align-items-center py-3 border-bottom border-secondary border-opacity-25">
+                        <img src="${log.image}" class="activity-item-icon me-3" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
+                        <div class="flex-grow-1">
+                            <p class="m-0 fw-bold">${statusIcon}${titleText}</p>
+                            <p class="m-0 text-secondary" style="font-size: 0.8rem;">${log.party_title}: ${shortenAddress(log.party)}</p>
+                        </div>
+                        <div class="text-end">
+                            ${amountDisplay}
+                            <p class="m-0 text-secondary" style="font-size: 0.8rem;">${new Date(log.timestamp).toLocaleString()}</p>
+                        </div>
+                        ${commentDisplay}
+                     </div>`;
                 });
             } else { activityFeedContent.innerHTML = `<p class="text-secondary">No recent activity found.</p>`; }
         };
 
-        // --- MAIN LOGIC ---
         tonConnectUI.onStatusChange(async (wallet) => {
             if (wallet) {
                 showDashboard(true);
                 setSkeletonLoaders();
-                
-                const rawAddress = wallet.account.address;
-                const [accountInfo, jettonsInfo, nftsInfo, eventsInfo] = await Promise.all([
-                    fetch(`${TON_API_BASE}/accounts/${rawAddress}`).then(res => res.json()),
-                    fetch(`${TON_API_BASE}/accounts/${rawAddress}/jettons`).then(res => res.json()),
-                    fetch(`${TON_API_BASE}/accounts/${rawAddress}/nfts?limit=100&indirect_ownership=false`).then(res => res.json()),
-                    fetch(`${TON_API_BASE}/accounts/${rawAddress}/events?limit=20`).then(res => res.json())
-                ]);
+                try {
+                    const rawAddress = wallet.account.address;
+                    const results = await Promise.allSettled([
+                        fetch(`${TON_API_BASE}/accounts/${rawAddress}`),
+                        fetch(`${TON_API_BASE}/accounts/${rawAddress}/jettons`),
+                        fetch(`${TON_API_BASE}/accounts/${rawAddress}/nfts?limit=100&indirect_ownership=false`),
+                        fetch(`${TON_API_BASE}/accounts/${rawAddress}/events?limit=100`)
+                    ]);
+                    
+                    const [accountRes, jettonsRes, nftsRes, eventsRes] = results;
+                    if (accountRes.status !== 'fulfilled' || !accountRes.value.ok) throw new Error('Could not fetch account info.');
+                    
+                    const accountInfo = await accountRes.value.json();
+                    const jettonsInfo = jettonsRes.status === 'fulfilled' && jettonsRes.value.ok ? await jettonsRes.value.json() : { balances: [] };
+                    const nftsInfo = nftsRes.status === 'fulfilled' && nftsRes.value.ok ? await nftsRes.value.json() : { nft_items: [] };
+                    const eventsInfo = eventsRes.status === 'fulfilled' && eventsRes.value.ok ? await eventsRes.value.json() : { events: [] };
 
-                // **CHANGED**: Pass only accountInfo as jettons are no longer needed here.
-                renderMainAssets(accountInfo); 
-                renderOtherTokens(jettonsInfo.balances);
-                renderNFTs(nftsInfo);
-                renderActivity(eventsInfo, rawAddress);
+                    const userFriendlyAddress = getFriendlyDisplayAddress(accountInfo.address);
+                    const validLogs = (eventsInfo.events ?? []).flatMap(event => parseEvent(event, rawAddress, userFriendlyAddress));
 
+                    renderMainAssets(accountInfo);
+                    renderOtherTokens(jettonsInfo.balances ?? []);
+                    renderNFTs(nftsInfo.nft_items ?? []);
+                    renderActivity(validLogs);
+                } catch (error) {
+                    console.error("A critical error occurred while fetching data:", error);
+                    mainAssetsContent.innerHTML = `<p class="text-danger"><strong>Error:</strong> Could not load wallet data. Please try refreshing.</p>`;
+                    otherTokensContent.innerHTML = `<p class="text-secondary">Data unavailable.</p>`;
+                    nftGalleryContent.innerHTML = `<p class="text-secondary">Data unavailable.</p>`;
+                    activityFeedContent.innerHTML = `<p class="text-secondary">Data unavailable.</p>`;
+                }
             } else {
                 showDashboard(false);
             }
         });
         
-        const parseEventToLog = (event, userAddress) => {
-            if (!event || !Array.isArray(event.actions) || event.actions.length === 0) return null;
-            const action = event.actions[0]; if (!action) return null;
-            const log = { type: action.type, timestamp: event.timestamp * 1000 };
+        function parseEvent(event, userRawAddress, userFriendlyAddress) {
+            const logs = [];
+            if (!event?.actions) return logs;
+            for (const action of event.actions) {
+                try {
+                    const log = { timestamp: event.timestamp * 1000, status: action.status };
+                    const processParty = (partyObj) => (getRawAddress(partyObj) === userRawAddress) ? userFriendlyAddress : getFriendlyDisplayAddress(partyObj);
 
-            if (log.type === 'TonTransfer' && action.TonTransfer) { 
-                log.direction = action.TonTransfer.sender.address === userAddress ? 'out' : 'in'; 
-                log.amount = (parseInt(action.TonTransfer.amount) / 1e9).toFixed(4); 
-                log.symbol = 'TON'; 
-                log.party = log.direction === 'out' ? action.TonTransfer.recipient.address.bounceable.address : action.TonTransfer.sender.address.bounceable.address; 
-                return log; 
+                    if (action.type === 'TonTransfer' && action.TonTransfer) {
+                        const t = action.TonTransfer;
+                        if (!getRawAddress(t.sender) || !getRawAddress(t.recipient)) continue;
+                        log.direction = getRawAddress(t.sender) === userRawAddress ? 'out' : 'in';
+                        log.title = "TON Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
+                        log.amount = (parseInt(t.amount) / 1e9).toFixed(4);
+                        log.symbol = 'TON'; log.party_title = log.direction === 'out' ? 'To' : 'From';
+                        log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
+                        log.image = 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
+                        if (log.party) logs.push(log);
+                    } else if (action.type === 'JettonTransfer' && action.JettonTransfer) {
+                        const t = action.JettonTransfer;
+                        if (!getRawAddress(t.sender) || !getRawAddress(t.recipient)) continue;
+                        log.direction = getRawAddress(t.sender) === userRawAddress ? 'out' : 'in';
+                        log.title = "Jetton Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
+                        log.amount = (Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9))).toLocaleString(undefined, { maximumFractionDigits: 4 });
+                        log.symbol = t.jetton?.symbol || 'Token'; log.party_title = log.direction === 'out' ? 'To' : 'From';
+                        log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
+                        log.image = t.jetton?.image || 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
+                        if (log.party) logs.push(log);
+                    } else if (action.type === 'JettonMint' && action.JettonMint) {
+                         const t = action.JettonMint;
+                         if (getRawAddress(t.recipient) !== userRawAddress) continue;
+                         log.direction = 'in'; log.title = "Minted"; log.sign = '+';
+                         log.amount = (Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9))).toLocaleString(undefined, { maximumFractionDigits: 4 });
+                         log.symbol = t.jetton?.symbol || 'Token'; log.party_title = "From";
+                         log.party = getFriendlyDisplayAddress(t.jetton); log.image = t.jetton?.image || 'https://ton.org/download/ton_symbol.png';
+                         if (log.party) logs.push(log);
+                    } else if (action.type === 'NftItemTransfer' && action.NftItemTransfer) {
+                        const t = action.NftItemTransfer;
+                        if (!getRawAddress(t.sender) || !getRawAddress(t.recipient)) continue;
+                        log.direction = getRawAddress(t.sender) === userRawAddress ? 'out' : 'in';
+                        log.title = "NFT Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
+                        log.amount = ''; log.symbol = t.nft_item?.metadata?.name || 'NFT';
+                        log.party_title = log.direction === 'out' ? 'To' : 'From';
+                        log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
+                        log.image = t.nft_item?.previews?.[0]?.url || 'https://www.svgrepo.com/show/444957/nft-coin.svg';
+                        if (log.party) logs.push(log);
+                    } else if (action.type === 'SmartContractExec' && action.SmartContractExec) {
+                         const t = action.SmartContractExec;
+                         if (getRawAddress(t.executor) !== userRawAddress || !t.ton_attached || t.ton_attached === 0) continue;
+                         log.direction = 'out'; log.title = "Contract Call"; log.sign = '-';
+                         log.amount = (parseInt(t.ton_attached) / 1e9).toFixed(5);
+                         log.symbol = 'TON'; log.party_title = "To Contract";
+                         log.party = getFriendlyDisplayAddress(t.contract);
+                         log.image = 'https://www.svgrepo.com/show/443422/smart-contract.svg';
+                         if (log.party) logs.push(log);
+                    }
+                } catch (e) { console.warn("Could not parse an action:", action, "Error:", e); }
             }
-            if (log.type === 'JettonTransfer' && action.JettonTransfer) { 
-                log.direction = action.JettonTransfer.sender?.address === userAddress ? 'out' : 'in'; 
-                const decimals = action.JettonTransfer.jetton.decimals || 9; 
-                log.amount = (Number(BigInt(action.JettonTransfer.amount)) / (10 ** decimals)).toLocaleString();
-                log.symbol = action.JettonTransfer.jetton.symbol; 
-                log.party = log.direction === 'out' ? action.JettonTransfer.recipient?.address.bounceable.address : action.JettonTransfer.sender?.address.bounceable.address;
-                if(log.party) return log;
-            }
-            if (log.type === 'NftItemTransfer' && action.NftItemTransfer) { 
-                log.direction = action.NftItemTransfer.sender?.address === userAddress ? 'out' : 'in'; 
-                log.symbol = action.NftItemTransfer.nft_item?.metadata?.name || 'NFT'; 
-                log.amount = ''; 
-                log.party = log.direction === 'out' ? action.NftItemTransfer.recipient?.address.bounceable.address : action.NftItemTransfer.sender?.address.bounceable.address; 
-                if(log.party) return log;
-            }
-            return null;
-        };
+            return logs;
+        }
     });
     </script>
 </body>
