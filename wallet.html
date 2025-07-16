@@ -167,9 +167,9 @@
         };
         const shortenAddress = (addr) => addr ? (addr.includes('.') ? addr : `${addr.slice(0, 4)}...${addr.slice(-4)}`) : 'Unknown';
 
-        // **FIXED & FINAL**: New robust address helpers
+        // **FIXED & FINAL**: The definitive, simplified address helpers.
         const getRaw = (addrObj) => addrObj?.raw_form || (typeof addrObj?.address === 'string' ? addrObj.address : null);
-        const getFriendly = (addrObj) => addrObj?.name || addrObj?.bounceable?.address || getRaw(addrObj);
+        const getFriendly = (addrObj) => addrObj?.name || addrObj?.bounceable?.address || getRaw(addrObj) || 'Unknown Address';
         
         const renderMainAssets = (accountInfo) => {
             if (!accountInfo) { mainAssetsContent.innerHTML = `<p class="text-danger">Could not load account data.</p>`; return; }
@@ -177,7 +177,7 @@
                 <div class="d-flex align-items-center"><img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;">
                     <div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div></div>
                 <h4 class="m-0">${Number((accountInfo.balance / 1e9).toPrecision(6))}</h4></div>`;
-            const userFriendlyAddress = getFriendly(accountInfo.address);
+            const userFriendlyAddress = getFriendly(accountInfo); // Pass the whole accountInfo object
             if (userFriendlyAddress) {
                  mainAssetsContent.innerHTML += `<div class="d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center">
@@ -261,7 +261,7 @@
                     const nftsInfo = nftsRes.status === 'fulfilled' && nftsRes.value.ok ? await nftsRes.value.json() : { nft_items: [] };
                     const eventsInfo = eventsRes.status === 'fulfilled' && eventsRes.value.ok ? await eventsRes.value.json() : { events: [] };
 
-                    const userFriendlyAddress = getFriendly(accountInfo.address);
+                    const userFriendlyAddress = getFriendly(accountInfo); // Pass the whole object
                     const validLogs = (eventsInfo.events ?? []).flatMap(event => parseEvent(event, rawAddress, userFriendlyAddress));
                     
                     renderMainAssets(accountInfo);
