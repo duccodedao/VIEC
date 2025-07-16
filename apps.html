@@ -32,7 +32,7 @@
             --color-in: #2BCBC4;
             --color-out: #ff6b6b;
             --color-failed: #ffcc00;
-            --color-verified: #3498db;
+            --color-verified: #2ecc71;
         }
 
         body {
@@ -71,7 +71,7 @@
         ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
 
-        .activity-item-icon { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+        .activity-item-icon, .jetton-item-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
         .amount-in { color: var(--color-in); }
         .amount-out { color: var(--color-out); }
         .status-icon { font-size: 0.7rem; margin-right: 6px; }
@@ -79,11 +79,38 @@
         .status-failed { color: var(--color-failed); }
         .verified-tick { color: var(--color-verified); margin-left: 5px; font-size: 0.9em; }
 
+        .jetton-item { cursor: pointer; transition: background-color 0.2s; border-radius: 8px; }
+        .jetton-item:hover { background-color: rgba(145, 94, 255, 0.1); }
+
         #custom-wallet-button { background: var(--accent-primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 500; cursor: pointer; }
-        #wallet-dropdown { display: none; position: absolute; right: 0; top: calc(100% + 5px); background-color: #171b30; border: 1px solid var(--border-color); border-radius: 8px; z-index: 1000; min-width: 160px; box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
+        #wallet-dropdown { display: none; position: absolute; right: 0; top: calc(100% + 5px); background-color: #171b30; border: 1px solid var(--border-color); border-radius: 8px; z-index: 1056; min-width: 160px; box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
         #wallet-dropdown a { color: var(--text-primary); padding: 12px 16px; text-decoration: none; display: block; font-size: 0.9rem; }
         #wallet-dropdown a:hover { background-color: rgba(145, 94, 255, 0.2); }
         #wallet-dropdown a i { margin-right: 10px; width: 15px; text-align: center; }
+        
+        #search-results-container { max-height: 40vh; overflow-y: auto; }
+        .search-result-item { cursor: pointer; padding: 10px; border-radius: 8px; transition: background-color 0.2s ease; }
+        .search-result-item:hover { background-color: rgba(145, 94, 255, 0.1); }
+        .search-result-item img { width: 32px; height: 32px; border-radius: 50%; }
+
+        /* Modal Styles */
+        .modal-content { background-color: #0c0f24; border: 1px solid var(--border-color); color: var(--text-primary); }
+        .modal-header { border-bottom: 1px solid var(--border-color); }
+        .modal-footer { border-top: 1px solid var(--border-color); }
+        .modal-backdrop.show { opacity: 0.7; backdrop-filter: blur(5px); }
+        .nav-tabs { border-bottom-color: var(--border-color); }
+        .nav-tabs .nav-link { background: transparent; border-color: transparent; color: var(--text-secondary); }
+        .nav-tabs .nav-link.active { color: var(--accent-primary); background-color: rgba(145, 94, 255, 0.1); border-color: var(--border-color); }
+        .tab-content { max-height: 50vh; overflow-y: auto; padding-top: 1rem; }
+        .metadata-key { color: var(--text-secondary); font-weight: 500; }
+
+        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        .news-card { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 15px; overflow: hidden; transition: all 0.3s ease; text-decoration: none; color: var(--text-primary); }
+        .news-card:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
+        .news-card-img { width: 100%; height: 180px; object-fit: cover; }
+        .news-card-body { padding: 1rem; }
+        .news-card-title { font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .news-card-source { font-size: 0.8rem; color: var(--text-secondary); }
 
         @media (min-width: 768px) {
             .hero-section h1 { font-size: 3.5rem; }
@@ -112,10 +139,28 @@
         </header>
 
         <main id="dashboard" style="display: none;">
+            <div id="account-search-section" class="mb-4">
+                <div class="input-group">
+                    <input type="text" id="account-search-input" class="form-control" placeholder="Search by name or paste an address" style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--text-primary); border-right: 0;">
+                    <button id="account-search-button" class="btn" style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--accent-primary);"><i class="fas fa-search"></i></button>
+                </div>
+                <div id="search-results-container" class="mt-2 card-glass" style="padding: 1rem; display: none;"></div>
+            </div>
+
              <div class="row g-4">
                 <div class="col-lg-7">
                     <div class="row g-4">
-                        <div class="col-md-12"><div class="card-glass"><h5 class="card-title">Core Assets</h5><div id="main-assets-content"></div></div></div>
+                        <div class="col-md-12">
+                            <div class="card-glass">
+                                <h5 class="card-title d-flex justify-content-between align-items-center">
+                                    <span>Core Assets</span>
+                                    <button id="back-to-my-wallet-btn" class="btn btn-sm" style="display: none; background-color: var(--accent-secondary); color: white;">
+                                        <i class="fas fa-arrow-left me-1"></i> Back to My Wallet
+                                    </button>
+                                </h5>
+                                <div id="main-assets-content"></div>
+                            </div>
+                        </div>
                         <div class="col-md-12"><div class="card-glass"><h5 class="card-title">NFT Gallery</h5><div id="nft-gallery-content" style="max-height: 420px; overflow-y: auto;"></div></div></div>
                     </div>
                 </div>
@@ -135,8 +180,38 @@
                 <button id="connect-wallet-hero-btn" class="btn px-5 py-3" style="background-color: var(--accent-primary); color: white; font-weight: 600;">Connect Wallet</button>
             </div>
         </section>
+
+        <section id="crypto-news-feed" class="mt-5" style="display:none;">
+            <h2 class="card-title" style="font-size: 1.75rem; text-align: center; margin-bottom: 2rem;">Latest Crypto News</h2>
+            <div id="news-content-area"></div>
+        </section>
     </div>
 
+    <!-- Jetton Details Modal -->
+    <div class="modal fade" id="jettonDetailModal" tabindex="-1" aria-labelledby="jettonDetailModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div id="jetton-modal-header-content" class="d-flex align-items-center"></div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <ul class="nav nav-tabs" id="jettonDetailTab" role="tablist">
+              <li class="nav-item" role="presentation"><button class="nav-link active" id="metadata-tab" data-bs-toggle="tab" data-bs-target="#metadata-tab-pane" type="button">Metadata</button></li>
+              <li class="nav-item" role="presentation"><button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-tab-pane" type="button">History</button></li>
+              <li class="nav-item" role="presentation"><button class="nav-link" id="holders-tab" data-bs-toggle="tab" data-bs-target="#holders-tab-pane" type="button">Holders</button></li>
+            </ul>
+            <div class="tab-content" id="jettonDetailTabContent">
+              <div class="tab-pane fade show active" id="metadata-tab-pane" role="tabpanel"></div>
+              <div class="tab-pane fade" id="history-tab-pane" role="tabpanel"></div>
+              <div class="tab-pane fade" id="holders-tab-pane" role="tabpanel"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const TON_API_BASE = 'https://tonapi.io/v2';
@@ -147,53 +222,101 @@
         const activityFeedContent = document.getElementById('activity-feed-content');
         const otherTokensContent = document.getElementById('other-tokens-content');
         const nftGalleryContent = document.getElementById('nft-gallery-content');
+        const newsSection = document.getElementById('crypto-news-feed');
+        const newsContentArea = document.getElementById('news-content-area');
+
         const tonConnectButtonRoot = document.getElementById('ton-connect-button-root');
         const customWalletContainer = document.getElementById('custom-wallet-button-container');
         const customWalletButton = document.getElementById('custom-wallet-button');
         const walletDropdown = document.getElementById('wallet-dropdown');
         const copyAddressBtn = document.getElementById('copy-address-btn');
         const disconnectBtn = document.getElementById('disconnect-btn');
-        
+
         const appLogoImg = document.getElementById('app-logo-img');
         const appLogoText = document.getElementById('app-logo-text');
         const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo_viewc.png';
-        const BMASS_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo.png'; 
+
+        const searchInput = document.getElementById('account-search-input');
+        const searchButton = document.getElementById('account-search-button');
+        const searchResultsContainer = document.getElementById('search-results-container');
+        const backToMyWalletBtn = document.getElementById('back-to-my-wallet-btn');
+
+        const jettonDetailModalEl = document.getElementById('jettonDetailModal');
+        const jettonDetailModal = new bootstrap.Modal(jettonDetailModalEl);
+
+        let telegramUserData = null;
+        let connectedWalletAddress = null;
 
         const skeletonAsset = `<div class="d-flex align-items-center justify-content-between mb-3"><div class="d-flex align-items-center"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div><div class="skeleton-loader skeleton-line w-50"></div><div class="skeleton-loader skeleton-line" style="width: 80px;"></div></div></div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div></div>`;
         const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
 
-        let telegramUserData = null;
+        // --- Init ---
         try {
             if (window.Telegram && window.Telegram.WebApp) {
                 const tg = window.Telegram.WebApp;
                 tg.ready();
-                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                    telegramUserData = tg.initDataUnsafe.user;
-                }
+                if (tg.initDataUnsafe && tg.initDataUnsafe.user) telegramUserData = tg.initDataUnsafe.user;
             }
-        } catch (e) {
-            console.error("Could not initialize Telegram Web App:", e);
-        }
+        } catch (e) { console.error("Could not initialize Telegram Web App:", e); }
 
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json', buttonRootId: 'ton-connect-button-root' });
         connectWalletHeroBtn.addEventListener('click', () => tonConnectUI.openModal());
-
+        
+        // --- Core Functions ---
         const showDashboard = (show) => {
             dashboardEl.style.display = show ? 'block' : 'none';
             heroEl.style.display = show ? 'none' : 'flex';
+            newsSection.style.display = show ? 'block' : 'none';
         };
         const setSkeletonLoaders = () => {
             mainAssetsContent.innerHTML = skeletonAsset + skeletonAsset;
-            otherTokensContent.innerHTML = skeletonAsset;
+            otherTokensContent.innerHTML = skeletonAsset.repeat(3);
             nftGalleryContent.innerHTML = `<div class="row g-2"><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div></div>`;
             activityFeedContent.innerHTML = skeletonTx.repeat(5);
         };
-        const shortenAddress = (addr) => addr ? (addr.includes('.') ? addr : `${addr.slice(0, 4)}...${addr.slice(-4)}`) : 'Unknown';
 
-        // **FIXED & FINAL**: The definitive, simplified address helpers with corrected priority.
+        const shortenAddress = (addr, start = 4, end = 4) => addr ? (addr.includes('.') ? addr : `${addr.slice(0, start)}...${addr.slice(-end)}`) : 'Unknown';
         const getRaw = (addrObj) => addrObj?.raw_form || (typeof addrObj?.address === 'string' ? addrObj.address : null);
         const getDisplayAddress = (addrObj) => addrObj?.bounceable?.address || addrObj?.name || getRaw(addrObj) || 'Unknown Address';
         
+        async function fetchAndDisplayAccountData(addressToFetch) {
+            setSkeletonLoaders();
+            searchResultsContainer.style.display = 'none';
+            searchInput.value = '';
+            backToMyWalletBtn.style.display = (connectedWalletAddress && addressToFetch !== connectedWalletAddress) ? 'block' : 'none';
+
+            try {
+                const [accountRes, jettonsRes, nftsRes, eventsRes] = await Promise.all([
+                    fetch(`${TON_API_BASE}/accounts/${addressToFetch}`),
+                    fetch(`${TON_API_BASE}/accounts/${addressToFetch}/jettons`),
+                    fetch(`${TON_API_BASE}/accounts/${addressToFetch}/nfts?limit=100&indirect_ownership=false`),
+                    fetch(`${TON_API_BASE}/accounts/${addressToFetch}/events?limit=100`)
+                ]);
+                
+                if (!accountRes.ok) throw new Error('Could not fetch account info.');
+                
+                const accountInfo = await accountRes.json();
+                const jettonsInfo = jettonsRes.ok ? await jettonsRes.json() : { balances: [] };
+                const nftsInfo = nftsRes.ok ? await nftsRes.json() : { nft_items: [] };
+                const eventsInfo = eventsRes.ok ? await eventsRes.json() : { events: [] };
+
+                const userFriendlyAddress = getDisplayAddress(accountInfo);
+                const validLogs = (eventsInfo.events ?? []).flatMap(event => parseEvent(event, addressToFetch, userFriendlyAddress));
+                
+                renderMainAssets(accountInfo);
+                renderOtherTokens(jettonsInfo.balances ?? []);
+                renderNFTs(nftsInfo.nft_items ?? []);
+                renderActivity(validLogs); // Call the restored function
+            } catch (error) {
+                console.error("Error fetching account data:", error);
+                mainAssetsContent.innerHTML = `<p class="text-danger"><strong>Error:</strong> Could not load data for this account. It might be uninitialized.</p>`;
+                otherTokensContent.innerHTML = `<p class="text-secondary">Data unavailable.</p>`;
+                nftGalleryContent.innerHTML = `<p class="text-secondary">Data unavailable.</p>`;
+                activityFeedContent.innerHTML = `<p class="text-secondary">Data unavailable.</p>`;
+            }
+        }
+        
+        // --- Rendering Functions ---
         const renderMainAssets = (accountInfo) => {
             if (!accountInfo) { mainAssetsContent.innerHTML = `<p class="text-danger">Could not load account data.</p>`; return; }
             mainAssetsContent.innerHTML = `<div class="d-flex align-items-center justify-content-between mb-4">
@@ -205,7 +328,7 @@
                  mainAssetsContent.innerHTML += `<div class="d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center">
                         <i class="fas fa-wallet me-3" style="width: 48px; font-size: 24px; text-align: center; color: var(--accent-secondary);"></i>
-                        <div><h5 class="m-0">Address</h5><p class="m-0 text-secondary">Your Wallet</p></div>
+                        <div><h5 class="m-0">Address</h5><p class="m-0 text-secondary">Viewing Wallet</p></div>
                     </div>
                     <h6 class="m-0" style="font-family: monospace; cursor: help;" title="${userFriendlyAddress}">${shortenAddress(userFriendlyAddress)}</h6>
                 </div>`;
@@ -217,8 +340,8 @@
                 jettons.forEach(j => {
                     const displayBalance = Number((Number(BigInt(j.balance)) / (10 ** (j.jetton.decimals || 9))).toPrecision(15));
                     const verifiedTick = j.jetton.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
-                    otherTokensContent.innerHTML += `<div class="d-flex align-items-center justify-content-between mb-3">
-                        <div class="d-flex align-items-center"><img src="${j.jetton.image}" class="me-3" style="width: 32px; height: 32px; border-radius: 50%;">
+                    otherTokensContent.innerHTML += `<div class="d-flex align-items-center justify-content-between mb-3 p-2 jetton-item" data-jetton-address="${j.jetton.address}">
+                        <div class="d-flex align-items-center"><img src="${j.jetton.image}" class="me-3 jetton-item-img">
                         <div><h6 class="m-0">${j.jetton.symbol}${verifiedTick}</h6></div></div><h6 class="m-0">${displayBalance.toLocaleString('en-US')}</h6></div>`;
                 });
             } else { otherTokensContent.innerHTML = `<p class="text-secondary">No tokens found.</p>`; }
@@ -237,6 +360,7 @@
                 nftGalleryContent.innerHTML = html;
             } else { nftGalleryContent.innerHTML = `<p class="text-secondary">No NFTs found.</p>`; }
         };
+        // *** RESTORED FUNCTION ***
         const renderActivity = (validLogs) => {
             activityFeedContent.innerHTML = '';
             if (validLogs && validLogs.length > 0) {
@@ -244,7 +368,7 @@
                     const statusIcon = log.status === 'ok' ? `<i class="fas fa-check-circle status-icon status-ok"></i>` : `<i class="fas fa-exclamation-circle status-icon status-failed"></i>`;
                     const titleText = log.status !== 'ok' ? `<span class="text-warning">${log.title} (Failed)</span>` : log.title;
                     const colorClass = log.direction === 'in' ? 'amount-in' : 'amount-out';
-                    const amountDisplay = log.amount ? `<p class="m-0 fw-bold ${colorClass}">${log.sign} ${log.amount} ${log.symbol}</p>` : `<p class="m-0 fw-bold">${log.symbol} Transfer</p>`;
+                    const amountDisplay = log.amount !== null ? `<p class="m-0 fw-bold ${colorClass}">${log.sign} ${log.amount.toLocaleString('en-US', {maximumFractionDigits: 4})} ${log.symbol}</p>` : `<p class="m-0 fw-bold">${log.symbol} Transfer</p>`;
                     const commentDisplay = log.comment ? `<div class="w-100 mt-2"><p class="m-0 text-secondary" style="font-size: 0.8rem; font-style: italic;"><i class="fas fa-comment-dots me-2"></i>${log.comment}</p></div>` : '';
                     activityFeedContent.innerHTML += `
                      <div class="d-flex flex-wrap align-items-center py-3 border-bottom border-secondary border-opacity-25">
@@ -263,61 +387,32 @@
             } else { activityFeedContent.innerHTML = `<p class="text-secondary">No recent activity found.</p>`; }
         };
 
+        // --- Event Listeners & Handlers ---
         tonConnectUI.onStatusChange(async (wallet) => {
             if (wallet) {
+                connectedWalletAddress = wallet.account.address; 
                 if (telegramUserData) {
                     appLogoImg.src = telegramUserData.photo_url || DEFAULT_LOGO_SRC;
                     appLogoImg.style.borderRadius = '50%';
                     appLogoText.textContent = `@${telegramUserData.username}` || 'Telegram User';
                 } else {
-                    appLogoImg.src = BMASS_LOGO_SRC;
+                    appLogoImg.src = DEFAULT_LOGO_SRC;
                     appLogoImg.style.borderRadius = '0';
                     appLogoText.textContent = 'Bmass Wallet';
                 }
-
                 showDashboard(true);
-                setSkeletonLoaders();
-                try {
-                    const rawAddress = wallet.account.address;
-                    const results = await Promise.allSettled([
-                        fetch(`${TON_API_BASE}/accounts/${rawAddress}`),
-                        fetch(`${TON_API_BASE}/accounts/${rawAddress}/jettons`),
-                        fetch(`${TON_API_BASE}/accounts/${rawAddress}/nfts?limit=100&indirect_ownership=false`),
-                        fetch(`${TON_API_BASE}/accounts/${rawAddress}/events?limit=100`)
-                    ]);
-                    
-                    const [accountRes, jettonsRes, nftsRes, eventsRes] = results;
-                    if (accountRes.status !== 'fulfilled' || !accountRes.value.ok) throw new Error('Could not fetch account info.');
-                    
-                    const accountInfo = await accountRes.value.json();
-                    const jettonsInfo = jettonsRes.status === 'fulfilled' && jettonsRes.value.ok ? await jettonsRes.value.json() : { balances: [] };
-                    const nftsInfo = nftsRes.status === 'fulfilled' && nftsRes.value.ok ? await nftsRes.value.json() : { nft_items: [] };
-                    const eventsInfo = eventsRes.status === 'fulfilled' && eventsRes.value.ok ? await eventsRes.value.json() : { events: [] };
-
-                    const userFriendlyAddress = getDisplayAddress(accountInfo);
-                    const validLogs = (eventsInfo.events ?? []).flatMap(event => parseEvent(event, rawAddress, userFriendlyAddress));
-                    
-                    renderMainAssets(accountInfo);
-                    renderOtherTokens(jettonsInfo.balances ?? []);
-                    renderNFTs(nftsInfo.nft_items ?? []);
-                    renderActivity(validLogs);
-
-                    tonConnectButtonRoot.style.display = 'none';
-                    customWalletContainer.style.display = 'block';
-                    customWalletButton.textContent = shortenAddress(userFriendlyAddress);
-                    copyAddressBtn.dataset.address = userFriendlyAddress;
-                } catch (error) {
-                    console.error("A critical error occurred while fetching data:", error);
-                    mainAssetsContent.innerHTML = `<p class="text-danger"><strong>Error:</strong> Could not load wallet data. Please try refreshing.</p>`;
-                    otherTokensContent.innerHTML = `<p class="text-secondary">Data unavailable.</p>`;
-                    nftGalleryContent.innerHTML = `<p class="text-secondary">Data unavailable.</p>`;
-                    activityFeedContent.innerHTML = `<p class="text-secondary">Data unavailable.</p>`;
-                }
+                fetchCryptoNews();
+                await fetchAndDisplayAccountData(connectedWalletAddress);
+                const friendlyAddress = shortenAddress(wallet.account.address);
+                tonConnectButtonRoot.style.display = 'none';
+                customWalletContainer.style.display = 'block';
+                customWalletButton.textContent = friendlyAddress;
+                copyAddressBtn.dataset.address = wallet.account.address;
             } else {
+                connectedWalletAddress = null;
                 showDashboard(false);
                 tonConnectButtonRoot.style.display = 'block';
                 customWalletContainer.style.display = 'none';
-                
                 appLogoImg.src = DEFAULT_LOGO_SRC;
                 appLogoImg.style.borderRadius = '0';
                 appLogoText.textContent = '';
@@ -330,21 +425,127 @@
             e.preventDefault();
             const address = e.currentTarget.dataset.address;
             const textSpan = e.currentTarget.querySelector('span');
-            if (address) {
-                navigator.clipboard.writeText(address).then(() => {
-                    textSpan.textContent = 'Copied!';
-                    setTimeout(() => { textSpan.textContent = 'Copy Address'; }, 2000);
-                });
-            }
+            if (address) navigator.clipboard.writeText(address).then(() => { textSpan.textContent = 'Copied!'; setTimeout(() => { textSpan.textContent = 'Copy Address'; }, 2000); });
         });
-        window.addEventListener('click', (e) => { if (!customWalletContainer.contains(e.target)) { walletDropdown.style.display = 'none'; } });
+        window.addEventListener('click', (e) => { 
+            if (!customWalletContainer.contains(e.target)) walletDropdown.style.display = 'none';
+            if (!document.getElementById('account-search-section').contains(e.target)) searchResultsContainer.style.display = 'none';
+        });
 
+        async function handleSearch() {
+            const query = searchInput.value.trim();
+            if (!query) { searchResultsContainer.style.display = 'none'; return; }
+            const isAddress = (query.length === 48 && (query.startsWith('UQ') || query.startsWith('EQ'))) || (query.length === 66 && query.includes(':'));
+            if (isAddress) {
+                fetchAndDisplayAccountData(query);
+            } else {
+                searchResultsContainer.style.display = 'block';
+                searchResultsContainer.innerHTML = `<div class="p-2 text-center text-secondary">${skeletonTx}</div>`;
+                try {
+                    const response = await fetch(`${TON_API_BASE}/accounts/search?name=${query}`);
+                    if (!response.ok) throw new Error('Search failed');
+                    const data = await response.json();
+                    searchResultsContainer.innerHTML = ''; 
+                    if (data.addresses && data.addresses.length > 0) {
+                        data.addresses.forEach(acc => {
+                            const item = document.createElement('div');
+                            item.className = 'd-flex align-items-center p-2 mb-1 search-result-item';
+                            item.dataset.address = acc.address;
+                            const verifiedTick = acc.trust === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
+                            item.innerHTML = `
+                                <img src="${acc.preview}" class="me-3" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
+                                <div class="flex-grow-1">
+                                    <p class="m-0 fw-bold">${acc.name || 'Unnamed'} ${verifiedTick}</p>
+                                    <p class="m-0 text-secondary" style="font-family: monospace; font-size: 0.8rem;">${shortenAddress(acc.address)}</p>
+                                </div>`;
+                            item.addEventListener('click', () => { fetchAndDisplayAccountData(item.dataset.address); });
+                            searchResultsContainer.appendChild(item);
+                        });
+                    } else {
+                        searchResultsContainer.innerHTML = '<p class="text-secondary text-center p-3">No accounts found.</p>';
+                    }
+                } catch (error) { console.error('Error during account search:', error); searchResultsContainer.innerHTML = '<p class="text-danger text-center p-3">Search failed.</p>'; }
+            }
+        }
+        searchButton.addEventListener('click', handleSearch);
+        searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSearch(); });
+        backToMyWalletBtn.addEventListener('click', () => { if (connectedWalletAddress) { fetchAndDisplayAccountData(connectedWalletAddress); } });
+
+        otherTokensContent.addEventListener('click', (e) => {
+            const jettonItem = e.target.closest('.jetton-item');
+            if (jettonItem) showJettonDetails(jettonItem.dataset.jettonAddress);
+        });
+
+        async function showJettonDetails(jettonAddress) {
+            jettonDetailModal.show();
+            const headerEl = document.getElementById('jetton-modal-header-content');
+            const metadataEl = document.getElementById('metadata-tab-pane');
+            const historyEl = document.getElementById('history-tab-pane');
+            const holdersEl = document.getElementById('holders-tab-pane');
+            const loadingHtml = `<div class="w-100 text-center p-5">${skeletonTx}</div>`;
+            headerEl.innerHTML = `<h5 class="modal-title">Loading Jetton...</h5>`;
+            [metadataEl, historyEl, holdersEl].forEach(el => el.innerHTML = loadingHtml);
+
+            const [metadataRes, historyRes, holdersRes] = await Promise.allSettled([
+                fetch(`${TON_API_BASE}/jettons/${jettonAddress}`),
+                fetch(`${TON_API_BASE}/jettons/${jettonAddress}/history?limit=50`),
+                fetch(`${TON_API_BASE}/jettons/${jettonAddress}/holders?limit=50`)
+            ]);
+
+            if (metadataRes.status === 'fulfilled' && metadataRes.value.ok) {
+                const data = await metadataRes.value.json();
+                const metadata = data.metadata;
+                const verifiedTick = metadata.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
+                headerEl.innerHTML = `<img src="${metadata.image}" class="me-3 jetton-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png'"><h5 class="modal-title">${metadata.name} (${metadata.symbol}) ${verifiedTick}</h5>`;
+                metadataEl.innerHTML = `<p class="mb-3">${metadata.description || 'No description available.'}</p>
+                    <div class="row g-3">
+                        <div class="col-12"><span class="metadata-key">Address:</span> <code class="fs-sm text-break">${metadata.address}</code></div>
+                        <div class="col-md-6"><span class="metadata-key">Decimals:</span> ${metadata.decimals}</div>
+                        <div class="col-md-6"><span class="metadata-key">Mintable:</span> ${data.mintable ? 'Yes' : 'No'}</div>
+                        <div class="col-12"><span class="metadata-key">Total Supply:</span> ${Number(Number(BigInt(data.total_supply)) / (10 ** metadata.decimals)).toLocaleString('en-US')} ${metadata.symbol}</div>
+                    </div>`;
+            } else { metadataEl.innerHTML = `<p class="text-danger">Failed to load metadata.</p>`; }
+
+            if (historyRes.status === 'fulfilled' && historyRes.value.ok) {
+                const data = await historyRes.value.json();
+                historyEl.innerHTML = '';
+                if(data.events && data.events.length > 0) {
+                    data.events.forEach(event => {
+                       const action = event.actions[0];
+                       if (!action) return;
+                       let detail = 'Unknown transaction';
+                       const decimals = action?.JettonTransfer?.jetton?.decimals || 9;
+                       if(action.type === 'JettonTransfer' && action.JettonTransfer) {
+                           const t = action.JettonTransfer;
+                           detail = `Transfer <strong>${(Number(BigInt(t.amount)) / (10 ** decimals)).toLocaleString()}</strong> from ${shortenAddress(t.sender.address)} to ${shortenAddress(t.recipient.address)}`;
+                       } else if(action.type === 'JettonMint' && action.JettonMint) { detail = `Mint to ${shortenAddress(action.JettonMint.recipient.address)}`; }
+                       historyEl.innerHTML += `<div class="d-flex justify-content-between p-2 border-bottom border-secondary border-opacity-25"><small>${detail}</small><small class="text-secondary">${new Date(event.timestamp * 1000).toLocaleDateString()}</small></div>`;
+                    });
+                } else { historyEl.innerHTML = `<p class="text-secondary text-center p-3">No transaction history found.</p>`; }
+            } else { historyEl.innerHTML = `<p class="text-danger">Failed to load history.</p>`; }
+
+            if (holdersRes.status === 'fulfilled' && holdersRes.value.ok) {
+                const data = await holdersRes.value.json();
+                holdersEl.innerHTML = '';
+                if(data.owners && data.owners.length > 0) {
+                     data.owners.forEach(holder => {
+                        const decimals = holder.jetton?.decimals || 9;
+                        holdersEl.innerHTML += `<div class="d-flex justify-content-between p-2 border-bottom border-secondary border-opacity-25">
+                            <small><code>${shortenAddress(holder.address, 6, 6)}</code></small>
+                            <small><strong>${(Number(BigInt(holder.balance)) / (10 ** decimals)).toLocaleString()}</strong></small>
+                       </div>`;
+                    });
+                } else { holdersEl.innerHTML = `<p class="text-secondary text-center p-3">No holders found.</p>`; }
+            } else { holdersEl.innerHTML = `<p class="text-danger">Failed to load holders.</p>`; }
+        }
+
+        // *** RESTORED FUNCTION ***
         function parseEvent(event, userRawAddress, userFriendlyAddress) {
             const logs = [];
             if (!event?.actions) return logs;
             for (const action of event.actions) {
                 try {
-                    const log = { timestamp: event.timestamp * 1000, status: action.status };
+                    const log = { timestamp: event.timestamp * 1000, status: action.status, amount: null };
                     const processParty = (partyObj) => (getRaw(partyObj) === userRawAddress) ? userFriendlyAddress : getDisplayAddress(partyObj);
 
                     if (action.type === 'TonTransfer' && action.TonTransfer) {
@@ -352,7 +553,7 @@
                         if (!getRaw(t.sender) || !getRaw(t.recipient)) continue;
                         log.direction = getRaw(t.sender) === userRawAddress ? 'out' : 'in';
                         log.title = "TON Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
-                        log.amount = Number((t.amount / 1e9).toPrecision(15));
+                        log.amount = Number(t.amount) / 1e9;
                         log.symbol = 'TON'; log.party_title = log.direction === 'out' ? 'To' : 'From';
                         log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
                         log.image = 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
@@ -362,7 +563,7 @@
                         if (!getRaw(t.sender) || !getRaw(t.recipient)) continue;
                         log.direction = getRaw(t.sender) === userRawAddress ? 'out' : 'in';
                         log.title = "Jetton Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
-                        log.amount = Number((Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9))).toPrecision(15));
+                        log.amount = Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9));
                         log.symbol = t.jetton?.symbol || 'Token'; log.party_title = log.direction === 'out' ? 'To' : 'From';
                         log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
                         log.image = t.jetton?.image || 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
@@ -371,7 +572,7 @@
                          const t = action.JettonMint;
                          if (getRaw(t.recipient) !== userRawAddress) continue;
                          log.direction = 'in'; log.title = "Minted"; log.sign = '+';
-                         log.amount = Number((Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9))).toPrecision(15));
+                         log.amount = Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9));
                          log.symbol = t.jetton?.symbol || 'Token'; log.party_title = "From";
                          log.party = getDisplayAddress(t.jetton); log.image = t.jetton?.image || 'https://ton.org/download/ton_symbol.png';
                          if (log.party) logs.push(log);
@@ -380,7 +581,7 @@
                         if (!getRaw(t.sender) || !getRaw(t.recipient)) continue;
                         log.direction = getRaw(t.sender) === userRawAddress ? 'out' : 'in';
                         log.title = "NFT Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
-                        log.amount = ''; log.symbol = t.nft_item?.metadata?.name || 'NFT';
+                        log.symbol = t.nft_item?.metadata?.name || 'NFT';
                         log.party_title = log.direction === 'out' ? 'To' : 'From';
                         log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
                         log.image = t.nft_item?.previews?.[0]?.url || 'https://www.svgrepo.com/show/444957/nft-coin.svg';
@@ -389,7 +590,7 @@
                          const t = action.SmartContractExec;
                          if (getRaw(t.executor) !== userRawAddress || !t.ton_attached || t.ton_attached === 0) continue;
                          log.direction = 'out'; log.title = "Contract Call"; log.sign = '-';
-                         log.amount = Number((t.ton_attached / 1e9).toPrecision(15));
+                         log.amount = Number(t.ton_attached) / 1e9;
                          log.symbol = 'TON'; log.party_title = "To Contract";
                          log.party = getDisplayAddress(t.contract);
                          log.image = 'https://www.svgrepo.com/show/443422/smart-contract.svg';
@@ -398,6 +599,44 @@
                 } catch (e) { console.warn("Could not parse an action:", action, "Error:", e); }
             }
             return logs;
+        }
+
+        // *** RESTORED FUNCTION ***
+        async function fetchCryptoNews() {
+            const API_URL = 'https://min-api.cryptocompare.com/data/v2/news/?lang=EN&limit=20';
+            newsContentArea.innerHTML = `<div class="news-grid">${skeletonTx.repeat(3)}</div>`;
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const newsData = await response.json();
+                
+                newsContentArea.innerHTML = '';
+                if (newsData.Type === 100 && newsData.Data && newsData.Data.length > 0) {
+                    let newsHtml = '<div class="news-grid">';
+                    newsData.Data.slice(0, 6).forEach(article => {
+                        newsHtml += `
+                        <a href="${article.url}" target="_blank" rel="noopener noreferrer" class="news-card">
+                            <img src="${article.imageurl}" class="news-card-img" onerror="this.style.display='none'">
+                            <div class="news-card-body">
+                                <h3 class="news-card-title">${article.title}</h3>
+                                <p class="news-card-source">${article.source} - ${new Date(article.published_on * 1000).toLocaleDateString()}</p>
+                            </div>
+                        </a>`;
+                    });
+                    newsHtml += '</div>';
+                    newsContentArea.innerHTML = newsHtml;
+                } else {
+                    newsContentArea.innerHTML = '<p class="text-secondary text-center">No news articles found at the moment.</p>';
+                }
+            } catch (error) {
+                console.error("Error fetching crypto news:", error);
+                newsContentArea.innerHTML = '<p class="text-danger text-center">Could not load news feed. Please try again later.</p>';
+            }
+        }
+
+        if (!tonConnectUI.connected) {
+            fetchCryptoNews();
+            newsSection.style.display = 'block';
         }
     });
     </script>
