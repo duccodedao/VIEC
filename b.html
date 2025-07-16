@@ -272,7 +272,7 @@
                     fetch(`${TON_API_BASE}/accounts/${rawAddress}`).then(res => res.json()),
                     fetch(`${TON_API_BASE}/accounts/${rawAddress}/jettons`).then(res => res.json()),
                     fetch(`${TON_API_BASE}/accounts/${rawAddress}/nfts?limit=100&indirect_ownership=false`).then(res => res.json()),
-                    fetch(`${TON_API_BASE}/accounts/${rawAddress}/events?limit=1000`).then(res => res.json())
+                    fetch(`${TON_API_BASE}/accounts/${rawAddress}/events?limit=20`).then(res => res.json())
                 ]);
 
                 // **CHANGED**: Pass only accountInfo as jettons are no longer needed here.
