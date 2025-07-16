@@ -101,8 +101,16 @@
         .nav-tabs { border-bottom-color: var(--border-color); }
         .nav-tabs .nav-link { background: transparent; border-color: transparent; color: var(--text-secondary); }
         .nav-tabs .nav-link.active { color: var(--accent-primary); background-color: rgba(145, 94, 255, 0.1); border-color: var(--border-color); }
-        .tab-content { max-height: 50vh; overflow-y: auto; }
+        .tab-content { max-height: 50vh; overflow-y: auto; padding-top: 1rem; }
         .metadata-key { color: var(--text-secondary); font-weight: 500; }
+
+        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        .news-card { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 15px; overflow: hidden; transition: all 0.3s ease; text-decoration: none; color: var(--text-primary); }
+        .news-card:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
+        .news-card-img { width: 100%; height: 180px; object-fit: cover; }
+        .news-card-body { padding: 1rem; }
+        .news-card-title { font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .news-card-source { font-size: 0.8rem; color: var(--text-secondary); }
 
         @media (min-width: 768px) {
             .hero-section h1 { font-size: 3.5rem; }
@@ -173,8 +181,7 @@
             </div>
         </section>
 
-        <!-- Crypto News Feed Section, initially hidden -->
-        <section id="crypto-news-feed" style="display:none;">
+        <section id="crypto-news-feed" class="mt-5" style="display:none;">
             <h2 class="card-title" style="font-size: 1.75rem; text-align: center; margin-bottom: 2rem;">Latest Crypto News</h2>
             <div id="news-content-area"></div>
         </section>
@@ -185,24 +192,16 @@
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <div id="jetton-modal-header-content" class="d-flex align-items-center">
-                <!-- Header content will be injected here -->
-            </div>
+            <div id="jetton-modal-header-content" class="d-flex align-items-center"></div>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             <ul class="nav nav-tabs" id="jettonDetailTab" role="tablist">
-              <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="metadata-tab" data-bs-toggle="tab" data-bs-target="#metadata-tab-pane" type="button" role="tab">Metadata</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-tab-pane" type="button" role="tab">History</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="holders-tab" data-bs-toggle="tab" data-bs-target="#holders-tab-pane" type="button" role="tab">Holders</button>
-              </li>
+              <li class="nav-item" role="presentation"><button class="nav-link active" id="metadata-tab" data-bs-toggle="tab" data-bs-target="#metadata-tab-pane" type="button">Metadata</button></li>
+              <li class="nav-item" role="presentation"><button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-tab-pane" type="button">History</button></li>
+              <li class="nav-item" role="presentation"><button class="nav-link" id="holders-tab" data-bs-toggle="tab" data-bs-target="#holders-tab-pane" type="button">Holders</button></li>
             </ul>
-            <div class="tab-content pt-3" id="jettonDetailTabContent">
+            <div class="tab-content" id="jettonDetailTabContent">
               <div class="tab-pane fade show active" id="metadata-tab-pane" role="tabpanel"></div>
               <div class="tab-pane fade" id="history-tab-pane" role="tabpanel"></div>
               <div class="tab-pane fade" id="holders-tab-pane" role="tabpanel"></div>
@@ -256,9 +255,7 @@
             if (window.Telegram && window.Telegram.WebApp) {
                 const tg = window.Telegram.WebApp;
                 tg.ready();
-                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                    telegramUserData = tg.initDataUnsafe.user;
-                }
+                if (tg.initDataUnsafe && tg.initDataUnsafe.user) telegramUserData = tg.initDataUnsafe.user;
             }
         } catch (e) { console.error("Could not initialize Telegram Web App:", e); }
 
@@ -286,7 +283,6 @@
             setSkeletonLoaders();
             searchResultsContainer.style.display = 'none';
             searchInput.value = '';
-
             backToMyWalletBtn.style.display = (connectedWalletAddress && addressToFetch !== connectedWalletAddress) ? 'block' : 'none';
 
             try {
@@ -310,7 +306,7 @@
                 renderMainAssets(accountInfo);
                 renderOtherTokens(jettonsInfo.balances ?? []);
                 renderNFTs(nftsInfo.nft_items ?? []);
-                renderActivity(validLogs);
+                renderActivity(validLogs); // Call the restored function
             } catch (error) {
                 console.error("Error fetching account data:", error);
                 mainAssetsContent.innerHTML = `<p class="text-danger"><strong>Error:</strong> Could not load data for this account. It might be uninitialized.</p>`;
@@ -364,7 +360,32 @@
                 nftGalleryContent.innerHTML = html;
             } else { nftGalleryContent.innerHTML = `<p class="text-secondary">No NFTs found.</p>`; }
         };
-        const renderActivity = (validLogs) => { /* ... Function remains the same ... */ };
+        // *** RESTORED FUNCTION ***
+        const renderActivity = (validLogs) => {
+            activityFeedContent.innerHTML = '';
+            if (validLogs && validLogs.length > 0) {
+                validLogs.forEach(log => {
+                    const statusIcon = log.status === 'ok' ? `<i class="fas fa-check-circle status-icon status-ok"></i>` : `<i class="fas fa-exclamation-circle status-icon status-failed"></i>`;
+                    const titleText = log.status !== 'ok' ? `<span class="text-warning">${log.title} (Failed)</span>` : log.title;
+                    const colorClass = log.direction === 'in' ? 'amount-in' : 'amount-out';
+                    const amountDisplay = log.amount !== null ? `<p class="m-0 fw-bold ${colorClass}">${log.sign} ${log.amount.toLocaleString('en-US', {maximumFractionDigits: 4})} ${log.symbol}</p>` : `<p class="m-0 fw-bold">${log.symbol} Transfer</p>`;
+                    const commentDisplay = log.comment ? `<div class="w-100 mt-2"><p class="m-0 text-secondary" style="font-size: 0.8rem; font-style: italic;"><i class="fas fa-comment-dots me-2"></i>${log.comment}</p></div>` : '';
+                    activityFeedContent.innerHTML += `
+                     <div class="d-flex flex-wrap align-items-center py-3 border-bottom border-secondary border-opacity-25">
+                        <img src="${log.image}" class="activity-item-icon me-3" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
+                        <div class="flex-grow-1">
+                            <p class="m-0 fw-bold">${statusIcon}${titleText}</p>
+                            <p class="m-0 text-secondary" style="font-size: 0.8rem;">${log.party_title}: ${shortenAddress(log.party)}</p>
+                        </div>
+                        <div class="text-end">
+                            ${amountDisplay}
+                            <p class="m-0 text-secondary" style="font-size: 0.8rem;">${new Date(log.timestamp).toLocaleString()}</p>
+                        </div>
+                        ${commentDisplay}
+                     </div>`;
+                });
+            } else { activityFeedContent.innerHTML = `<p class="text-secondary">No recent activity found.</p>`; }
+        };
 
         // --- Event Listeners & Handlers ---
         tonConnectUI.onStatusChange(async (wallet) => {
@@ -375,7 +396,7 @@
                     appLogoImg.style.borderRadius = '50%';
                     appLogoText.textContent = `@${telegramUserData.username}` || 'Telegram User';
                 } else {
-                    appLogoImg.src = DEFAULT_LOGO_SRC; // Or your specific BMASS logo
+                    appLogoImg.src = DEFAULT_LOGO_SRC;
                     appLogoImg.style.borderRadius = '0';
                     appLogoText.textContent = 'Bmass Wallet';
                 }
@@ -400,15 +421,17 @@
         
         customWalletButton.addEventListener('click', () => { walletDropdown.style.display = walletDropdown.style.display === 'block' ? 'none' : 'block'; });
         disconnectBtn.addEventListener('click', (e) => { e.preventDefault(); tonConnectUI.disconnect(); walletDropdown.style.display = 'none'; });
-        copyAddressBtn.addEventListener('click', (e) => { /* ... Function remains the same ... */ });
+        copyAddressBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const address = e.currentTarget.dataset.address;
+            const textSpan = e.currentTarget.querySelector('span');
+            if (address) navigator.clipboard.writeText(address).then(() => { textSpan.textContent = 'Copied!'; setTimeout(() => { textSpan.textContent = 'Copy Address'; }, 2000); });
+        });
         window.addEventListener('click', (e) => { 
-            if (!customWalletContainer.contains(e.target)) { walletDropdown.style.display = 'none'; } 
-            if (!document.getElementById('account-search-section').contains(e.target)) {
-                searchResultsContainer.style.display = 'none';
-            }
+            if (!customWalletContainer.contains(e.target)) walletDropdown.style.display = 'none';
+            if (!document.getElementById('account-search-section').contains(e.target)) searchResultsContainer.style.display = 'none';
         });
 
-        // --- Search Functionality ---
         async function handleSearch() {
             const query = searchInput.value.trim();
             if (!query) { searchResultsContainer.style.display = 'none'; return; }
@@ -448,119 +471,173 @@
         searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSearch(); });
         backToMyWalletBtn.addEventListener('click', () => { if (connectedWalletAddress) { fetchAndDisplayAccountData(connectedWalletAddress); } });
 
-        // --- Jetton Details Modal Logic ---
         otherTokensContent.addEventListener('click', (e) => {
             const jettonItem = e.target.closest('.jetton-item');
-            if (jettonItem) {
-                const jettonAddress = jettonItem.dataset.jettonAddress;
-                showJettonDetails(jettonAddress);
-            }
+            if (jettonItem) showJettonDetails(jettonItem.dataset.jettonAddress);
         });
 
         async function showJettonDetails(jettonAddress) {
-            // Show modal and loading state
             jettonDetailModal.show();
             const headerEl = document.getElementById('jetton-modal-header-content');
             const metadataEl = document.getElementById('metadata-tab-pane');
             const historyEl = document.getElementById('history-tab-pane');
             const holdersEl = document.getElementById('holders-tab-pane');
-            
             const loadingHtml = `<div class="w-100 text-center p-5">${skeletonTx}</div>`;
             headerEl.innerHTML = `<h5 class="modal-title">Loading Jetton...</h5>`;
-            metadataEl.innerHTML = loadingHtml;
-            historyEl.innerHTML = loadingHtml;
-            holdersEl.innerHTML = loadingHtml;
+            [metadataEl, historyEl, holdersEl].forEach(el => el.innerHTML = loadingHtml);
 
-            // Fetch all data concurrently
             const [metadataRes, historyRes, holdersRes] = await Promise.allSettled([
                 fetch(`${TON_API_BASE}/jettons/${jettonAddress}`),
                 fetch(`${TON_API_BASE}/jettons/${jettonAddress}/history?limit=50`),
                 fetch(`${TON_API_BASE}/jettons/${jettonAddress}/holders?limit=50`)
             ]);
 
-            // Render Metadata
             if (metadataRes.status === 'fulfilled' && metadataRes.value.ok) {
                 const data = await metadataRes.value.json();
                 const metadata = data.metadata;
                 const verifiedTick = metadata.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
-                headerEl.innerHTML = `
-                    <img src="${metadata.image}" class="me-3 jetton-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png'">
-                    <h5 class="modal-title">${metadata.name} (${metadata.symbol}) ${verifiedTick}</h5>`;
-                
-                metadataEl.innerHTML = `
-                    <p class="mb-3">${metadata.description || 'No description available.'}</p>
+                headerEl.innerHTML = `<img src="${metadata.image}" class="me-3 jetton-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png'"><h5 class="modal-title">${metadata.name} (${metadata.symbol}) ${verifiedTick}</h5>`;
+                metadataEl.innerHTML = `<p class="mb-3">${metadata.description || 'No description available.'}</p>
                     <div class="row g-3">
-                        <div class="col-12"><span class="metadata-key">Address:</span> <code class="fs-sm">${metadata.address}</code></div>
+                        <div class="col-12"><span class="metadata-key">Address:</span> <code class="fs-sm text-break">${metadata.address}</code></div>
                         <div class="col-md-6"><span class="metadata-key">Decimals:</span> ${metadata.decimals}</div>
                         <div class="col-md-6"><span class="metadata-key">Mintable:</span> ${data.mintable ? 'Yes' : 'No'}</div>
                         <div class="col-12"><span class="metadata-key">Total Supply:</span> ${Number(Number(BigInt(data.total_supply)) / (10 ** metadata.decimals)).toLocaleString('en-US')} ${metadata.symbol}</div>
-                    </div>
-                `;
-            } else {
-                metadataEl.innerHTML = `<p class="text-danger">Failed to load metadata.</p>`;
-            }
+                    </div>`;
+            } else { metadataEl.innerHTML = `<p class="text-danger">Failed to load metadata.</p>`; }
 
-            // Render History
             if (historyRes.status === 'fulfilled' && historyRes.value.ok) {
                 const data = await historyRes.value.json();
                 historyEl.innerHTML = '';
                 if(data.events && data.events.length > 0) {
                     data.events.forEach(event => {
-                       // Simplified history view
                        const action = event.actions[0];
                        if (!action) return;
                        let detail = 'Unknown transaction';
+                       const decimals = action?.JettonTransfer?.jetton?.decimals || 9;
                        if(action.type === 'JettonTransfer' && action.JettonTransfer) {
                            const t = action.JettonTransfer;
-                           detail = `Transfer <strong>${(Number(BigInt(t.amount)) / 1e9).toLocaleString()}</strong> from ${shortenAddress(t.sender.address)} to ${shortenAddress(t.recipient.address)}`;
-                       } else if(action.type === 'JettonMint' && action.JettonMint) {
-                           detail = `Mint to ${shortenAddress(action.JettonMint.recipient.address)}`;
-                       }
-                       historyEl.innerHTML += `<div class="d-flex justify-content-between p-2 border-bottom border-secondary border-opacity-25">
-                            <small>${detail}</small>
-                            <small class="text-secondary">${new Date(event.timestamp * 1000).toLocaleString()}</small>
-                       </div>`;
+                           detail = `Transfer <strong>${(Number(BigInt(t.amount)) / (10 ** decimals)).toLocaleString()}</strong> from ${shortenAddress(t.sender.address)} to ${shortenAddress(t.recipient.address)}`;
+                       } else if(action.type === 'JettonMint' && action.JettonMint) { detail = `Mint to ${shortenAddress(action.JettonMint.recipient.address)}`; }
+                       historyEl.innerHTML += `<div class="d-flex justify-content-between p-2 border-bottom border-secondary border-opacity-25"><small>${detail}</small><small class="text-secondary">${new Date(event.timestamp * 1000).toLocaleDateString()}</small></div>`;
                     });
-                } else {
-                    historyEl.innerHTML = `<p class="text-secondary text-center p-3">No transaction history found.</p>`;
-                }
-            } else {
-                 historyEl.innerHTML = `<p class="text-danger">Failed to load history.</p>`;
-            }
+                } else { historyEl.innerHTML = `<p class="text-secondary text-center p-3">No transaction history found.</p>`; }
+            } else { historyEl.innerHTML = `<p class="text-danger">Failed to load history.</p>`; }
 
-            // Render Holders
             if (holdersRes.status === 'fulfilled' && holdersRes.value.ok) {
                 const data = await holdersRes.value.json();
                 holdersEl.innerHTML = '';
                 if(data.owners && data.owners.length > 0) {
                      data.owners.forEach(holder => {
+                        const decimals = holder.jetton?.decimals || 9;
                         holdersEl.innerHTML += `<div class="d-flex justify-content-between p-2 border-bottom border-secondary border-opacity-25">
                             <small><code>${shortenAddress(holder.address, 6, 6)}</code></small>
-                            <small><strong>${(Number(BigInt(holder.balance)) / 1e9).toLocaleString()}</strong></small>
+                            <small><strong>${(Number(BigInt(holder.balance)) / (10 ** decimals)).toLocaleString()}</strong></small>
                        </div>`;
                     });
+                } else { holdersEl.innerHTML = `<p class="text-secondary text-center p-3">No holders found.</p>`; }
+            } else { holdersEl.innerHTML = `<p class="text-danger">Failed to load holders.</p>`; }
+        }
+
+        // *** RESTORED FUNCTION ***
+        function parseEvent(event, userRawAddress, userFriendlyAddress) {
+            const logs = [];
+            if (!event?.actions) return logs;
+            for (const action of event.actions) {
+                try {
+                    const log = { timestamp: event.timestamp * 1000, status: action.status, amount: null };
+                    const processParty = (partyObj) => (getRaw(partyObj) === userRawAddress) ? userFriendlyAddress : getDisplayAddress(partyObj);
+
+                    if (action.type === 'TonTransfer' && action.TonTransfer) {
+                        const t = action.TonTransfer;
+                        if (!getRaw(t.sender) || !getRaw(t.recipient)) continue;
+                        log.direction = getRaw(t.sender) === userRawAddress ? 'out' : 'in';
+                        log.title = "TON Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
+                        log.amount = Number(t.amount) / 1e9;
+                        log.symbol = 'TON'; log.party_title = log.direction === 'out' ? 'To' : 'From';
+                        log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
+                        log.image = 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
+                        if (log.party) logs.push(log);
+                    } else if (action.type === 'JettonTransfer' && action.JettonTransfer) {
+                        const t = action.JettonTransfer;
+                        if (!getRaw(t.sender) || !getRaw(t.recipient)) continue;
+                        log.direction = getRaw(t.sender) === userRawAddress ? 'out' : 'in';
+                        log.title = "Jetton Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
+                        log.amount = Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9));
+                        log.symbol = t.jetton?.symbol || 'Token'; log.party_title = log.direction === 'out' ? 'To' : 'From';
+                        log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
+                        log.image = t.jetton?.image || 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
+                        if (log.party) logs.push(log);
+                    } else if (action.type === 'JettonMint' && action.JettonMint) {
+                         const t = action.JettonMint;
+                         if (getRaw(t.recipient) !== userRawAddress) continue;
+                         log.direction = 'in'; log.title = "Minted"; log.sign = '+';
+                         log.amount = Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9));
+                         log.symbol = t.jetton?.symbol || 'Token'; log.party_title = "From";
+                         log.party = getDisplayAddress(t.jetton); log.image = t.jetton?.image || 'https://ton.org/download/ton_symbol.png';
+                         if (log.party) logs.push(log);
+                    } else if (action.type === 'NftItemTransfer' && action.NftItemTransfer) {
+                        const t = action.NftItemTransfer;
+                        if (!getRaw(t.sender) || !getRaw(t.recipient)) continue;
+                        log.direction = getRaw(t.sender) === userRawAddress ? 'out' : 'in';
+                        log.title = "NFT Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
+                        log.symbol = t.nft_item?.metadata?.name || 'NFT';
+                        log.party_title = log.direction === 'out' ? 'To' : 'From';
+                        log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
+                        log.image = t.nft_item?.previews?.[0]?.url || 'https://www.svgrepo.com/show/444957/nft-coin.svg';
+                        if (log.party) logs.push(log);
+                    } else if (action.type === 'SmartContractExec' && action.SmartContractExec) {
+                         const t = action.SmartContractExec;
+                         if (getRaw(t.executor) !== userRawAddress || !t.ton_attached || t.ton_attached === 0) continue;
+                         log.direction = 'out'; log.title = "Contract Call"; log.sign = '-';
+                         log.amount = Number(t.ton_attached) / 1e9;
+                         log.symbol = 'TON'; log.party_title = "To Contract";
+                         log.party = getDisplayAddress(t.contract);
+                         log.image = 'https://www.svgrepo.com/show/443422/smart-contract.svg';
+                         if (log.party) logs.push(log);
+                    }
+                } catch (e) { console.warn("Could not parse an action:", action, "Error:", e); }
+            }
+            return logs;
+        }
+
+        // *** RESTORED FUNCTION ***
+        async function fetchCryptoNews() {
+            const API_URL = 'https://min-api.cryptocompare.com/data/v2/news/?lang=EN&limit=20';
+            newsContentArea.innerHTML = `<div class="news-grid">${skeletonTx.repeat(3)}</div>`;
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const newsData = await response.json();
+                
+                newsContentArea.innerHTML = '';
+                if (newsData.Type === 100 && newsData.Data && newsData.Data.length > 0) {
+                    let newsHtml = '<div class="news-grid">';
+                    newsData.Data.slice(0, 6).forEach(article => {
+                        newsHtml += `
+                        <a href="${article.url}" target="_blank" rel="noopener noreferrer" class="news-card">
+                            <img src="${article.imageurl}" class="news-card-img" onerror="this.style.display='none'">
+                            <div class="news-card-body">
+                                <h3 class="news-card-title">${article.title}</h3>
+                                <p class="news-card-source">${article.source} - ${new Date(article.published_on * 1000).toLocaleDateString()}</p>
+                            </div>
+                        </a>`;
+                    });
+                    newsHtml += '</div>';
+                    newsContentArea.innerHTML = newsHtml;
                 } else {
-                     holdersEl.innerHTML = `<p class="text-secondary text-center p-3">No holders found.</p>`;
+                    newsContentArea.innerHTML = '<p class="text-secondary text-center">No news articles found at the moment.</p>';
                 }
-            } else {
-                holdersEl.innerHTML = `<p class="text-danger">Failed to load holders.</p>`;
+            } catch (error) {
+                console.error("Error fetching crypto news:", error);
+                newsContentArea.innerHTML = '<p class="text-danger text-center">Could not load news feed. Please try again later.</p>';
             }
         }
 
-        // --- Data Parsers ---
-        function parseEvent(event, userRawAddress, userFriendlyAddress) { /* ... Function remains the same ... */ }
-
-        // --- News Fetcher ---
-        async function fetchCryptoNews() { /* ... Function remains the same, but now called upon login ... */ }
-
-        // Initial call if not logged in
         if (!tonConnectUI.connected) {
             fetchCryptoNews();
             newsSection.style.display = 'block';
         }
-
-        // Make functions globally accessible if needed for inline JS, though it's better to avoid it.
-        // For this structure, no global functions are needed. All event listeners handle the calls.
     });
     </script>
 </body>
