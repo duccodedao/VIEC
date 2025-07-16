@@ -32,7 +32,7 @@
             --color-in: #2BCBC4;
             --color-out: #ff6b6b;
             --color-failed: #ffcc00;
-            --color-verified: #2ecc71; /* Changed to green */
+            --color-verified: #2ecc71;
         }
 
         body {
@@ -125,15 +125,13 @@
         </header>
 
         <main id="dashboard" style="display: none;">
-            <!-- === SEARCH FUNCTIONALITY MOVED HERE === -->
             <div id="account-search-section" class="mb-4">
                 <div class="input-group">
-                    <input type="text" id="account-search-input" class="form-control" placeholder="Search account by name (e.g., wcoin)" style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--text-primary); border-right: 0;">
+                    <input type="text" id="account-search-input" class="form-control" placeholder="Search by name or paste an address" style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--text-primary); border-right: 0;">
                     <button id="account-search-button" class="btn" style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--accent-primary);"><i class="fas fa-search"></i></button>
                 </div>
                 <div id="search-results-container" class="mt-2 card-glass" style="padding: 1rem; display: none;"></div>
             </div>
-            <!-- === END OF SEARCH SECTION === -->
 
              <div class="row g-4">
                 <div class="col-lg-7">
@@ -249,10 +247,9 @@
 
         async function fetchAndDisplayAccountData(addressToFetch) {
             setSkeletonLoaders();
-            searchResultsContainer.style.display = 'none'; // Hide search results
-            searchInput.value = ''; // Clear search input
+            searchResultsContainer.style.display = 'none';
+            searchInput.value = '';
 
-            // Show/hide the "back" button
             if (connectedWalletAddress && addressToFetch !== connectedWalletAddress) {
                 backToMyWalletBtn.style.display = 'block';
             } else {
@@ -365,7 +362,7 @@
         // --- Event Listeners & Handlers ---
         tonConnectUI.onStatusChange(async (wallet) => {
             if (wallet) {
-                connectedWalletAddress = wallet.account.address; // Store connected wallet address
+                connectedWalletAddress = wallet.account.address; 
 
                 if (telegramUserData) {
                     appLogoImg.src = telegramUserData.photo_url || DEFAULT_LOGO_SRC;
@@ -380,7 +377,6 @@
                 showDashboard(true);
                 await fetchAndDisplayAccountData(connectedWalletAddress);
 
-                // Setup custom wallet button
                 const friendlyAddress = shortenAddress(getDisplayAddress({raw_form: wallet.account.address, bounceable: {address: wallet.account.address}}));
                 tonConnectButtonRoot.style.display = 'none';
                 customWalletContainer.style.display = 'block';
@@ -419,47 +415,55 @@
             }
         });
 
-        // --- Search Functionality ---
+        // --- Search Functionality (UPDATED) ---
         async function handleSearch() {
-            const name = searchInput.value.trim();
-            if (!name) {
+            const query = searchInput.value.trim();
+            if (!query) {
                 searchResultsContainer.style.display = 'none';
                 return;
-            };
+            }
 
-            searchResultsContainer.style.display = 'block';
-            searchResultsContainer.innerHTML = '<div class="text-center text-secondary">Searching...</div>';
-            try {
-                const response = await fetch(`${TON_API_BASE}/accounts/search?name=${name}`);
-                if (!response.ok) throw new Error('Search failed');
-                const data = await response.json();
+            // NEW: Address detection logic
+            const isAddress = (query.length === 48 && (query.startsWith('UQ') || query.startsWith('EQ'))) || (query.length === 66 && query.includes(':'));
 
-                searchResultsContainer.innerHTML = ''; // Clear previous results
-                if (data.addresses && data.addresses.length > 0) {
-                    data.addresses.forEach(acc => {
-                        const item = document.createElement('div');
-                        item.className = 'd-flex align-items-center p-2 mb-1 search-result-item';
-                        item.dataset.address = acc.address;
-                        const verifiedTick = acc.trust === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
-                        item.innerHTML = `
-                            <img src="${acc.preview}" class="me-3" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
-                            <div class="flex-grow-1">
-                                <p class="m-0 fw-bold">${acc.name || 'Unnamed'} ${verifiedTick}</p>
-                                <p class="m-0 text-secondary" style="font-family: monospace; font-size: 0.8rem;">${shortenAddress(acc.address)}</p>
-                            </div>
-                        `;
-                        item.addEventListener('click', () => {
-                            fetchAndDisplayAccountData(item.dataset.address);
+            if (isAddress) {
+                // If it's an address, fetch data directly
+                fetchAndDisplayAccountData(query);
+            } else {
+                // Otherwise, search by name
+                searchResultsContainer.style.display = 'block';
+                searchResultsContainer.innerHTML = '<div class="text-center text-secondary">Searching...</div>';
+                try {
+                    const response = await fetch(`${TON_API_BASE}/accounts/search?name=${query}`);
+                    if (!response.ok) throw new Error('Search failed');
+                    const data = await response.json();
+
+                    searchResultsContainer.innerHTML = ''; 
+                    if (data.addresses && data.addresses.length > 0) {
+                        data.addresses.forEach(acc => {
+                            const item = document.createElement('div');
+                            item.className = 'd-flex align-items-center p-2 mb-1 search-result-item';
+                            item.dataset.address = acc.address;
+                            const verifiedTick = acc.trust === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
+                            item.innerHTML = `
+                                <img src="${acc.preview}" class="me-3" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
+                                <div class="flex-grow-1">
+                                    <p class="m-0 fw-bold">${acc.name || 'Unnamed'} ${verifiedTick}</p>
+                                    <p class="m-0 text-secondary" style="font-family: monospace; font-size: 0.8rem;">${shortenAddress(acc.address)}</p>
+                                </div>
+                            `;
+                            item.addEventListener('click', () => {
+                                fetchAndDisplayAccountData(item.dataset.address);
+                            });
+                            searchResultsContainer.appendChild(item);
                         });
-                        searchResultsContainer.appendChild(item);
-                    });
-                } else {
-                    searchResultsContainer.innerHTML = '<p class="text-secondary text-center">No accounts found.</p>';
+                    } else {
+                        searchResultsContainer.innerHTML = '<p class="text-secondary text-center">No accounts found.</p>';
+                    }
+                } catch (error) {
+                    console.error('Error during account search:', error);
+                    searchResultsContainer.innerHTML = '<p class="text-danger text-center">Search failed. Please try again.</p>';
                 }
-
-            } catch (error) {
-                console.error('Error during account search:', error);
-                searchResultsContainer.innerHTML = '<p class="text-danger text-center">Search failed. Please try again.</p>';
             }
         }
         searchButton.addEventListener('click', handleSearch);
@@ -471,7 +475,6 @@
                 fetchAndDisplayAccountData(connectedWalletAddress);
             }
         });
-
 
         // --- Data Parsers ---
         function parseEvent(event, userRawAddress, userFriendlyAddress) {
