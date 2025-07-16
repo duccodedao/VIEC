@@ -160,6 +160,10 @@
         .sidebar-overlay.open { opacity: 1; visibility: visible; }
         /* --- END: Sidebar and Hamburger Menu --- */
 
+        .price-change-positive { color: var(--color-in); }
+        .price-change-negative { color: var(--color-out); }
+
+
         @media (min-width: 768px) {
             .hero-section h1 { font-size: 3.5rem; }
             .card-glass { padding: 2rem; }
@@ -180,6 +184,7 @@
                 <div id="custom-wallet-button-container" style="display: none;">
                     <button id="custom-wallet-button"></button>
                     <div id="wallet-dropdown">
+                        <a href="#" id="my-account-btn" target="_blank" rel="noopener noreferrer"><i class="fas fa-user-circle"></i><span>My Account</span></a>
                         <a href="#" id="copy-address-btn"><i class="fas fa-copy"></i><span>Copy Address</span></a>
                         <a href="#" id="disconnect-btn"><i class="fas fa-sign-out-alt"></i>Disconnect</a>
                     </div>
@@ -287,21 +292,19 @@
         const newsSection = document.getElementById('crypto-news-feed');
         const newsContentArea = document.getElementById('news-content-area');
 
-        // NEW: Sidebar elements
         const hamburgerBtn = document.getElementById('hamburger-menu-btn');
         const sidebarMenu = document.getElementById('sidebar-menu');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
         
-        // Connect button moved from Hero, new container
         const connectWalletHeroBtnContainer = document.getElementById('connect-wallet-hero-btn-container');
 
-        // Original wallet elements are now inside the sidebar
         const tonConnectButtonRoot = document.getElementById('ton-connect-button-root');
         const customWalletContainer = document.getElementById('custom-wallet-button-container');
         const customWalletButton = document.getElementById('custom-wallet-button');
         const walletDropdown = document.getElementById('wallet-dropdown');
         const copyAddressBtn = document.getElementById('copy-address-btn');
         const disconnectBtn = document.getElementById('disconnect-btn');
+        const myAccountBtn = document.getElementById('my-account-btn');
 
         const appLogoImg = document.getElementById('app-logo-img');
         const appLogoText = document.getElementById('app-logo-text');
@@ -321,7 +324,6 @@
         const skeletonAsset = `<div class="d-flex align-items-center justify-content-between mb-3"><div class="d-flex align-items-center"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div><div class="skeleton-loader skeleton-line w-50"></div><div class="skeleton-loader skeleton-line" style="width: 80px;"></div></div></div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div></div>`;
         const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
 
-        // --- Init ---
         try {
             if (window.Telegram && window.Telegram.WebApp) {
                 const tg = window.Telegram.WebApp;
@@ -330,14 +332,11 @@
             }
         } catch (e) { console.error("Could not initialize Telegram Web App:", e); }
 
-        // Initialize TonConnectUI for BOTH sidebar and hero section
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ 
             manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json',
             buttonRootId: 'ton-connect-button-root' 
         });
 
-        // We'll create a standalone button for the hero section
-        // as the default one is now inside the hidden sidebar.
         const heroConnectButton = document.createElement('button');
         heroConnectButton.id = 'connect-wallet-hero-btn';
         heroConnectButton.className = 'btn px-5 py-3';
@@ -346,7 +345,6 @@
         heroConnectButton.addEventListener('click', () => tonConnectUI.openModal());
         connectWalletHeroBtnContainer.appendChild(heroConnectButton);
         
-        // --- NEW: Sidebar Logic ---
         const toggleSidebar = () => {
             hamburgerBtn.classList.toggle('open');
             sidebarMenu.classList.toggle('open');
@@ -355,8 +353,6 @@
         hamburgerBtn.addEventListener('click', toggleSidebar);
         sidebarOverlay.addEventListener('click', toggleSidebar);
 
-
-        // --- Core Functions ---
         const showDashboard = (show) => {
             dashboardEl.style.display = show ? 'block' : 'none';
             heroEl.style.display = show ? 'none' : 'flex';
@@ -369,7 +365,7 @@
             activityFeedContent.innerHTML = skeletonTx.repeat(5);
         };
 
-        const shortenAddress = (addr, start = 6, end = 6) => addr ? (addr.includes('.') ? addr : `${addr.slice(0, start)}...${addr.slice(-end)}`) : 'Unknown';
+        const shortenAddress = (addr, start = 4, end = 4) => addr ? (addr.includes('.') ? addr : `${addr.slice(0, start)}...${addr.slice(-end)}`) : 'Unknown';
         const getRaw = (addrObj) => addrObj?.raw_form || (typeof addrObj?.address === 'string' ? addrObj.address : null);
         const getDisplayAddress = (addrObj) => addrObj?.bounceable?.address || addrObj?.name || getRaw(addrObj) || 'Unknown Address';
         
@@ -380,11 +376,12 @@
             backToMyWalletBtn.style.display = (connectedWalletAddress && addressToFetch !== connectedWalletAddress) ? 'block' : 'none';
 
             try {
-                const [accountRes, jettonsRes, nftsRes, eventsRes] = await Promise.all([
+                const [accountRes, jettonsRes, nftsRes, eventsRes, ratesRes] = await Promise.all([
                     fetch(`${TON_API_BASE}/accounts/${addressToFetch}`),
                     fetch(`${TON_API_BASE}/accounts/${addressToFetch}/jettons`),
                     fetch(`${TON_API_BASE}/accounts/${addressToFetch}/nfts?limit=100&indirect_ownership=false`),
-                    fetch(`${TON_API_BASE}/accounts/${addressToFetch}/events?limit=100`)
+                    fetch(`${TON_API_BASE}/accounts/${addressToFetch}/events?limit=100`),
+                    fetch(`https://tonapi.io/v2/rates?tokens=ton¤cies=usd`)
                 ]);
                 
                 if (!accountRes.ok) throw new Error('Could not fetch account info.');
@@ -393,11 +390,12 @@
                 const jettonsInfo = jettonsRes.ok ? await jettonsRes.json() : { balances: [] };
                 const nftsInfo = nftsRes.ok ? await nftsRes.json() : { nft_items: [] };
                 const eventsInfo = eventsRes.ok ? await eventsRes.json() : { events: [] };
+                const ratesInfo = ratesRes.ok ? await ratesRes.json() : null;
 
                 const userFriendlyAddress = getDisplayAddress(accountInfo);
                 const validLogs = (eventsInfo.events ?? []).flatMap(event => parseEvent(event, addressToFetch, userFriendlyAddress));
                 
-                renderMainAssets(accountInfo);
+                renderMainAssets(accountInfo, ratesInfo); 
                 renderOtherTokens(jettonsInfo.balances ?? []);
                 renderNFTs(nftsInfo.nft_items ?? []);
                 renderActivity(validLogs);
@@ -410,16 +408,46 @@
             }
         }
         
-        // --- Rendering Functions ---
-        const renderMainAssets = (accountInfo) => {
-            if (!accountInfo) { mainAssetsContent.innerHTML = `<p class="text-danger">Could not load account data.</p>`; return; }
-            mainAssetsContent.innerHTML = `<div class="d-flex align-items-center justify-content-between mb-4">
-                <div class="d-flex align-items-center"><img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;">
-                    <div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div></div>
-                <h4 class="m-0">${Number((accountInfo.balance / 1e9).toPrecision(6))}</h4></div>`;
+        // --- MODIFIED: renderMainAssets to re-include Address ---
+        const renderMainAssets = (accountInfo, ratesInfo) => {
+            if (!accountInfo) { 
+                mainAssetsContent.innerHTML = `<p class="text-danger">Could not load account data.</p>`; 
+                return; 
+            }
+            
             const userFriendlyAddress = getDisplayAddress(accountInfo);
+
+            let priceHtml = '';
+            if (ratesInfo && ratesInfo.rates && ratesInfo.rates.TON) {
+                const price = ratesInfo.rates.TON.prices?.USD;
+                const diff24hStr = ratesInfo.rates.TON.diff_24h?.USD;
+                
+                if (price && diff24hStr) {
+                    const diff24h = parseFloat(diff24hStr.replace('%', ''));
+                    const diffClass = diff24h >= 0 ? 'price-change-positive' : 'price-change-negative';
+                    const diffSign = diff24h >= 0 ? '+' : '';
+                    
+                    priceHtml = `
+                        <div class="d-flex align-items-center justify-content-between mt-4">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-chart-line me-3" style="width: 48px; font-size: 24px; text-align: center; color: var(--accent-secondary);"></i>
+                                <div>
+                                    <h5 class="m-0">Market Price</h5>
+                                    <p class="m-0 text-secondary">Current TON Price</p>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <h5 class="m-0">${price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</h5>
+                                <p class="m-0 ${diffClass}" style="font-size: 0.9rem;">${diffSign}${diff24h.toFixed(2)}% (24h)</p>
+                            </div>
+                        </div>`;
+                }
+            }
+
+            let addressHtml = '';
             if (userFriendlyAddress) {
-                 mainAssetsContent.innerHTML += `<div class="d-flex align-items-center justify-content-between">
+                addressHtml = `
+                <div class="d-flex align-items-center justify-content-between mt-4">
                     <div class="d-flex align-items-center">
                         <i class="fas fa-wallet me-3" style="width: 48px; font-size: 24px; text-align: center; color: var(--accent-secondary);"></i>
                         <div><h5 class="m-0">Address</h5><p class="m-0 text-secondary">Viewing Wallet</p></div>
@@ -427,7 +455,26 @@
                     <h6 class="m-0" style="font-family: monospace; cursor: help;" title="${userFriendlyAddress}">${shortenAddress(userFriendlyAddress)}</h6>
                 </div>`;
             }
+
+            mainAssetsContent.innerHTML = `
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div class="d-flex align-items-center">
+                        <img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;">
+                        <div>
+                            <h5 class="m-0">TON</h5>
+                            <p class="m-0 text-secondary">The Open Network</p>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                         <h4 class="m-0">${Number((accountInfo.balance / 1e9).toPrecision(6))}</h4>
+                         <p class="m-0 text-secondary" style="font-size: 0.9rem;">Balance</p>
+                    </div>
+                </div>
+                ${priceHtml}
+                ${addressHtml}
+            `;
         };
+
         const renderOtherTokens = (jettons) => {
             otherTokensContent.innerHTML = '';
             if (jettons && jettons.length > 0) {
@@ -480,7 +527,6 @@
             } else { activityFeedContent.innerHTML = `<p class="text-secondary">No recent activity found.</p>`; }
         };
 
-        // --- Event Listeners & Handlers ---
         tonConnectUI.onStatusChange(async (wallet) => {
             if (wallet) {
                 connectedWalletAddress = wallet.account.address; 
@@ -500,7 +546,9 @@
                 tonConnectButtonRoot.style.display = 'none';
                 customWalletContainer.style.display = 'block';
                 customWalletButton.textContent = friendlyAddress;
+
                 copyAddressBtn.dataset.address = wallet.account.address;
+                myAccountBtn.href = `https://tonviewer.com/${wallet.account.address}`;
 
                 if(sidebarMenu.classList.contains('open')) toggleSidebar();
 
