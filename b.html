@@ -81,9 +81,10 @@
         #wallet-dropdown a i { margin-right: 10px; width: 15px; text-align: center; }
 
         /* Search Styles */
-        #search-section { padding-bottom: 1rem; }
+        #search-section { padding: 1rem 0; }
         .search-input-group { position: relative; }
         .search-input-group .form-control { padding-left: 2.5rem; background-color: var(--card-color); border-color: var(--border-color); color: var(--text-primary); }
+        .search-input-group .form-control:focus { background-color: rgba(0,0,0,0.3); border-color: var(--accent-primary); box-shadow: none; color: var(--text-primary); }
         .search-input-group .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
         #search-results-container .list-group-item { background-color: transparent; border-color: var(--border-color); cursor: pointer; }
         #search-results-container .list-group-item:hover { background-color: rgba(145, 94, 255, 0.1); }
@@ -114,7 +115,6 @@
             </div>
         </header>
 
-        <!-- **NEW**: Search Section -->
         <section id="search-section" style="display: none;">
             <div class="search-input-group mb-3">
                 <i class="fas fa-search search-icon"></i>
@@ -122,7 +122,6 @@
             </div>
         </section>
 
-        <!-- Main Views Container -->
         <div id="views-container">
             <main id="dashboard" style="display: none;">
                  <div class="row g-4">
@@ -149,16 +148,10 @@
                 </div>
             </section>
 
-            <!-- **NEW**: Search Results View -->
             <section id="search-results-view" style="display: none;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4 class="card-title">Search Results</h4>
-                    <button class="btn btn-sm btn-outline-light" id="back-to-dashboard-btn"><i class="fas fa-arrow-left"></i> Back to Wallet</button>
-                </div>
-                <div id="search-results-container"></div>
+                 <div id="search-results-container"></div>
             </section>
 
-            <!-- **NEW**: Jetton Details View -->
             <section id="jetton-detail-view" style="display: none;"></section>
         </div>
     </div>
@@ -166,27 +159,25 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const TON_API_BASE = 'https://tonapi.io/v2';
-        // Main View Elements
-        const viewsContainer = document.getElementById('views-container');
+        // View Elements
         const dashboardEl = document.getElementById('dashboard');
         const heroEl = document.getElementById('hero-section');
         const searchSectionEl = document.getElementById('search-section');
         const searchResultsViewEl = document.getElementById('search-results-view');
         const jettonDetailViewEl = document.getElementById('jetton-detail-view');
         
+        // Connect/UI Elements
         const connectWalletHeroBtn = document.getElementById('connect-wallet-hero-btn');
         const mainAssetsContent = document.getElementById('main-assets-content');
         const otherTokensContent = document.getElementById('other-tokens-content');
         const nftGalleryContent = document.getElementById('nft-gallery-content');
         const activityFeedContent = document.getElementById('activity-feed-content');
-
         const tonConnectButtonRoot = document.getElementById('ton-connect-button-root');
         const customWalletContainer = document.getElementById('custom-wallet-button-container');
         const customWalletButton = document.getElementById('custom-wallet-button');
         const walletDropdown = document.getElementById('wallet-dropdown');
         const copyAddressBtn = document.getElementById('copy-address-btn');
         const disconnectBtn = document.getElementById('disconnect-btn');
-        
         const appLogoImg = document.getElementById('app-logo-img');
         const appLogoText = document.getElementById('app-logo-text');
         const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo_viewc.png';
@@ -195,7 +186,6 @@
         // Search Elements
         const searchInput = document.getElementById('search-input');
         const searchResultsContainer = document.getElementById('search-results-container');
-        const backToDashboardBtn = document.getElementById('back-to-dashboard-btn');
         let debounceTimer;
 
         let telegramUserData = null;
@@ -203,13 +193,17 @@
 
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json', buttonRootId: 'ton-connect-button-root' });
         connectWalletHeroBtn.addEventListener('click', () => tonConnectUI.openModal());
-
+        
+        // **NEW**: Centralized view manager
         const showView = (viewId) => {
             [heroEl, dashboardEl, searchResultsViewEl, jettonDetailViewEl].forEach(el => el.style.display = 'none');
-            document.getElementById(viewId).style.display = 'block';
-            searchSectionEl.style.display = (viewId === 'dashboard' || viewId === 'search-results-view') ? 'block' : 'none';
+            const targetView = document.getElementById(viewId);
+            if(targetView) targetView.style.display = 'block';
+            
+            // Show search bar only when logged in
+            searchSectionEl.style.display = tonConnectUI.connected ? 'block' : 'none';
         };
-        
+
         const getRaw = (addrObj) => addrObj?.raw_form || (typeof addrObj?.address === 'string' ? addrObj.address : null);
         const getFriendly = (addrObj) => addrObj?.bounceable?.address || addrObj?.name || getRaw(addrObj) || 'Unknown Address';
         
@@ -221,9 +215,10 @@
                 if (query.length > 1) {
                     performSearch(query);
                 } else {
+                    // **CHANGED**: If search is cleared, go back to dashboard
                     showView('dashboard');
                 }
-            }, 500);
+            }, 300);
         });
 
         async function performSearch(query) {
@@ -235,7 +230,6 @@
                 const data = await response.json();
                 renderSearchResults(data.addresses);
             } catch (error) {
-                console.error('Search failed:', error);
                 searchResultsContainer.innerHTML = `<p class="text-danger text-center">Failed to fetch search results.</p>`;
             }
         }
@@ -243,7 +237,7 @@
         function renderSearchResults(addresses) {
             searchResultsContainer.innerHTML = '';
             if (!addresses || addresses.length === 0) {
-                searchResultsContainer.innerHTML = `<p class="text-secondary text-center">No tokens found for this name.</p>`;
+                searchResultsContainer.innerHTML = `<p class="text-secondary text-center">No tokens found for "${searchInput.value}".</p>`;
                 return;
             }
             const listGroup = document.createElement('div');
@@ -254,11 +248,7 @@
                 item.href = '#';
                 item.className = 'list-group-item list-group-item-action d-flex align-items-center';
                 item.dataset.address = acc.address;
-                item.innerHTML = `
-                    <img src="${acc.preview}" class="me-3" style="width: 32px; height: 32px; border-radius: 50%;">
-                    <span class="fw-bold">${acc.name}</span>
-                    ${verifiedTick}
-                `;
+                item.innerHTML = `<img src="${acc.preview}" class="me-3" style="width: 32px; height: 32px; border-radius: 50%;"> <span class="fw-bold">${acc.name}</span> ${verifiedTick}`;
                 listGroup.appendChild(item);
             });
             searchResultsContainer.appendChild(listGroup);
@@ -281,7 +271,6 @@
                 const data = await response.json();
                 renderJettonDetails(data);
             } catch (error) {
-                console.error('Fetch jetton details failed:', error);
                 jettonDetailViewEl.innerHTML = `<p class="text-danger text-center">Failed to load token details.</p><button class="btn btn-secondary" id="back-to-search-btn">Back</button>`;
                 document.getElementById('back-to-search-btn').addEventListener('click', () => showView('search-results-view'));
             }
@@ -291,55 +280,31 @@
             const metadata = data.metadata;
             const totalSupply = (Number(BigInt(data.total_supply)) / (10 ** (metadata.decimals || 9))).toLocaleString('en-US');
             
-            jettonDetailViewEl.innerHTML = `
-                <div class="card-glass">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h4 class="card-title m-0">Token Details</h4>
-                        <button class="btn btn-sm btn-outline-light" id="back-to-search-btn-2"><i class="fas fa-arrow-left"></i> Back to Search</button>
-                    </div>
-                    <div class="text-center mb-4">
-                        <img src="${metadata.image}" style="width: 80px; height: 80px; border-radius: 50%;" class="mb-3">
-                        <h3>${metadata.name} (${metadata.symbol})</h3>
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-center" style="background: none; color: var(--text-primary);">Total Supply: <span class="badge bg-secondary">${totalSupply}</span></li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center" style="background: none; color: var(--text-primary);">Holders: <span class="badge bg-secondary">${data.holders_count.toLocaleString('en-US')}</span></li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center" style="background: none; color: var(--text-primary);">Decimals: <span class="badge bg-secondary">${metadata.decimals || 9}</span></li>
-                        <li class="list-group-item" style="background: none; color: var(--text-primary);"><strong class="me-2">Description:</strong> ${metadata.description || 'No description available.'}</li>
-                        <li class="list-group-item" style="background: none; color: var(--text-primary);"><strong class="me-2">Contract:</strong> <span class="text-break" style="font-family: monospace;">${data.jetton_master}</span></li>
-                    </ul>
-                </div>`;
-            
+            jettonDetailViewEl.innerHTML = `<div class="card-glass">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="card-title m-0">Token Details</h4>
+                    <button class="btn btn-sm btn-outline-light" id="back-to-search-btn-2"><i class="fas fa-arrow-left"></i> Back to Search</button>
+                </div>
+                <div class="text-center mb-4"> <img src="${metadata.image}" style="width: 80px; height: 80px; border-radius: 50%;" class="mb-3"> <h3>${metadata.name} (${metadata.symbol})</h3></div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center" style="background: none; color: var(--text-primary);">Total Supply: <span class="badge bg-secondary">${totalSupply}</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center" style="background: none; color: var(--text-primary);">Holders: <span class="badge bg-secondary">${data.holders_count.toLocaleString('en-US')}</span></li>
+                    <li class="list-group-item" style="background: none; color: var(--text-primary);"><strong class="me-2">Description:</strong> ${metadata.description || 'No description available.'}</li>
+                    <li class="list-group-item" style="background: none; color: var(--text-primary);"><strong class="me-2">Contract:</strong> <span class="text-break" style="font-family: monospace;">${data.jetton_master}</span></li>
+                </ul></div>`;
             document.getElementById('back-to-search-btn-2').addEventListener('click', () => showView('search-results-view'));
         }
         
-        backToDashboardBtn.addEventListener('click', () => {
-            searchInput.value = '';
-            showView('dashboard');
-        });
-
         // --- Main App Logic ---
         tonConnectUI.onStatusChange(async (wallet) => {
             if (wallet) {
-                if (telegramUserData) {
-                    appLogoImg.src = telegramUserData.photo_url || DEFAULT_LOGO_SRC;
-                    appLogoImg.style.borderRadius = '50%';
-                    appLogoText.textContent = `@${telegramUserData.username}` || 'Telegram User';
-                } else {
-                    appLogoImg.src = BMASS_LOGO_SRC;
-                    appLogoImg.style.borderRadius = '0';
-                    appLogoText.textContent = 'Bmass Wallet';
-                }
+                if (telegramUserData) { appLogoImg.src = telegramUserData.photo_url || DEFAULT_LOGO_SRC; appLogoImg.style.borderRadius = '50%'; appLogoText.textContent = `@${telegramUserData.username}` || 'Telegram User'; } 
+                else { appLogoImg.src = BMASS_LOGO_SRC; appLogoImg.style.borderRadius = '0'; appLogoText.textContent = 'Bmass Wallet'; }
                 showView('dashboard');
-                // ... rest of the wallet connection logic
+                // Fetch and render user data...
             } else {
                 showView('hero-section');
-                searchSectionEl.style.display = 'none';
-                tonConnectButtonRoot.style.display = 'block';
-                customWalletContainer.style.display = 'none';
-                appLogoImg.src = DEFAULT_LOGO_SRC;
-                appLogoImg.style.borderRadius = '0';
-                appLogoText.textContent = '';
+                appLogoImg.src = DEFAULT_LOGO_SRC; appLogoImg.style.borderRadius = '0'; appLogoText.textContent = '';
             }
         });
         
@@ -347,15 +312,8 @@
         customWalletButton.addEventListener('click', () => { walletDropdown.style.display = walletDropdown.style.display === 'block' ? 'none' : 'block'; });
         disconnectBtn.addEventListener('click', (e) => { e.preventDefault(); tonConnectUI.disconnect(); walletDropdown.style.display = 'none'; });
         copyAddressBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const address = e.currentTarget.dataset.address;
-            const textSpan = e.currentTarget.querySelector('span');
-            if (address) {
-                navigator.clipboard.writeText(address).then(() => {
-                    textSpan.textContent = 'Copied!';
-                    setTimeout(() => { textSpan.textContent = 'Copy Address'; }, 2000);
-                });
-            }
+            e.preventDefault(); const address = e.currentTarget.dataset.address; const textSpan = e.currentTarget.querySelector('span');
+            if (address) { navigator.clipboard.writeText(address).then(() => { textSpan.textContent = 'Copied!'; setTimeout(() => { textSpan.textContent = 'Copy Address'; }, 2000); }); }
         });
         window.addEventListener('click', (e) => { if (!customWalletContainer.contains(e.target)) { walletDropdown.style.display = 'none'; } });
 
