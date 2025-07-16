@@ -12,6 +12,7 @@
     <!-- Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
     <!-- Fonts -->
@@ -31,6 +32,7 @@
             --color-in: #2BCBC4;
             --color-out: #ff6b6b;
             --color-failed: #ffcc00;
+            --color-verified: #3498db;
         }
 
         body {
@@ -41,26 +43,28 @@
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             overflow-x: hidden;
+            font-size: 16px;
         }
 
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
-        .main-container { max-width: 1400px; padding: 2rem; margin: auto; }
+        .main-container { max-width: 1400px; padding: 2rem 1rem; margin: auto; }
         .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 2rem; }
-        .header-logo img { height: 40px; }
+        .header-logo { display: flex; align-items: center; text-decoration: none; color: var(--text-primary); gap: 10px; }
+        .header-logo img { height: 40px; width: 40px; object-fit: cover; transition: all 0.3s ease; }
+        .header-logo span { font-size: 1.1rem; font-weight: 600; }
         
-        .card-glass { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 2rem; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: all 0.3s ease; height: 100%; }
+        .card-glass { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 1.5rem; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: all 0.3s ease; height: 100%; }
         .card-glass:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
-        .card-title { font-weight: 600; margin-bottom: 1.5rem; }
+        .card-title { font-weight: 600; margin-bottom: 1.5rem; font-size: 1.25rem; }
         
         .hero-section { text-align: center; padding: 4rem 0; }
-        .hero-section h1 { font-size: 3.5rem; font-weight: 700; }
+        .hero-section h1 { font-size: 2.5rem; font-weight: 700; }
         .hero-section .highlight { color: var(--accent-primary); }
 
         .skeleton-loader { background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); background-size: 200% 100%; border-radius: 8px; animation: shimmer 1.5s infinite; }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         .skeleton-line { height: 20px; margin-bottom: 10px; }
-        .skeleton-line.w-50 { width: 50%; }
         
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -73,62 +77,52 @@
         .status-icon { font-size: 0.7rem; margin-right: 6px; }
         .status-ok { color: var(--color-in); }
         .status-failed { color: var(--color-failed); }
+        .verified-tick { color: var(--color-verified); margin-left: 5px; font-size: 0.9em; }
+
+        #custom-wallet-button { background: var(--accent-primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 500; cursor: pointer; }
+        #wallet-dropdown { display: none; position: absolute; right: 0; top: calc(100% + 5px); background-color: #171b30; border: 1px solid var(--border-color); border-radius: 8px; z-index: 1000; min-width: 160px; box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
+        #wallet-dropdown a { color: var(--text-primary); padding: 12px 16px; text-decoration: none; display: block; font-size: 0.9rem; }
+        #wallet-dropdown a:hover { background-color: rgba(145, 94, 255, 0.2); }
+        #wallet-dropdown a i { margin-right: 10px; width: 15px; text-align: center; }
+
+        @media (min-width: 768px) {
+            .hero-section h1 { font-size: 3.5rem; }
+            .card-glass { padding: 2rem; }
+        }
     </style>
 </head>
 <body>
 
     <div class="main-container">
         <header class="header">
-            <a href="#" class="header-logo"><img src="https://duccodedao.github.io/VIEC/img/logo_viewc.png" alt="NEURALIS Logo"></a>
-            <div id="ton-connect-button-root"></div>
+            <a href="#" class="header-logo" id="app-logo-container">
+                <img id="app-logo-img" src="https://duccodedao.github.io/VIEC/img/logo_viewc.png" alt="App Logo">
+                <span id="app-logo-text"></span>
+            </a>
+            <div class="position-relative">
+                <div id="ton-connect-button-root"></div>
+                <div id="custom-wallet-button-container" style="display: none;">
+                    <button id="custom-wallet-button"></button>
+                    <div id="wallet-dropdown">
+                        <a href="#" id="copy-address-btn"><i class="fas fa-copy"></i><span>Copy Address</span></a>
+                        <a href="#" id="disconnect-btn"><i class="fas fa-sign-out-alt"></i>Disconnect</a>
+                    </div>
+                </div>
+            </div>
         </header>
 
         <main id="dashboard" style="display: none;">
-            <!-- **RE-ORDERED LAYOUT** -->
-            <div class="row g-4">
-                <!-- Left Column -->
+             <div class="row g-4">
                 <div class="col-lg-7">
                     <div class="row g-4">
-                        <!-- 1. Core Assets -->
-                        <div class="col-md-12">
-                            <div class="card-glass">
-                                <h5 class="card-title">Core Assets</h5>
-                                <div id="main-assets-content"></div>
-                            </div>
-                        </div>
-                        <!-- 2. Token Portfolio -->
-                         <div class="col-12">
-                             <div class="card-glass">
-                                <h5 class="card-title">Token Portfolio</h5>
-                                <div id="other-tokens-content" style="max-height: 250px; overflow-y: auto; padding-right: 10px;"></div>
-                            </div>
-                         </div>
-                        <!-- 3. NFT Gallery -->
-                        <div class="col-md-12">
-                            <div class="card-glass">
-                                <h5 class="card-title">NFT Gallery</h5>
-                                <div id="nft-gallery-content" style="max-height: 420px; overflow-y: auto;"></div>
-                            </div>
-                        </div>
+                        <div class="col-md-12"><div class="card-glass"><h5 class="card-title">Core Assets</h5><div id="main-assets-content"></div></div></div>
+                        <div class="col-md-12"><div class="card-glass"><h5 class="card-title">NFT Gallery</h5><div id="nft-gallery-content" style="max-height: 420px; overflow-y: auto;"></div></div></div>
                     </div>
                 </div>
-                <!-- Right Column -->
                 <div class="col-lg-5">
                      <div class="row g-4">
-                        <!-- 3. NFT Gallery -->
-                        <div class="col-md-12">
-                            <div class="card-glass">
-                                <h5 class="card-title">NFT Gallery</h5>
-                                <div id="nft-gallery-content" style="max-height: 420px; overflow-y: auto;"></div>
-                            </div>
-                        </div>
-                         <!-- 4. Activity Feed -->
-                        <div class="col-12">
-                             <div class="card-glass">
-                                <h5 class="card-title">Activity Feed</h5>
-                                <div id="activity-feed-content" style="max-height: 525px; overflow-y: auto; padding-right: 10px;"></div>
-                            </div>
-                        </div>
+                         <div class="col-12"><div class="card-glass"><h5 class="card-title">Token Portfolio</h5><div id="other-tokens-content" style="max-height: 250px; overflow-y: auto; padding-right: 10px;"></div></div></div>
+                        <div class="col-12"><div class="card-glass"><h5 class="card-title">Activity Feed</h5><div id="activity-feed-content" style="max-height: 525px; overflow-y: auto; padding-right: 10px;"></div></div></div>
                      </div>
                 </div>
             </div>
@@ -136,12 +130,11 @@
         
         <section id="hero-section" class="hero-section">
             <div class="container">
-                <h1 class="mb-4">Welcome to the <span class="highlight">Neuralis</span><br>Web3 Experience</h1>
+                <h1 class="mb-4">Welcome to the <span class="highlight">Neuralis</span><br/>Web3 Experience</h1>
                 <p class="lead text-secondary col-md-8 mx-auto mb-4">Connect your wallet to visualize your assets and interact with the VIEC ecosystem in a stunning, next-generation interface.</p>
                 <button id="connect-wallet-hero-btn" class="btn px-5 py-3" style="background-color: var(--accent-primary); color: white; font-weight: 600;">Connect Wallet</button>
             </div>
         </section>
-
     </div>
 
     <script>
@@ -154,8 +147,33 @@
         const activityFeedContent = document.getElementById('activity-feed-content');
         const otherTokensContent = document.getElementById('other-tokens-content');
         const nftGalleryContent = document.getElementById('nft-gallery-content');
+        const tonConnectButtonRoot = document.getElementById('ton-connect-button-root');
+        const customWalletContainer = document.getElementById('custom-wallet-button-container');
+        const customWalletButton = document.getElementById('custom-wallet-button');
+        const walletDropdown = document.getElementById('wallet-dropdown');
+        const copyAddressBtn = document.getElementById('copy-address-btn');
+        const disconnectBtn = document.getElementById('disconnect-btn');
+        
+        const appLogoImg = document.getElementById('app-logo-img');
+        const appLogoText = document.getElementById('app-logo-text');
+        const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo_viewc.png';
+        const BMASS_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo.png'; 
+
         const skeletonAsset = `<div class="d-flex align-items-center justify-content-between mb-3"><div class="d-flex align-items-center"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div><div class="skeleton-loader skeleton-line w-50"></div><div class="skeleton-loader skeleton-line" style="width: 80px;"></div></div></div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div></div>`;
         const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
+
+        let telegramUserData = null;
+        try {
+            if (window.Telegram && window.Telegram.WebApp) {
+                const tg = window.Telegram.WebApp;
+                tg.ready();
+                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                    telegramUserData = tg.initDataUnsafe.user;
+                }
+            }
+        } catch (e) {
+            console.error("Could not initialize Telegram Web App:", e);
+        }
 
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json', buttonRootId: 'ton-connect-button-root' });
         connectWalletHeroBtn.addEventListener('click', () => tonConnectUI.openModal());
@@ -167,21 +185,22 @@
         const setSkeletonLoaders = () => {
             mainAssetsContent.innerHTML = skeletonAsset + skeletonAsset;
             otherTokensContent.innerHTML = skeletonAsset;
-            nftGalleryContent.innerHTML = `<div class="row g-3"><div class="col-4"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div><div class="col-4"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div><div class="col-4"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div></div>`;
+            nftGalleryContent.innerHTML = `<div class="row g-2"><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div></div>`;
             activityFeedContent.innerHTML = skeletonTx.repeat(5);
         };
         const shortenAddress = (addr) => addr ? (addr.includes('.') ? addr : `${addr.slice(0, 4)}...${addr.slice(-4)}`) : 'Unknown';
 
-        const getRawAddress = (addrObj) => addrObj?.raw_form || (typeof addrObj?.address === 'string' ? addrObj.address : null);
-        const getFriendlyDisplayAddress = (addrObj) => addrObj?.name || addrObj?.bounceable?.address || getRawAddress(addrObj);
+        // **FIXED & FINAL**: The definitive, simplified address helpers with corrected priority.
+        const getRaw = (addrObj) => addrObj?.raw_form || (typeof addrObj?.address === 'string' ? addrObj.address : null);
+        const getDisplayAddress = (addrObj) => addrObj?.bounceable?.address || addrObj?.name || getRaw(addrObj) || 'Unknown Address';
         
         const renderMainAssets = (accountInfo) => {
             if (!accountInfo) { mainAssetsContent.innerHTML = `<p class="text-danger">Could not load account data.</p>`; return; }
             mainAssetsContent.innerHTML = `<div class="d-flex align-items-center justify-content-between mb-4">
                 <div class="d-flex align-items-center"><img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;">
                     <div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div></div>
-                <h4 class="m-0">${(accountInfo.balance / 1e9).toFixed(4)}</h4></div>`;
-            const userFriendlyAddress = getFriendlyDisplayAddress(accountInfo.address);
+                <h4 class="m-0">${Number((accountInfo.balance / 1e9).toPrecision(6))}</h4></div>`;
+            const userFriendlyAddress = getDisplayAddress(accountInfo);
             if (userFriendlyAddress) {
                  mainAssetsContent.innerHTML += `<div class="d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center">
@@ -196,20 +215,21 @@
             otherTokensContent.innerHTML = '';
             if (jettons && jettons.length > 0) {
                 jettons.forEach(j => {
-                    const displayBalance = (Number(BigInt(j.balance)) / (10 ** (j.jetton.decimals || 9))).toLocaleString(undefined, { maximumFractionDigits: 4 });
+                    const displayBalance = Number((Number(BigInt(j.balance)) / (10 ** (j.jetton.decimals || 9))).toPrecision(15));
+                    const verifiedTick = j.jetton.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
                     otherTokensContent.innerHTML += `<div class="d-flex align-items-center justify-content-between mb-3">
                         <div class="d-flex align-items-center"><img src="${j.jetton.image}" class="me-3" style="width: 32px; height: 32px; border-radius: 50%;">
-                        <div><h6 class="m-0">${j.jetton.symbol}</h6></div></div><h6 class="m-0">${displayBalance}</h6></div>`;
+                        <div><h6 class="m-0">${j.jetton.symbol}${verifiedTick}</h6></div></div><h6 class="m-0">${displayBalance.toLocaleString('en-US')}</h6></div>`;
                 });
             } else { otherTokensContent.innerHTML = `<p class="text-secondary">No tokens found.</p>`; }
         };
         const renderNFTs = (nfts) => {
             nftGalleryContent.innerHTML = '';
             if (nfts && nfts.length > 0) {
-                let html = '<div class="row g-3">';
-                nfts.slice(0, 12).forEach(nft => {
+                let html = '<div class="row g-2">';
+                nfts.slice(0, 18).forEach(nft => {
                     const imgUrl = nft.previews?.[nft.previews.length - 1]?.url || nft.metadata?.image || 'https://via.placeholder.com/100';
-                    html += `<div class="col-4"><div title="${nft.metadata?.name || 'NFT'}" style="cursor: pointer;">
+                    html += `<div class="col-3"><div title="${nft.metadata?.name || 'NFT'}" style="cursor: pointer;">
                                <img src="${imgUrl}" style="width: 100%; border-radius: 12px; aspect-ratio: 1/1; object-fit: cover;" onerror="this.src='https://via.placeholder.com/100'">
                              </div></div>`;
                 });
@@ -245,6 +265,16 @@
 
         tonConnectUI.onStatusChange(async (wallet) => {
             if (wallet) {
+                if (telegramUserData) {
+                    appLogoImg.src = telegramUserData.photo_url || DEFAULT_LOGO_SRC;
+                    appLogoImg.style.borderRadius = '50%';
+                    appLogoText.textContent = `@${telegramUserData.username}` || 'Telegram User';
+                } else {
+                    appLogoImg.src = BMASS_LOGO_SRC;
+                    appLogoImg.style.borderRadius = '0';
+                    appLogoText.textContent = 'Bmass Wallet';
+                }
+
                 showDashboard(true);
                 setSkeletonLoaders();
                 try {
@@ -264,13 +294,18 @@
                     const nftsInfo = nftsRes.status === 'fulfilled' && nftsRes.value.ok ? await nftsRes.value.json() : { nft_items: [] };
                     const eventsInfo = eventsRes.status === 'fulfilled' && eventsRes.value.ok ? await eventsRes.value.json() : { events: [] };
 
-                    const userFriendlyAddress = getFriendlyDisplayAddress(accountInfo.address);
+                    const userFriendlyAddress = getDisplayAddress(accountInfo);
                     const validLogs = (eventsInfo.events ?? []).flatMap(event => parseEvent(event, rawAddress, userFriendlyAddress));
-
+                    
                     renderMainAssets(accountInfo);
                     renderOtherTokens(jettonsInfo.balances ?? []);
                     renderNFTs(nftsInfo.nft_items ?? []);
                     renderActivity(validLogs);
+
+                    tonConnectButtonRoot.style.display = 'none';
+                    customWalletContainer.style.display = 'block';
+                    customWalletButton.textContent = shortenAddress(userFriendlyAddress);
+                    copyAddressBtn.dataset.address = userFriendlyAddress;
                 } catch (error) {
                     console.error("A critical error occurred while fetching data:", error);
                     mainAssetsContent.innerHTML = `<p class="text-danger"><strong>Error:</strong> Could not load wallet data. Please try refreshing.</p>`;
@@ -280,49 +315,70 @@
                 }
             } else {
                 showDashboard(false);
+                tonConnectButtonRoot.style.display = 'block';
+                customWalletContainer.style.display = 'none';
+                
+                appLogoImg.src = DEFAULT_LOGO_SRC;
+                appLogoImg.style.borderRadius = '0';
+                appLogoText.textContent = '';
             }
         });
         
+        customWalletButton.addEventListener('click', () => { walletDropdown.style.display = walletDropdown.style.display === 'block' ? 'none' : 'block'; });
+        disconnectBtn.addEventListener('click', (e) => { e.preventDefault(); tonConnectUI.disconnect(); walletDropdown.style.display = 'none'; });
+        copyAddressBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const address = e.currentTarget.dataset.address;
+            const textSpan = e.currentTarget.querySelector('span');
+            if (address) {
+                navigator.clipboard.writeText(address).then(() => {
+                    textSpan.textContent = 'Copied!';
+                    setTimeout(() => { textSpan.textContent = 'Copy Address'; }, 2000);
+                });
+            }
+        });
+        window.addEventListener('click', (e) => { if (!customWalletContainer.contains(e.target)) { walletDropdown.style.display = 'none'; } });
+
         function parseEvent(event, userRawAddress, userFriendlyAddress) {
             const logs = [];
             if (!event?.actions) return logs;
             for (const action of event.actions) {
                 try {
                     const log = { timestamp: event.timestamp * 1000, status: action.status };
-                    const processParty = (partyObj) => (getRawAddress(partyObj) === userRawAddress) ? userFriendlyAddress : getFriendlyDisplayAddress(partyObj);
+                    const processParty = (partyObj) => (getRaw(partyObj) === userRawAddress) ? userFriendlyAddress : getDisplayAddress(partyObj);
 
                     if (action.type === 'TonTransfer' && action.TonTransfer) {
                         const t = action.TonTransfer;
-                        if (!getRawAddress(t.sender) || !getRawAddress(t.recipient)) continue;
-                        log.direction = getRawAddress(t.sender) === userRawAddress ? 'out' : 'in';
+                        if (!getRaw(t.sender) || !getRaw(t.recipient)) continue;
+                        log.direction = getRaw(t.sender) === userRawAddress ? 'out' : 'in';
                         log.title = "TON Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
-                        log.amount = (parseInt(t.amount) / 1e9).toFixed(4);
+                        log.amount = Number((t.amount / 1e9).toPrecision(15));
                         log.symbol = 'TON'; log.party_title = log.direction === 'out' ? 'To' : 'From';
                         log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
                         log.image = 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
                         if (log.party) logs.push(log);
                     } else if (action.type === 'JettonTransfer' && action.JettonTransfer) {
                         const t = action.JettonTransfer;
-                        if (!getRawAddress(t.sender) || !getRawAddress(t.recipient)) continue;
-                        log.direction = getRawAddress(t.sender) === userRawAddress ? 'out' : 'in';
+                        if (!getRaw(t.sender) || !getRaw(t.recipient)) continue;
+                        log.direction = getRaw(t.sender) === userRawAddress ? 'out' : 'in';
                         log.title = "Jetton Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
-                        log.amount = (Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9))).toLocaleString(undefined, { maximumFractionDigits: 4 });
+                        log.amount = Number((Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9))).toPrecision(15));
                         log.symbol = t.jetton?.symbol || 'Token'; log.party_title = log.direction === 'out' ? 'To' : 'From';
                         log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
                         log.image = t.jetton?.image || 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
                         if (log.party) logs.push(log);
                     } else if (action.type === 'JettonMint' && action.JettonMint) {
                          const t = action.JettonMint;
-                         if (getRawAddress(t.recipient) !== userRawAddress) continue;
+                         if (getRaw(t.recipient) !== userRawAddress) continue;
                          log.direction = 'in'; log.title = "Minted"; log.sign = '+';
-                         log.amount = (Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9))).toLocaleString(undefined, { maximumFractionDigits: 4 });
+                         log.amount = Number((Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9))).toPrecision(15));
                          log.symbol = t.jetton?.symbol || 'Token'; log.party_title = "From";
-                         log.party = getFriendlyDisplayAddress(t.jetton); log.image = t.jetton?.image || 'https://ton.org/download/ton_symbol.png';
+                         log.party = getDisplayAddress(t.jetton); log.image = t.jetton?.image || 'https://ton.org/download/ton_symbol.png';
                          if (log.party) logs.push(log);
                     } else if (action.type === 'NftItemTransfer' && action.NftItemTransfer) {
                         const t = action.NftItemTransfer;
-                        if (!getRawAddress(t.sender) || !getRawAddress(t.recipient)) continue;
-                        log.direction = getRawAddress(t.sender) === userRawAddress ? 'out' : 'in';
+                        if (!getRaw(t.sender) || !getRaw(t.recipient)) continue;
+                        log.direction = getRaw(t.sender) === userRawAddress ? 'out' : 'in';
                         log.title = "NFT Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
                         log.amount = ''; log.symbol = t.nft_item?.metadata?.name || 'NFT';
                         log.party_title = log.direction === 'out' ? 'To' : 'From';
@@ -331,11 +387,11 @@
                         if (log.party) logs.push(log);
                     } else if (action.type === 'SmartContractExec' && action.SmartContractExec) {
                          const t = action.SmartContractExec;
-                         if (getRawAddress(t.executor) !== userRawAddress || !t.ton_attached || t.ton_attached === 0) continue;
+                         if (getRaw(t.executor) !== userRawAddress || !t.ton_attached || t.ton_attached === 0) continue;
                          log.direction = 'out'; log.title = "Contract Call"; log.sign = '-';
-                         log.amount = (parseInt(t.ton_attached) / 1e9).toFixed(5);
+                         log.amount = Number((t.ton_attached / 1e9).toPrecision(15));
                          log.symbol = 'TON'; log.party_title = "To Contract";
-                         log.party = getFriendlyDisplayAddress(t.contract);
+                         log.party = getDisplayAddress(t.contract);
                          log.image = 'https://www.svgrepo.com/show/443422/smart-contract.svg';
                          if (log.party) logs.push(log);
                     }
