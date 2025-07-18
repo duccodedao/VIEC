@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NEURALIS - The VIEC Experience</title>
+    <title>Bmass App Store</title>
 
     <!-- Meta SEO -->
-    <meta name="description" content="NEURALIS: Trải nghiệm Web3 đỉnh cao. Giao diện tương lai kết hợp với sức mạnh của tonapi.io để quản lý tài sản TON của bạn một cách trực quan và đẹp mắt.">
+    <meta name="description" content="Khám phá và truy cập các Mini App hàng đầu trên The Open Network.">
     <link rel="icon" href="https://duccodedao.github.io/VIEC/img/logo.png" type="image/png">
 
     <!-- Libraries -->
@@ -26,13 +26,8 @@
             --card-color: rgba(23, 27, 48, 0.5);
             --border-color: rgba(145, 94, 255, 0.2);
             --accent-primary: #915EFF;
-            --accent-secondary: #2BCBC4;
             --text-primary: #f1f2f6;
             --text-secondary: #aaa6c3;
-            --color-in: #2BCBC4;
-            --color-out: #ff6b6b;
-            --color-failed: #ffcc00;
-            --color-verified: #3498db;
         }
 
         body {
@@ -43,62 +38,57 @@
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             overflow-x: hidden;
-            font-size: 16px;
         }
 
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
-        .main-container { max-width: 1400px; padding: 2rem 1rem; margin: auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 2rem; }
+        .main-container { max-width: 1400px; padding: 1.5rem 1rem; margin: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; }
         .header-logo { display: flex; align-items: center; text-decoration: none; color: var(--text-primary); gap: 10px; }
-        .header-logo img { height: 40px; width: 40px; object-fit: cover; transition: all 0.3s ease; }
+        .header-logo img { height: 40px; width: 40px; object-fit: cover; border-radius: 8px; }
         .header-logo span { font-size: 1.1rem; font-weight: 600; }
         
-        .card-glass { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 1.5rem; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: all 0.3s ease; height: 100%; }
-        .card-glass:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
-        .card-title { font-weight: 600; margin-bottom: 1.5rem; font-size: 1.25rem; }
-        
-        .hero-section { text-align: center; padding: 4rem 0; }
-        .hero-section h1 { font-size: 2.5rem; font-weight: 700; }
-        .hero-section .highlight { color: var(--accent-primary); }
+        /* App Menu Styles */
+        .app-menu-item {
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-primary);
+            display: block;
+            padding: 10px;
+            transition: all 0.2s ease-in-out;
+        }
+        .app-menu-item:hover {
+            transform: scale(1.05);
+            background-color: var(--card-color);
+            border-radius: 12px;
+        }
+        .app-menu-item img {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            margin-bottom: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .app-menu-item .app-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-        .skeleton-loader { background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); background-size: 200% 100%; border-radius: 8px; animation: shimmer 1.5s infinite; }
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        .skeleton-line { height: 20px; margin-bottom: 10px; }
-        
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
-
-        .activity-item-icon { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-        .amount-in { color: var(--color-in); }
-        .amount-out { color: var(--color-out); }
-        .status-icon { font-size: 0.7rem; margin-right: 6px; }
-        .status-ok { color: var(--color-in); }
-        .status-failed { color: var(--color-failed); }
-        .verified-tick { color: var(--color-verified); margin-left: 5px; font-size: 0.9em; }
-
-        #custom-wallet-button { background: var(--accent-primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 500; cursor: pointer; }
+        #custom-wallet-button { background: var(--accent-primary); color: white; border: none; padding: 8px 16px; border-radius: 25px; font-weight: 500; cursor: pointer; }
         #wallet-dropdown { display: none; position: absolute; right: 0; top: calc(100% + 5px); background-color: #171b30; border: 1px solid var(--border-color); border-radius: 8px; z-index: 1000; min-width: 160px; box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
         #wallet-dropdown a { color: var(--text-primary); padding: 12px 16px; text-decoration: none; display: block; font-size: 0.9rem; }
         #wallet-dropdown a:hover { background-color: rgba(145, 94, 255, 0.2); }
         #wallet-dropdown a i { margin-right: 10px; width: 15px; text-align: center; }
-        
-        /* News Feed Styles */
-        #crypto-news-feed { margin-top: 3rem; }
-        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-        .news-card { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 15px; overflow: hidden; transition: all 0.3s ease; text-decoration: none; color: var(--text-primary); }
-        .news-card:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
-        .news-card-img { width: 100%; height: 180px; object-fit: cover; }
-        .news-card-body { padding: 1rem; }
-        .news-card-title { font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .news-card-source { font-size: 0.8rem; color: var(--text-secondary); }
 
-        @media (min-width: 768px) {
-            .hero-section h1 { font-size: 3.5rem; }
-            .card-glass { padding: 2rem; }
-        }
+        /* Search Styles */
+        #search-section { padding-bottom: 1.5rem; }
+        .search-input-group { position: relative; }
+        .search-input-group .form-control { padding-left: 2.5rem; background-color: var(--card-color); border-color: var(--border-color); color: var(--text-primary); border-radius: 25px; }
+        .search-input-group .form-control:focus { background-color: rgba(0,0,0,0.3); border-color: var(--accent-primary); box-shadow: none; color: var(--text-primary); }
+        .search-input-group .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
     </style>
 </head>
 <body>
@@ -106,8 +96,8 @@
     <div class="main-container">
         <header class="header">
             <a href="#" class="header-logo" id="app-logo-container">
-                <img id="app-logo-img" src="https://duccodedao.github.io/VIEC/img/logo_viewc.png" alt="App Logo">
-                <span id="app-logo-text"></span>
+                <img id="app-logo-img" src="https://duccodedao.github.io/VIEC/img/logo.png" alt="App Logo">
+                <span id="app-logo-text">Bmass Wallet</span>
             </a>
             <div class="position-relative">
                 <div id="ton-connect-button-root"></div>
@@ -121,348 +111,139 @@
             </div>
         </header>
 
-        <main id="dashboard" style="display: none;">
-             <div class="row g-4">
-                <div class="col-lg-7">
-                    <div class="row g-4">
-                        <div class="col-md-12"><div class="card-glass"><h5 class="card-title">Core Assets</h5><div id="main-assets-content"></div></div></div>
-                        <div class="col-md-12"><div class="card-glass"><h5 class="card-title">NFT Gallery</h5><div id="nft-gallery-content" style="max-height: 420px; overflow-y: auto;"></div></div></div>
-                    </div>
-                </div>
-                <div class="col-lg-5">
-                     <div class="row g-4">
-                         <div class="col-12"><div class="card-glass"><h5 class="card-title">Token Portfolio</h5><div id="other-tokens-content" style="max-height: 250px; overflow-y: auto; padding-right: 10px;"></div></div></div>
-                        <div class="col-12"><div class="card-glass"><h5 class="card-title">Activity Feed</h5><div id="activity-feed-content" style="max-height: 525px; overflow-y: auto; padding-right: 10px;"></div></div></div>
-                     </div>
-                </div>
-            </div>
-        </main>
-        
-        <section id="hero-section" class="hero-section">
-            <div class="container">
-                <h1 class="mb-4">Welcome to the <span class="highlight">Neuralis</span><br/>Web3 Experience</h1>
-                <p class="lead text-secondary col-md-8 mx-auto mb-4">Connect your wallet to visualize your assets and interact with the VIEC ecosystem in a stunning, next-generation interface.</p>
-                <button id="connect-wallet-hero-btn" class="btn px-5 py-3" style="background-color: var(--accent-primary); color: white; font-weight: 600;">Connect Wallet</button>
+        <section id="search-section">
+            <div class="search-input-group">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="search-input" class="form-control" placeholder="Search for apps...">
             </div>
         </section>
 
-        <!-- Crypto News Feed Section -->
-        <section id="crypto-news-feed">
-            <h2 class="card-title" style="font-size: 1.75rem; text-align: center; margin-bottom: 2rem;">Latest Crypto News</h2>
-            <div id="news-content-area">
-                <div class="news-grid">
-                    <!-- Skeleton loaders for news cards -->
-                    <div class="news-card"><div class="skeleton-loader" style="width: 100%; height: 180px;"></div><div class="news-card-body"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>
-                    <div class="news-card"><div class="skeleton-loader" style="width: 100%; height: 180px;"></div><div class="news-card-body"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>
-                    <div class="news-card"><div class="skeleton-loader" style="width: 100%; height: 180px;"></div><div class="news-card-body"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>
-                </div>
+        <main id="app-menu-container">
+            <div class="row g-2" id="app-menu-grid">
+                <!-- App items will be injected here -->
             </div>
-        </section>
+             <div id="no-results-message" class="text-center text-secondary py-5" style="display: none;">
+                <h5>No Apps Found</h5>
+                <p>Try searching for something else.</p>
+            </div>
+        </main>
     </div>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const TON_API_BASE = 'https://tonapi.io/v2';
-        const dashboardEl = document.getElementById('dashboard');
-        const heroEl = document.getElementById('hero-section');
-        const connectWalletHeroBtn = document.getElementById('connect-wallet-hero-btn');
-        const mainAssetsContent = document.getElementById('main-assets-content');
-        const activityFeedContent = document.getElementById('activity-feed-content');
-        const otherTokensContent = document.getElementById('other-tokens-content');
-        const nftGalleryContent = document.getElementById('nft-gallery-content');
+        const appMenuGrid = document.getElementById('app-menu-grid');
+        const searchInput = document.getElementById('search-input');
+        const noResultsMessage = document.getElementById('no-results-message');
         const tonConnectButtonRoot = document.getElementById('ton-connect-button-root');
         const customWalletContainer = document.getElementById('custom-wallet-button-container');
         const customWalletButton = document.getElementById('custom-wallet-button');
         const walletDropdown = document.getElementById('wallet-dropdown');
         const copyAddressBtn = document.getElementById('copy-address-btn');
         const disconnectBtn = document.getElementById('disconnect-btn');
-        const newsContentArea = document.getElementById('news-content-area');
-        
         const appLogoImg = document.getElementById('app-logo-img');
         const appLogoText = document.getElementById('app-logo-text');
-        const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo_viewc.png';
-        const BMASS_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo.png'; 
+        
+        const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo.png';
+        const BMASS_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo.png'; // Replace with your Bmass logo
 
-        const skeletonAsset = `<div class="d-flex align-items-center justify-content-between mb-3"><div class="d-flex align-items-center"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div><div class="skeleton-loader skeleton-line w-50"></div><div class="skeleton-loader skeleton-line" style="width: 80px;"></div></div></div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div></div>`;
-        const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
+        // --- Sample App Data ---
+        const appsData = [
+            { name: "TON Game", link: "https://t.me/your_game_bot/app", image: "https://via.placeholder.com/128/915EFF/FFFFFF?text=Game" },
+            { name: "DeFi Swap", link: "https://t.me/your_defi_bot/app", image: "https://via.placeholder.com/128/2BCBC4/FFFFFF?text=DeFi" },
+            { name: "NFT Market", link: "https://t.me/your_nft_bot/app", image: "https://via.placeholder.com/128/ff6b6b/FFFFFF?text=NFT" },
+            { name: "Social App", link: "https://t.me/your_social_bot/app", image: "https://via.placeholder.com/128/ffcc00/FFFFFF?text=Social" },
+            { name: "Wallet Stats", link: "https://t.me/your_stats_bot/app", image: "https://via.placeholder.com/128/3498db/FFFFFF?text=Stats" },
+            { name: "Another Game", link: "https://t.me/your_game2_bot/app", image: "https://via.placeholder.com/128/9b59b6/FFFFFF?text=Game2" },
+            { name: "Staking Tool", link: "https://t.me/your_stake_bot/app", image: "https://via.placeholder.com/128/1abc9c/FFFFFF?text=Stake" },
+            { name: "Community Hub", link: "https://t.me/your_hub_bot/app", image: "https://via.placeholder.com/128/e74c3c/FFFFFF?text=Hub" },
+        ];
 
-        let telegramUserData = null;
+        // --- Telegram Mini App Integration ---
+        let tg = null;
         try {
             if (window.Telegram && window.Telegram.WebApp) {
-                const tg = window.Telegram.WebApp;
+                tg = window.Telegram.WebApp;
                 tg.ready();
-                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                    telegramUserData = tg.initDataUnsafe.user;
-                }
+                tg.expand();
+                
+                tg.MainButton.setText("Get Daily Bonus");
+                tg.MainButton.onClick(() => {
+                    tg.HapticFeedback.impactOccurred('medium');
+                    alert("You claimed your daily bonus!");
+                    tg.MainButton.hide();
+                });
+                tg.MainButton.show();
+                
+                tg.BackButton.onClick(() => window.history.back());
             }
         } catch (e) {
-            console.error("Could not initialize Telegram Web App:", e);
+            console.error("Telegram Web App integration failed:", e);
         }
 
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json', buttonRootId: 'ton-connect-button-root' });
-        connectWalletHeroBtn.addEventListener('click', () => tonConnectUI.openModal());
-
-        const showDashboard = (show) => {
-            dashboardEl.style.display = show ? 'block' : 'none';
-            heroEl.style.display = show ? 'none' : 'flex';
-        };
-        const setSkeletonLoaders = () => {
-            mainAssetsContent.innerHTML = skeletonAsset + skeletonAsset;
-            otherTokensContent.innerHTML = skeletonAsset;
-            nftGalleryContent.innerHTML = `<div class="row g-2"><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div></div>`;
-            activityFeedContent.innerHTML = skeletonTx.repeat(5);
-        };
-        const shortenAddress = (addr) => addr ? (addr.includes('.') ? addr : `${addr.slice(0, 4)}...${addr.slice(-4)}`) : 'Unknown';
-
-        const getRaw = (addrObj) => addrObj?.raw_form || (typeof addrObj?.address === 'string' ? addrObj.address : null);
-        const getDisplayAddress = (addrObj) => addrObj?.bounceable?.address || addrObj?.name || getRaw(addrObj) || 'Unknown Address';
         
-        const renderMainAssets = (accountInfo) => {
-            if (!accountInfo) { mainAssetsContent.innerHTML = `<p class="text-danger">Could not load account data.</p>`; return; }
-            mainAssetsContent.innerHTML = `<div class="d-flex align-items-center justify-content-between mb-4">
-                <div class="d-flex align-items-center"><img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;">
-                    <div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div></div>
-                <h4 class="m-0">${Number((accountInfo.balance / 1e9).toPrecision(6))}</h4></div>`;
-            const userFriendlyAddress = getDisplayAddress(accountInfo);
-            if (userFriendlyAddress) {
-                 mainAssetsContent.innerHTML += `<div class="d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-wallet me-3" style="width: 48px; font-size: 24px; text-align: center; color: var(--accent-secondary);"></i>
-                        <div><h5 class="m-0">Address</h5><p class="m-0 text-secondary">Your Wallet</p></div>
-                    </div>
-                    <h6 class="m-0" style="font-family: monospace; cursor: help;" title="${userFriendlyAddress}">${shortenAddress(userFriendlyAddress)}</h6>
-                </div>`;
-            }
-        };
-        const renderOtherTokens = (jettons) => {
-            otherTokensContent.innerHTML = '';
-            if (jettons && jettons.length > 0) {
-                jettons.forEach(j => {
-                    const displayBalance = Number((Number(BigInt(j.balance)) / (10 ** (j.jetton.decimals || 9))).toPrecision(15));
-                    const verifiedTick = j.jetton.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
-                    otherTokensContent.innerHTML += `<div class="d-flex align-items-center justify-content-between mb-3">
-                        <div class="d-flex align-items-center"><img src="${j.jetton.image}" class="me-3" style="width: 32px; height: 32px; border-radius: 50%;">
-                        <div><h6 class="m-0">${j.jetton.symbol}${verifiedTick}</h6></div></div><h6 class="m-0">${displayBalance.toLocaleString('en-US')}</h6></div>`;
-                });
-            } else { otherTokensContent.innerHTML = `<p class="text-secondary">No tokens found.</p>`; }
-        };
-        const renderNFTs = (nfts) => {
-            nftGalleryContent.innerHTML = '';
-            if (nfts && nfts.length > 0) {
-                let html = '<div class="row g-2">';
-                nfts.slice(0, 18).forEach(nft => {
-                    const imgUrl = nft.previews?.[nft.previews.length - 1]?.url || nft.metadata?.image || 'https://via.placeholder.com/100';
-                    html += `<div class="col-3"><div title="${nft.metadata?.name || 'NFT'}" style="cursor: pointer;">
-                               <img src="${imgUrl}" style="width: 100%; border-radius: 12px; aspect-ratio: 1/1; object-fit: cover;" onerror="this.src='https://via.placeholder.com/100'">
-                             </div></div>`;
-                });
-                html += '</div>';
-                nftGalleryContent.innerHTML = html;
-            } else { nftGalleryContent.innerHTML = `<p class="text-secondary">No NFTs found.</p>`; }
-        };
-        const renderActivity = (validLogs) => {
-            activityFeedContent.innerHTML = '';
-            if (validLogs && validLogs.length > 0) {
-                validLogs.forEach(log => {
-                    const statusIcon = log.status === 'ok' ? `<i class="fas fa-check-circle status-icon status-ok"></i>` : `<i class="fas fa-exclamation-circle status-icon status-failed"></i>`;
-                    const titleText = log.status !== 'ok' ? `<span class="text-warning">${log.title} (Failed)</span>` : log.title;
-                    const colorClass = log.direction === 'in' ? 'amount-in' : 'amount-out';
-                    const amountDisplay = log.amount ? `<p class="m-0 fw-bold ${colorClass}">${log.sign} ${log.amount} ${log.symbol}</p>` : `<p class="m-0 fw-bold">${log.symbol} Transfer</p>`;
-                    const commentDisplay = log.comment ? `<div class="w-100 mt-2"><p class="m-0 text-secondary" style="font-size: 0.8rem; font-style: italic;"><i class="fas fa-comment-dots me-2"></i>${log.comment}</p></div>` : '';
-                    activityFeedContent.innerHTML += `
-                     <div class="d-flex flex-wrap align-items-center py-3 border-bottom border-secondary border-opacity-25">
-                        <img src="${log.image}" class="activity-item-icon me-3" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
-                        <div class="flex-grow-1">
-                            <p class="m-0 fw-bold">${statusIcon}${titleText}</p>
-                            <p class="m-0 text-secondary" style="font-size: 0.8rem;">${log.party_title}: ${shortenAddress(log.party)}</p>
-                        </div>
-                        <div class="text-end">
-                            ${amountDisplay}
-                            <p class="m-0 text-secondary" style="font-size: 0.8rem;">${new Date(log.timestamp).toLocaleString()}</p>
-                        </div>
-                        ${commentDisplay}
-                     </div>`;
-                });
-            } else { activityFeedContent.innerHTML = `<p class="text-secondary">No recent activity found.</p>`; }
-        };
+        const shortenAddress = (addr) => addr ? (addr.includes('.') ? addr : `${addr.slice(0, 4)}...${addr.slice(-4)}`) : 'Unknown';
+        const getFriendly = (addrObj) => addrObj?.bounceable?.address || addrObj?.name || 'Unknown Address';
 
-        tonConnectUI.onStatusChange(async (wallet) => {
+        function renderAppMenu(filter = '') {
+            appMenuGrid.innerHTML = '';
+            const filteredApps = appsData.filter(app => app.name.toLowerCase().includes(filter.toLowerCase()));
+            
+            noResultsMessage.style.display = filteredApps.length === 0 ? 'block' : 'none';
+
+            filteredApps.forEach(app => {
+                const appEl = document.createElement('div');
+                appEl.className = 'col-3';
+                appEl.innerHTML = `
+                    <a href="${app.link}" class="app-menu-item">
+                        <img src="${app.image}" alt="${app.name}">
+                        <div class="app-name">${app.name}</div>
+                    </a>
+                `;
+                appMenuGrid.appendChild(appEl);
+            });
+        }
+
+        searchInput.addEventListener('input', () => {
+            renderAppMenu(searchInput.value);
+        });
+
+        tonConnectUI.onStatusChange(wallet => {
             if (wallet) {
-                if (telegramUserData) {
-                    appLogoImg.src = telegramUserData.photo_url || DEFAULT_LOGO_SRC;
+                const userFriendlyAddress = getFriendly(wallet.account);
+                
+                tonConnectButtonRoot.style.display = 'none';
+                customWalletContainer.style.display = 'block';
+                customWalletButton.textContent = shortenAddress(userFriendlyAddress);
+                copyAddressBtn.dataset.address = userFriendlyAddress;
+
+                if (tg && tg.initDataUnsafe.user) {
+                    appLogoImg.src = tg.initDataUnsafe.user.photo_url || DEFAULT_LOGO_SRC;
                     appLogoImg.style.borderRadius = '50%';
-                    appLogoText.textContent = `@${telegramUserData.username}` || 'Telegram User';
+                    appLogoText.textContent = `@${tg.initDataUnsafe.user.username}` || 'Telegram User';
                 } else {
                     appLogoImg.src = BMASS_LOGO_SRC;
-                    appLogoImg.style.borderRadius = '0';
+                    appLogoImg.style.borderRadius = '8px';
                     appLogoText.textContent = 'Bmass Wallet';
                 }
-
-                showDashboard(true);
-                setSkeletonLoaders();
-                try {
-                    const rawAddress = wallet.account.address;
-                    const results = await Promise.allSettled([
-                        fetch(`${TON_API_BASE}/accounts/${rawAddress}`),
-                        fetch(`${TON_API_BASE}/accounts/${rawAddress}/jettons`),
-                        fetch(`${TON_API_BASE}/accounts/${rawAddress}/nfts?limit=100&indirect_ownership=false`),
-                        fetch(`${TON_API_BASE}/accounts/${rawAddress}/events?limit=100`)
-                    ]);
-                    
-                    const [accountRes, jettonsRes, nftsRes, eventsRes] = results;
-                    if (accountRes.status !== 'fulfilled' || !accountRes.value.ok) throw new Error('Could not fetch account info.');
-                    
-                    const accountInfo = await accountRes.value.json();
-                    const jettonsInfo = jettonsRes.status === 'fulfilled' && jettonsRes.value.ok ? await jettonsRes.value.json() : { balances: [] };
-                    const nftsInfo = nftsRes.status === 'fulfilled' && nftsRes.value.ok ? await nftsRes.value.json() : { nft_items: [] };
-                    const eventsInfo = eventsRes.status === 'fulfilled' && eventsRes.value.ok ? await eventsRes.value.json() : { events: [] };
-
-                    const userFriendlyAddress = getDisplayAddress(accountInfo);
-                    const validLogs = (eventsInfo.events ?? []).flatMap(event => parseEvent(event, rawAddress, userFriendlyAddress));
-                    
-                    renderMainAssets(accountInfo);
-                    renderOtherTokens(jettonsInfo.balances ?? []);
-                    renderNFTs(nftsInfo.nft_items ?? []);
-                    renderActivity(validLogs);
-
-                    tonConnectButtonRoot.style.display = 'none';
-                    customWalletContainer.style.display = 'block';
-                    customWalletButton.textContent = shortenAddress(userFriendlyAddress);
-                    copyAddressBtn.dataset.address = userFriendlyAddress;
-                } catch (error) {
-                    console.error("A critical error occurred while fetching data:", error);
-                    mainAssetsContent.innerHTML = `<p class="text-danger"><strong>Error:</strong> Could not load wallet data. Please try refreshing.</p>`;
-                    otherTokensContent.innerHTML = `<p class="text-secondary">Data unavailable.</p>`;
-                    nftGalleryContent.innerHTML = `<p class="text-secondary">Data unavailable.</p>`;
-                    activityFeedContent.innerHTML = `<p class="text-secondary">Data unavailable.</p>`;
-                }
             } else {
-                showDashboard(false);
                 tonConnectButtonRoot.style.display = 'block';
                 customWalletContainer.style.display = 'none';
-                
-                appLogoImg.src = DEFAULT_LOGO_SRC;
-                appLogoImg.style.borderRadius = '0';
-                appLogoText.textContent = '';
+                appLogoImg.src = BMASS_LOGO_SRC;
+                appLogoImg.style.borderRadius = '8px';
+                appLogoText.textContent = 'Bmass Wallet';
             }
         });
         
         customWalletButton.addEventListener('click', () => { walletDropdown.style.display = walletDropdown.style.display === 'block' ? 'none' : 'block'; });
         disconnectBtn.addEventListener('click', (e) => { e.preventDefault(); tonConnectUI.disconnect(); walletDropdown.style.display = 'none'; });
         copyAddressBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const address = e.currentTarget.dataset.address;
-            const textSpan = e.currentTarget.querySelector('span');
-            if (address) {
-                navigator.clipboard.writeText(address).then(() => {
-                    textSpan.textContent = 'Copied!';
-                    setTimeout(() => { textSpan.textContent = 'Copy Address'; }, 2000);
-                });
-            }
+            e.preventDefault(); const address = e.currentTarget.dataset.address; const textSpan = e.currentTarget.querySelector('span');
+            if (address) { navigator.clipboard.writeText(address).then(() => { textSpan.textContent = 'Copied!'; setTimeout(() => { textSpan.textContent = 'Copy Address'; }, 2000); }); }
         });
         window.addEventListener('click', (e) => { if (!customWalletContainer.contains(e.target)) { walletDropdown.style.display = 'none'; } });
 
-        function parseEvent(event, userRawAddress, userFriendlyAddress) {
-            const logs = [];
-            if (!event?.actions) return logs;
-            for (const action of event.actions) {
-                try {
-                    const log = { timestamp: event.timestamp * 1000, status: action.status };
-                    const processParty = (partyObj) => (getRaw(partyObj) === userRawAddress) ? userFriendlyAddress : getDisplayAddress(partyObj);
-
-                    if (action.type === 'TonTransfer' && action.TonTransfer) {
-                        const t = action.TonTransfer;
-                        if (!getRaw(t.sender) || !getRaw(t.recipient)) continue;
-                        log.direction = getRaw(t.sender) === userRawAddress ? 'out' : 'in';
-                        log.title = "TON Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
-                        log.amount = Number((t.amount / 1e9).toPrecision(15));
-                        log.symbol = 'TON'; log.party_title = log.direction === 'out' ? 'To' : 'From';
-                        log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
-                        log.image = 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
-                        if (log.party) logs.push(log);
-                    } else if (action.type === 'JettonTransfer' && action.JettonTransfer) {
-                        const t = action.JettonTransfer;
-                        if (!getRaw(t.sender) || !getRaw(t.recipient)) continue;
-                        log.direction = getRaw(t.sender) === userRawAddress ? 'out' : 'in';
-                        log.title = "Jetton Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
-                        log.amount = Number((Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9))).toPrecision(15));
-                        log.symbol = t.jetton?.symbol || 'Token'; log.party_title = log.direction === 'out' ? 'To' : 'From';
-                        log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
-                        log.image = t.jetton?.image || 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
-                        if (log.party) logs.push(log);
-                    } else if (action.type === 'JettonMint' && action.JettonMint) {
-                         const t = action.JettonMint;
-                         if (getRaw(t.recipient) !== userRawAddress) continue;
-                         log.direction = 'in'; log.title = "Minted"; log.sign = '+';
-                         log.amount = Number((Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9))).toPrecision(15));
-                         log.symbol = t.jetton?.symbol || 'Token'; log.party_title = "From";
-                         log.party = getDisplayAddress(t.jetton); log.image = t.jetton?.image || 'https://ton.org/download/ton_symbol.png';
-                         if (log.party) logs.push(log);
-                    } else if (action.type === 'NftItemTransfer' && action.NftItemTransfer) {
-                        const t = action.NftItemTransfer;
-                        if (!getRaw(t.sender) || !getRaw(t.recipient)) continue;
-                        log.direction = getRaw(t.sender) === userRawAddress ? 'out' : 'in';
-                        log.title = "NFT Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
-                        log.amount = ''; log.symbol = t.nft_item?.metadata?.name || 'NFT';
-                        log.party_title = log.direction === 'out' ? 'To' : 'From';
-                        log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
-                        log.image = t.nft_item?.previews?.[0]?.url || 'https://www.svgrepo.com/show/444957/nft-coin.svg';
-                        if (log.party) logs.push(log);
-                    } else if (action.type === 'SmartContractExec' && action.SmartContractExec) {
-                         const t = action.SmartContractExec;
-                         if (getRaw(t.executor) !== userRawAddress || !t.ton_attached || t.ton_attached === 0) continue;
-                         log.direction = 'out'; log.title = "Contract Call"; log.sign = '-';
-                         log.amount = Number((t.ton_attached / 1e9).toPrecision(15));
-                         log.symbol = 'TON'; log.party_title = "To Contract";
-                         log.party = getDisplayAddress(t.contract);
-                         log.image = 'https://www.svgrepo.com/show/443422/smart-contract.svg';
-                         if (log.party) logs.push(log);
-                    }
-                } catch (e) { console.warn("Could not parse an action:", action, "Error:", e); }
-            }
-            return logs;
-        }
-
-        /**
-         * Fetches and displays the latest crypto news.
-         */
-        async function fetchCryptoNews() {
-            // NOTE: Using a public proxy to bypass CORS issues if running locally.
-            // For production, it's better to have a backend proxy.
-            const API_URL = 'https://min-api.cryptocompare.com/data/v2/news/?lang=EN&limit=20';
-
-            try {
-                const response = await fetch(API_URL);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const newsData = await response.json();
-
-                if (newsData.Type === 100 && newsData.Data && newsData.Data.length > 0) {
-                    let newsHtml = '<div class="news-grid">';
-                    newsData.Data.forEach(article => {
-                        newsHtml += `
-                        <a href="${article.url}" target="_blank" rel="noopener noreferrer" class="news-card">
-                            <img src="${article.imageurl}" class="news-card-img" onerror="this.style.display='none'">
-                            <div class="news-card-body">
-                                <h3 class="news-card-title">${article.title}</h3>
-                                <p class="news-card-source">${article.source} - ${new Date(article.published_on * 1000).toLocaleDateString()}</p>
-                            </div>
-                        </a>`;
-                    });
-                    newsHtml += '</div>';
-                    newsContentArea.innerHTML = newsHtml;
-                } else {
-                    newsContentArea.innerHTML = '<p class="text-secondary text-center">No news articles found at the moment.</p>';
-                }
-            } catch (error) {
-                console.error("Error fetching crypto news:", error);
-                newsContentArea.innerHTML = '<p class="text-danger text-center">Could not load news feed. Please try again later.</p>';
-            }
-        }
-
-        // Fetch news on page load
-        fetchCryptoNews();
+        renderAppMenu();
     });
     </script>
 </body>
