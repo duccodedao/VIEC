@@ -49,33 +49,10 @@
         .header-logo span { font-size: 1.1rem; font-weight: 600; }
         
         /* App Menu Styles */
-        .app-menu-item {
-            text-align: center;
-            text-decoration: none;
-            color: var(--text-primary);
-            display: block;
-            padding: 10px;
-            transition: all 0.2s ease-in-out;
-        }
-        .app-menu-item:hover {
-            transform: scale(1.05);
-            background-color: var(--card-color);
-            border-radius: 12px;
-        }
-        .app-menu-item img {
-            width: 64px;
-            height: 64px;
-            border-radius: 16px;
-            margin-bottom: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        .app-menu-item .app-name {
-            font-size: 0.85rem;
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+        .app-menu-item { text-align: center; text-decoration: none; color: var(--text-primary); display: block; padding: 10px; transition: all 0.2s ease-in-out; }
+        .app-menu-item:hover { transform: scale(1.05); background-color: var(--card-color); border-radius: 12px; }
+        .app-menu-item img { width: 64px; height: 64px; border-radius: 16px; margin-bottom: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .app-menu-item .app-name { font-size: 0.85rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         #custom-wallet-button { background: var(--accent-primary); color: white; border: none; padding: 8px 16px; border-radius: 25px; font-weight: 500; cursor: pointer; }
         #wallet-dropdown { display: none; position: absolute; right: 0; top: calc(100% + 5px); background-color: #171b30; border: 1px solid var(--border-color); border-radius: 8px; z-index: 1000; min-width: 160px; box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
@@ -83,12 +60,19 @@
         #wallet-dropdown a:hover { background-color: rgba(145, 94, 255, 0.2); }
         #wallet-dropdown a i { margin-right: 10px; width: 15px; text-align: center; }
 
-        /* Search Styles */
-        #search-section { padding-bottom: 1.5rem; }
+        /* Search & Filter Styles */
+        #search-section { padding-bottom: 1rem; }
         .search-input-group { position: relative; }
         .search-input-group .form-control { padding-left: 2.5rem; background-color: var(--card-color); border-color: var(--border-color); color: var(--text-primary); border-radius: 25px; }
         .search-input-group .form-control:focus { background-color: rgba(0,0,0,0.3); border-color: var(--accent-primary); box-shadow: none; color: var(--text-primary); }
         .search-input-group .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
+
+        .filter-buttons .btn { background-color: var(--card-color); border-color: var(--border-color); color: var(--text-secondary); margin: 0 5px; border-radius: 25px; font-size: 0.9rem; }
+        .filter-buttons .btn.active { background-color: var(--accent-primary); border-color: var(--accent-primary); color: white; }
+
+        /* Admin Notification */
+        #admin-notification { background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+
     </style>
 </head>
 <body>
@@ -111,21 +95,27 @@
             </div>
         </header>
 
+        <section id="admin-notification" style="display: none;">
+            <p class="m-0" id="notification-text"></p>
+            <button class="btn-close btn-close-white" id="close-notification-btn"></button>
+        </section>
+
         <section id="search-section">
-            <div class="search-input-group">
+            <div class="search-input-group mb-3">
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" id="search-input" class="form-control" placeholder="Search for apps...">
+            </div>
+            <div class="filter-buttons text-center" id="filter-buttons">
+                <button class="btn active" data-category="all">All</button>
+                <button class="btn" data-category="airdrop">Airdrop</button>
+                <button class="btn" data-category="depin">DePIN</button>
+                <button class="btn" data-category="listed">Listed/Soon</button>
             </div>
         </section>
 
         <main id="app-menu-container">
-            <div class="row g-2" id="app-menu-grid">
-                <!-- App items will be injected here -->
-            </div>
-             <div id="no-results-message" class="text-center text-secondary py-5" style="display: none;">
-                <h5>No Apps Found</h5>
-                <p>Try searching for something else.</p>
-            </div>
+            <div class="row g-2" id="app-menu-grid"></div>
+            <div id="no-results-message" class="text-center text-secondary py-5" style="display: none;"><h5>No Apps Found</h5><p>Try searching for something else or change the category.</p></div>
         </main>
     </div>
 
@@ -142,70 +132,78 @@
         const disconnectBtn = document.getElementById('disconnect-btn');
         const appLogoImg = document.getElementById('app-logo-img');
         const appLogoText = document.getElementById('app-logo-text');
+        const filterButtonsContainer = document.getElementById('filter-buttons');
+        const adminNotificationEl = document.getElementById('admin-notification');
+        const notificationTextEl = document.getElementById('notification-text');
+        const closeNotificationBtn = document.getElementById('close-notification-btn');
         
         const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo.png';
-        const BMASS_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo.png'; // Replace with your Bmass logo
 
-        // --- Sample App Data ---
+        // --- ADMIN CONFIGURABLE DATA ---
+        const adminNotification = {
+            show: true,
+            message: "🔥 Welcome to Bmass Wallet! Explore the best Mini Apps on TON."
+        };
+
         const appsData = [
-            { name: "TON Game", link: "https://t.me/your_game_bot/app", image: "https://via.placeholder.com/128/915EFF/FFFFFF?text=Game" },
-            { name: "DeFi Swap", link: "https://t.me/your_defi_bot/app", image: "https://via.placeholder.com/128/2BCBC4/FFFFFF?text=DeFi" },
-            { name: "NFT Market", link: "https://t.me/your_nft_bot/app", image: "https://via.placeholder.com/128/ff6b6b/FFFFFF?text=NFT" },
-            { name: "Social App", link: "https://t.me/your_social_bot/app", image: "https://via.placeholder.com/128/ffcc00/FFFFFF?text=Social" },
-            { name: "Wallet Stats", link: "https://t.me/your_stats_bot/app", image: "https://via.placeholder.com/128/3498db/FFFFFF?text=Stats" },
-            { name: "Another Game", link: "https://t.me/your_game2_bot/app", image: "https://via.placeholder.com/128/9b59b6/FFFFFF?text=Game2" },
-            { name: "Staking Tool", link: "https://t.me/your_stake_bot/app", image: "https://via.placeholder.com/128/1abc9c/FFFFFF?text=Stake" },
-            { name: "Community Hub", link: "https://t.me/your_hub_bot/app", image: "https://via.placeholder.com/128/e74c3c/FFFFFF?text=Hub" },
+            { name: "TapSwap", link: "https://t.me/tapswap_bot", image: "https://via.placeholder.com/128/915EFF/FFFFFF?text=Tap", category: "airdrop" },
+            { name: "Grass", link: "https://app.getgrass.io/", image: "https://via.placeholder.com/128/27ae60/FFFFFF?text=Grass", category: "depin" },
+            { name: "Notcoin", link: "https://t.me/notcoin_bot", image: "https://via.placeholder.com/128/f1c40f/FFFFFF?text=NOT", category: "listed" },
+            { name: "Hamster Kombat", link: "https://t.me/hamster_kombat_bot", image: "https://via.placeholder.com/128/e74c3c/FFFFFF?text=Hamster", category: "airdrop" },
+            { name: "Yescoin", link: "https://t.me/the_yescoin_bot", image: "https://via.placeholder.com/128/3498db/FFFFFF?text=Yes", category: "airdrop" },
+            { name: "Blum", link: "https://t.me/BlumCryptoBot", image: "https://via.placeholder.com/128/1abc9c/FFFFFF?text=Blum", category: "listed" },
+            { name: "PEPE", link: "https://t.me/pepetondrop_bot", image: "https://via.placeholder.com/128/2ecc71/FFFFFF?text=Pepe", category: "airdrop" },
+            { name: "Weather App", link: "https://t.me/weather_bot/app", image: "https://via.placeholder.com/128/9b59b6/FFFFFF?text=Weather", category: "depin" },
         ];
 
-        // --- Telegram Mini App Integration ---
         let tg = null;
         try {
             if (window.Telegram && window.Telegram.WebApp) {
                 tg = window.Telegram.WebApp;
                 tg.ready();
                 tg.expand();
-                
-                tg.MainButton.setText("Get Daily Bonus");
-                tg.MainButton.onClick(() => {
-                    tg.HapticFeedback.impactOccurred('medium');
-                    alert("You claimed your daily bonus!");
-                    tg.MainButton.hide();
-                });
+                tg.MainButton.setText("Explore TON Ecosystem").onClick(() => tg.HapticFeedback.notificationOccurred('success'));
                 tg.MainButton.show();
-                
-                tg.BackButton.onClick(() => window.history.back());
             }
-        } catch (e) {
-            console.error("Telegram Web App integration failed:", e);
-        }
+        } catch (e) { console.error("Telegram Web App integration failed:", e); }
 
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json', buttonRootId: 'ton-connect-button-root' });
         
         const shortenAddress = (addr) => addr ? (addr.includes('.') ? addr : `${addr.slice(0, 4)}...${addr.slice(-4)}`) : 'Unknown';
-        const getFriendly = (addrObj) => addrObj?.bounceable?.address || addrObj?.name || 'Unknown Address';
+        const getRaw = (addrObj) => addrObj?.raw_form || (typeof addrObj?.address === 'string' ? addrObj.address : null);
+        const getFriendly = (addrObj) => addrObj?.bounceable?.address || addrObj?.name || getRaw(addrObj) || 'Unknown Address';
 
-        function renderAppMenu(filter = '') {
+        function renderAppMenu(filter = '', category = 'all') {
             appMenuGrid.innerHTML = '';
-            const filteredApps = appsData.filter(app => app.name.toLowerCase().includes(filter.toLowerCase()));
+            const filteredApps = appsData.filter(app => {
+                const matchesCategory = category === 'all' || app.category === category;
+                const matchesSearch = app.name.toLowerCase().includes(filter.toLowerCase());
+                return matchesCategory && matchesSearch;
+            });
             
             noResultsMessage.style.display = filteredApps.length === 0 ? 'block' : 'none';
 
             filteredApps.forEach(app => {
                 const appEl = document.createElement('div');
                 appEl.className = 'col-3';
-                appEl.innerHTML = `
-                    <a href="${app.link}" class="app-menu-item">
-                        <img src="${app.image}" alt="${app.name}">
-                        <div class="app-name">${app.name}</div>
-                    </a>
-                `;
+                appEl.innerHTML = `<a href="${app.link}" class="app-menu-item"><img src="${app.image}" alt="${app.name}"><div class="app-name">${app.name}</div></a>`;
                 appMenuGrid.appendChild(appEl);
             });
         }
 
-        searchInput.addEventListener('input', () => {
-            renderAppMenu(searchInput.value);
+        function handleFilter() {
+            const searchQuery = searchInput.value;
+            const activeCategory = filterButtonsContainer.querySelector('.btn.active').dataset.category;
+            renderAppMenu(searchQuery, activeCategory);
+        }
+
+        searchInput.addEventListener('input', handleFilter);
+        filterButtonsContainer.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                filterButtonsContainer.querySelector('.btn.active').classList.remove('active');
+                e.target.classList.add('active');
+                handleFilter();
+            }
         });
 
         tonConnectUI.onStatusChange(wallet => {
@@ -229,12 +227,22 @@
             } else {
                 tonConnectButtonRoot.style.display = 'block';
                 customWalletContainer.style.display = 'none';
-                appLogoImg.src = BMASS_LOGO_SRC;
+                appLogoImg.src = DEFAULT_LOGO_SRC;
                 appLogoImg.style.borderRadius = '8px';
                 appLogoText.textContent = 'Bmass Wallet';
             }
         });
+
+        // --- Notification Logic ---
+        if (adminNotification.show) {
+            notificationTextEl.textContent = adminNotification.message;
+            adminNotificationEl.style.display = 'flex';
+        }
+        closeNotificationBtn.addEventListener('click', () => {
+            adminNotificationEl.style.display = 'none';
+        });
         
+        // --- Dropdown Listeners ---
         customWalletButton.addEventListener('click', () => { walletDropdown.style.display = walletDropdown.style.display === 'block' ? 'none' : 'block'; });
         disconnectBtn.addEventListener('click', (e) => { e.preventDefault(); tonConnectUI.disconnect(); walletDropdown.style.display = 'none'; });
         copyAddressBtn.addEventListener('click', (e) => {
@@ -243,6 +251,7 @@
         });
         window.addEventListener('click', (e) => { if (!customWalletContainer.contains(e.target)) { walletDropdown.style.display = 'none'; } });
 
+        // Initial render
         renderAppMenu();
     });
     </script>
