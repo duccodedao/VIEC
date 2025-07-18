@@ -923,8 +923,7 @@
     });
     </script>
 
-
-    <!-- /// SCRIPT MỚI, TÁCH BIỆT CHO MENU APP (ĐÃ CHỈNH SỬA) /// -->
+    <!-- /// SCRIPT MỚI, TÁCH BIỆT CHO MENU APP (ĐÃ CHỈNH SỬA ĐỂ HỖ TRỢ URL HASH) /// -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- DATA for Mini Apps (MODIFIED: Added DEX/CEX categories) ---
@@ -980,7 +979,6 @@
 
                 filteredApps.forEach(app => {
                     const appCard = document.createElement('div');
-                    // /// MODIFIED: Changed to 4 columns (col-3) for a consistent grid ///
                     appCard.className = 'col-3 col-md-3';
                     appCard.innerHTML = `
                         <a href="${app.link}" target="_blank" rel="noopener noreferrer" class="app-item">
@@ -1006,6 +1004,8 @@
                 if (viewToShow === 'apps') {
                     appStoreSection.style.display = 'block';
                     navApps.classList.add('active');
+                    // Cập nhật URL hash mà không reload trang
+                    history.pushState(null, null, '#apps');
                 } else { // 'dashboard' view
                     navDashboard.classList.add('active');
                     
@@ -1018,6 +1018,8 @@
                         heroSection.style.display = 'flex';
                     }
                     if(newsSection) newsSection.style.display = 'block';
+                    // Cập nhật URL hash mà không reload trang
+                    history.pushState(null, null, ' '); // Xóa hash
                 }
 
                 const sidebarMenu = document.getElementById('sidebar-menu');
@@ -1050,8 +1052,20 @@
                 }
             });
 
-            // --- Initial Render ---
-            renderApps();
+            // --- Initial Render & View Setup ---
+            renderApps(); // Render các app trước
+
+            // /// =================================================== ///
+            // /// === ĐOẠN MÃ MỚI ĐƯỢC THÊM ĐỂ KIỂM TRA URL HASH === ///
+            // /// =================================================== ///
+            if (window.location.hash === '#apps') {
+                // Nếu URL có #apps, chuyển đến mục Apps
+                switchView('apps');
+            } else {
+                // Mặc định, hiển thị dashboard (hành vi cũ)
+                // Hàm switchView đã xử lý việc hiển thị hero hoặc dashboard tùy vào trạng thái đăng nhập
+                switchView('dashboard');
+            }
         });
     </script>
 </body>
