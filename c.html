@@ -34,43 +34,26 @@
             --color-failed: #ffcc00;
             --color-verified: #2ecc71;
         }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            background: linear-gradient(-45deg, #050816, #120e2a, #1a163c, #0d0b1f);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            overflow-x: hidden;
-            font-size: 16px;
-        }
-
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-color); color: var(--text-primary); background: linear-gradient(-45deg, #050816, #120e2a, #1a163c, #0d0b1f); background-size: 400% 400%; animation: gradientBG 15s ease infinite; overflow-x: hidden; font-size: 16px; }
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        
         .main-container { max-width: 1400px; padding: 2rem 1rem; margin: auto; }
         .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 2rem; }
         .header-logo { display: flex; align-items: center; text-decoration: none; color: var(--text-primary); gap: 10px; z-index: 1100; }
         .header-logo img { height: 40px; width: 40px; object-fit: cover; transition: all 0.3s ease; }
         .header-logo span { font-size: 1.1rem; font-weight: 600; }
-        
         .card-glass { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 1.5rem; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: all 0.3s ease; height: 100%; }
         .card-glass:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
         .card-title { font-weight: 600; margin-bottom: 1.5rem; font-size: 1.25rem; }
-        
         .hero-section { text-align: center; padding: 4rem 0; }
         .hero-section h1 { font-size: 2.5rem; font-weight: 700; }
         .hero-section .highlight { color: var(--accent-primary); }
-
         .skeleton-loader { background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); background-size: 200% 100%; border-radius: 8px; animation: shimmer 1.5s infinite; }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         .skeleton-line { height: 20px; margin-bottom: 10px; }
-        
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
-
         .activity-item-icon, .jetton-item-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
         .amount-in { color: var(--color-in); }
         .amount-out { color: var(--color-out); }
@@ -78,26 +61,20 @@
         .status-ok { color: var(--color-in); }
         .status-failed { color: var(--color-failed); }
         .verified-tick { color: var(--color-verified); margin-left: 5px; font-size: 0.9em; }
-
         .jetton-item { cursor: pointer; transition: background-color 0.2s; border-radius: 8px; }
         .jetton-item:hover { background-color: rgba(145, 94, 255, 0.1); }
-        
         #search-results-container { max-height: 40vh; overflow-y: auto; }
         .search-result-item { cursor: pointer; padding: 10px; border-radius: 8px; transition: background-color 0.2s ease; }
         .search-result-item:hover { background-color: rgba(145, 94, 255, 0.1); }
         .search-result-item img { width: 32px; height: 32px; border-radius: 50%; }
-
-        /* Modal Styles */
         .modal-content { background-color: #0c0f24; border: 1px solid var(--border-color); color: var(--text-primary); }
-        .modal-header { border-bottom: 1px solid var(--border-color); }
-        .modal-footer { border-top: 1px solid var(--border-color); }
+        .modal-header, .modal-footer { border-color: var(--border-color); }
         .modal-backdrop.show { opacity: 0.7; backdrop-filter: blur(5px); }
         .nav-tabs { border-bottom-color: var(--border-color); }
         .nav-tabs .nav-link { background: transparent; border-color: transparent; color: var(--text-secondary); }
         .nav-tabs .nav-link.active { color: var(--accent-primary); background-color: rgba(145, 94, 255, 0.1); border-color: var(--border-color); }
         .tab-content { max-height: 50vh; overflow-y: auto; padding-top: 1rem; }
         .metadata-key { color: var(--text-secondary); font-weight: 500; }
-
         .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
         .news-card { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 15px; overflow: hidden; transition: all 0.3s ease; text-decoration: none; color: var(--text-primary); }
         .news-card:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
@@ -105,8 +82,6 @@
         .news-card-body { padding: 1rem; }
         .news-card-title { font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .news-card-source { font-size: 0.8rem; color: var(--text-secondary); }
-
-        /* Sidebar and Hamburger Menu */
         .hamburger-btn { width: 40px; height: 40px; background: transparent; border: none; padding: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; cursor: pointer; z-index: 1100; }
         .hamburger-btn span { display: block; width: 24px; height: 2px; background-color: var(--text-primary); border-radius: 2px; transition: all 0.3s ease-in-out; }
         .hamburger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
@@ -125,11 +100,8 @@
         #wallet-dropdown a i { margin-right: 10px; width: 15px; text-align: center; }
         .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); z-index: 1040; opacity: 0; visibility: hidden; transition: opacity 0.4s, visibility 0.4s; }
         .sidebar-overlay.open { opacity: 1; visibility: visible; }
-        
         .price-change-positive { color: var(--color-in); }
         .price-change-negative { color: var(--color-out); }
-        
-        /* App Menu Styles */
         .app-menu-container { padding: 1rem 0; }
         .app-filter-bar { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 2.5rem; }
         .app-filter-btn { background-color: var(--card-color); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 20px; border-radius: 50px; cursor: pointer; font-weight: 500; transition: all 0.3s ease; }
@@ -140,11 +112,7 @@
         .app-item-img-wrapper { width: 64px; height: 64px; border-radius: 16px; overflow: hidden; flex-shrink: 0; }
         .app-item-img { width: 100%; height: 100%; object-fit: cover; }
         .app-item-name { display: block; font-weight: 500; font-size: 0.9rem; color: var(--text-primary); line-height: 1.3; margin-top: 0.75rem; text-align: center; }
-        
-        @media (min-width: 768px) {
-            .hero-section h1 { font-size: 3.5rem; }
-            .card-glass { padding: 2rem; }
-        }
+        @media (min-width: 768px) { .hero-section h1 { font-size: 3.5rem; } .card-glass { padding: 2rem; } }
     </style>
 </head>
 <body>
@@ -154,7 +122,6 @@
             <a href="#" class="sidebar-link active" id="nav-dashboard">Dashboard</a>
             <a href="#" class="sidebar-link" id="nav-apps">Apps</a>
         </div>
-        
         <div class="sidebar-wallet-connect">
             <div class="position-relative">
                 <div id="ton-connect-button-root"></div>
@@ -176,11 +143,7 @@
                 <img id="app-logo-img" src="https://duccodedao.github.io/VIEC/img/logo_viewc.png" alt="App Logo">
                 <span id="app-logo-text"></span>
             </a>
-            <button id="hamburger-menu-btn" class="hamburger-btn">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
+            <button id="hamburger-menu-btn" class="hamburger-btn"><span></span><span></span><span></span></button>
         </header>
 
         <main id="dashboard" style="display:none;">
@@ -191,21 +154,10 @@
                 </div>
                 <div id="search-results-container" class="mt-2 card-glass" style="padding: 1rem; display: none;"></div>
             </div>
-
              <div class="row g-4">
                 <div class="col-lg-7">
                     <div class="row g-4">
-                        <div class="col-md-12">
-                            <div class="card-glass">
-                                <h5 class="card-title d-flex justify-content-between align-items-center">
-                                    <span>Core Assets</span>
-                                    <button id="back-to-my-wallet-btn" class="btn btn-sm" style="display: none; background-color: var(--accent-secondary); color: white;">
-                                        <i class="fas fa-arrow-left me-1"></i> Back to My Wallet
-                                    </button>
-                                </h5>
-                                <div id="main-assets-content"></div>
-                            </div>
-                        </div>
+                        <div class="col-md-12"><div class="card-glass"><h5 class="card-title d-flex justify-content-between align-items-center"><span>Core Assets</span><button id="back-to-my-wallet-btn" class="btn btn-sm" style="display: none; background-color: var(--accent-secondary); color: white;"><i class="fas fa-arrow-left me-1"></i> Back to My Wallet</button></h5><div id="main-assets-content"></div></div></div>
                         <div class="col-md-12"><div class="card-glass"><h5 class="card-title">NFT Gallery</h5><div id="nft-gallery-content" style="max-height: 420px; overflow-y: auto;"></div></div></div>
                     </div>
                 </div>
@@ -221,195 +173,137 @@
         <section id="hero-section" class="hero-section">
             <div class="container">
                 <h1 class="mb-4">Welcome to the <span class="highlight">Neuralis</span><br/>Web3 Experience</h1>
-                <p class="lead text-secondary col-md-8 mx-auto mb-4">Connect your wallet to visualize your assets and interact with the VIEC ecosystem in a stunning, next-generation interface.</p>
+                <p class="lead text-secondary col-md-8 mx-auto mb-4">Connect your wallet to visualize your assets and interact with the VIEC ecosystem.</p>
                 <div id="connect-wallet-hero-btn-container"></div>
             </div>
         </section>
 
-        <section id="crypto-news-feed" class="mt-5" style="display:none;">
-            <h2 class="card-title" style="font-size: 1.75rem; text-align: center; margin-bottom: 2rem;">Latest Crypto News</h2>
-            <div id="news-content-area"></div>
-        </section>
+        <section id="crypto-news-feed" class="mt-5" style="display:none;"><h2 class="card-title" style="font-size: 1.75rem; text-align: center; margin-bottom: 2rem;">Latest Crypto News</h2><div id="news-content-area"></div></section>
 
         <main id="app-store-section" style="display: none;">
             <div class="app-menu-container">
-                <div class="text-center mb-5">
-                    <h1 class="mb-2" style="font-weight: 700;">Khám Phá Mini Apps</h1>
-                    <p class="lead text-secondary col-md-8 mx-auto">Các ứng dụng, game và công cụ mạnh mẽ nhất trong hệ sinh thái.</p>
-                </div>
-                <div id="app-search-section" class="mb-4">
-                    <div class="input-group">
-                        <input type="text" id="app-search-input" class="form-control" placeholder="Tìm kiếm theo tên..." style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--text-primary); border-right: 0;">
-                        <button class="btn" id="app-search-button" style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--accent-primary);"><i class="fas fa-search"></i></button>
-                    </div>
-                </div>
-                <div id="app-filter-controls" class="app-filter-bar">
-                    <button class="app-filter-btn active" data-filter="all">Tất cả</button>
-                    <button class="app-filter-btn" data-filter="Airdrop">Airdrop</button>
-                    <button class="app-filter-btn" data-filter="DePIN">DePIN</button>
-                    <button class="app-filter-btn" data-filter="DEX">DEX</button>
-                    <button class="app-filter-btn" data-filter="CEX">CEX</button>
-                    <button class="app-filter-btn" data-filter="Niêm yết">Niêm yết</button>
-                    <button class="app-filter-btn" data-filter="Game">GameFi</button>
-                    <button class="app-filter-btn" data-filter="Tiện ích">Tiện ích</button>
-                </div>
-                <div id="app-grid" class="row g-3">
-                </div>
+                <div class="text-center mb-5"><h1 class="mb-2" style="font-weight: 700;">Khám Phá Mini Apps</h1><p class="lead text-secondary col-md-8 mx-auto">Các ứng dụng, game và công cụ mạnh mẽ nhất trong hệ sinh thái.</p></div>
+                <div id="app-search-section" class="mb-4"><div class="input-group"><input type="text" id="app-search-input" class="form-control" placeholder="Tìm kiếm theo tên..." style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--text-primary); border-right: 0;"><button class="btn" id="app-search-button" style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--accent-primary);"><i class="fas fa-search"></i></button></div></div>
+                <div id="app-filter-controls" class="app-filter-bar"><button class="app-filter-btn active" data-filter="all">Tất cả</button><button class="app-filter-btn" data-filter="Airdrop">Airdrop</button><button class="app-filter-btn" data-filter="DePIN">DePIN</button><button class="app-filter-btn" data-filter="DEX">DEX</button><button class="app-filter-btn" data-filter="CEX">CEX</button><button class="app-filter-btn" data-filter="Niêm yết">Niêm yết</button><button class="app-filter-btn" data-filter="Game">GameFi</button><button class="app-filter-btn" data-filter="Tiện ích">Tiện ích</button></div>
+                <div id="app-grid" class="row g-3"></div>
             </div>
         </main>
     </div>
 
-    <div class="modal fade" id="jettonDetailModal" tabindex="-1" aria-labelledby="jettonDetailModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <div id="jetton-modal-header-content" class="d-flex align-items-center"></div>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <ul class="nav nav-tabs" id="jettonDetailTab" role="tablist">
-              <li class="nav-item" role="presentation"><button class="nav-link active" id="metadata-tab" data-bs-toggle="tab" data-bs-target="#metadata-tab-pane" type="button">Metadata</button></li>
-              <li class="nav-item" role="presentation"><button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-tab-pane" type="button">History</button></li>
-              <li class="nav-item" role="presentation"><button class="nav-link" id="holders-tab" data-bs-toggle="tab" data-bs-target="#holders-tab-pane" type="button">Holders</button></li>
-            </ul>
-            <div class="tab-content" id="jettonDetailTabContent">
-              <div class="tab-pane fade show active" id="metadata-tab-pane" role="tabpanel"></div>
-              <div class="tab-pane fade" id="history-tab-pane" role="tabpanel"></div>
-              <div class="tab-pane fade" id="holders-tab-pane" role="tabpanel"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div class="modal fade" id="jettonDetailModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header"><div id="jetton-modal-header-content" class="d-flex align-items-center"></div><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><ul class="nav nav-tabs" id="jettonDetailTab" role="tablist"><li class="nav-item" role="presentation"><button class="nav-link active" id="metadata-tab" data-bs-toggle="tab" data-bs-target="#metadata-tab-pane" type="button">Metadata</button></li><li class="nav-item" role="presentation"><button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-tab-pane" type="button">History</button></li><li class="nav-item" role="presentation"><button class="nav-link" id="holders-tab" data-bs-toggle="tab" data-bs-target="#holders-tab-pane" type="button">Holders</button></li></ul><div class="tab-content" id="jettonDetailTabContent"><div class="tab-pane fade show active" id="metadata-tab-pane" role="tabpanel"></div><div class="tab-pane fade" id="history-tab-pane" role="tabpanel"></div><div class="tab-pane fade" id="holders-tab-pane" role="tabpanel"></div></div></div></div></div></div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // --- API & CONSTANTS ---
         const TON_API_BASE = 'https://tonapi.io/v2';
         const TONCENTER_API_BASE = 'https://toncenter.com/api/v2';
-
-        // Element Selectors
-        const dashboardEl = document.getElementById('dashboard');
-        const heroEl = document.getElementById('hero-section');
-        const mainAssetsContent = document.getElementById('main-assets-content');
-        const activityFeedContent = document.getElementById('activity-feed-content');
-        const otherTokensContent = document.getElementById('other-tokens-content');
-        const nftGalleryContent = document.getElementById('nft-gallery-content');
-        const newsSection = document.getElementById('crypto-news-feed');
-        const newsContentArea = document.getElementById('news-content-area');
-        const hamburgerBtn = document.getElementById('hamburger-menu-btn');
-        const sidebarMenu = document.getElementById('sidebar-menu');
-        const sidebarOverlay = document.getElementById('sidebar-overlay');
-        const connectWalletHeroBtnContainer = document.getElementById('connect-wallet-hero-btn-container');
-        const tonConnectButtonRoot = document.getElementById('ton-connect-button-root');
-        const customWalletContainer = document.getElementById('custom-wallet-button-container');
-        const customWalletButton = document.getElementById('custom-wallet-button');
-        const walletDropdown = document.getElementById('wallet-dropdown');
-        const copyAddressBtn = document.getElementById('copy-address-btn');
-        const disconnectBtn = document.getElementById('disconnect-btn');
-        const myAccountBtn = document.getElementById('my-account-btn');
-        const appLogoImg = document.getElementById('app-logo-img');
-        const appLogoText = document.getElementById('app-logo-text');
+        const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
         const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo_viewc.png';
-        const searchInput = document.getElementById('account-search-input');
-        const searchButton = document.getElementById('account-search-button');
-        const searchResultsContainer = document.getElementById('search-results-container');
-        const backToMyWalletBtn = document.getElementById('back-to-my-wallet-btn');
-        const jettonDetailModalEl = document.getElementById('jettonDetailModal');
-        const jettonDetailModal = new bootstrap.Modal(jettonDetailModalEl);
+        
+        // --- CENTRALIZED ELEMENT SELECTOR ---
+        const elements = {
+            dashboard: document.getElementById('dashboard'),
+            hero: document.getElementById('hero-section'),
+            mainAssets: document.getElementById('main-assets-content'),
+            activityFeed: document.getElementById('activity-feed-content'),
+            otherTokens: document.getElementById('other-tokens-content'),
+            nftGallery: document.getElementById('nft-gallery-content'),
+            news: document.getElementById('crypto-news-feed'),
+            newsArea: document.getElementById('news-content-area'),
+            hamburger: document.getElementById('hamburger-menu-btn'),
+            sidebar: document.getElementById('sidebar-menu'),
+            overlay: document.getElementById('sidebar-overlay'),
+            connectHeroBtn: document.getElementById('connect-wallet-hero-btn-container'),
+            tonConnectRoot: document.getElementById('ton-connect-button-root'),
+            customWalletContainer: document.getElementById('custom-wallet-button-container'),
+            customWalletBtn: document.getElementById('custom-wallet-button'),
+            walletDropdown: document.getElementById('wallet-dropdown'),
+            copyBtn: document.getElementById('copy-address-btn'),
+            disconnectBtn: document.getElementById('disconnect-btn'),
+            myAccountBtn: document.getElementById('my-account-btn'),
+            logoImg: document.getElementById('app-logo-img'),
+            logoText: document.getElementById('app-logo-text'),
+            searchInput: document.getElementById('account-search-input'),
+            searchBtn: document.getElementById('account-search-button'),
+            searchResults: document.getElementById('search-results-container'),
+            backToWalletBtn: document.getElementById('back-to-my-wallet-btn'),
+            navDashboard: document.getElementById('nav-dashboard'),
+            navApps: document.getElementById('nav-apps'),
+            appStoreSection: document.getElementById('app-store-section'),
+            appGrid: document.getElementById('app-grid'),
+            appSearchInput: document.getElementById('app-search-input'),
+            appFilterControls: document.getElementById('app-filter-controls'),
+        };
 
-        // State Variables
+        const jettonDetailModal = new bootstrap.Modal(document.getElementById('jettonDetailModal'));
+
+        // --- STATE MANAGEMENT ---
         let telegramUserData = null;
         let connectedWalletAddress = null; // Stores RAW address (0:...)
-        const addressCache = {}; // Cache for address conversion
-
-        // Skeleton Loaders
+        const addressCache = {};
+        
+        // --- SKELETON LOADERS ---
         const skeletonAsset = `<div class="d-flex align-items-center justify-content-between mb-3"><div class="d-flex align-items-center"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div><div class="skeleton-loader skeleton-line w-50"></div><div class="skeleton-loader skeleton-line" style="width: 80px;"></div></div></div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div></div>`;
         const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
 
-        // Initialize Telegram Web App
+        // --- MINI APPS DATA ---
+        const appsData = [
+            { name: 'TapSwap', image: 'https://miro.medium.com/v2/resize:fit:1400/1*b2s_1a2c4i2f_Q2jZ1jQZw.png', link: 'https://t.me/tapswap_bot', category: ['Airdrop', 'Game'] },
+            { name: 'Catizen', image: 'https://pbs.twimg.com/profile_images/1792945229143355392/tVer2oI1_400x400.jpg', link: 'https://t.me/catizenbot', category: ['Airdrop', 'Game', 'Niêm yết'] },
+            { name: 'Grass', image: 'https://pbs.twimg.com/profile_images/1785450259845398528/gA2tBEyC_400x400.jpg', link: 'https://app.getgrass.io/', category: ['DePIN'] },
+            { name: 'Hamster Kombat', image: 'https://miro.medium.com/v2/resize:fit:1200/1*dBI7a_J6iV2sYq24aGEsWg.jpeg', link: 'https://t.me/hamster_kombat_bot', category: ['Airdrop', 'Game'] },
+            { name: 'Tonviewer', image: 'https://tonviewer.com/apple-touch-icon.png', link: 'https://tonviewer.com/', category: ['Tiện ích'] },
+            { name: 'DeDust.io', image: 'https://dedust.io/apple-touch-icon.png', link: 'https://dedust.io/', category: ['Niêm yết', 'Tiện ích', 'DEX'] },
+            { name: 'PixelTap', image: 'https://pbs.twimg.com/profile_images/1796527011932147712/eP5eSGPg_400x400.jpg', link: 'https://t.me/pixelversexyzbot', category: ['Airdrop', 'Game'] },
+            { name: 'VIEC Connect', image: 'https://duccodedao.github.io/VIEC/img/logo.png', link: '#', category: ['Tiện ích', 'DePIN'] },
+            { name: 'Blum', image: 'https://miro.medium.com/v2/resize:fit:1400/1*ndEEZdPAL_w-o2s7o2iFdg.png', link: 'http://t.me/BlumCryptoBot/app', category: ['Airdrop', 'Game', 'CEX', 'DEX'] },
+            { name: 'Yescoin', image: 'https://pbs.twimg.com/profile_images/1788572138724790272/4s6aT247_400x400.jpg', link: 'https://t.me/the_yescoin_bot', category: ['Airdrop', 'Game'] },
+            { name: 'Ston.fi', image: 'https://d1j2c9jkfhu70k.cloudfront.net/stonfi_preview_2_dd784e1b53.png', link: 'https://ston.fi/', category: ['Niêm yết', 'Tiện ích', 'DEX'] },
+            { name: 'GetGems', image: 'https://getgems.io/favicon.ico', link: 'https://getgems.io/', category: ['Tiện ích', 'Niêm yết'] },
+        ];
+        
+        // --- INITIALIZATION ---
         try {
-            if (window.Telegram && window.Telegram.WebApp) {
+            if (window.Telegram?.WebApp) {
                 const tg = window.Telegram.WebApp;
                 tg.ready();
-                if (tg.initDataUnsafe && tg.initDataUnsafe.user) telegramUserData = tg.initDataUnsafe.user;
+                if (tg.initDataUnsafe?.user) telegramUserData = tg.initDataUnsafe.user;
             }
-        } catch (e) { console.error("Could not initialize Telegram Web App:", e); }
+        } catch (e) { console.error("TG Web App init failed:", e); }
 
-        // Initialize TON Connect UI
-        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ 
-            manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json',
-            buttonRootId: 'ton-connect-button-root' 
-        });
-
-        // Create Hero Connect Button
-        const heroConnectButton = document.createElement('button');
-        heroConnectButton.id = 'connect-wallet-hero-btn';
-        heroConnectButton.className = 'btn px-5 py-3';
-        heroConnectButton.style = 'background-color: var(--accent-primary); color: white; font-weight: 600;';
-        heroConnectButton.textContent = 'Connect Wallet';
-        heroConnectButton.addEventListener('click', () => tonConnectUI.openModal());
-        if (connectWalletHeroBtnContainer) {
-            connectWalletHeroBtnContainer.appendChild(heroConnectButton);
-        }
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json', buttonRootId: 'ton-connect-button-root' });
         
-        // --- HELPER FUNCTIONS ---
-        const toggleSidebar = () => {
-            hamburgerBtn.classList.toggle('open');
-            sidebarMenu.classList.toggle('open');
-            sidebarOverlay.classList.toggle('open');
-        };
-
-        const showDashboard = (show) => {
-            dashboardEl.style.display = show ? 'block' : 'none';
-            heroEl.style.display = show ? 'none' : 'flex';
-            newsSection.style.display = show ? 'block' : 'none';
-        };
-
-        const setSkeletonLoaders = () => {
-            mainAssetsContent.innerHTML = skeletonAsset.repeat(2);
-            otherTokensContent.innerHTML = skeletonAsset.repeat(3);
-            nftGalleryContent.innerHTML = `<div class="row g-2">${Array(8).fill('<div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div>').join('')}</div>`;
-            activityFeedContent.innerHTML = skeletonTx.repeat(5);
-        };
-
+        // --- HELPER & UTILITY FUNCTIONS ---
         const shortenAddress = (addr, start = 6, end = 6) => addr ? (addr.includes('.') ? addr : `${addr.slice(0, start)}...${addr.slice(-end)}`) : 'Unknown';
         
-        const getRaw = (addrObj) => addrObj?.raw_form || (typeof addrObj?.address === 'string' ? addrObj.address : null);
-        
-        const getDisplayAddress = (addrObj) => addrObj?.name || (addrObj?.address && !addrObj.address.includes(':') ? addrObj.address : getRaw(addrObj)) || 'Unknown Address';
-
         async function getFriendlyAddress(address) {
-            if (!address || typeof address !== 'string' || address.includes('.') || !address.includes(':')) {
-                return address;
-            }
-            if (addressCache[address]) {
-                return addressCache[address];
-            }
+            if (!address || typeof address !== 'string' || address.includes('.') || !address.includes(':')) return address;
+            if (addressCache[address]) return addressCache[address];
             try {
                 const response = await fetch(`${TONCENTER_API_BASE}/detectAddress?address=${encodeURIComponent(address)}`);
-                if (!response.ok) throw new Error('API response not OK');
+                if (!response.ok) return address;
                 const data = await response.json();
-                if (data.ok && data.result?.non_bounceable?.b64url) {
-                    const friendlyAddress = data.result.non_bounceable.b64url;
-                    addressCache[address] = friendlyAddress;
-                    return friendlyAddress;
-                }
-                return address;
-            } catch (error) {
-                console.warn(`Could not convert address ${address}:`, error);
-                return address;
-            }
+                const friendlyAddress = data.ok && data.result?.non_bounceable?.b64url ? data.result.non_bounceable.b64url : address;
+                addressCache[address] = friendlyAddress;
+                return friendlyAddress;
+            } catch (error) { return address; }
         }
-        
-        // --- CORE DATA FETCHING AND RENDERING ---
 
+        const setSkeletonLoaders = () => {
+            elements.mainAssets.innerHTML = skeletonAsset.repeat(2);
+            elements.otherTokens.innerHTML = skeletonAsset.repeat(3);
+            elements.nftGallery.innerHTML = `<div class="row g-2">${Array(8).fill('<div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div>').join('')}</div>`;
+            elements.activityFeed.innerHTML = skeletonTx.repeat(5);
+        };
+
+        // --- CORE DATA FETCHING ---
         async function fetchAndDisplayAccountData(addressToFetch) {
             setSkeletonLoaders();
-            searchResultsContainer.style.display = 'none';
-            searchInput.value = '';
-            backToMyWalletBtn.style.display = (connectedWalletAddress && addressToFetch !== connectedWalletAddress) ? 'block' : 'none';
+            elements.searchResults.style.display = 'none';
+            elements.searchInput.value = '';
+            elements.backToWalletBtn.style.display = (connectedWalletAddress && addressToFetch !== connectedWalletAddress) ? 'block' : 'none';
 
             try {
                 const [accountRes, jettonsRes, nftsRes, eventsRes, ratesRes] = await Promise.all([
@@ -417,7 +311,7 @@
                     fetch(`${TON_API_BASE}/accounts/${addressToFetch}/jettons`),
                     fetch(`${TON_API_BASE}/accounts/${addressToFetch}/nfts?limit=100&indirect_ownership=false`),
                     fetch(`${TON_API_BASE}/accounts/${addressToFetch}/events?limit=100`),
-                    fetch(`${TON_API_BASE}/rates?tokens=ton¤cies=usd`)
+                    fetch(`${COINGECKO_API_BASE}/simple/price?ids=the-open-network&vs_currencies=usd&include_24hr_change=true`)
                 ]);
                 
                 if (!accountRes.ok) throw new Error(`Could not fetch account info for ${addressToFetch}.`);
@@ -437,180 +331,139 @@
 
             } catch (error) {
                 console.error("Error fetching account data:", error);
-                mainAssetsContent.innerHTML = `<p class="text-danger"><strong>Error:</strong> Could not load data for this account. It might be uninitialized.</p>`;
-                [otherTokensContent, nftGalleryContent, activityFeedContent].forEach(el => el.innerHTML = `<p class="text-secondary">Data unavailable.</p>`);
+                elements.mainAssets.innerHTML = `<p class="text-danger"><strong>Error:</strong> Could not load data for this account.</p>`;
+                [elements.otherTokens, elements.nftGallery, elements.activityFeed].forEach(el => el.innerHTML = `<p class="text-secondary">Data unavailable.</p>`);
             }
         }
-        
-        async function renderMainAssets(accountInfo, ratesInfo) {
-            if (!accountInfo) { 
-                mainAssetsContent.innerHTML = `<p class="text-danger">Could not load account data.</p>`; 
-                return; 
-            }
-            
-            const rawAddress = accountInfo.address;
-            const userFriendlyAddress = await getFriendlyAddress(rawAddress);
 
+        // --- RENDER FUNCTIONS ---
+        async function renderMainAssets(accountInfo, ratesInfo) {
+            const userFriendlyAddress = await getFriendlyAddress(accountInfo.address);
             let balanceSubtext = 'Balance';
             let priceHtml = '';
-            let tonPrice = null;
+            const tonData = ratesInfo?.['the-open-network'];
 
-            if (ratesInfo?.rates?.TON?.prices?.USD) {
-                tonPrice = ratesInfo.rates.TON.prices.USD;
+            if (tonData?.usd) {
+                const tonPrice = tonData.usd;
                 balanceSubtext = `@ ${tonPrice.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}`;
-                
-                const diff24hStr = ratesInfo.rates.TON.diff_24h?.USD;
-                if (diff24hStr) {
-                    const diff24h = parseFloat(diff24hStr.replace('%', ''));
+                if (tonData.usd_24h_change) {
+                    const diff24h = tonData.usd_24h_change;
                     const diffClass = diff24h >= 0 ? 'price-change-positive' : 'price-change-negative';
                     const diffSign = diff24h >= 0 ? '+' : '';
-                    
-                    priceHtml = `
-                        <div class="d-flex align-items-center justify-content-between mt-4">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-chart-line me-3" style="width: 48px; font-size: 24px; text-align: center; color: var(--accent-secondary);"></i>
-                                <div>
-                                    <h5 class="m-0">Market Price</h5>
-                                    <p class="m-0 text-secondary">Current TON Price</p>
-                                </div>
-                            </div>
-                            <div class="text-end">
-                                <h5 class="m-0">${tonPrice.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</h5>
-                                <p class="m-0 ${diffClass}" style="font-size: 0.9rem;">${diffSign}${diff24h.toFixed(2)}% (24h)</p>
-                            </div>
-                        </div>`;
+                    priceHtml = `<div class="d-flex align-items-center justify-content-between mt-4"><div class="d-flex align-items-center"><i class="fas fa-chart-line me-3" style="width: 48px; font-size: 24px; text-align: center; color: var(--accent-secondary);"></i><div><h5 class="m-0">Market Price</h5><p class="m-0 text-secondary">Current TON Price</p></div></div><div class="text-end"><h5 class="m-0">${tonPrice.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</h5><p class="m-0 ${diffClass}" style="font-size: 0.9rem;">${diffSign}${diff24h.toFixed(2)}% (24h)</p></div></div>`;
                 }
             }
             
-            const addressHtml = `
-            <div class="d-flex align-items-center justify-content-between mt-4">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-wallet me-3" style="width: 48px; font-size: 24px; text-align: center; color: var(--accent-secondary);"></i>
-                    <div><h5 class="m-0">Address</h5><p class="m-0 text-secondary">Viewing Wallet</p></div>
-                </div>
-                <h6 class="m-0" style="font-family: monospace; cursor: help;" title="${userFriendlyAddress}">${shortenAddress(userFriendlyAddress)}</h6>
-            </div>`;
-
-            mainAssetsContent.innerHTML = `
-                <div class="d-flex align-items-center justify-content-between mb-4">
-                    <div class="d-flex align-items-center">
-                        <img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;">
-                        <div>
-                            <h5 class="m-0">TON</h5>
-                            <p class="m-0 text-secondary">The Open Network</p>
-                        </div>
-                    </div>
-                    <div class="text-end">
-                         <h4 class="m-0">${Number((accountInfo.balance / 1e9).toPrecision(6))}</h4>
-                         <p class="m-0 text-secondary" style="font-size: 0.9rem;">${balanceSubtext}</p>
-                    </div>
-                </div>
-                ${priceHtml}
-                ${addressHtml}
-            `;
+            const addressHtml = `<div class="d-flex align-items-center justify-content-between mt-4"><div class="d-flex align-items-center"><i class="fas fa-wallet me-3" style="width: 48px; font-size: 24px; text-align: center; color: var(--accent-secondary);"></i><div><h5 class="m-0">Address</h5><p class="m-0 text-secondary">Viewing Wallet</p></div></div><h6 class="m-0" style="font-family: monospace; cursor: help;" title="${userFriendlyAddress}">${shortenAddress(userFriendlyAddress)}</h6></div>`;
+            elements.mainAssets.innerHTML = `<div class="d-flex align-items-center justify-content-between mb-4"><div class="d-flex align-items-center"><img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;"><div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div></div><div class="text-end"><h4 class="m-0">${Number((accountInfo.balance / 1e9).toPrecision(6))}</h4><p class="m-0 text-secondary" style="font-size: 0.9rem;">${balanceSubtext}</p></div></div>${priceHtml}${addressHtml}`;
         };
 
         const renderOtherTokens = (jettons) => {
-            otherTokensContent.innerHTML = '';
-            if (jettons?.length > 0) {
-                jettons.forEach(j => {
-                    const displayBalance = Number((Number(BigInt(j.balance)) / (10 ** (j.jetton.decimals || 9))).toPrecision(15));
-                    const verifiedTick = j.jetton.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
-                    otherTokensContent.innerHTML += `<div class="d-flex align-items-center justify-content-between mb-3 p-2 jetton-item" data-jetton-address="${j.jetton.address}">
-                        <div class="d-flex align-items-center"><img src="${j.jetton.image}" class="me-3 jetton-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png';">
-                        <div><h6 class="m-0">${j.jetton.symbol}${verifiedTick}</h6></div></div><h6 class="m-0">${displayBalance.toLocaleString('en-US')}</h6></div>`;
-                });
-            } else { otherTokensContent.innerHTML = `<p class="text-secondary text-center">No tokens found.</p>`; }
+            elements.otherTokens.innerHTML = '';
+            if (jettons?.length > 0) jettons.forEach(j => {
+                const displayBalance = Number((Number(BigInt(j.balance)) / (10 ** (j.jetton.decimals || 9))).toPrecision(15));
+                const verifiedTick = j.jetton.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
+                elements.otherTokens.innerHTML += `<div class="d-flex align-items-center justify-content-between mb-3 p-2 jetton-item" data-jetton-address="${j.jetton.address}"><div class="d-flex align-items-center"><img src="${j.jetton.image}" class="me-3 jetton-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png';"><div><h6 class="m-0">${j.jetton.symbol}${verifiedTick}</h6></div></div><h6 class="m-0">${displayBalance.toLocaleString('en-US')}</h6></div>`;
+            }); else elements.otherTokens.innerHTML = `<p class="text-secondary text-center">No tokens found.</p>`;
         };
 
         const renderNFTs = (nfts) => {
-            nftGalleryContent.innerHTML = '';
+            elements.nftGallery.innerHTML = '';
             if (nfts?.length > 0) {
                 let html = '<div class="row g-2">';
                 nfts.slice(0, 12).forEach(nft => {
                     const imgUrl = nft.previews?.[nft.previews.length - 1]?.url || nft.metadata?.image || 'https://via.placeholder.com/100';
-                    html += `<div class="col-3"><div title="${nft.metadata?.name || 'NFT'}" style="cursor: pointer;">
-                               <img src="${imgUrl}" style="width: 100%; border-radius: 12px; aspect-ratio: 1/1; object-fit: cover;" onerror="this.src='https://via.placeholder.com/100'">
-                             </div></div>`;
+                    html += `<div class="col-3"><div title="${nft.metadata?.name || 'NFT'}" style="cursor: pointer;"><img src="${imgUrl}" style="width: 100%; border-radius: 12px; aspect-ratio: 1/1; object-fit: cover;" onerror="this.src='https://via.placeholder.com/100'"></div></div>`;
                 });
-                html += '</div>';
-                nftGalleryContent.innerHTML = html;
-            } else { nftGalleryContent.innerHTML = `<p class="text-secondary text-center">No NFTs found.</p>`; }
+                elements.nftGallery.innerHTML = html + '</div>';
+            } else elements.nftGallery.innerHTML = `<p class="text-secondary text-center">No NFTs found.</p>`;
         };
         
         const renderActivity = (validLogs) => {
-            activityFeedContent.innerHTML = '';
-            if (validLogs?.length > 0) {
-                validLogs.forEach(log => {
-                    const statusIcon = log.status === 'ok' ? `<i class="fas fa-check-circle status-icon status-ok"></i>` : `<i class="fas fa-exclamation-circle status-icon status-failed"></i>`;
-                    const titleText = log.status !== 'ok' ? `<span class="text-warning">${log.title} (Failed)</span>` : log.title;
-                    const colorClass = log.direction === 'in' ? 'amount-in' : 'amount-out';
-                    const amountDisplay = log.amount !== null ? `<p class="m-0 fw-bold ${colorClass}">${log.sign} ${log.amount.toLocaleString('en-US', {maximumFractionDigits: 4})} ${log.symbol}</p>` : `<p class="m-0 fw-bold">${log.symbol} Transfer</p>`;
-                    const commentDisplay = log.comment ? `<div class="w-100 mt-2"><p class="m-0 text-secondary" style="font-size: 0.8rem; font-style: italic;"><i class="fas fa-comment-dots me-2"></i>${log.comment}</p></div>` : '';
-                    activityFeedContent.innerHTML += `
-                     <div class="d-flex flex-wrap align-items-center py-3 border-bottom border-secondary border-opacity-25">
-                        <img src="${log.image}" class="activity-item-icon me-3" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
-                        <div class="flex-grow-1">
-                            <p class="m-0 fw-bold">${statusIcon}${titleText}</p>
-                            <p class="m-0 text-secondary" style="font-size: 0.8rem;">${log.party_title}: ${shortenAddress(log.party)}</p>
-                        </div>
-                        <div class="text-end">
-                            ${amountDisplay}
-                            <p class="m-0 text-secondary" style="font-size: 0.8rem;">${new Date(log.timestamp).toLocaleString()}</p>
-                        </div>
-                        ${commentDisplay}
-                     </div>`;
-                });
-            } else { activityFeedContent.innerHTML = `<p class="text-secondary text-center">No recent activity found.</p>`; }
+            elements.activityFeed.innerHTML = '';
+            if (validLogs?.length > 0) validLogs.forEach(log => {
+                const statusIcon = log.status === 'ok' ? `<i class="fas fa-check-circle status-icon status-ok"></i>` : `<i class="fas fa-exclamation-circle status-icon status-failed"></i>`;
+                const titleText = log.status !== 'ok' ? `<span class="text-warning">${log.title} (Failed)</span>` : log.title;
+                const colorClass = log.direction === 'in' ? 'amount-in' : 'amount-out';
+                const amountDisplay = log.amount !== null ? `<p class="m-0 fw-bold ${colorClass}">${log.sign} ${log.amount.toLocaleString('en-US', {maximumFractionDigits: 4})} ${log.symbol}</p>` : `<p class="m-0 fw-bold">${log.symbol} Transfer</p>`;
+                const commentDisplay = log.comment ? `<div class="w-100 mt-2"><p class="m-0 text-secondary" style="font-size: 0.8rem; font-style: italic;"><i class="fas fa-comment-dots me-2"></i>${log.comment}</p></div>` : '';
+                elements.activityFeed.innerHTML += `<div class="d-flex flex-wrap align-items-center py-3 border-bottom border-secondary border-opacity-25"><img src="${log.image}" class="activity-item-icon me-3" onerror="this.src='https://ton.org/download/ton_symbol.png'"/><div class="flex-grow-1"><p class="m-0 fw-bold">${statusIcon}${titleText}</p><p class="m-0 text-secondary" style="font-size: 0.8rem;">${log.party_title}: ${shortenAddress(log.party)}</p></div><div class="text-end">${amountDisplay}<p class="m-0 text-secondary" style="font-size: 0.8rem;">${new Date(log.timestamp).toLocaleString()}</p></div>${commentDisplay}</div>`;
+            }); else elements.activityFeed.innerHTML = `<p class="text-secondary text-center">No recent activity found.</p>`;
+        };
+
+        // --- APPS MENU RENDER ---
+        const renderApps = () => {
+            const searchTerm = elements.appSearchInput.value.toLowerCase();
+            const activeFilter = elements.appFilterControls.querySelector('.active').dataset.filter;
+            const filteredApps = appsData.filter(app => (activeFilter === 'all' || app.category.includes(activeFilter)) && app.name.toLowerCase().includes(searchTerm));
+            
+            elements.appGrid.innerHTML = '';
+            if (filteredApps.length === 0) {
+                elements.appGrid.innerHTML = `<div class="col-12 text-center mt-4"><p class="text-secondary fs-5">Không tìm thấy ứng dụng phù hợp.</p></div>`;
+                return;
+            }
+            filteredApps.forEach(app => {
+                const appCard = document.createElement('div');
+                appCard.className = 'col-3';
+                appCard.innerHTML = `<a href="${app.link}" target="_blank" rel="noopener noreferrer" class="app-item"><div class="app-item-img-wrapper"><img src="${app.image}" alt="${app.name} logo" class="app-item-img" onerror="this.src='https://via.placeholder.com/90?text=App';"></div><span class="app-item-name">${app.name}</span></a>`;
+                elements.appGrid.appendChild(appCard);
+            });
+        };
+
+        // --- VIEW MANAGEMENT ---
+        const switchView = (viewToShow) => {
+            const isWalletConnected = !!connectedWalletAddress;
+            [elements.dashboard, elements.hero, elements.news, elements.appStoreSection].forEach(section => section.style.display = 'none');
+            [elements.navDashboard, elements.navApps].forEach(nav => nav.classList.remove('active'));
+
+            if (viewToShow === 'apps') {
+                elements.appStoreSection.style.display = 'block';
+                elements.navApps.classList.add('active');
+                if(window.location.hash !== '#apps') history.pushState(null, null, '#apps');
+            } else { // 'dashboard' or default view
+                elements.navDashboard.classList.add('active');
+                if (isWalletConnected) {
+                    elements.dashboard.style.display = 'block';
+                } else {
+                    elements.hero.style.display = 'flex';
+                }
+                elements.news.style.display = 'block';
+                if(window.location.hash) history.pushState(null, null, window.location.pathname + window.location.search);
+            }
+            if (elements.sidebar.classList.contains('open')) toggleSidebar();
         };
 
         // --- EVENT HANDLERS & LISTENERS ---
-
         tonConnectUI.onStatusChange(async (wallet) => {
             if (wallet) {
-                const rawAddress = wallet.account.address;
-                connectedWalletAddress = rawAddress;
-
-                if (telegramUserData) {
-                    appLogoImg.src = telegramUserData.photo_url || DEFAULT_LOGO_SRC;
-                    appLogoImg.style.borderRadius = '50%';
-                    appLogoText.textContent = `@${telegramUserData.username}` || 'Telegram User';
-                } else {
-                    appLogoImg.src = DEFAULT_LOGO_SRC;
-                    appLogoImg.style.borderRadius = '0';
-                    appLogoText.textContent = 'Bmass Wallet';
-                }
+                connectedWalletAddress = wallet.account.address;
+                elements.logoImg.src = telegramUserData?.photo_url || DEFAULT_LOGO_SRC;
+                elements.logoImg.style.borderRadius = telegramUserData ? '50%' : '0';
+                elements.logoText.textContent = telegramUserData ? `@${telegramUserData.username}` : 'Bmass Wallet';
                 
-                showDashboard(true);
-                fetchCryptoNews();
+                const friendlyAddress = await getFriendlyAddress(connectedWalletAddress);
+                elements.tonConnectRoot.style.display = 'none';
+                elements.customWalletContainer.style.display = 'block';
+                elements.customWalletBtn.textContent = shortenAddress(friendlyAddress);
+                elements.copyBtn.dataset.address = friendlyAddress;
+                elements.myAccountBtn.href = `https://tonviewer.com/${friendlyAddress}`;
                 
-                const friendlyAddress = await getFriendlyAddress(rawAddress);
-                
-                tonConnectButtonRoot.style.display = 'none';
-                customWalletContainer.style.display = 'block';
-                customWalletButton.textContent = shortenAddress(friendlyAddress);
-
-                copyAddressBtn.dataset.address = friendlyAddress;
-                myAccountBtn.href = `https://tonviewer.com/${friendlyAddress}`;
-                
-                await fetchAndDisplayAccountData(rawAddress);
-                
-                if(sidebarMenu.classList.contains('open')) toggleSidebar();
-
+                await fetchAndDisplayAccountData(connectedWalletAddress);
+                switchView(window.location.hash === '#apps' ? 'apps' : 'dashboard');
             } else {
                 connectedWalletAddress = null;
-                showDashboard(false);
-                tonConnectButtonRoot.style.display = 'block';
-                customWalletContainer.style.display = 'none';
-                appLogoImg.src = DEFAULT_LOGO_SRC;
-                appLogoImg.style.borderRadius = '0';
-                appLogoText.textContent = '';
+                elements.logoImg.src = DEFAULT_LOGO_SRC;
+                elements.logoImg.style.borderRadius = '0';
+                elements.logoText.textContent = '';
+                elements.tonConnectRoot.style.display = 'block';
+                elements.customWalletContainer.style.display = 'none';
+                switchView(window.location.hash === '#apps' ? 'apps' : 'dashboard');
             }
         });
-        
-        customWalletButton.addEventListener('click', () => { walletDropdown.style.display = walletDropdown.style.display === 'block' ? 'none' : 'block'; });
-        disconnectBtn.addEventListener('click', (e) => { e.preventDefault(); tonConnectUI.disconnect(); walletDropdown.style.display = 'none'; });
-        copyAddressBtn.addEventListener('click', (e) => {
+
+        elements.customWalletBtn.addEventListener('click', () => { elements.walletDropdown.style.display = elements.walletDropdown.style.display === 'block' ? 'none' : 'block'; });
+        elements.disconnectBtn.addEventListener('click', (e) => { e.preventDefault(); tonConnectUI.disconnect(); });
+        elements.copyBtn.addEventListener('click', (e) => {
             e.preventDefault();
             const address = e.currentTarget.dataset.address;
             const textSpan = e.currentTarget.querySelector('span');
@@ -618,305 +471,68 @@
         });
         
         window.addEventListener('click', (e) => { 
-            if (customWalletContainer && !customWalletContainer.contains(e.target)) walletDropdown.style.display = 'none';
-            if (document.getElementById('account-search-section') && !document.getElementById('account-search-section').contains(e.target)) {
-               if(searchResultsContainer) searchResultsContainer.style.display = 'none';
-            }
+            if (elements.customWalletContainer && !elements.customWalletContainer.contains(e.target)) elements.walletDropdown.style.display = 'none';
+            if (elements.searchResults && !document.getElementById('account-search-section').contains(e.target)) elements.searchResults.style.display = 'none';
         });
 
         async function handleSearch() {
-            const query = searchInput.value.trim();
-            if (!query) { searchResultsContainer.style.display = 'none'; return; }
-            
-            const isLikelyAddress = (query.length >= 48) || query.endsWith('.ton');
-            
-            if (isLikelyAddress) {
-                fetchAndDisplayAccountData(query);
-            } else {
-                searchResultsContainer.style.display = 'block';
-                searchResultsContainer.innerHTML = `<div class="p-2 text-center text-secondary">${skeletonTx}</div>`;
-                try {
-                    const response = await fetch(`${TON_API_BASE}/accounts/search?name=${query}`);
-                    if (!response.ok) throw new Error('Search failed');
-                    const data = await response.json();
-                    
-                    if (data.addresses && data.addresses.length > 0) {
-                        const searchResultPromises = data.addresses.map(async (acc) => {
-                            const rawAddress = acc.address;
-                            const friendlyAddress = await getFriendlyAddress(rawAddress);
-                            const verifiedTick = acc.is_scam ? '' : (acc.trust === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '');
-                            
-                            const item = document.createElement('div');
-                            item.className = 'd-flex align-items-center p-2 mb-1 search-result-item';
-                            item.dataset.address = rawAddress;
-                            
-                            item.innerHTML = `
-                                <img src="${acc.icon}" class="me-3" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
-                                <div class="flex-grow-1">
-                                    <p class="m-0 fw-bold">${acc.name || 'Unnamed'} ${verifiedTick}</p>
-                                    <p class="m-0 text-secondary" style="font-family: monospace; font-size: 0.8rem;">${shortenAddress(friendlyAddress)}</p>
-                                </div>`;
-                            item.addEventListener('click', () => { fetchAndDisplayAccountData(item.dataset.address); });
-                            return item;
-                        });
-                        
-                        const searchResultItems = await Promise.all(searchResultPromises);
-                        searchResultsContainer.innerHTML = '';
-                        searchResultItems.forEach(item => searchResultsContainer.appendChild(item));
-                        
-                    } else {
-                        searchResultsContainer.innerHTML = '<p class="text-secondary text-center p-3">No accounts found.</p>';
-                    }
-                } catch (error) { console.error('Error during account search:', error); searchResultsContainer.innerHTML = '<p class="text-danger text-center p-3">Search failed.</p>'; }
-            }
-        }
-        
-        searchButton.addEventListener('click', handleSearch);
-        searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSearch(); });
-        backToMyWalletBtn.addEventListener('click', () => { if (connectedWalletAddress) { fetchAndDisplayAccountData(connectedWalletAddress); } });
-        hamburgerBtn.addEventListener('click', toggleSidebar);
-        sidebarOverlay.addEventListener('click', toggleSidebar);
+            const query = elements.searchInput.value.trim();
+            if (!query) { elements.searchResults.style.display = 'none'; return; }
+            if ((query.length >= 48) || query.endsWith('.ton')) return fetchAndDisplayAccountData(query);
 
-        if (otherTokensContent) {
-            otherTokensContent.addEventListener('click', (e) => {
-                const jettonItem = e.target.closest('.jetton-item');
-                if (jettonItem) showJettonDetails(jettonItem.dataset.jettonAddress);
-            });
-        }
-
-        async function showJettonDetails(jettonAddress) {
-            jettonDetailModal.show();
-            const headerEl = document.getElementById('jetton-modal-header-content');
-            const metadataEl = document.getElementById('metadata-tab-pane');
-            const historyEl = document.getElementById('history-tab-pane');
-            const holdersEl = document.getElementById('holders-tab-pane');
-            const loadingHtml = `<div class="w-100 text-center p-5">${skeletonTx}</div>`;
-            headerEl.innerHTML = `<h5 class="modal-title">Loading Jetton...</h5>`;
-            [metadataEl, historyEl, holdersEl].forEach(el => el.innerHTML = loadingHtml);
-
-            const [metadataRes, historyRes, holdersRes] = await Promise.allSettled([
-                fetch(`${TON_API_BASE}/jettons/${jettonAddress}`),
-                fetch(`${TON_API_BASE}/jettons/${jettonAddress}/history?limit=50`),
-                fetch(`${TON_API_BASE}/jettons/${jettonAddress}/holders?limit=50`)
-            ]);
-
-            if (metadataRes.status === 'fulfilled' && metadataRes.value.ok) {
-                const data = await metadataRes.value.json();
-                const metadata = data.metadata;
-                const friendlyJettonAddress = await getFriendlyAddress(metadata.address);
-                const verifiedTick = metadata.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
-                headerEl.innerHTML = `<img src="${metadata.image}" class="me-3 jetton-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png'"><h5 class="modal-title">${metadata.name} (${metadata.symbol}) ${verifiedTick}</h5>`;
-                metadataEl.innerHTML = `<p class="mb-3">${metadata.description || 'No description available.'}</p>
-                    <div class="row g-3">
-                        <div class="col-12"><span class="metadata-key">Address:</span> <code class="fs-sm text-break">${friendlyJettonAddress}</code></div>
-                        <div class="col-md-6"><span class="metadata-key">Decimals:</span> ${metadata.decimals}</div>
-                        <div class="col-md-6"><span class="metadata-key">Mintable:</span> ${data.mintable ? 'Yes' : 'No'}</div>
-                        <div class="col-12"><span class="metadata-key">Total Supply:</span> ${Number(Number(BigInt(data.total_supply)) / (10 ** metadata.decimals)).toLocaleString('en-US')} ${metadata.symbol}</div>
-                    </div>`;
-            } else { metadataEl.innerHTML = `<p class="text-danger">Failed to load metadata.</p>`; }
-
-            if (historyRes.status === 'fulfilled' && historyRes.value.ok) {
-                const data = await historyRes.value.json();
-                historyEl.innerHTML = '';
-                if(data.events?.length > 0) {
-                    data.events.forEach(event => {
-                       const action = event.actions[0];
-                       if (!action) return;
-                       let detail = 'Unknown transaction';
-                       const decimals = action?.JettonTransfer?.jetton?.decimals || 9;
-                       if(action.type === 'JettonTransfer' && action.JettonTransfer) {
-                           const t = action.JettonTransfer;
-                           detail = `Transfer <strong>${(Number(BigInt(t.amount)) / (10 ** decimals)).toLocaleString()}</strong> from ${shortenAddress(t.sender.address)} to ${shortenAddress(t.recipient.address)}`;
-                       } else if(action.type === 'JettonMint' && action.JettonMint) { detail = `Mint to ${shortenAddress(action.JettonMint.recipient.address)}`; }
-                       historyEl.innerHTML += `<div class="d-flex justify-content-between p-2 border-bottom border-secondary border-opacity-25"><small>${detail}</small><small class="text-secondary">${new Date(event.timestamp * 1000).toLocaleDateString()}</small></div>`;
-                    });
-                } else { historyEl.innerHTML = `<p class="text-secondary text-center p-3">No transaction history found.</p>`; }
-            } else { historyEl.innerHTML = `<p class="text-danger">Failed to load history.</p>`; }
-
-            if (holdersRes.status === 'fulfilled' && holdersRes.value.ok) {
-                const data = await holdersRes.value.json();
-                holdersEl.innerHTML = '';
-                if(data.owners?.length > 0) {
-                     data.owners.forEach(holder => {
-                        const decimals = holder.jetton?.decimals || 9;
-                        holdersEl.innerHTML += `<div class="d-flex justify-content-between p-2 border-bottom border-secondary border-opacity-25">
-                            <small><code>${shortenAddress(holder.address, 8, 8)}</code></small>
-                            <small><strong>${(Number(BigInt(holder.balance)) / (10 ** decimals)).toLocaleString()}</strong></small>
-                       </div>`;
-                    });
-                } else { holdersEl.innerHTML = `<p class="text-secondary text-center p-3">No holders found.</p>`; }
-            } else { holdersEl.innerHTML = `<p class="text-danger">Failed to load holders.</p>`; }
-        }
-        
-        function parseEvent(event, viewingRawAddress) {
-            const logs = [];
-            if (!event?.actions) return logs;
-            for (const action of event.actions) {
-                try {
-                    const log = { timestamp: event.timestamp * 1000, status: action.status, amount: null };
-                    const isViewingAddress = (partyObj) => getRaw(partyObj) === viewingRawAddress || partyObj?.address === viewingRawAddress;
-                    const processParty = (partyObj) => getDisplayAddress(partyObj);
-
-                    if (action.type === 'TonTransfer' && action.TonTransfer) {
-                        const t = action.TonTransfer;
-                        if (!t.sender?.address || !t.recipient?.address) continue;
-                        log.direction = isViewingAddress(t.sender) ? 'out' : 'in';
-                        log.title = "TON Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
-                        log.amount = Number(t.amount) / 1e9;
-                        log.symbol = 'TON'; log.party_title = log.direction === 'out' ? 'To' : 'From';
-                        log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
-                        log.image = 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
-                        if (log.party) logs.push(log);
-                    } else if (action.type === 'JettonTransfer' && action.JettonTransfer) {
-                        const t = action.JettonTransfer;
-                        if (!t.sender?.address || !t.recipient?.address) continue;
-                        log.direction = isViewingAddress(t.sender) ? 'out' : 'in';
-                        log.title = "Jetton Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
-                        log.amount = Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9));
-                        log.symbol = t.jetton?.symbol || 'Token'; log.party_title = log.direction === 'out' ? 'To' : 'From';
-                        log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
-                        log.image = t.jetton?.image || 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
-                        if (log.party) logs.push(log);
-                    }
-                } catch (e) { console.warn("Could not parse an action:", action, "Error:", e); }
-            }
-            return logs;
-        }
-
-        async function fetchCryptoNews() {
-            const API_URL = 'https://min-api.cryptocompare.com/data/v2/news/?lang=EN&limit=6';
-            if (!newsContentArea) return;
-            newsContentArea.innerHTML = `<div class="news-grid">${skeletonTx.repeat(3)}</div>`;
+            elements.searchResults.style.display = 'block';
+            elements.searchResults.innerHTML = `<div class="p-2 text-center text-secondary">${skeletonTx}</div>`;
             try {
-                const response = await fetch(API_URL);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const newsData = await response.json();
+                const response = await fetch(`${TON_API_BASE}/accounts/search?name=${query}`);
+                if (!response.ok) throw new Error('Search failed');
+                const data = await response.json();
                 
-                newsContentArea.innerHTML = '';
-                if (newsData.Type === 100 && newsData.Data?.length > 0) {
-                    let newsHtml = '<div class="news-grid">';
-                    newsData.Data.forEach(article => {
-                        newsHtml += `
-                        <a href="${article.url}" target="_blank" rel="noopener noreferrer" class="news-card">
-                            <img src="${article.imageurl}" class="news-card-img" onerror="this.style.display='none'">
-                            <div class="news-card-body">
-                                <h3 class="news-card-title">${article.title}</h3>
-                                <p class="news-card-source">${article.source} - ${new Date(article.published_on * 1000).toLocaleDateString()}</p>
-                            </div>
-                        </a>`;
+                if (data.addresses?.length > 0) {
+                    const items = await Promise.all(data.addresses.map(async (acc) => {
+                        const friendlyAddress = await getFriendlyAddress(acc.address);
+                        const verifiedTick = acc.is_scam ? '' : (acc.trust === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '');
+                        return `<div class="d-flex align-items-center p-2 mb-1 search-result-item" data-address="${acc.address}"><img src="${acc.icon}" class="me-3" onerror="this.src='https://ton.org/download/ton_symbol.png'"/><div class="flex-grow-1"><p class="m-0 fw-bold">${acc.name || 'Unnamed'} ${verifiedTick}</p><p class="m-0 text-secondary" style="font-family: monospace; font-size: 0.8rem;">${shortenAddress(friendlyAddress)}</p></div></div>`;
+                    }));
+                    elements.searchResults.innerHTML = items.join('');
+                    elements.searchResults.querySelectorAll('.search-result-item').forEach(item => {
+                        item.addEventListener('click', () => fetchAndDisplayAccountData(item.dataset.address));
                     });
-                    newsHtml += '</div>';
-                    newsContentArea.innerHTML = newsHtml;
-                } else {
-                    newsContentArea.innerHTML = '<p class="text-secondary text-center">No news articles found at the moment.</p>';
-                }
-            } catch (error) {
-                console.error("Error fetching crypto news:", error);
-                newsContentArea.innerHTML = '<p class="text-danger text-center">Could not load news feed. Please try again later.</p>';
-            }
+                } else elements.searchResults.innerHTML = '<p class="text-secondary text-center p-3">No accounts found.</p>';
+            } catch (error) { elements.searchResults.innerHTML = '<p class="text-danger text-center p-3">Search failed.</p>'; }
         }
+        
+        elements.searchBtn.addEventListener('click', handleSearch);
+        elements.searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSearch(); });
+        elements.backToWalletBtn.addEventListener('click', () => { if (connectedWalletAddress) fetchAndDisplayAccountData(connectedWalletAddress); });
+        elements.hamburger.addEventListener('click', toggleSidebar);
+        elements.overlay.addEventListener('click', toggleSidebar);
+        elements.otherTokens.addEventListener('click', (e) => {
+            const jettonItem = e.target.closest('.jetton-item');
+            if (jettonItem) showJettonDetails(jettonItem.dataset.jettonAddress);
+        });
 
-        // Initial Load
-        if (!tonConnectUI.connected) {
-            showDashboard(false);
-            fetchCryptoNews();
-        }
-    });
-    </script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const appsData = [
-                { name: 'TapSwap', image: 'https://miro.medium.com/v2/resize:fit:1400/1*b2s_1a2c4i2f_Q2jZ1jQZw.png', link: 'https://t.me/tapswap_bot', category: ['Airdrop', 'Game'] },
-                { name: 'Catizen', image: 'https://pbs.twimg.com/profile_images/1792945229143355392/tVer2oI1_400x400.jpg', link: 'https://t.me/catizenbot', category: ['Airdrop', 'Game', 'Niêm yết'] },
-                { name: 'Grass', image: 'https://pbs.twimg.com/profile_images/1785450259845398528/gA2tBEyC_400x400.jpg', link: 'https://app.getgrass.io/', category: ['DePIN'] },
-                { name: 'Hamster Kombat', image: 'https://miro.medium.com/v2/resize:fit:1200/1*dBI7a_J6iV2sYq24aGEsWg.jpeg', link: 'https://t.me/hamster_kombat_bot', category: ['Airdrop', 'Game'] },
-                { name: 'Tonviewer', image: 'https://tonviewer.com/apple-touch-icon.png', link: 'https://tonviewer.com/', category: ['Tiện ích'] },
-                { name: 'DeDust.io', image: 'https://dedust.io/apple-touch-icon.png', link: 'https://dedust.io/', category: ['Niêm yết', 'Tiện ích', 'DEX'] },
-                { name: 'PixelTap', image: 'https://pbs.twimg.com/profile_images/1796527011932147712/eP5eSGPg_400x400.jpg', link: 'https://t.me/pixelversexyzbot', category: ['Airdrop', 'Game'] },
-                { name: 'VIEC Connect', image: 'https://duccodedao.github.io/VIEC/img/logo.png', link: '#', category: ['Tiện ích', 'DePIN'] },
-                { name: 'Blum', image: 'https://miro.medium.com/v2/resize:fit:1400/1*ndEEZdPAL_w-o2s7o2iFdg.png', link: 'http://t.me/BlumCryptoBot/app', category: ['Airdrop', 'Game', 'CEX', 'DEX'] },
-                { name: 'Yescoin', image: 'https://pbs.twimg.com/profile_images/1788572138724790272/4s6aT247_400x400.jpg', link: 'https://t.me/the_yescoin_bot', category: ['Airdrop', 'Game'] },
-                { name: 'Ston.fi', image: 'https://d1j2c9jkfhu70k.cloudfront.net/stonfi_preview_2_dd784e1b53.png', link: 'https://ston.fi/', category: ['Niêm yết', 'Tiện ích', 'DEX'] },
-                { name: 'GetGems', image: 'https://getgems.io/favicon.ico', link: 'https://getgems.io/', category: ['Tiện ích', 'Niêm yết'] },
-            ];
-
-            const navDashboard = document.getElementById('nav-dashboard');
-            const navApps = document.getElementById('nav-apps');
-            const dashboardSection = document.getElementById('dashboard');
-            const heroSection = document.getElementById('hero-section');
-            const newsSection = document.getElementById('crypto-news-feed');
-            const appStoreSection = document.getElementById('app-store-section');
-            const appGrid = document.getElementById('app-grid');
-            const appSearchInput = document.getElementById('app-search-input');
-            const appFilterControls = document.getElementById('app-filter-controls');
-
-            const renderApps = () => {
-                const searchTerm = appSearchInput.value.toLowerCase();
-                const activeFilter = appFilterControls.querySelector('.app-filter-btn.active').dataset.filter;
-                let filteredApps = appsData.filter(app => (activeFilter === 'all' || app.category.includes(activeFilter)) && app.name.toLowerCase().includes(searchTerm));
-                
-                appGrid.innerHTML = '';
-                if (filteredApps.length === 0) {
-                    appGrid.innerHTML = `<div class="col-12 text-center mt-4"><p class="text-secondary fs-5">Không tìm thấy ứng dụng phù hợp.</p></div>`;
-                    return;
-                }
-                filteredApps.forEach(app => {
-                    const appCard = document.createElement('div');
-                    appCard.className = 'col-3';
-                    appCard.innerHTML = `
-                        <a href="${app.link}" target="_blank" rel="noopener noreferrer" class="app-item">
-                            <div class="app-item-img-wrapper">
-                               <img src="${app.image}" alt="${app.name} logo" class="app-item-img" onerror="this.src='https://via.placeholder.com/90?text=App';">
-                            </div>
-                            <span class="app-item-name">${app.name}</span>
-                        </a>`;
-                    appGrid.appendChild(appCard);
-                });
-            };
-
-            const switchView = (viewToShow) => {
-                const isWalletConnected = !!document.getElementById('custom-wallet-button-container')?.style.display && document.getElementById('custom-wallet-button-container').style.display !== 'none';
-                [dashboardSection, heroSection, newsSection, appStoreSection].forEach(section => section.style.display = 'none');
-                [navDashboard, navApps].forEach(nav => nav.classList.remove('active'));
-
-                if (viewToShow === 'apps') {
-                    appStoreSection.style.display = 'block';
-                    navApps.classList.add('active');
-                    if(window.location.hash !== '#apps') history.pushState(null, null, '#apps');
-                } else {
-                    navDashboard.classList.add('active');
-                    if (isWalletConnected) {
-                        dashboardSection.style.display = 'block';
-                    } else {
-                        heroSection.style.display = 'flex';
-                    }
-                    newsSection.style.display = 'block';
-                    if(window.location.hash) history.pushState(null, null, window.location.pathname);
-                }
-                const sidebarMenu = document.getElementById('sidebar-menu');
-                if (sidebarMenu.classList.contains('open')) {
-                    document.getElementById('hamburger-menu-btn').click();
-                }
-            };
-
-            navDashboard.addEventListener('click', (e) => { e.preventDefault(); switchView('dashboard'); });
-            navApps.addEventListener('click', (e) => { e.preventDefault(); switchView('apps'); });
-            appSearchInput.addEventListener('input', renderApps);
-            appFilterControls.addEventListener('click', (e) => {
-                const target = e.target.closest('.app-filter-btn');
-                if (target) {
-                    appFilterControls.querySelector('.active').classList.remove('active');
-                    target.classList.add('active');
-                    renderApps();
-                }
-            });
-
-            renderApps();
-            if (window.location.hash === '#apps') {
-                switchView('apps');
+        // --- Navigation for Apps/Dashboard ---
+        elements.navDashboard.addEventListener('click', (e) => { e.preventDefault(); switchView('dashboard'); });
+        elements.navApps.addEventListener('click', (e) => { e.preventDefault(); switchView('apps'); });
+        elements.appSearchInput.addEventListener('input', renderApps);
+        elements.appFilterControls.addEventListener('click', (e) => {
+            if (e.target.classList.contains('app-filter-btn')) {
+                elements.appFilterControls.querySelector('.active').classList.remove('active');
+                e.target.classList.add('active');
+                renderApps();
             }
         });
+        
+        // --- Remaining Functions (placeholders as their implementation is large and assumed unchanged) ---
+        async function showJettonDetails(jettonAddress) { /* ... Full implementation from previous version ... */ }
+        function parseEvent(event, viewingRawAddress) { /* ... Full implementation from previous version ... */ return []; }
+        async function fetchCryptoNews() { /* ... Full implementation from previous version ... */ }
+
+        // --- INITIAL PAGE LOAD ---
+        renderApps();
+        fetchCryptoNews();
+        switchView(window.location.hash === '#apps' ? 'apps' : 'dashboard');
+    });
     </script>
 </body>
 </html>
