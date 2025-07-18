@@ -352,6 +352,7 @@
         let telegramUserData = null;
         let connectedWalletAddress = null; // Stores RAW address
         const addressCache = {}; // Cache for address conversion
+        let searchTimeout;
 
         const skeletonAsset = `<div class="d-flex align-items-center justify-content-between mb-3"><div class="d-flex align-items-center"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div><div class="skeleton-loader skeleton-line w-50"></div><div class="skeleton-loader skeleton-line" style="width: 80px;"></div></div></div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div></div>`;
         const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
@@ -607,9 +608,9 @@
         });
 
         // ================================================================
-        // === START: REVISED SEARCH LOGIC TO FIX JETTON IMAGE FETCHING ===
+        // === START: NEW, FAST, AND RELIABLE SEARCH LOGIC              ===
         // ================================================================
-        async function handleSearch() {
+        async function handleFastSearch() {
             const query = searchInput.value.trim();
             if (!query) {
                 searchResultsContainer.style.display = 'none';
@@ -626,7 +627,7 @@
             searchResultsContainer.innerHTML = `<div class="p-2 text-center text-secondary">${skeletonTx}</div>`;
             
             try {
-                // --- Step 1: Fetch both accounts and jetton previews ---
+                // --- Step 1: Fetch previews only. This is very fast. ---
                 const [accountSearchRes, jettonSearchRes] = await Promise.all([
                     fetch(`${TON_API_BASE}/accounts/search?name=${encodeURIComponent(query)}`),
                     fetch(`${TON_API_BASE}/jettons/search?query=${encodeURIComponent(query)}`)
@@ -635,33 +636,19 @@
                 const accounts = accountSearchRes.ok ? (await accountSearchRes.json()).addresses : [];
                 const jettonPreviews = jettonSearchRes.ok ? (await jettonSearchRes.json()).jettons : [];
 
-                // --- Step 2: For each jetton preview, fetch its full metadata to get the reliable image ---
-                const jettonDetailPromises = jettonPreviews.map(async (preview) => {
-                    try {
-                        const res = await fetch(`${TON_API_BASE}/jettons/${preview.address}`);
-                        if (!res.ok) return null;
-                        const fullData = await res.json();
-                        return fullData.metadata; // We only need the metadata object
-                    } catch {
-                        return null; // Ignore jettons that fail to fetch details
-                    }
-                });
-                
-                const jettonMetadatas = (await Promise.all(jettonDetailPromises)).filter(Boolean); // Filter out nulls
-
-                // --- Step 3: Combine and render results ---
+                // --- Step 2: Combine and render results immediately from previews. ---
                 const resultsMap = new Map();
 
-                // Process jettons with full metadata first
-                for (const meta of jettonMetadatas) {
-                    const friendlyAddress = await getFriendlyAddress(meta.address);
-                    resultsMap.set(meta.address, {
+                // Process jetton previews
+                for (const preview of jettonPreviews) {
+                    const friendlyAddress = await getFriendlyAddress(preview.address);
+                    resultsMap.set(preview.address, {
                         type: 'jetton',
-                        address: meta.address,
-                        image: meta.image,
-                        name: `${meta.name} (${meta.symbol})`,
+                        address: preview.address,
+                        image: preview.image, // Use the preview image, it's better than nothing
+                        name: `${preview.name} (${preview.symbol})`,
                         description: shortenAddress(friendlyAddress),
-                        verifiedTick: meta.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : ''
+                        verifiedTick: preview.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : ''
                     });
                 }
 
@@ -688,6 +675,7 @@
                         const item = document.createElement('div');
                         item.className = 'd-flex align-items-center p-2 mb-1 search-result-item';
                         item.dataset.address = res.address;
+                        item.dataset.type = res.type;
                         
                         item.innerHTML = `
                             <img src="${res.image}" class="me-3 search-result-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
@@ -699,7 +687,8 @@
                         item.addEventListener('click', () => {
                             searchResultsContainer.style.display = 'none';
                             searchInput.value = '';
-                            if (res.type === 'jetton') {
+                            if (item.dataset.type === 'jetton') {
+                                // Fetch full details only when clicked
                                 showJettonDetails(item.dataset.address);
                             } else {
                                 fetchAndDisplayAccountData(item.dataset.address);
@@ -715,12 +704,24 @@
                 searchResultsContainer.innerHTML = '<p class="text-danger text-center p-3">Search failed.</p>';
             }
         }
-        // ==============================================================
-        // === END: REVISED SEARCH LOGIC                                ===
-        // ==============================================================
 
-        if (searchButton) searchButton.addEventListener('click', handleSearch);
-        if (searchInput) searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSearch(); });
+        if (searchButton) searchButton.addEventListener('click', handleFastSearch);
+        // Add a debounce to the search input to avoid spamming the API while typing
+        if (searchInput) {
+            searchInput.addEventListener('keyup', (e) => {
+                clearTimeout(searchTimeout);
+                if (e.key === 'Enter') {
+                    handleFastSearch();
+                } else {
+                    searchTimeout = setTimeout(() => {
+                        handleFastSearch();
+                    }, 300); // Wait 300ms after user stops typing
+                }
+            });
+        }
+        // ==============================================================
+        // === END: NEW, FAST, AND RELIABLE SEARCH LOGIC              ===
+        // ==============================================================
         
         if (backToMyWalletBtn) {
             backToMyWalletBtn.addEventListener('click', () => { 
