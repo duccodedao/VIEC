@@ -86,6 +86,22 @@
         .search-result-item { cursor: pointer; padding: 10px; border-radius: 8px; transition: background-color 0.2s ease; }
         .search-result-item:hover { background-color: rgba(145, 94, 255, 0.1); }
         .search-result-item img { width: 32px; height: 32px; border-radius: 50%; }
+        
+        /* === START: COPY-ON-CLICK STYLE === */
+        .copyable-address {
+            cursor: pointer;
+            transition: color 0.2s;
+            font-family: monospace;
+        }
+        .copyable-address:hover {
+            color: var(--accent-secondary);
+        }
+        .copyable-address.copied {
+            color: var(--color-verified) !important;
+            font-weight: bold;
+        }
+        /* === END: COPY-ON-CLICK STYLE === */
+
 
         /* Modal Styles */
         .modal-content { background-color: #0c0f24; border: 1px solid var(--border-color); color: var(--text-primary); }
@@ -500,7 +516,9 @@
                         <i class="fas fa-wallet me-3" style="width: 48px; font-size: 24px; text-align: center; color: var(--accent-secondary);"></i>
                         <div><h5 class="m-0">Address</h5><p class="m-0 text-secondary">Viewing Wallet</p></div>
                     </div>
-                    <h6 class="m-0" style="font-family: monospace; cursor: help;" title="${userFriendlyAddress}">${shortenAddress(userFriendlyAddress)}</h6>
+                    <h6 class="m-0">
+                        <code class="copyable-address" data-address="${userFriendlyAddress}" title="Click to copy">${shortenAddress(userFriendlyAddress)}</code>
+                    </h6>
                 </div>`;
         };
 
@@ -541,12 +559,15 @@
                     const colorClass = log.direction === 'in' ? 'amount-in' : 'amount-out';
                     const amountDisplay = log.amount !== null ? `<p class="m-0 fw-bold ${colorClass}">${log.sign} ${log.amount.toLocaleString('en-US', {maximumFractionDigits: 4})} ${log.symbol}</p>` : `<p class="m-0 fw-bold">${log.symbol} Transfer</p>`;
                     const commentDisplay = log.comment ? `<div class="w-100 mt-2"><p class="m-0 text-secondary" style="font-size: 0.8rem; font-style: italic;"><i class="fas fa-comment-dots me-2"></i>${log.comment}</p></div>` : '';
+                    
+                    const partyAddressHtml = `<code class="copyable-address" data-address="${log.party_full}" title="Click to copy">${shortenAddress(log.party)}</code>`;
+
                     activityFeedContent.innerHTML += `
                      <div class="d-flex flex-wrap align-items-center py-3 border-bottom border-secondary border-opacity-25">
                         <img src="${log.image}" class="activity-item-icon me-3" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
                         <div class="flex-grow-1">
                             <p class="m-0 fw-bold">${statusIcon}${titleText}</p>
-                            <p class="m-0 text-secondary" style="font-size: 0.8rem;">${log.party_title}: ${shortenAddress(log.party)}</p>
+                            <p class="m-0 text-secondary" style="font-size: 0.8rem;">${log.party_title}: ${partyAddressHtml}</p>
                         </div>
                         <div class="text-end">
                             ${amountDisplay}
@@ -608,7 +629,7 @@
         });
 
         // ================================================================
-        // === START: CORRECTED, FAST, AND RELIABLE SEARCH LOGIC        ===
+        // === START: SEARCH LOGIC (FIXED & FEATURED)                   ===
         // ================================================================
         async function handleFastSearch() {
             const query = searchInput.value.trim();
@@ -627,25 +648,26 @@
             searchResultsContainer.innerHTML = `<div class="p-2 text-center text-secondary">${skeletonTx}</div>`;
             
             try {
-                const [accountSearchRes, jettonSearchRes] = await Promise.all([
+                // Use Promise.allSettled to prevent one failed search from stopping the other
+                const [accountSearchRes, jettonSearchRes] = await Promise.allSettled([
                     fetch(`${TON_API_BASE}/accounts/search?name=${encodeURIComponent(query)}`),
-                    // NOTE: The API for jetton search is /blockchain/accounts/search
                     fetch(`${TON_API_BASE}/blockchain/accounts/search?name=${encodeURIComponent(query)}`)
                 ]);
 
-                const accounts = accountSearchRes.ok ? (await accountSearchRes.json()).addresses : [];
-                // The structure for jettons is the same, let's call it "foundJettons"
-                const foundJettons = jettonSearchRes.ok ? (await jettonSearchRes.json()).addresses : [];
+                const accounts = (accountSearchRes.status === 'fulfilled' && accountSearchRes.value.ok) ? (await accountSearchRes.value.json()).addresses : [];
+                const foundJettons = (jettonSearchRes.status === 'fulfilled' && jettonSearchRes.value.ok) ? (await jettonSearchRes.value.json()).addresses : [];
 
                 const resultsMap = new Map();
 
-                // Process found jettons (same structure as accounts)
+                // Process found jettons first
                 for (const jetton of foundJettons) {
                     const friendlyAddress = await getFriendlyAddress(jetton.address);
                     resultsMap.set(jetton.address, {
-                        type: 'jetton', // We mark it as 'jetton' to handle the click differently
+                        type: 'jetton',
                         address: jetton.address,
-                        image: jetton.preview, // *** THE KEY FIX IS HERE: Use 'preview' field for the image ***
+                        full_address: friendlyAddress,
+                        // === FIX: Use 'preview' for jetton image from this endpoint ===
+                        image: jetton.preview,
                         name: jetton.name,
                         description: shortenAddress(friendlyAddress),
                         verifiedTick: jetton.trust === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : ''
@@ -659,7 +681,8 @@
                         resultsMap.set(acc.address, {
                             type: 'account',
                             address: acc.address,
-                            image: acc.icon, // Accounts use 'icon'
+                            full_address: friendlyAddress,
+                            image: acc.icon,
                             name: acc.name || 'Unnamed',
                             description: shortenAddress(friendlyAddress),
                             verifiedTick: acc.is_scam ? '' : (acc.trust === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '')
@@ -677,14 +700,19 @@
                         item.dataset.address = res.address;
                         item.dataset.type = res.type;
                         
+                        const addressHtml = `<code class="copyable-address" data-address="${res.full_address}" title="Click to copy">${res.description}</code>`;
+
                         item.innerHTML = `
                             <img src="${res.image}" class="me-3 search-result-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
                             <div class="flex-grow-1">
                                 <p class="m-0 fw-bold">${res.name} ${res.verifiedTick || ''}</p>
-                                <p class="m-0 text-secondary" style="font-family: monospace; font-size: 0.8rem;">${res.description}</p>
+                                <p class="m-0 text-secondary" style="font-size: 0.8rem;">${addressHtml}</p>
                             </div>`;
                         
-                        item.addEventListener('click', () => {
+                        item.addEventListener('click', (e) => {
+                            // Prevent click on address from triggering this listener
+                            if (e.target.classList.contains('copyable-address')) return;
+
                             searchResultsContainer.style.display = 'none';
                             searchInput.value = '';
                             if (item.dataset.type === 'jetton') {
@@ -718,7 +746,7 @@
             });
         }
         // ==============================================================
-        // === END: CORRECTED, FAST, AND RELIABLE SEARCH LOGIC        ===
+        // === END: SEARCH LOGIC                                      ===
         // ==============================================================
         
         if (backToMyWalletBtn) {
@@ -758,18 +786,20 @@
                 const data = await metadataRes.value.json();
                 jettonMetadata = data.metadata;
                 const friendlyJettonAddress = await getFriendlyAddress(jettonMetadata.address);
-                const verifiedTick = jettonMetadata.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
+                const verifiedTick = data.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
                 headerEl.innerHTML = `<img src="${jettonMetadata.image}" class="me-3 jetton-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png'"><h5 class="modal-title">${jettonMetadata.name} (${jettonMetadata.symbol}) ${verifiedTick}</h5>`;
                 
-                const addressLink = `<a href="https://tonviewer.com/${friendlyJettonAddress}" target="_blank" rel="noopener noreferrer" class="text-white"><code>${shortenAddress(friendlyJettonAddress, 10, 10)}</code></a>`;
+                const addressHtml = `<code class="copyable-address" data-address="${friendlyJettonAddress}" title="Click to copy">${shortenAddress(friendlyJettonAddress, 10, 10)}</code>`;
+                
                 metadataEl.innerHTML = `<p class="mb-3">${jettonMetadata.description || 'No description available.'}</p>
                     <div class="row g-3">
-                        <div class="col-12"><span class="metadata-key">Address:</span> <span class="fs-sm text-break">${addressLink}</span></div>
+                        <div class="col-12"><span class="metadata-key">Address:</span> <span class="fs-sm text-break">${addressHtml}</span></div>
                         <div class="col-md-6"><span class="metadata-key">Decimals:</span> ${jettonMetadata.decimals}</div>
                         <div class="col-md-6"><span class="metadata-key">Mintable:</span> ${data.mintable ? 'Yes' : 'No'}</div>
                         <div class="col-12"><span class="metadata-key">Total Supply:</span> ${Number(Number(BigInt(data.total_supply)) / (10 ** jettonMetadata.decimals)).toLocaleString('en-US')} ${jettonMetadata.symbol}</div>
                     </div>`;
             } else { 
+                headerEl.innerHTML = `<h5 class="modal-title text-danger">Error</h5>`;
                 metadataEl.innerHTML = `<p class="text-danger">Failed to load metadata.</p>`; 
             }
 
@@ -778,8 +808,12 @@
                 historyEl.innerHTML = '';
                 const historyLogs = (data.events ?? []).flatMap(event => parseEvent(event, jettonAddress));
                 if(historyLogs.length > 0) {
-                    historyLogs.forEach(log => {
-                       historyEl.innerHTML += `<div class="d-flex justify-content-between p-2 border-bottom border-secondary border-opacity-25"><small>${log.title}: ${log.sign} ${log.amount.toLocaleString()}</small><small class="text-secondary">${new Date(log.timestamp).toLocaleDateString()}</small></div>`;
+                    historyLogs.slice(0, 50).forEach(log => {
+                       const partyAddressHtml = `<code class="copyable-address" data-address="${log.party_full}" title="Click to copy">${shortenAddress(log.party)}</code>`;
+                       historyEl.innerHTML += `<div class="d-flex flex-wrap justify-content-between align-items-center p-2 border-bottom border-secondary border-opacity-25">
+                            <div><small>${log.title} to/from ${partyAddressHtml}</small></div>
+                            <div class="text-end"><small class="${log.direction === 'in' ? 'amount-in' : 'amount-out'}">${log.sign} ${log.amount.toLocaleString()}</small><br><small class="text-secondary">${new Date(log.timestamp).toLocaleDateString()}</small></div>
+                       </div>`;
                     });
                 } else { historyEl.innerHTML = `<p class="text-secondary text-center p-3">No transaction history found.</p>`; }
             } else { historyEl.innerHTML = `<p class="text-danger">Failed to load history.</p>`; }
@@ -791,10 +825,10 @@
                      const decimals = jettonMetadata?.decimals || 9;
                      for (const holder of data.owners) {
                         const friendlyHolderAddress = await getFriendlyAddress(holder.address);
-                        const holderAddressLink = `<a href="https://tonviewer.com/${friendlyHolderAddress}" target="_blank" rel="noopener noreferrer" class="text-white"><code>${shortenAddress(friendlyHolderAddress, 6, 6)}</code></a>`;
+                        const holderAddressHtml = `<code class="copyable-address" data-address="${friendlyHolderAddress}" title="Click to copy">${shortenAddress(friendlyHolderAddress, 6, 6)}</code>`;
                         
                         holdersEl.innerHTML += `<div class="d-flex justify-content-between p-2 border-bottom border-secondary border-opacity-25">
-                            <small>${holderAddressLink}</small>
+                            <small>${holderAddressHtml}</small>
                             <small><strong>${(Number(BigInt(holder.balance)) / (10 ** decimals)).toLocaleString('en-US', { maximumFractionDigits: 4 })}</strong></small>
                        </div>`;
                     };
@@ -809,7 +843,13 @@
                 try {
                     const log = { timestamp: event.timestamp * 1000, status: action.status, amount: null };
                     const isViewingAddress = (partyObj) => getRaw(partyObj) === viewingRawAddress || partyObj?.address === viewingRawAddress;
-                    const processParty = (partyObj) => getDisplayAddress(partyObj);
+                    
+                    const processParty = (partyObj) => {
+                        return {
+                            short: partyObj?.name || shortenAddress(partyObj?.address),
+                            full: partyObj?.address // Always the friendly (non-raw) version from the API
+                        };
+                    };
 
                     if (action.type === 'TonTransfer' && action.TonTransfer) {
                         const t = action.TonTransfer;
@@ -818,7 +858,9 @@
                         log.title = "TON Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
                         log.amount = Number(t.amount) / 1e9;
                         log.symbol = 'TON'; log.party_title = log.direction === 'out' ? 'To' : 'From';
-                        log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
+                        const partyInfo = processParty(log.direction === 'out' ? t.recipient : t.sender);
+                        log.party = partyInfo.short;
+                        log.party_full = partyInfo.full;
                         log.image = 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
                         if (log.party) logs.push(log);
                     } else if (action.type === 'JettonTransfer' && action.JettonTransfer) {
@@ -828,7 +870,9 @@
                         log.title = "Jetton Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
                         log.amount = Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9));
                         log.symbol = t.jetton?.symbol || 'Token'; log.party_title = log.direction === 'out' ? 'To' : 'From';
-                        log.party = processParty(log.direction === 'out' ? t.recipient : t.sender);
+                        const partyInfo = processParty(log.direction === 'out' ? t.recipient : t.sender);
+                        log.party = partyInfo.short;
+                        log.party_full = partyInfo.full;
                         log.image = t.jetton?.image || 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
                         if (log.party) logs.push(log);
                     }
@@ -869,6 +913,28 @@
                 newsContentArea.innerHTML = '<p class="text-danger text-center">Could not load news feed. Please try again later.</p>';
             }
         }
+
+        // === START: COPY-ON-CLICK FEATURE ===
+        document.body.addEventListener('click', (e) => {
+            const target = e.target.closest('.copyable-address');
+            if (target) {
+                const address = target.dataset.address;
+                if (address) {
+                    navigator.clipboard.writeText(address).then(() => {
+                        const originalText = target.textContent;
+                        target.textContent = 'Copied!';
+                        target.classList.add('copied');
+                        setTimeout(() => {
+                            target.textContent = originalText;
+                            target.classList.remove('copied');
+                        }, 1500);
+                    }).catch(err => {
+                        console.error('Failed to copy: ', err);
+                    });
+                }
+            }
+        });
+        // === END: COPY-ON-CLICK FEATURE ===
 
         if (!tonConnectUI.connected) {
             showDashboard(false);
@@ -947,8 +1013,8 @@
             const appFilterControls = document.getElementById('app-filter-controls');
 
             const renderApps = () => {
-                if (typeof appsData === 'undefined') {
-                    console.error('App data is not loaded yet!');
+                if (typeof appsData === 'undefined' || !appGrid) {
+                    // console.error('App data is not loaded yet or appGrid not found!');
                     return;
                 }
                 
@@ -1002,7 +1068,8 @@
                     history.pushState(null, null, '#apps');
                 } else { 
                     navDashboard.classList.add('active');
-                    const isWalletConnected = tonConnectUI.connected;
+                    // This logic depends on tonConnectUI being available globally.
+                    const isWalletConnected = window.tonConnectUI && window.tonConnectUI.connected;
                     if (isWalletConnected) {
                         dashboardSection.style.display = 'block';
                     } else {
