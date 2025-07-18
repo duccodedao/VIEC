@@ -201,14 +201,14 @@
             box-shadow: 0 0 15px rgba(145, 94, 255, 0.5);
         }
         
-        /* Styling for each app item card */
+        /* FIX: Styling for each app item card (made smaller) */
         .app-item {
             display: block;
             text-decoration: none;
             background: var(--card-color);
             border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 1.5rem 1rem;
+            border-radius: 16px; /* Slightly smaller radius */
+            padding: 1.25rem 1rem; /* Reduced padding */
             text-align: center;
             transition: all 0.3s ease;
             height: 100%;
@@ -221,9 +221,9 @@
             border-color: var(--accent-primary);
         }
         .app-item-img-wrapper {
-            width: 90px;
-            height: 90px;
-            border-radius: 25%;
+            width: 75px; /* Reduced image size */
+            height: 75px; /* Reduced image size */
+            border-radius: 20%; /* Adjusted radius */
             margin: 0 auto 1rem;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             overflow: hidden;
@@ -235,27 +235,10 @@
         }
         .app-item-name {
             display: block;
-            font-weight: 600;
-            font-size: 1.1rem;
+            font-weight: 500; /* Slightly lighter weight */
+            font-size: 1rem; /* Reduced font size */
             color: var(--text-primary);
             line-height: 1.3;
-        }
-
-        /* Search input styling */
-        .app-search-input {
-            background-color: rgba(23, 27, 48, 0.8) !important; 
-            border-color: var(--border-color) !important; 
-            color: var(--text-primary) !important;
-            border-left: 0 !important;
-            border-radius: 0 8px 8px 0 !important;
-        }
-        .app-search-input::placeholder { color: var(--text-secondary); }
-        .app-search-icon {
-            background-color: rgba(23, 27, 48, 0.8) !important; 
-            border-color: var(--border-color) !important; 
-            color: var(--accent-primary) !important; 
-            border-right: 0 !important;
-            border-radius: 8px 0 0 8px !important;
         }
 
         /*
@@ -272,7 +255,6 @@
 <body>
     <div id="sidebar-overlay"></div>
     <nav id="sidebar-menu" class="sidebar">
-        <!-- MODIFIED: Added IDs and active class to sidebar links -->
         <div class="sidebar-nav">
             <a href="#" class="sidebar-link active" id="nav-dashboard">Dashboard</a>
             <a href="#" class="sidebar-link" id="nav-apps">Apps</a>
@@ -370,14 +352,12 @@
                     <p class="lead text-secondary col-md-8 mx-auto">Các ứng dụng, game và công cụ mạnh mẽ nhất trong hệ sinh thái.</p>
                 </div>
 
-                <!-- Search and Filter Controls -->
+                <!-- FIX: Search bar unified with Dashboard's search bar -->
                 <div class="row mb-4">
-                    <div class="col-lg-6 offset-lg-3 col-md-8 offset-md-2">
-                        <div class="input-group">
-                            <span class="input-group-text app-search-icon">
-                                <i class="fas fa-search"></i>
-                            </span>
-                            <input type="text" id="app-search-input" class="form-control app-search-input" placeholder="Tìm kiếm theo tên...">
+                    <div class="col-lg-8 offset-lg-2">
+                         <div class="input-group">
+                            <input type="text" id="app-search-input" class="form-control" placeholder="Tìm kiếm theo tên..." style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--text-primary); border-right: 0;">
+                            <button class="btn" id="app-search-button" style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--accent-primary);"><i class="fas fa-search"></i></button>
                         </div>
                     </div>
                 </div>
@@ -391,9 +371,9 @@
                     <button class="app-filter-btn" data-filter="Tiện ích">Tiện ích</button>
                 </div>
 
-                <!-- App Grid -->
-                <div id="app-grid" class="row g-4">
-                    <!-- App cards will be dynamically inserted here by the new JavaScript -->
+                <!-- FIX: App Grid with tighter gap -->
+                <div id="app-grid" class="row g-3">
+                    <!-- App cards will be dynamically inserted here -->
                 </div>
             </div>
         </main>
@@ -493,7 +473,9 @@
         heroConnectButton.style = 'background-color: var(--accent-primary); color: white; font-weight: 600;';
         heroConnectButton.textContent = 'Connect Wallet';
         heroConnectButton.addEventListener('click', () => tonConnectUI.openModal());
-        connectWalletHeroBtnContainer.appendChild(heroConnectButton);
+        if (connectWalletHeroBtnContainer) {
+            connectWalletHeroBtnContainer.appendChild(heroConnectButton);
+        }
         
         const toggleSidebar = () => {
             hamburgerBtn.classList.toggle('open');
@@ -506,7 +488,9 @@
         const showDashboard = (show) => {
             dashboardEl.style.display = show ? 'block' : 'none';
             heroEl.style.display = show ? 'none' : 'flex';
-            newsSection.style.display = show ? 'block' : 'none';
+            if (newsSection) {
+               newsSection.style.display = show ? 'block' : 'none';
+            }
         };
         const setSkeletonLoaders = () => {
             mainAssetsContent.innerHTML = skeletonAsset + skeletonAsset;
@@ -722,7 +706,9 @@
         });
         window.addEventListener('click', (e) => { 
             if (customWalletContainer && !customWalletContainer.contains(e.target)) walletDropdown.style.display = 'none';
-            if (!document.getElementById('account-search-section').contains(e.target)) searchResultsContainer.style.display = 'none';
+            if (document.getElementById('account-search-section') && !document.getElementById('account-search-section').contains(e.target)) {
+               if(searchResultsContainer) searchResultsContainer.style.display = 'none';
+            }
         });
 
         async function handleSearch() {
@@ -760,14 +746,16 @@
                 } catch (error) { console.error('Error during account search:', error); searchResultsContainer.innerHTML = '<p class="text-danger text-center p-3">Search failed.</p>'; }
             }
         }
-        searchButton.addEventListener('click', handleSearch);
-        searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSearch(); });
-        backToMyWalletBtn.addEventListener('click', () => { if (connectedWalletAddress) { fetchAndDisplayAccountData(connectedWalletAddress); } });
-
-        otherTokensContent.addEventListener('click', (e) => {
-            const jettonItem = e.target.closest('.jetton-item');
-            if (jettonItem) showJettonDetails(jettonItem.dataset.jettonAddress);
-        });
+        if (searchButton) searchButton.addEventListener('click', handleSearch);
+        if (searchInput) searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSearch(); });
+        if (backToMyWalletBtn) backToMyWalletBtn.addEventListener('click', () => { if (connectedWalletAddress) { fetchAndDisplayAccountData(connectedWalletAddress); } });
+        
+        if (otherTokensContent) {
+            otherTokensContent.addEventListener('click', (e) => {
+                const jettonItem = e.target.closest('.jetton-item');
+                if (jettonItem) showJettonDetails(jettonItem.dataset.jettonAddress);
+            });
+        }
 
         async function showJettonDetails(jettonAddress) {
             jettonDetailModal.show();
@@ -895,6 +883,7 @@
 
         async function fetchCryptoNews() {
             const API_URL = 'https://min-api.cryptocompare.com/data/v2/news/?lang=EN&limit=20';
+            if (!newsContentArea) return;
             newsContentArea.innerHTML = `<div class="news-grid">${skeletonTx.repeat(3)}</div>`;
             try {
                 const response = await fetch(API_URL);
@@ -926,8 +915,8 @@
         }
 
         if (!tonConnectUI.connected) {
+            showDashboard(false);
             fetchCryptoNews();
-            newsSection.style.display = 'block';
         }
     });
     </script>
@@ -936,7 +925,7 @@
     <!-- SCRIPT MỚI, TÁCH BIỆT CHO MENU APP (ĐÃ SỬA LỖI) -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- DATA for Mini Apps (Bạn có thể dễ dàng thêm/sửa/xóa ứng dụng tại đây) ---
+            // --- DATA for Mini Apps ---
             const appsData = [
                 { name: 'TapSwap', image: 'https://miro.medium.com/v2/resize:fit:1400/1*b2s_1a2c4i2f_Q2jZ1jQZw.png', link: 'https://t.me/tapswap_bot', category: ['AirDrop', 'Game'] },
                 { name: 'Catizen', image: 'https://pbs.twimg.com/profile_images/1792945229143355392/tVer2oI1_400x400.jpg', link: 'https://t.me/catizenbot', category: ['AirDrop', 'Game', 'Niêm yết'] },
@@ -962,6 +951,7 @@
             
             const appGrid = document.getElementById('app-grid');
             const appSearchInput = document.getElementById('app-search-input');
+            const appSearchButton = document.getElementById('app-search-button');
             const appFilterControls = document.getElementById('app-filter-controls');
 
             // --- Functions ---
@@ -988,8 +978,7 @@
 
                 filteredApps.forEach(app => {
                     const appCard = document.createElement('div');
-                    // FIX 2: Bố cục 2 cột trên mobile, 4 cột trên tablet và lớn hơn
-                    appCard.className = 'col-6 col-md-3';
+                    appCard.className = 'col-6 col-md-3'; // 2 columns on mobile, 4 on medium screens and up
                     appCard.innerHTML = `
                         <a href="${app.link}" target="_blank" rel="noopener noreferrer" class="app-item">
                             <div class="app-item-img-wrapper">
@@ -1004,7 +993,9 @@
 
             const switchView = (viewToShow) => {
                 const allSections = [dashboardSection, heroSection, newsSection, appStoreSection];
-                allSections.forEach(section => section.style.display = 'none');
+                allSections.forEach(section => {
+                    if(section) section.style.display = 'none';
+                });
 
                 navDashboard.classList.remove('active');
                 navApps.classList.remove('active');
@@ -1015,22 +1006,17 @@
                 } else { // 'dashboard' view
                     navDashboard.classList.add('active');
                     
-                    // FIX 1: Logic hiển thị lại Dashboard/Hero một cách chính xác
-                    // Chúng ta kiểm tra trạng thái kết nối bằng cách xem nút custom wallet có hiển thị không
                     const customWalletContainer = document.getElementById('custom-wallet-button-container');
+                    const isWalletConnected = customWalletContainer && customWalletContainer.style.display === 'block';
 
-                    if (customWalletContainer && customWalletContainer.style.display === 'block') {
-                        // Đã kết nối: hiển thị dashboard chính
+                    if (isWalletConnected) {
                         dashboardSection.style.display = 'block';
                     } else {
-                        // Chưa kết nối: hiển thị màn hình chào mừng (hero)
-                        heroSection.style.display = 'flex'; // Sử dụng flex như trong script gốc
+                        heroSection.style.display = 'flex';
                     }
-                    // Mục tin tức luôn hiển thị ở trang chính
-                    newsSection.style.display = 'block';
+                    if(newsSection) newsSection.style.display = 'block';
                 }
 
-                // Đóng sidebar sau khi điều hướng (nếu đang mở)
                 const sidebarMenu = document.getElementById('sidebar-menu');
                 if (sidebarMenu.classList.contains('open')) {
                     document.getElementById('hamburger-menu-btn').click();
@@ -1049,6 +1035,8 @@
             });
 
             appSearchInput.addEventListener('input', renderApps);
+            appSearchButton.addEventListener('click', renderApps);
+            appSearchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') renderApps(); });
 
             appFilterControls.addEventListener('click', (e) => {
                 const target = e.target.closest('.app-filter-btn');
@@ -1061,6 +1049,8 @@
 
             // --- Initial Render ---
             renderApps();
+            // Let the original script handle the initial view
+            // The dashboard link is active by default in the HTML
         });
     </script>
 </body>
