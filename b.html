@@ -933,7 +933,7 @@
     </script>
 
 
-    <!-- SCRIPT MỚI, TÁCH BIỆT CHO MENU APP -->
+    <!-- SCRIPT MỚI, TÁCH BIỆT CHO MENU APP (ĐÃ SỬA LỖI) -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- DATA for Mini Apps (Bạn có thể dễ dàng thêm/sửa/xóa ứng dụng tại đây) ---
@@ -988,7 +988,8 @@
 
                 filteredApps.forEach(app => {
                     const appCard = document.createElement('div');
-                    appCard.className = 'col-6 col-md-4 col-xl-3'; // Responsive grid
+                    // FIX 2: Bố cục 2 cột trên mobile, 4 cột trên tablet và lớn hơn
+                    appCard.className = 'col-6 col-md-3';
                     appCard.innerHTML = `
                         <a href="${app.link}" target="_blank" rel="noopener noreferrer" class="app-item">
                             <div class="app-item-img-wrapper">
@@ -1002,8 +1003,8 @@
             };
 
             const switchView = (viewToShow) => {
-                const mainSections = [dashboardSection, heroSection, newsSection, appStoreSection];
-                mainSections.forEach(section => section.style.display = 'none');
+                const allSections = [dashboardSection, heroSection, newsSection, appStoreSection];
+                allSections.forEach(section => section.style.display = 'none');
 
                 navDashboard.classList.remove('active');
                 navApps.classList.remove('active');
@@ -1012,18 +1013,24 @@
                     appStoreSection.style.display = 'block';
                     navApps.classList.add('active');
                 } else { // 'dashboard' view
-                    // Let the original script handle visibility of dashboard/hero/news
-                    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json' });
-                    if (tonConnectUI.connected) {
+                    navDashboard.classList.add('active');
+                    
+                    // FIX 1: Logic hiển thị lại Dashboard/Hero một cách chính xác
+                    // Chúng ta kiểm tra trạng thái kết nối bằng cách xem nút custom wallet có hiển thị không
+                    const customWalletContainer = document.getElementById('custom-wallet-button-container');
+
+                    if (customWalletContainer && customWalletContainer.style.display === 'block') {
+                        // Đã kết nối: hiển thị dashboard chính
                         dashboardSection.style.display = 'block';
                     } else {
-                        heroSection.style.display = 'block';
+                        // Chưa kết nối: hiển thị màn hình chào mừng (hero)
+                        heroSection.style.display = 'flex'; // Sử dụng flex như trong script gốc
                     }
-                    newsSection.style.display = 'block'; // News is always visible in dashboard view
-                    navDashboard.classList.add('active');
+                    // Mục tin tức luôn hiển thị ở trang chính
+                    newsSection.style.display = 'block';
                 }
 
-                 // Close sidebar after navigation if it's open
+                // Đóng sidebar sau khi điều hướng (nếu đang mở)
                 const sidebarMenu = document.getElementById('sidebar-menu');
                 if (sidebarMenu.classList.contains('open')) {
                     document.getElementById('hamburger-menu-btn').click();
