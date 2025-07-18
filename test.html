@@ -143,7 +143,6 @@
         .app-item-img { width: 100%; height: 100%; object-fit: cover; }
         .app-item-name { display: block; font-weight: 500; font-size: 0.9rem; color: var(--text-primary); line-height: 1.3; margin-top: 0.75rem; text-align: center; }
         
-        /* --- NEW: Toast Notification Styles --- */
         .toast-notification {
             position: fixed;
             top: 20px;
@@ -319,10 +318,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="apps-data.js"></script>
-    <!-- DỮ LIỆU MẪU CHO CÁC ỨNG DỤNG -->
-
     
-    <!-- SCRIPT CHÍNH (ĐÃ HỢP NHẤT) -->
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // === KHAI BÁO BIẾN TOÀN CỤC ===
@@ -502,7 +498,7 @@
                 lastFetchedAddress = addressToFetch;
                 setSkeletonLoaders(true);
             } else {
-                setSkeletonLoaders(false); // Refreshing, so don't show skeleton for activity
+                setSkeletonLoaders(false); 
             }
 
             searchResultsContainer.style.display = 'none';
@@ -530,11 +526,9 @@
                 const eventsInfo = eventsRes.ok ? await eventsRes.json() : { events: [] };
                 const coingeckoInfo = coingeckoRes.ok ? await coingeckoRes.json() : null;
                 
-                // Process only new activities
                 const newLogs = (eventsInfo.events ?? []).flatMap((event, i) => parseEvent(event, accountInfo.address, i));
                 processNewActivity(newLogs);
                 
-                // Render other sections
                 await renderMainAssets(accountInfo, coingeckoInfo);
                 renderOtherTokens(jettonsInfo.balances ?? []);
                 renderNFTs(nftsInfo.nft_items ?? []);
@@ -556,7 +550,6 @@
                 currentActivityLogs = [...genuinelyNewLogs, ...currentActivityLogs];
                 showTransactionPopup(genuinelyNewLogs[0]);
             } else if (currentActivityLogs.length === 0) {
-                // Initial load: populate the feed for the first time
                 const initialLogsHtml = newLogs.slice(0, 50).map(log => renderSingleActivityItem(log)).join('');
                 activityFeedContent.innerHTML = initialLogsHtml;
                 currentActivityLogs = newLogs.slice(0, 50);
@@ -600,7 +593,7 @@
             event.actions.forEach((action, actionIndex) => {
                 try {
                     const log = { 
-                        hash: `${event.hash}-${actionIndex}`, // Create a unique ID for each action
+                        hash: `${event.hash}-${actionIndex}`,
                         timestamp: event.timestamp * 1000, 
                         status: action.status, 
                         amount: null 
@@ -663,7 +656,6 @@
             }
         }
         
-        // === LOGIC TÌM KIẾM (ĐÃ SỬA) ===
         async function handleFastSearch() {
             const query = searchInput.value.trim();
             if (!query) {
@@ -729,7 +721,7 @@
             }
         }
         
-        // === LOGIC MODAL ===
+        // === LOGIC MODAL (ĐÃ CẬP NHẬT) ===
         async function showJettonDetails(jettonAddress) {
             jettonDetailModal.show();
             const headerEl = document.getElementById('jetton-modal-header-content');
@@ -755,7 +747,7 @@
                 jettonMetadata = data.metadata;
 
                 if (holdersTabBtn && data.holders_count) {
-                    holdersTabBtn.textContent = `Holders (${data.holders_count})`;
+                    holdersTabBtn.textContent = `Holders (${data.total || data.holders_count})`;
                 }
 
                 const friendlyJettonAddress = await getFriendlyAddress(jettonMetadata.address);
@@ -778,26 +770,30 @@
                 } else { historyEl.innerHTML = `<p class="text-secondary text-center p-3">No history found.</p>`; }
             } else { historyEl.innerHTML = `<p class="text-danger">Failed to load history.</p>`; }
 
+            // PHẦN CODE XỬ LÝ HOLDER ĐÃ ĐƯỢC CẬP NHẬT
             if (holdersRes.status === 'fulfilled' && holdersRes.value.ok) {
                 const data = await holdersRes.value.json();
-                if (data.holders?.length > 0) {
+                const holdersList = data.addresses || data.holders; // Sử dụng key 'addresses' từ ví dụ, hoặc 'holders' làm phương án dự phòng
+                
+                if (holdersList?.length > 0) {
                     holdersEl.innerHTML = '';
                     const decimals = jettonMetadata?.decimals || 9;
-                    for (const holder of data.holders) {
+                    for (const holder of holdersList) {
                        const ownerWalletAddress = holder.owner.address;
                        const displayName = holder.owner.name || shortenAddress(await getFriendlyAddress(ownerWalletAddress), 6, 6);
                        const holderAddressHtml = `<code class="copyable-address" data-address="${ownerWalletAddress}" title="Click to copy: ${ownerWalletAddress}">${displayName}</code>`;
-                       
-                       holdersEl.innerHTML += `<div class="d-flex justify-content-between p-2 border-bottom border-secondary border-opacity-25">
-                                                <small>${holderAddressHtml}</small>
-                                                <small><strong>${(Number(BigInt(holder.balance)) / (10 ** decimals)).toLocaleString('en-US', { maximumFractionDigits: 4 })}</strong></small>
+                       const balance = (Number(BigInt(holder.balance)) / (10 ** decimals)).toLocaleString('en-US', { maximumFractionDigits: 6 });
+
+                       holdersEl.innerHTML += `<div class="d-flex justify-content-between align-items-center p-2 border-bottom border-secondary border-opacity-25">
+                                                <small class="text-break">${holderAddressHtml}</small>
+                                                <small class="text-end ps-2"><strong>${balance}</strong></small>
                                             </div>`;
                     }
                 } else { holdersEl.innerHTML = `<p class="text-secondary text-center p-3">No holders found.</p>`; }
             } else { holdersEl.innerHTML = `<p class="text-danger">Failed to load holders.</p>`; }
         }
 
-        // === LOGIC CHUYỂN VIEW (ĐÃ HỢP NHẤT) ===
+        // === LOGIC CHUYỂN VIEW ===
         const switchView = (viewToShow) => {
             [dashboardEl, heroEl, newsSection, appStoreSection].forEach(section => {
                 if(section) section.style.display = 'none';
@@ -853,7 +849,7 @@
         sidebarOverlay.addEventListener('click', toggleSidebar);
 
         tonConnectUI.onStatusChange(async (wallet) => {
-            clearInterval(activityRefreshInterval); // Always clear interval on status change
+            clearInterval(activityRefreshInterval); 
             if (wallet) {
                 connectedWalletAddress = wallet.account.address;
                 const friendlyAddress = await getFriendlyAddress(connectedWalletAddress);
@@ -872,11 +868,10 @@
                 switchView('dashboard');
                 await fetchAndDisplayAccountData(connectedWalletAddress);
 
-                // Start refreshing activity for the connected wallet
                 activityRefreshInterval = setInterval(() => {
                     console.log('Refreshing activity for connected wallet...');
                     fetchAndDisplayAccountData(connectedWalletAddress);
-                }, 30000); // Refresh every 30 seconds
+                }, 30000); 
 
             } else {
                 connectedWalletAddress = null;
@@ -887,7 +882,7 @@
                 appLogoImg.src = DEFAULT_LOGO_SRC;
                 appLogoImg.style.borderRadius = '0';
                 appLogoText.textContent = '';
-                switchView('dashboard'); // Switch to hero view
+                switchView('dashboard'); 
             }
         });
         
@@ -923,7 +918,6 @@
             if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none';
         });
 
-        // --- Event Listeners for App Store and Navigation ---
         navDashboard.addEventListener('click', (e) => { e.preventDefault(); switchView('dashboard'); });
         navApps.addEventListener('click', (e) => { e.preventDefault(); switchView('apps'); });
         appSearchInput.addEventListener('input', renderApps);
@@ -946,11 +940,11 @@
         heroConnectButton.addEventListener('click', () => tonConnectUI.openModal());
         connectWalletHeroBtnContainer.appendChild(heroConnectButton);
         
-        renderApps(); // Initial render for app store
-        fetchCryptoNews(); // Fetch news on load
+        renderApps(); 
+        fetchCryptoNews(); 
         
         if (!tonConnectUI.connected) {
-            switchView('dashboard'); // This will show the hero section
+            switchView('dashboard'); 
         }
     });
     </script>
