@@ -364,7 +364,7 @@
                 <!-- /// MODIFIED: Added DEX and CEX buttons /// -->
                 <div id="app-filter-controls" class="app-filter-bar">
                     <button class="app-filter-btn active" data-filter="all">Tất cả</button>
-                    <button class="app-filter-btn" data-filter="Airdrop">Airdrop</button>
+                    <button class="app-filter-btn" data-filter="AirDrop">AirDrop</button>
                     <button class="app-filter-btn" data-filter="DePIN">DePIN</button>
                     <button class="app-filter-btn" data-filter="DEX">DEX</button>
                     <button class="app-filter-btn" data-filter="CEX">CEX</button>
@@ -923,5 +923,154 @@
     });
     </script>
 
+
+
+
+
+
+
+
+
+        <!-- ... (phần còn lại của body và các thẻ script khác) ... -->
+
+    <!-- /// TẢI FILE DỮ LIỆU APP TRƯỚC /// -->
+    <script src="apps-data.js"></script>
+
+    <!-- /// SCRIPT LOGIC CỦA MENU APP (KHÔNG CÒN CHỨA DỮ LIỆU) /// -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DỮ LIỆU ĐÃ ĐƯỢC CHUYỂN RA FILE apps-data.js ---
+            // Biến 'appsData' bây giờ đã có sẵn để sử dụng từ file vừa tải.
+
+            // --- Element Selectors ---
+            const navDashboard = document.getElementById('nav-dashboard');
+            const navApps = document.getElementById('nav-apps');
+            const dashboardSection = document.getElementById('dashboard');
+            const heroSection = document.getElementById('hero-section');
+            const newsSection = document.getElementById('crypto-news-feed');
+            const appStoreSection = document.getElementById('app-store-section');
+            
+            const appGrid = document.getElementById('app-grid');
+            const appSearchInput = document.getElementById('app-search-input');
+            const appSearchButton = document.getElementById('app-search-button');
+            const appFilterControls = document.getElementById('app-filter-controls');
+
+            // --- Functions ---
+            const renderApps = () => {
+                // Kiểm tra xem appsData đã được tải chưa
+                if (typeof appsData === 'undefined') {
+                    console.error('App data is not loaded yet!');
+                    return;
+                }
+                
+                const searchTerm = appSearchInput.value.toLowerCase();
+                const activeFilter = appFilterControls.querySelector('.app-filter-btn.active').dataset.filter;
+
+                let filteredApps = appsData;
+
+                if (activeFilter !== 'all') {
+                    filteredApps = filteredApps.filter(app => app.category.includes(activeFilter));
+                }
+
+                if (searchTerm) {
+                    filteredApps = filteredApps.filter(app => app.name.toLowerCase().includes(searchTerm));
+                }
+                
+                appGrid.innerHTML = '';
+
+                if (filteredApps.length === 0) {
+                    appGrid.innerHTML = `<div class="col-12 text-center mt-4"><p class="text-secondary fs-5">Không tìm thấy ứng dụng phù hợp.</p></div>`;
+                    return;
+                }
+
+                filteredApps.forEach(app => {
+                    const appCard = document.createElement('div');
+                    appCard.className = 'col-3 col-md-3';
+                    appCard.innerHTML = `
+                        <a href="${app.link}" target="_blank" rel="noopener noreferrer" class="app-item">
+                            <div class="app-item-img-wrapper">
+                               <img src="${app.image}" alt="${app.name} logo" class="app-item-img" onerror="this.src='https://via.placeholder.com/90?text=App';">
+                            </div>
+                            <span class="app-item-name">${app.name}</span>
+                        </a>
+                    `;
+                    appGrid.appendChild(appCard);
+                });
+            };
+
+            const switchView = (viewToShow) => {
+                const allSections = [dashboardSection, heroSection, newsSection, appStoreSection];
+                allSections.forEach(section => {
+                    if(section) section.style.display = 'none';
+                });
+
+                navDashboard.classList.remove('active');
+                navApps.classList.remove('active');
+
+                if (viewToShow === 'apps') {
+                    appStoreSection.style.display = 'block';
+                    navApps.classList.add('active');
+                    history.pushState(null, null, '#apps');
+                } else { 
+                    navDashboard.classList.add('active');
+                    
+                    const customWalletContainer = document.getElementById('custom-wallet-button-container');
+                    const isWalletConnected = customWalletContainer && customWalletContainer.style.display === 'block';
+
+                    if (isWalletConnected) {
+                        dashboardSection.style.display = 'block';
+                    } else {
+                        heroSection.style.display = 'flex';
+                    }
+                    if(newsSection) newsSection.style.display = 'block';
+                    history.pushState(null, null, ' '); 
+                }
+
+                const sidebarMenu = document.getElementById('sidebar-menu');
+                if (sidebarMenu.classList.contains('open')) {
+                    document.getElementById('hamburger-menu-btn').click();
+                }
+            };
+
+            // --- Event Listeners ---
+            navDashboard.addEventListener('click', (e) => {
+                e.preventDefault();
+                switchView('dashboard');
+            });
+
+            navApps.addEventListener('click', (e) => {
+                e.preventDefault();
+                switchView('apps');
+            });
+
+            appSearchInput.addEventListener('input', renderApps);
+            appSearchButton.addEventListener('click', renderApps);
+            appSearchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') renderApps(); });
+
+            appFilterControls.addEventListener('click', (e) => {
+                const target = e.target.closest('.app-filter-btn');
+                if (target) {
+                    appFilterControls.querySelector('.active').classList.remove('active');
+                    target.classList.add('active');
+                    renderApps();
+                }
+            });
+
+            // --- Initial Render & View Setup ---
+            renderApps();
+
+            if (window.location.hash === '#apps') {
+                switchView('apps');
+            } else {
+                // switchView('dashboard') được xử lý bởi logic kết nối ví ở script trên
+                // nhưng để chắc chắn, ta có thể gọi nó ở đây
+                 const customWalletContainer = document.getElementById('custom-wallet-button-container');
+                 const isWalletConnected = customWalletContainer && customWalletContainer.style.display === 'block';
+                 if (!isWalletConnected) {
+                    switchView('dashboard'); // Hiển thị hero/dashboard mặc định
+                 }
+            }
+        });
+    </script>
 </body>
 </html>
