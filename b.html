@@ -2,11 +2,11 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <title>Bmass App & Wallet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NEURALIS - The VIEC Experience</title>
 
     <!-- Meta SEO -->
-    <meta name="description" content="Khám phá Mini Apps và quản lý tài sản TON của bạn, tất cả trong một nơi.">
+    <meta name="description" content="NEURALIS: Trải nghiệm Web3 đỉnh cao. Khám phá các Mini App hàng đầu và quản lý tài sản TON của bạn một cách trực quan.">
     <link rel="icon" href="https://duccodedao.github.io/VIEC/img/logo.png" type="image/png">
 
     <!-- Libraries -->
@@ -26,6 +26,7 @@
             --card-color: rgba(23, 27, 48, 0.5);
             --border-color: rgba(145, 94, 255, 0.2);
             --accent-primary: #915EFF;
+            --accent-secondary: #2BCBC4;
             --text-primary: #f1f2f6;
             --text-secondary: #aaa6c3;
             --color-in: #2BCBC4;
@@ -42,271 +43,424 @@
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             overflow-x: hidden;
-            padding-bottom: 80px; /* Space for bottom nav */
+            font-size: 16px;
         }
 
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
-        .main-container { max-width: 1400px; padding: 1.5rem 1rem; margin: auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; }
-        .header-logo { display: flex; align-items: center; text-decoration: none; color: var(--text-primary); gap: 10px; }
-        .header-logo img { height: 40px; width: 40px; object-fit: cover; border-radius: 8px; }
+        .main-container { max-width: 1400px; padding: 2rem 1rem; margin: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 2rem; }
+        .header-logo { display: flex; align-items: center; text-decoration: none; color: var(--text-primary); gap: 10px; z-index: 1100; }
+        .header-logo img { height: 40px; width: 40px; object-fit: cover; transition: all 0.3s ease; }
         .header-logo span { font-size: 1.1rem; font-weight: 600; }
         
         .card-glass { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 1.5rem; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: all 0.3s ease; height: 100%; }
+        .card-glass:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
         .card-title { font-weight: 600; margin-bottom: 1.5rem; font-size: 1.25rem; }
         
         .hero-section { text-align: center; padding: 4rem 0; }
         .hero-section h1 { font-size: 2.5rem; font-weight: 700; }
         .hero-section .highlight { color: var(--accent-primary); }
+
+        .skeleton-loader { background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); background-size: 200% 100%; border-radius: 8px; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .skeleton-line { height: 20px; margin-bottom: 10px; }
         
-        /* App Menu Styles */
-        .app-menu-item { text-align: center; text-decoration: none; color: var(--text-primary); display: block; padding: 10px; transition: all 0.2s ease-in-out; }
-        .app-menu-item:hover { transform: scale(1.05); background-color: var(--card-color); border-radius: 12px; }
-        .app-menu-item img { width: 64px; height: 64px; border-radius: 16px; margin-bottom: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .app-menu-item .app-name { font-size: 0.85rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
 
-        #custom-wallet-button { background: var(--accent-primary); color: white; border: none; padding: 8px 16px; border-radius: 25px; font-weight: 500; cursor: pointer; }
-        #wallet-dropdown { display: none; position: absolute; right: 0; top: calc(100% + 5px); background-color: #171b30; border: 1px solid var(--border-color); border-radius: 8px; z-index: 1000; min-width: 180px; box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
-        #wallet-dropdown a { color: var(--text-primary); padding: 12px 16px; text-decoration: none; display: block; font-size: 0.9rem; }
-        #wallet-dropdown a:hover { background-color: rgba(145, 94, 255, 0.2); }
-        #wallet-dropdown a i { margin-right: 10px; width: 15px; text-align: center; }
+        /* --- START: Sidebar and Hamburger Menu --- */
+        .hamburger-btn {
+            width: 40px; height: 40px;
+            background: transparent; border: none;
+            padding: 0; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            gap: 5px; cursor: pointer; z-index: 1100;
+        }
+        .hamburger-btn span {
+            display: block; width: 24px; height: 2px;
+            background-color: var(--text-primary);
+            border-radius: 2px; transition: all 0.3s ease-in-out;
+        }
+        .hamburger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger-btn.open span:nth-child(2) { opacity: 0; }
+        .hamburger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-        /* Search & Filter Styles */
-        .search-input-group { position: relative; }
-        .search-input-group .form-control { padding-left: 2.5rem; background-color: var(--card-color); border-color: var(--border-color); color: var(--text-primary); border-radius: 25px; }
-        .filter-buttons .btn { background-color: var(--card-color); border-color: var(--border-color); color: var(--text-secondary); margin: 0 5px; border-radius: 25px; font-size: 0.9rem; }
-        .filter-buttons .btn.active { background-color: var(--accent-primary); border-color: var(--accent-primary); color: white; }
-
-        /* Admin Notification */
-        #admin-notification { background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+        .sidebar {
+            position: fixed; top: 0; left: 0;
+            width: 280px; height: 100%;
+            background: var(--bg-color);
+            padding: 6rem 2rem 2rem;
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 1050; display: flex; flex-direction: column;
+        }
+        .sidebar.open { transform: translateX(0); box-shadow: 10px 0px 50px -20px rgba(0,0,0,0.5); }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+        .sidebar-link {
+            color: var(--text-secondary); text-decoration: none; font-size: 1.1rem;
+            font-weight: 500; padding: 10px; border-radius: 8px;
+            transition: color 0.3s, background-color 0.3s;
+        }
+        .sidebar-link:hover, .sidebar-link.active { color: var(--text-primary); background-color: var(--border-color); }
         
-        /* Bottom Navigation */
-        #bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background: var(--card-color); backdrop-filter: blur(10px); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; align-items: center; z-index: 100; }
-        .nav-item { cursor: pointer; text-align: center; color: var(--text-secondary); flex-grow: 1; padding: 10px 0; transition: color 0.2s ease-in-out; }
-        .nav-item i { font-size: 1.5rem; }
-        .nav-item p { font-size: 0.75rem; margin: 2px 0 0 0; }
-        .nav-item.active { color: var(--accent-primary); }
+        .sidebar-wallet-connect { margin-top: auto; }
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+            z-index: 1040;
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.4s, visibility 0.4s;
+        }
+        .sidebar-overlay.open { opacity: 1; visibility: visible; }
+        /* --- END: Sidebar and Hamburger Menu --- */
 
+        /* --- START: Mini App Store Styles --- */
+        .app-card {
+            background: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 1.5rem;
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+        }
+        .app-card:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
+        .app-card-img { width: 80px; height: 80px; border-radius: 25%; margin: 0 auto 1rem; object-fit: cover; }
+        .app-card-title { font-weight: 600; font-size: 1.1rem; color: var(--text-primary); margin-bottom: 0.5rem; }
+        .app-card-desc { font-size: 0.9rem; color: var(--text-secondary); flex-grow: 1; margin-bottom: 1.5rem; }
+        .app-card .btn-access { background-color: var(--accent-primary); color: white; font-weight: 500; width: 100%; }
+        .app-card .btn-access:hover { background-color: #a179ff; }
+
+        .filter-controls .btn { background-color: var(--card-color); border: 1px solid var(--border-color); color: var(--text-secondary); margin: 0 5px 10px; }
+        .filter-controls .btn.active { background-color: var(--accent-primary); color: white; border-color: var(--accent-primary); }
+        /* --- END: Mini App Store Styles --- */
+
+        @media (min-width: 768px) {
+            .hero-section h1 { font-size: 3.5rem; }
+            .card-glass { padding: 2rem; }
+        }
     </style>
 </head>
 <body>
-
+    <div id="sidebar-overlay"></div>
+    <nav id="sidebar-menu" class="sidebar">
+        <!-- MODIFIED: Added IDs and active class to sidebar links -->
+        <div class="sidebar-nav">
+            <a href="#" class="sidebar-link" id="nav-dashboard">Dashboard</a>
+            <a href="#" class="sidebar-link active" id="nav-apps">Apps</a>
+        </div>
+        
+        <div class="sidebar-wallet-connect">
+             <div id="ton-connect-button-root"></div>
+        </div>
+    </nav>
+    
     <div class="main-container">
         <header class="header">
             <a href="#" class="header-logo" id="app-logo-container">
-                <img id="app-logo-img" src="https://duccodedao.github.io/VIEC/img/logo.png" alt="App Logo">
-                <span id="app-logo-text">Bmass Wallet</span>
+                <img id="app-logo-img" src="https://duccodedao.github.io/VIEC/img/logo_viewc.png" alt="App Logo">
+                <span id="app-logo-text"></span>
             </a>
-            <div class="position-relative">
-                <div id="ton-connect-button-root"></div>
-                <div id="custom-wallet-button-container" style="display: none;">
-                    <button id="custom-wallet-button"></button>
-                    <div id="wallet-dropdown">
-                        <a href="#" id="my-account-btn"><i class="fas fa-wallet"></i>My Account</a>
-                        <a href="#" id="copy-address-btn"><i class="fas fa-copy"></i><span>Copy Address</span></a>
-                        <a href="#" id="disconnect-btn"><i class="fas fa-sign-out-alt"></i>Disconnect</a>
-                    </div>
-                </div>
-            </div>
+            <button id="hamburger-menu-btn" class="hamburger-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </header>
 
-        <section id="admin-notification" style="display: none;">
-            <p class="m-0" id="notification-text"></p>
-            <button class="btn-close btn-close-white" id="close-notification-btn"></button>
-        </section>
-
-        <div id="views-container">
-            <!-- View 1: App Store -->
-            <div id="app-store-view">
-                 <section id="search-section">
-                    <div class="search-input-group mb-3">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" id="search-input" class="form-control" placeholder="Search for apps...">
-                    </div>
-                    <div class="filter-buttons text-center" id="filter-buttons">
-                        <button class="btn active" data-category="all">All</button>
-                        <button class="btn" data-category="airdrop">Airdrop</button>
-                        <button class="btn" data-category="depin">DePIN</button>
-                        <button class="btn" data-category="listed">Listed/Soon</button>
-                    </div>
-                </section>
-                <main id="app-menu-container">
-                    <div class="row g-2" id="app-menu-grid"></div>
-                    <div id="no-results-message" class="text-center text-secondary py-5" style="display: none;"><h5>No Apps Found</h5><p>Try searching or change the category.</p></div>
-                </main>
+        <!-- ============================================= -->
+        <!-- START: NEW MINI APP STORE SECTION             -->
+        <!-- ============================================= -->
+        <main id="app-store-section">
+            <div class="text-center mb-5">
+                <h1 class="mb-3">Mini App Store</h1>
+                <p class="lead text-secondary col-md-8 mx-auto">Khám phá các ứng dụng, game và công cụ mạnh mẽ nhất trong hệ sinh thái TON.</p>
             </div>
-            
-            <!-- View 2: Wallet Dashboard ("Bar cũ") -->
-            <main id="wallet-view" style="display: none;">
-                 <div class="row g-4">
-                    <div class="col-lg-7">
-                        <div class="row g-4">
-                            <div class="col-md-12"><div class="card-glass"><h5 class="card-title">Core Assets</h5><div id="main-assets-content"></div></div></div>
-                            <div class="col-md-12"><div class="card-glass"><h5 class="card-title">NFT Gallery</h5><div id="nft-gallery-content" style="max-height: 420px; overflow-y: auto;"></div></div></div>
+
+            <!-- Search and Filter Controls -->
+            <div class="row mb-4">
+                <div class="col-lg-8 offset-lg-2">
+                    <div class="input-group">
+                        <span class="input-group-text" style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--accent-primary); border-right: 0;">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" id="app-search-input" class="form-control" placeholder="Tìm kiếm ứng dụng..." style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--text-primary); border-left:0;">
+                    </div>
+                </div>
+            </div>
+
+            <div id="app-filter-controls" class="filter-controls text-center mb-5">
+                <button class="btn btn-sm active" data-filter="all">Tất cả</button>
+                <button class="btn btn-sm" data-filter="AirDrop">AirDrop</button>
+                <button class="btn btn-sm" data-filter="DePIN">DePIN</button>
+                <button class="btn btn-sm" data-filter="Niêm yết">Niêm yết</button>
+                <button class="btn btn-sm" data-filter="Game">Game</button>
+                <button class="btn btn-sm" data-filter="Tiện ích">Tiện ích</button>
+            </div>
+
+            <!-- App Grid -->
+            <div id="app-grid" class="row g-4">
+                <!-- App cards will be dynamically inserted here by JavaScript -->
+            </div>
+        </main>
+        <!-- ============================================= -->
+        <!-- END: NEW MINI APP STORE SECTION               -->
+        <!-- ============================================= -->
+
+        <!-- Your original dashboard section, now hidden by default if wallet not connected -->
+        <main id="dashboard" style="display: none;">
+           <!-- All your original dashboard HTML content goes here... -->
+           <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="row g-4">
+                    <div class="col-md-12">
+                        <div class="card-glass">
+                            <h5 class="card-title d-flex justify-content-between align-items-center">
+                                <span>Core Assets</span>
+                            </h5>
+                            <div id="main-assets-content"></div>
                         </div>
                     </div>
-                    <div class="col-lg-5">
-                         <div class="row g-4">
-                             <div class="col-12"><div class="card-glass"><h5 class="card-title">Token Portfolio</h5><div id="other-tokens-content" style="max-height: 250px; overflow-y: auto; padding-right: 10px;"></div></div></div>
-                            <div class="col-12"><div class="card-glass"><h5 class="card-title">Activity Feed</h5><div id="activity-feed-content" style="max-height: 525px; overflow-y: auto; padding-right: 10px;"></div></div></div>
-                         </div>
-                    </div>
+                    <div class="col-md-12"><div class="card-glass"><h5 class="card-title">NFT Gallery</h5><div id="nft-gallery-content" style="max-height: 420px; overflow-y: auto;"></div></div></div>
                 </div>
-            </main>
-
-            <!-- View 3: Hero Section (Logged out) -->
-            <section id="hero-section" class="hero-section">
-                <div class="container">
-                    <h1 class="mb-4">Welcome to the <span class="highlight">Bmass Wallet</span><br/>Web3 Experience</h1>
-                    <p class="lead text-secondary col-md-8 mx-auto mb-4">Connect your wallet to explore apps and manage your assets on TON.</p>
-                    <button id="connect-wallet-hero-btn" class="btn px-5 py-3" style="background-color: var(--accent-primary); color: white; font-weight: 600;">Connect Wallet</button>
-                </div>
-            </section>
+            </div>
+            <div class="col-lg-5">
+                 <div class="row g-4">
+                     <div class="col-12"><div class="card-glass"><h5 class="card-title">Token Portfolio</h5><div id="other-tokens-content" style="max-height: 250px; overflow-y: auto; padding-right: 10px;"></div></div></div>
+                    <div class="col-12"><div class="card-glass"><h5 class="card-title">Activity Feed</h5><div id="activity-feed-content" style="max-height: 525px; overflow-y: auto; padding-right: 10px;"></div></div></div>
+                 </div>
+            </div>
         </div>
+        </main>
+        
+        <section id="hero-section" class="hero-section" style="display: none;">
+            <!-- Your original hero section here, but we will control its display via JS -->
+        </section>
+
     </div>
-
-    <footer id="bottom-nav" style="display: none;">
-        <div class="nav-item active" id="nav-apps">
-            <i class="fas fa-th-large"></i>
-            <p>Apps</p>
-        </div>
-        <div class="nav-item" id="nav-wallet">
-            <i class="fas fa-wallet"></i>
-            <p>Wallet</p>
-        </div>
-    </footer>
-
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // --- Get All Elements ---
-        const appStoreView = document.getElementById('app-store-view');
-        const walletView = document.getElementById('wallet-view');
+        // --- START: DATA for Mini Apps (Sample Data) ---
+        const appsData = [
+            { id: 1, name: 'TapSwap', image: 'https://miro.medium.com/v2/resize:fit:1400/1*b2s_1a2c4i2f_Q2jZ1jQZw.png', link: 'https://t.me/tapswap_bot', category: ['AirDrop', 'Game'], description: 'Khai thác coin miễn phí chỉ bằng cách chạm vào màn hình.' },
+            { id: 2, name: 'Catizen', image: 'https://pbs.twimg.com/profile_images/1792945229143355392/tVer2oI1_400x400.jpg', link: 'https://t.me/catizenbot', category: ['AirDrop', 'Game', 'Niêm yết'], description: 'Nuôi mèo ảo, kiếm token thật. Đã được niêm yết trên các sàn lớn.' },
+            { id: 3, name: 'Grass', image: 'https://pbs.twimg.com/profile_images/1785450259845398528/gA2tBEyC_400x400.jpg', link: 'https://app.getgrass.io/', category: ['DePIN'], description: 'Chia sẻ băng thông internet không sử dụng để nhận thưởng.' },
+            { id: 4, name: 'Hamster Kombat', image: 'https://miro.medium.com/v2/resize:fit:1200/1*dBI7a_J6iV2sYq24aGEsWg.jpeg', link: 'https://t.me/hamster_kombat_bot', category: ['AirDrop', 'Game'], description: 'Trở thành CEO của một sàn giao dịch và phát triển nó.' },
+            { id: 5, name: 'Tonviewer', image: 'https://tonviewer.com/apple-touch-icon.png', link: 'https://tonviewer.com/', category: ['Tiện ích'], description: 'Trình khám phá chuỗi khối TON toàn diện và dễ sử dụng.' },
+            { id: 6, name: 'DeDust.io', image: 'https://dedust.io/apple-touch-icon.png', link: 'https://dedust.io/', category: ['Niêm yết', 'Tiện ích'], description: 'Sàn giao dịch phi tập trung (DEX) hàng đầu trên The Open Network.' },
+            { id: 7, name: 'PixelTap', image: 'https://pbs.twimg.com/profile_images/1796527011932147712/eP5eSGPg_400x400.jpg', link: 'https://t.me/pixelversexyzbot', category: ['AirDrop', 'Game'], description: 'Chiến đấu với robot trong một thế giới cyberpunk pixel.' },
+            { id: 8, name: 'VIEC Connect', image: 'https://duccodedao.github.io/VIEC/img/logo.png', link: '#', category: ['Tiện ích', 'DePIN'], description: 'Kết nối an toàn với hệ sinh thái VIEC và quản lý tài sản của bạn.' },
+        ];
+        // --- END: DATA for Mini Apps ---
+
+
+        // --- Element Selectors ---
+        const hamburgerBtn = document.getElementById('hamburger-menu-btn');
+        const sidebarMenu = document.getElementById('sidebar-menu');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+        
+        // Page/Section Selectors
+        const dashboardEl = document.getElementById('dashboard');
+        const appStoreEl = document.getElementById('app-store-section');
         const heroEl = document.getElementById('hero-section');
-        const appMenuGrid = document.getElementById('app-menu-grid');
-        const searchInput = document.getElementById('search-input');
-        const noResultsMessage = document.getElementById('no-results-message');
-        const filterButtonsContainer = document.getElementById('filter-buttons');
+        
+        // Navigation Links in Sidebar
+        const navDashboard = document.getElementById('nav-dashboard');
+        const navApps = document.getElementById('nav-apps');
+
+        // App Store Elements
+        const appGrid = document.getElementById('app-grid');
+        const appSearchInput = document.getElementById('app-search-input');
+        const appFilterControls = document.getElementById('app-filter-controls');
+
+
+        // --- Original NEURALIS selectors ---
         const mainAssetsContent = document.getElementById('main-assets-content');
+        const activityFeedContent = document.getElementById('activity-feed-content');
         const otherTokensContent = document.getElementById('other-tokens-content');
         const nftGalleryContent = document.getElementById('nft-gallery-content');
-        const activityFeedContent = document.getElementById('activity-feed-content');
-        const tonConnectButtonRoot = document.getElementById('ton-connect-button-root');
-        const customWalletContainer = document.getElementById('custom-wallet-button-container');
-        const customWalletButton = document.getElementById('custom-wallet-button');
-        const walletDropdown = document.getElementById('wallet-dropdown');
-        const myAccountBtn = document.getElementById('my-account-btn');
-        const copyAddressBtn = document.getElementById('copy-address-btn');
-        const disconnectBtn = document.getElementById('disconnect-btn');
         const appLogoImg = document.getElementById('app-logo-img');
         const appLogoText = document.getElementById('app-logo-text');
-        const adminNotificationEl = document.getElementById('admin-notification');
-        const notificationTextEl = document.getElementById('notification-text');
-        const closeNotificationBtn = document.getElementById('close-notification-btn');
-        const bottomNav = document.getElementById('bottom-nav');
-        const navApps = document.getElementById('nav-apps');
-        const navWallet = document.getElementById('nav-wallet');
-        const connectWalletHeroBtn = document.getElementById('connect-wallet-hero-btn');
+        const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo_viewc.png';
 
-        // --- Config ---
-        const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo.png';
-        const adminNotification = { show: true, message: "🔥 Welcome to Bmass! Explore the best Mini Apps on TON." };
-        const appsData = [
-            { name: "TapSwap", link: "https://t.me/tapswap_bot", image: "https://via.placeholder.com/128/915EFF/FFFFFF?text=Tap", category: "airdrop" },
-            { name: "Grass", link: "https://app.getgrass.io/", image: "https://via.placeholder.com/128/27ae60/FFFFFF?text=Grass", category: "depin" },
-            { name: "Notcoin", link: "https://t.me/notcoin_bot", image: "https://via.placeholder.com/128/f1c40f/FFFFFF?text=NOT", category: "listed" },
-            { name: "Hamster Kombat", link: "https://t.me/hamster_kombat_bot", image: "https://via.placeholder.com/128/e74c3c/FFFFFF?text=Hamster", category: "airdrop" },
-            { name: "Yescoin", link: "https://t.me/the_yescoin_bot", image: "https://via.placeholder.com/128/3498db/FFFFFF?text=Yes", category: "airdrop" },
-            { name: "Blum", link: "https://t.me/BlumCryptoBot", image: "https://via.placeholder.com/128/1abc9c/FFFFFF?text=Blum", category: "listed" },
-            { name: "PEPE", link: "https://t.me/pepetondrop_bot", image: "https://via.placeholder.com/128/2ecc71/FFFFFF?text=Pepe", category: "airdrop" },
-            { name: "Weather App", link: "https://t.me/weather_bot/app", image: "https://via.placeholder.com/128/9b59b6/FFFFFF?text=Weather", category: "depin" },
-        ];
+        const skeletonAsset = `<div class="d-flex align-items-center justify-content-between mb-3"><div class="d-flex align-items-center"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div><div class="skeleton-loader skeleton-line w-50"></div><div class="skeleton-loader skeleton-line" style="width: 80px;"></div></div></div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div></div>`;
+        const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
 
-        let tg = null;
-        try { if (window.Telegram && window.Telegram.WebApp) { tg = window.Telegram.WebApp; tg.ready(); tg.expand(); } } catch (e) { console.error("TG Web App init failed:", e); }
-        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json', buttonRootId: 'ton-connect-button-root' });
-        connectWalletHeroBtn.addEventListener('click', () => tonConnectUI.openModal());
-        
-        // --- View Manager ---
-        function showView(viewId) {
-            [appStoreView, walletView, heroEl].forEach(el => el.style.display = 'none');
-            const targetView = document.getElementById(viewId);
-            if(targetView) targetView.style.display = 'block';
-
-            navApps.classList.toggle('active', viewId === 'app-store-view');
-            navWallet.classList.toggle('active', viewId === 'wallet-view');
-        }
-
-        navApps.addEventListener('click', () => showView('app-store-view'));
-        navWallet.addEventListener('click', () => showView('wallet-view'));
-        myAccountBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            showView('wallet-view');
-            walletDropdown.style.display = 'none';
+        // --- TonConnect UI Initialization ---
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ 
+            manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json', // Make sure this manifest is valid
+            buttonRootId: 'ton-connect-button-root' 
         });
 
-        // --- App Store Logic ---
-        function renderAppMenu(filter = '', category = 'all') { /* ... same as before ... */ }
-        function handleFilter() { /* ... same as before ... */ }
-        searchInput.addEventListener('input', handleFilter);
-        filterButtonsContainer.addEventListener('click', (e) => { /* ... same as before ... */ });
 
-        // --- Wallet Data Logic ---
-        const getRaw = (addrObj) => addrObj?.raw_form || (typeof addrObj?.address === 'string' ? addrObj.address : null);
-        const getFriendly = (addrObj) => addrObj?.bounceable?.address || addrObj?.name || getRaw(addrObj) || 'Unknown Address';
-        // The render functions for wallet (renderMainAssets, etc.) are omitted for brevity but should be here
+        // --- START: MINI APP STORE LOGIC ---
 
-        // --- Main App Logic ---
-        tonConnectUI.onStatusChange(async (wallet) => {
-            if (wallet) {
-                bottomNav.style.display = 'flex';
-                showView('app-store-view'); // Default to app store view on connect
-                
-                const userFriendlyAddress = getFriendly(wallet.account);
-                customWalletButton.textContent = shortenAddress(userFriendlyAddress);
-                copyAddressBtn.dataset.address = userFriendlyAddress;
-                tonConnectButtonRoot.style.display = 'none';
-                customWalletContainer.style.display = 'block';
+        const renderApps = (appsToRender) => {
+            appGrid.innerHTML = '';
+            if (appsToRender.length === 0) {
+                appGrid.innerHTML = `<div class="col-12 text-center"><p class="text-secondary fs-5">Không tìm thấy ứng dụng phù hợp.</p></div>`;
+                return;
+            }
 
-                if (tg && tg.initDataUnsafe.user) {
-                    const tgUser = tg.initDataUnsafe.user;
-                    appLogoImg.src = tgUser.photo_url || DEFAULT_LOGO_SRC;
-                    appLogoImg.style.borderRadius = '50%';
-                    appLogoText.textContent = `@${tgUser.username}` || 'Telegram User';
-                } else {
-                    appLogoImg.src = DEFAULT_LOGO_SRC;
-                    appLogoImg.style.borderRadius = '8px';
-                    appLogoText.textContent = 'Bmass Wallet';
-                }
-                
-                // Fetch wallet data in background and render it to the hidden wallet-view
-                // This section is crucial
-                // await fetchAndRenderWalletData(wallet.account.address);
+            appsToRender.forEach(app => {
+                const appCard = document.createElement('div');
+                // Responsive columns: 4 on xl, 3 on lg, 2 on md, 1 on sm screens
+                appCard.className = 'col-xl-3 col-lg-4 col-md-6 col-12';
+                appCard.innerHTML = `
+                    <div class="app-card">
+                        <img src="${app.image}" alt="${app.name}" class="app-card-img" onerror="this.src='https://via.placeholder.com/80?text=App';">
+                        <h5 class="app-card-title">${app.name}</h5>
+                        <p class="app-card-desc">${app.description}</p>
+                        <a href="${app.link}" target="_blank" rel="noopener noreferrer" class="btn btn-access">
+                            <i class="fas fa-external-link-alt me-2"></i>Truy cập
+                        </a>
+                    </div>
+                `;
+                appGrid.appendChild(appCard);
+            });
+        };
 
-            } else {
-                bottomNav.style.display = 'none';
-                showView('hero-section');
-                
-                tonConnectButtonRoot.style.display = 'block';
-                customWalletContainer.style.display = 'none';
-                appLogoImg.src = DEFAULT_LOGO_SRC;
-                appLogoImg.style.borderRadius = '8px';
-                appLogoText.textContent = 'Bmass Wallet';
+        const filterAndRenderApps = () => {
+            const searchTerm = appSearchInput.value.toLowerCase();
+            const activeFilter = appFilterControls.querySelector('.btn.active').dataset.filter;
+
+            let filteredApps = appsData;
+
+            // Apply category filter first
+            if (activeFilter !== 'all') {
+                filteredApps = filteredApps.filter(app => app.category.includes(activeFilter));
+            }
+
+            // Apply search filter on top
+            if (searchTerm) {
+                filteredApps = filteredApps.filter(app => 
+                    app.name.toLowerCase().includes(searchTerm) || 
+                    app.description.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            renderApps(filteredApps);
+        };
+        
+        appSearchInput.addEventListener('input', filterAndRenderApps);
+
+        appFilterControls.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                appFilterControls.querySelector('.btn.active').classList.remove('active');
+                e.target.classList.add('active');
+                filterAndRenderApps();
             }
         });
 
-        // --- Notification Logic ---
-        if (adminNotification.show) { /* ... same as before ... */ }
-        closeNotificationBtn.addEventListener('click', () => { /* ... same as before ... */ });
-        
-        // --- Dropdown Listeners ---
-        customWalletButton.addEventListener('click', () => { walletDropdown.style.display = walletDropdown.style.display === 'block' ? 'none' : 'block'; });
-        disconnectBtn.addEventListener('click', (e) => { e.preventDefault(); tonConnectUI.disconnect(); walletDropdown.style.display = 'none'; });
-        copyAddressBtn.addEventListener('click', (e) => { /* ... same as before ... */ });
-        window.addEventListener('click', (e) => { if (customWalletContainer && !customWalletContainer.contains(e.target)) { walletDropdown.style.display = 'none'; } });
+        // --- END: MINI APP STORE LOGIC ---
 
-        // Initial render
-        renderAppMenu();
+
+        // --- Navigation Logic ---
+        const switchView = (viewToShow) => {
+            // Hide all main sections
+            dashboardEl.style.display = 'none';
+            appStoreEl.style.display = 'none';
+            heroEl.style.display = 'none'; // Hide hero as well
+
+            // Remove active class from all nav links
+            document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
+
+            // Show the selected view and set nav link to active
+            if (viewToShow === 'dashboard') {
+                dashboardEl.style.display = 'block';
+                navDashboard.classList.add('active');
+                // If wallet connected, fetch its data
+                if (tonConnectUI.connected) {
+                    fetchAndDisplayAccountData(tonConnectUI.account.address);
+                }
+            } else if (viewToShow === 'apps') {
+                appStoreEl.style.display = 'block';
+                navApps.classList.add('active');
+            }
+
+            // Close sidebar after navigation
+            if (sidebarMenu.classList.contains('open')) {
+                toggleSidebar();
+            }
+        };
+
+        navDashboard.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Only switch to dashboard if wallet is connected
+            if (tonConnectUI.connected) {
+                switchView('dashboard');
+            } else {
+                // If not connected, prompt to connect
+                tonConnectUI.openModal();
+            }
+        });
+
+        navApps.addEventListener('click', (e) => {
+            e.preventDefault();
+            switchView('apps');
+        });
+
+        const toggleSidebar = () => {
+            hamburgerBtn.classList.toggle('open');
+            sidebarMenu.classList.toggle('open');
+            sidebarOverlay.classList.toggle('open');
+        };
+        hamburgerBtn.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+
+
+        // --- Original NEURALIS Logic (with modifications) ---
+        tonConnectUI.onStatusChange(async (wallet) => {
+            if (wallet) {
+                // Wallet is connected
+                const friendlyAddress = `${wallet.account.address.slice(0, 4)}...${wallet.account.address.slice(-4)}`;
+                appLogoText.textContent = friendlyAddress;
+                // Switch to dashboard view upon connection
+                switchView('dashboard');
+            } else {
+                // Wallet is disconnected
+                appLogoText.textContent = '';
+                // Switch to app store view when disconnected
+                switchView('apps');
+            }
+        });
+
+        const setSkeletonLoaders = () => {
+            mainAssetsContent.innerHTML = skeletonAsset + skeletonAsset;
+            otherTokensContent.innerHTML = skeletonAsset.repeat(3);
+            nftGalleryContent.innerHTML = `<div class="row g-2"><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div><div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div></div>`;
+            activityFeedContent.innerHTML = skeletonTx.repeat(5);
+        };
+        
+        // This function now only fetches data, view switching is handled by switchView()
+        async function fetchAndDisplayAccountData(addressToFetch) {
+            setSkeletonLoaders();
+            // This function from your original code would go here
+            // For brevity, I'll put a placeholder
+            console.log("Fetching data for address:", addressToFetch);
+            // Simulate API call and render
+            setTimeout(() => {
+                mainAssetsContent.innerHTML = `<p>Dashboard for ${addressToFetch}</p>`;
+                otherTokensContent.innerHTML = `<p>Tokens list</p>`;
+                nftGalleryContent.innerHTML = `<p>NFTs list</p>`;
+                activityFeedContent.innerHTML = `<p>Activity list</p>`;
+            }, 1000);
+        }
+
+        // --- Initial Load ---
+        renderApps(appsData); // Render all apps initially
+        switchView('apps');   // Show App Store on first load
     });
     </script>
 </body>
