@@ -890,8 +890,38 @@
             return logs;
         }
 
+
         async function fetchCryptoNews() {
-            // ... (function remains the same)
+            const API_URL = 'https://min-api.cryptocompare.com/data/v2/news/?lang=EN&limit=20';
+            if (!newsContentArea) return;
+            newsContentArea.innerHTML = `<div class="news-grid">${skeletonTx.repeat(3)}</div>`;
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const newsData = await response.json();
+                
+                newsContentArea.innerHTML = '';
+                if (newsData.Type === 100 && newsData.Data && newsData.Data.length > 0) {
+                    let newsHtml = '<div class="news-grid">';
+                    newsData.Data.slice(0, 6).forEach(article => {
+                        newsHtml += `
+                        <a href="${article.url}" target="_blank" rel="noopener noreferrer" class="news-card">
+                            <img src="${article.imageurl}" class="news-card-img" onerror="this.style.display='none'">
+                            <div class="news-card-body">
+                                <h3 class="news-card-title">${article.title}</h3>
+                                <p class="news-card-source">${article.source} - ${new Date(article.published_on * 1000).toLocaleDateString()}</p>
+                            </div>
+                        </a>`;
+                    });
+                    newsHtml += '</div>';
+                    newsContentArea.innerHTML = newsHtml;
+                } else {
+                    newsContentArea.innerHTML = '<p class="text-secondary text-center">No news articles found at the moment.</p>';
+                }
+            } catch (error) {
+                console.error("Error fetching crypto news:", error);
+                newsContentArea.innerHTML = '<p class="text-danger text-center">Could not load news feed. Please try again later.</p>';
+            }
         }
 
         if (!tonConnectUI.connected) {
