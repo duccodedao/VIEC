@@ -142,6 +142,39 @@
         .app-item-img-wrapper { width: 64px; height: 64px; border-radius: 16px; overflow: hidden; flex-shrink: 0; }
         .app-item-img { width: 100%; height: 100%; object-fit: cover; }
         .app-item-name { display: block; font-weight: 500; font-size: 0.9rem; color: var(--text-primary); line-height: 1.3; margin-top: 0.75rem; text-align: center; }
+        
+        /* --- NEW: Toast Notification Styles --- */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #171b30;
+            color: var(--text-primary);
+            border: 1px solid var(--accent-primary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            z-index: 9999;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            max-width: 400px;
+            cursor: pointer;
+        }
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        .toast-notification-header {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            color: var(--accent-secondary);
+        }
+        .toast-notification p { font-size: 0.95rem; }
+
 
         @media (min-width: 768px) {
             .hero-section h1 { font-size: 3.5rem; }
@@ -177,7 +210,7 @@
     <div class="main-container">
         <header class="header">
             <a href="#" class="header-logo" id="app-logo-container">
-                <img id="app-logo-img" src="https://duccodedao.github.io/VIEC/img/logo_viewc.png" alt="App Logo">
+                <img id="app-logo-img" src="https://duccodedao.github.io/VIEC/img/logo.png" alt="App Logo">
                 <span id="app-logo-text"></span>
             </a>
             <button id="hamburger-menu-btn" class="hamburger-btn">
@@ -345,6 +378,9 @@
         // --- State Variables ---
         let telegramUserData = null;
         let connectedWalletAddress = null; // Stores RAW address
+        let lastFetchedAddress = null; // To track which address is being viewed
+        let currentActivityLogs = []; // To store currently displayed transactions
+        let activityRefreshInterval = null; // To hold the setInterval ID
         const addressCache = {}; // Cache for address conversion
         let searchTimeout;
 
@@ -388,11 +424,13 @@
         
         const getRaw = (addrObj) => addrObj?.raw_form || (typeof addrObj?.address === 'string' ? addrObj.address : null);
         
-        const setSkeletonLoaders = () => {
+        const setSkeletonLoaders = (isInitial = true) => {
             mainAssetsContent.innerHTML = skeletonAsset + skeletonAsset;
             otherTokensContent.innerHTML = skeletonAsset.repeat(3);
             nftGalleryContent.innerHTML = `<div class="row g-2">${Array(4).fill('<div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div>').join('')}</div>`;
-            activityFeedContent.innerHTML = skeletonTx.repeat(5);
+            if (isInitial) {
+                activityFeedContent.innerHTML = skeletonTx.repeat(5);
+            }
         };
         
         // === CÁC HÀM RENDER GIAO DIỆN ===
@@ -410,7 +448,7 @@
                     <div class="text-end"><h4 class="m-0">${Number((accountInfo.balance / 1e9).toPrecision(6))}</h4><p class="m-0 text-secondary" style="font-size: 0.9rem;">${priceText}</p></div>
                 </div>
                 <div class="d-flex align-items-center justify-content-between mt-4">
-                    <div class="d-flex align-items-center"><i class="fas fa-wallet me-3" style="width: 48px; font-size: 24px; text-align: center; color: var(--accent-secondary);"></i><div><h5 class="m-0">Address</h5><p class="m-0 text-secondary">Viewing Wallet</p></div></div>
+                    <div class="d-flex align-items-center"><i class="fas fa-wallet me-3" style="width: 48px; font-size: 24px; text-align: center; color: var(--accent-secondary);"></i><div><h5 class="m-0">Address</h5><p class="m-0 text-secondary">Wallet</p></div></div>
                     <h6><code class="copyable-address" data-address="${userFriendlyAddress}" title="Click to copy">${shortenAddress(userFriendlyAddress)}</code></h6>
                 </div>`;
         }
@@ -439,33 +477,41 @@
             } else { nftGalleryContent.innerHTML = `<p class="text-secondary">No NFTs found.</p>`; }
         }
 
-        function renderActivity(validLogs) {
-            activityFeedContent.innerHTML = '';
-            if (validLogs?.length > 0) {
-                validLogs.slice(0, 50).forEach(log => {
-                    const statusIcon = log.status === 'ok' ? `<i class="fas fa-check-circle status-icon status-ok"></i>` : `<i class="fas fa-exclamation-circle status-icon status-failed"></i>`;
-                    const titleText = log.status !== 'ok' ? `<span class="text-warning">${log.title} (Failed)</span>` : log.title;
-                    const colorClass = log.direction === 'in' ? 'amount-in' : 'amount-out';
-                    const amountDisplay = log.amount !== null ? `<p class="m-0 fw-bold ${colorClass}">${log.sign} ${log.amount.toLocaleString('en-US', {maximumFractionDigits: 4})} ${log.symbol}</p>` : `<p class="m-0 fw-bold">${log.symbol} Transfer</p>`;
-                    const commentDisplay = log.comment ? `<div class="w-100 mt-2"><p class="m-0 text-secondary" style="font-size: 0.8rem; font-style: italic;"><i class="fas fa-comment-dots me-2"></i>${log.comment}</p></div>` : '';
-                    const partyAddressHtml = `<code class="copyable-address" data-address="${log.party_full}" title="Click to copy">${shortenAddress(log.party)}</code>`;
-                    activityFeedContent.innerHTML += `
-                     <div class="d-flex flex-wrap align-items-center py-3 border-bottom border-secondary border-opacity-25">
-                        <img src="${log.image}" class="activity-item-icon me-3" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
-                        <div class="flex-grow-1"><p class="m-0 fw-bold">${statusIcon}${titleText}</p><p class="m-0 text-secondary" style="font-size: 0.8rem;">${log.party_title}: ${partyAddressHtml}</p></div>
-                        <div class="text-end">${amountDisplay}<p class="m-0 text-secondary" style="font-size: 0.8rem;">${new Date(log.timestamp).toLocaleString()}</p></div>
-                        ${commentDisplay}
-                     </div>`;
-                });
-            } else { activityFeedContent.innerHTML = `<p class="text-secondary">No recent activity found.</p>`; }
+        function renderSingleActivityItem(log) {
+            const statusIcon = log.status === 'ok' ? `<i class="fas fa-check-circle status-icon status-ok"></i>` : `<i class="fas fa-exclamation-circle status-icon status-failed"></i>`;
+            const titleText = log.status !== 'ok' ? `<span class="text-warning">${log.title} (Failed)</span>` : log.title;
+            const colorClass = log.direction === 'in' ? 'amount-in' : 'amount-out';
+            const amountDisplay = log.amount !== null ? `<p class="m-0 fw-bold ${colorClass}">${log.sign} ${log.amount.toLocaleString('en-US', {maximumFractionDigits: 4})} ${log.symbol}</p>` : `<p class="m-0 fw-bold">${log.symbol} Transfer</p>`;
+            const commentDisplay = log.comment ? `<div class="w-100 mt-2"><p class="m-0 text-secondary" style="font-size: 0.8rem; font-style: italic;"><i class="fas fa-comment-dots me-2"></i>${log.comment}</p></div>` : '';
+            const partyAddressHtml = `<code class="copyable-address" data-address="${log.party_full}" title="Click to copy">${log.party}</code>`;
+            return `
+             <div class="d-flex flex-wrap align-items-center py-3 border-bottom border-secondary border-opacity-25">
+                <img src="${log.image}" class="activity-item-icon me-3" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
+                <div class="flex-grow-1"><p class="m-0 fw-bold">${statusIcon}${titleText}</p><p class="m-0 text-secondary" style="font-size: 0.8rem;">${log.party_title}: ${partyAddressHtml}</p></div>
+                <div class="text-end">${amountDisplay}<p class="m-0 text-secondary" style="font-size: 0.8rem;">${new Date(log.timestamp).toLocaleString()}</p></div>
+                ${commentDisplay}
+             </div>`;
         }
         
         // === LOGIC LẤY DỮ LIỆU ===
         async function fetchAndDisplayAccountData(addressToFetch) {
-            setSkeletonLoaders();
+            const isNewAddress = addressToFetch !== lastFetchedAddress;
+            if (isNewAddress) {
+                currentActivityLogs = [];
+                activityFeedContent.innerHTML = '';
+                lastFetchedAddress = addressToFetch;
+                setSkeletonLoaders(true);
+            } else {
+                setSkeletonLoaders(false); // Refreshing, so don't show skeleton for activity
+            }
+
             searchResultsContainer.style.display = 'none';
             searchInput.value = '';
-            backToMyWalletBtn.style.display = (connectedWalletAddress && addressToFetch !== connectedWalletAddress) ? 'block' : 'none';
+            
+            const isMyWallet = connectedWalletAddress && addressToFetch === connectedWalletAddress;
+            backToMyWalletBtn.style.display = isMyWallet ? 'none' : 'block';
+            if (!isMyWallet) clearInterval(activityRefreshInterval);
+
 
             try {
                 const [accountRes, jettonsRes, nftsRes, eventsRes, coingeckoRes] = await Promise.all([
@@ -483,12 +529,15 @@
                 const nftsInfo = nftsRes.ok ? await nftsRes.json() : { nft_items: [] };
                 const eventsInfo = eventsRes.ok ? await eventsRes.json() : { events: [] };
                 const coingeckoInfo = coingeckoRes.ok ? await coingeckoRes.json() : null;
-                const validLogs = (eventsInfo.events ?? []).flatMap(event => parseEvent(event, accountInfo.address));
                 
+                // Process only new activities
+                const newLogs = (eventsInfo.events ?? []).flatMap((event, i) => parseEvent(event, accountInfo.address, i));
+                processNewActivity(newLogs);
+                
+                // Render other sections
                 await renderMainAssets(accountInfo, coingeckoInfo);
                 renderOtherTokens(jettonsInfo.balances ?? []);
                 renderNFTs(nftsInfo.nft_items ?? []);
-                renderActivity(validLogs);
 
             } catch (error) {
                 console.error("Error fetching account data:", error);
@@ -496,13 +545,66 @@
                 [otherTokensContent, nftGalleryContent, activityFeedContent].forEach(el => el.innerHTML = `<p class="text-secondary">Data unavailable.</p>`);
             }
         }
+        
+        function processNewActivity(newLogs) {
+            const existingHashes = new Set(currentActivityLogs.map(log => log.hash));
+            const genuinelyNewLogs = newLogs.filter(log => !existingHashes.has(log.hash));
 
-        function parseEvent(event, viewingRawAddress) {
+            if (genuinelyNewLogs.length > 0) {
+                const newLogsHtml = genuinelyNewLogs.map(log => renderSingleActivityItem(log)).join('');
+                activityFeedContent.insertAdjacentHTML('afterbegin', newLogsHtml);
+                currentActivityLogs = [...genuinelyNewLogs, ...currentActivityLogs];
+                showTransactionPopup(genuinelyNewLogs[0]);
+            } else if (currentActivityLogs.length === 0) {
+                // Initial load: populate the feed for the first time
+                const initialLogsHtml = newLogs.slice(0, 50).map(log => renderSingleActivityItem(log)).join('');
+                activityFeedContent.innerHTML = initialLogsHtml;
+                currentActivityLogs = newLogs.slice(0, 50);
+                if (currentActivityLogs.length === 0) {
+                    activityFeedContent.innerHTML = `<p class="text-secondary">No recent activity found.</p>`;
+                }
+            }
+        }
+
+        function showTransactionPopup(log) {
+            document.querySelector('.toast-notification')?.remove();
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            
+            const amountDisplay = log.amount !== null ? `<strong class="${log.direction === 'in' ? 'amount-in' : 'amount-out'}">${log.sign} ${log.amount.toLocaleString('en-US', {maximumFractionDigits: 4})} ${log.symbol}</strong>` : `a ${log.symbol} transfer`;
+            const actionText = log.direction === 'in' ? `Received ${amountDisplay} from` : `Sent ${amountDisplay} to`;
+
+            toast.innerHTML = `
+                <div class="toast-notification-header"><i class="fas fa-bell me-2"></i> New Transaction</div>
+                <p class="m-0">${actionText} ${log.party}</p>
+                <small class="text-secondary">${new Date(log.timestamp).toLocaleString()}</small>
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 100);
+            const hideTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+            }, 7000);
+
+            toast.addEventListener('click', () => {
+                clearTimeout(hideTimeout);
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+            }, { once: true });
+        }
+
+        function parseEvent(event, viewingRawAddress, eventIndex) {
             const logs = [];
             if (!event?.actions) return logs;
-            for (const action of event.actions) {
+            event.actions.forEach((action, actionIndex) => {
                 try {
-                    const log = { timestamp: event.timestamp * 1000, status: action.status, amount: null };
+                    const log = { 
+                        hash: `${event.hash}-${actionIndex}`, // Create a unique ID for each action
+                        timestamp: event.timestamp * 1000, 
+                        status: action.status, 
+                        amount: null 
+                    };
                     const isViewingAddress = (partyObj) => getRaw(partyObj) === viewingRawAddress;
                     const processParty = (partyObj) => ({ short: partyObj?.name || shortenAddress(partyObj?.address), full: partyObj?.address });
 
@@ -528,7 +630,7 @@
                         if (log.party) logs.push(log);
                     }
                 } catch (e) { console.warn("Could not parse an action:", action, "Error:", e); }
-            }
+            });
             return logs;
         }
 
@@ -627,7 +729,7 @@
             }
         }
         
-        // === LOGIC MODAL (START MODIFICATION) ===
+        // === LOGIC MODAL ===
         async function showJettonDetails(jettonAddress) {
             jettonDetailModal.show();
             const headerEl = document.getElementById('jetton-modal-header-content');
@@ -636,7 +738,6 @@
             const holdersEl = document.getElementById('holders-tab-pane');
             const holdersTabBtn = document.getElementById('holders-tab');
             
-            // Reset tab text while loading
             if (holdersTabBtn) holdersTabBtn.textContent = 'Holders';
             
             headerEl.innerHTML = `<h5 class="modal-title">Loading Jetton...</h5>`;
@@ -645,7 +746,7 @@
             const [metadataRes, historyRes, holdersRes] = await Promise.allSettled([
                 fetch(`${TON_API_BASE}/jettons/${jettonAddress}`),
                 fetch(`${TON_API_BASE}/accounts/${jettonAddress}/events?limit=100`),
-                fetch(`${TON_API_BASE}/jettons/${jettonAddress}/holders?limit=1000`) // Fetch up to 1000 holders
+                fetch(`${TON_API_BASE}/jettons/${jettonAddress}/holders?limit=1000`)
             ]);
 
             let jettonMetadata = null;
@@ -653,7 +754,6 @@
                 const data = await metadataRes.value.json();
                 jettonMetadata = data.metadata;
 
-                // Update holder tab with count from metadata
                 if (holdersTabBtn && data.holders_count) {
                     holdersTabBtn.textContent = `Holders (${data.holders_count})`;
                 }
@@ -668,7 +768,7 @@
 
             if (historyRes.status === 'fulfilled' && historyRes.value.ok) {
                 const data = await historyRes.value.json();
-                const historyLogs = (data.events ?? []).flatMap(event => parseEvent(event, jettonAddress));
+                const historyLogs = (data.events ?? []).flatMap((e, i) => parseEvent(e, jettonAddress, i));
                 if (historyLogs.length > 0) {
                     historyEl.innerHTML = '';
                     historyLogs.slice(0, 50).forEach(log => {
@@ -680,12 +780,10 @@
 
             if (holdersRes.status === 'fulfilled' && holdersRes.value.ok) {
                 const data = await holdersRes.value.json();
-                // Use `data.holders` which is the correct key from the API
                 if (data.holders?.length > 0) {
                     holdersEl.innerHTML = '';
                     const decimals = jettonMetadata?.decimals || 9;
                     for (const holder of data.holders) {
-                       // Display the owner's account address and name if available
                        const ownerWalletAddress = holder.owner.address;
                        const displayName = holder.owner.name || shortenAddress(await getFriendlyAddress(ownerWalletAddress), 6, 6);
                        const holderAddressHtml = `<code class="copyable-address" data-address="${ownerWalletAddress}" title="Click to copy: ${ownerWalletAddress}">${displayName}</code>`;
@@ -698,7 +796,6 @@
                 } else { holdersEl.innerHTML = `<p class="text-secondary text-center p-3">No holders found.</p>`; }
             } else { holdersEl.innerHTML = `<p class="text-danger">Failed to load holders.</p>`; }
         }
-        // === LOGIC MODAL (END MODIFICATION) ===
 
         // === LOGIC CHUYỂN VIEW (ĐÃ HỢP NHẤT) ===
         const switchView = (viewToShow) => {
@@ -756,6 +853,7 @@
         sidebarOverlay.addEventListener('click', toggleSidebar);
 
         tonConnectUI.onStatusChange(async (wallet) => {
+            clearInterval(activityRefreshInterval); // Always clear interval on status change
             if (wallet) {
                 connectedWalletAddress = wallet.account.address;
                 const friendlyAddress = await getFriendlyAddress(connectedWalletAddress);
@@ -771,10 +869,19 @@
                 copyAddressBtn.dataset.address = friendlyAddress;
                 myAccountBtn.href = `https://tonviewer.com/${friendlyAddress}`;
                 
-                switchView('dashboard'); // Switch to dashboard view
+                switchView('dashboard');
                 await fetchAndDisplayAccountData(connectedWalletAddress);
+
+                // Start refreshing activity for the connected wallet
+                activityRefreshInterval = setInterval(() => {
+                    console.log('Refreshing activity for connected wallet...');
+                    fetchAndDisplayAccountData(connectedWalletAddress);
+                }, 30000); // Refresh every 30 seconds
+
             } else {
                 connectedWalletAddress = null;
+                lastFetchedAddress = null;
+                currentActivityLogs = [];
                 tonConnectButtonRoot.style.display = 'block';
                 customWalletContainer.style.display = 'none';
                 appLogoImg.src = DEFAULT_LOGO_SRC;
@@ -816,7 +923,7 @@
             if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none';
         });
 
-        // --- Event Listeners for App Store and Navigation (from second script) ---
+        // --- Event Listeners for App Store and Navigation ---
         navDashboard.addEventListener('click', (e) => { e.preventDefault(); switchView('dashboard'); });
         navApps.addEventListener('click', (e) => { e.preventDefault(); switchView('apps'); });
         appSearchInput.addEventListener('input', renderApps);
@@ -842,7 +949,6 @@
         renderApps(); // Initial render for app store
         fetchCryptoNews(); // Fetch news on load
         
-        // Determine initial view based on connection status
         if (!tonConnectUI.connected) {
             switchView('dashboard'); // This will show the hero section
         }
