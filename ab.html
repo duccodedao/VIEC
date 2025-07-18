@@ -608,7 +608,7 @@
         });
 
         // ================================================================
-        // === START: NEW, FAST, AND RELIABLE SEARCH LOGIC              ===
+        // === START: CORRECTED, FAST, AND RELIABLE SEARCH LOGIC        ===
         // ================================================================
         async function handleFastSearch() {
             const query = searchInput.value.trim();
@@ -627,28 +627,28 @@
             searchResultsContainer.innerHTML = `<div class="p-2 text-center text-secondary">${skeletonTx}</div>`;
             
             try {
-                // --- Step 1: Fetch previews only. This is very fast. ---
                 const [accountSearchRes, jettonSearchRes] = await Promise.all([
                     fetch(`${TON_API_BASE}/accounts/search?name=${encodeURIComponent(query)}`),
-                    fetch(`${TON_API_BASE}/jettons/search?query=${encodeURIComponent(query)}`)
+                    // NOTE: The API for jetton search is /blockchain/accounts/search
+                    fetch(`${TON_API_BASE}/blockchain/accounts/search?name=${encodeURIComponent(query)}`)
                 ]);
 
                 const accounts = accountSearchRes.ok ? (await accountSearchRes.json()).addresses : [];
-                const jettonPreviews = jettonSearchRes.ok ? (await jettonSearchRes.json()).jettons : [];
+                // The structure for jettons is the same, let's call it "foundJettons"
+                const foundJettons = jettonSearchRes.ok ? (await jettonSearchRes.json()).addresses : [];
 
-                // --- Step 2: Combine and render results immediately from previews. ---
                 const resultsMap = new Map();
 
-                // Process jetton previews
-                for (const preview of jettonPreviews) {
-                    const friendlyAddress = await getFriendlyAddress(preview.address);
-                    resultsMap.set(preview.address, {
-                        type: 'jetton',
-                        address: preview.address,
-                        image: preview.image, // Use the preview image, it's better than nothing
-                        name: `${preview.name} (${preview.symbol})`,
+                // Process found jettons (same structure as accounts)
+                for (const jetton of foundJettons) {
+                    const friendlyAddress = await getFriendlyAddress(jetton.address);
+                    resultsMap.set(jetton.address, {
+                        type: 'jetton', // We mark it as 'jetton' to handle the click differently
+                        address: jetton.address,
+                        image: jetton.preview, // *** THE KEY FIX IS HERE: Use 'preview' field for the image ***
+                        name: jetton.name,
                         description: shortenAddress(friendlyAddress),
-                        verifiedTick: preview.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : ''
+                        verifiedTick: jetton.trust === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : ''
                     });
                 }
 
@@ -659,14 +659,14 @@
                         resultsMap.set(acc.address, {
                             type: 'account',
                             address: acc.address,
-                            image: acc.icon,
+                            image: acc.icon, // Accounts use 'icon'
                             name: acc.name || 'Unnamed',
                             description: shortenAddress(friendlyAddress),
                             verifiedTick: acc.is_scam ? '' : (acc.trust === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '')
                         });
                     }
                 }
-
+                
                 const searchResultItems = Array.from(resultsMap.values());
                 searchResultsContainer.innerHTML = '';
 
@@ -688,7 +688,6 @@
                             searchResultsContainer.style.display = 'none';
                             searchInput.value = '';
                             if (item.dataset.type === 'jetton') {
-                                // Fetch full details only when clicked
                                 showJettonDetails(item.dataset.address);
                             } else {
                                 fetchAndDisplayAccountData(item.dataset.address);
@@ -704,9 +703,8 @@
                 searchResultsContainer.innerHTML = '<p class="text-danger text-center p-3">Search failed.</p>';
             }
         }
-
+        
         if (searchButton) searchButton.addEventListener('click', handleFastSearch);
-        // Add a debounce to the search input to avoid spamming the API while typing
         if (searchInput) {
             searchInput.addEventListener('keyup', (e) => {
                 clearTimeout(searchTimeout);
@@ -715,12 +713,12 @@
                 } else {
                     searchTimeout = setTimeout(() => {
                         handleFastSearch();
-                    }, 300); // Wait 300ms after user stops typing
+                    }, 300);
                 }
             });
         }
         // ==============================================================
-        // === END: NEW, FAST, AND RELIABLE SEARCH LOGIC              ===
+        // === END: CORRECTED, FAST, AND RELIABLE SEARCH LOGIC        ===
         // ==============================================================
         
         if (backToMyWalletBtn) {
