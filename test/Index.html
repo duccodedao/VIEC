@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thiệp Mời Cưới | Minh & Anh</title>
+    <style>
+        /* CSS - Phần tạo kiểu cho thiệp mời */
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;600&display=swap');
+
+        body {
+            background: #fde2e4; /* Màu nền nhẹ nhàng */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Quicksand', sans-serif;
+            perspective: 1000px; /* Cần thiết cho hiệu ứng 3D */
+        }
+
+        .invitation-card {
+            position: relative;
+            width: 320px;
+            height: 480px;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 1s;
+        }
+
+        .invitation-card.open {
+            transform: rotateY(-180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden; /* Ẩn mặt sau khi quay */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-radius: 15px;
+        }
+
+        .card-front {
+            background: white;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            border: 10px solid #fcd5ce;
+        }
+        
+        .card-front h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3.5rem;
+            color: #e56b6f;
+            margin: 0;
+        }
+
+        .card-front p {
+            font-size: 1.2rem;
+            color: #555;
+            margin: 10px 0;
+        }
+
+        .card-front .open-text {
+            margin-top: 30px;
+            font-weight: 600;
+            color: #aaa;
+            border: 1px solid #ddd;
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+
+        .card-inside {
+            background: white;
+            transform: rotateY(180deg);
+            z-index: 1;
+            padding: 30px;
+            text-align: center;
+            color: #333;
+            overflow-y: auto; /* Cho phép cuộn nếu nội dung dài */
+        }
+
+        .card-inside h2 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.5rem;
+            color: #e56b6f;
+        }
+
+        .card-inside p {
+            line-height: 1.6;
+        }
+        
+        .event-details {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .event-details strong {
+            color: #e56b6f;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="invitation-card" id="invitationCard">
+        <!-- Mặt trước của thiệp -->
+        <div class="card-face card-front">
+            <p>Trân trọng kính mời</p>
+            <h1>Minh & Anh</h1>
+            <p>Cùng chung vui trong ngày hạnh phúc</p>
+            <p class="date">28.10.2025</p>
+            <div class="open-text">Nhấn để mở</div>
+        </div>
+
+        <!-- Bên trong thiệp -->
+        <div class="card-face card-inside">
+            <h2>Thân mời!</h2>
+            <p>Sự hiện diện của bạn là niềm vinh hạnh cho gia đình chúng tôi.</p>
+            <div class="event-details">
+                <p><strong>Hôn lễ được tổ chức vào lúc:</strong><br>10:00, Thứ Bảy, 28.10.2025</p>
+                <p><strong>Tại:</strong><br>Nhà hàng Sen Tây Hồ, Hà Nội</p>
+                <hr>
+                <p><strong>Tiệc mừng cưới:</strong><br>18:00 cùng ngày<br>Tại sảnh A, Khách sạn Daewoo</p>
+            </div>
+            <p style="margin-top: 20px;">Rất hân hạnh được đón tiếp!</p>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript - Phần xử lý sự kiện
+        const invitationCard = document.getElementById('invitationCard');
+
+        invitationCard.addEventListener('click', () => {
+            // Thêm hoặc xóa class 'open' để kích hoạt hiệu ứng CSS
+            invitationCard.classList.toggle('open');
+        });
+    </script>
+
+</body>
+</html>
