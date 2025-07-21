@@ -143,37 +143,76 @@
         .app-item-img { width: 100%; height: 100%; object-fit: cover; }
         .app-item-name { display: block; font-weight: 500; font-size: 0.9rem; color: var(--text-primary); line-height: 1.3; margin-top: 0.75rem; text-align: center; }
         
-        /* --- NEW: Toast Notification Styles --- */
-        .toast-notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: #171b30;
-            color: var(--text-primary);
-            border: 1px solid var(--accent-primary);
-            border-radius: 12px;
-            padding: 1.5rem;
-            z-index: 9999;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            opacity: 0;
-            transform: translateY(-20px) scale(0.95);
-            transition: opacity 0.4s ease, transform 0.4s ease;
-            max-width: 400px;
+        .toast-notification { position: fixed; top: 20px; right: 20px; background-color: #171b30; color: var(--text-primary); border: 1px solid var(--accent-primary); border-radius: 12px; padding: 1.5rem; z-index: 9999; box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); opacity: 0; transform: translateY(-20px) scale(0.95); transition: opacity 0.4s ease, transform 0.4s ease; max-width: 400px; cursor: pointer; }
+        .toast-notification.show { opacity: 1; transform: translateY(0) scale(1); }
+        .toast-notification-header { font-weight: 600; font-size: 1.1rem; margin-bottom: 0.75rem; color: var(--accent-secondary); }
+        .toast-notification p { font-size: 0.95rem; }
+
+        /* --- NEW: Language Switcher Styles --- */
+        .language-switcher {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 8px;
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+        }
+        .lang-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            padding: 5px 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
             cursor: pointer;
         }
-        .toast-notification.show {
-            opacity: 1;
-            transform: translateY(0) scale(1);
+        .lang-btn img {
+            width: 20px;
+            height: 15px;
+            object-fit: cover;
+            border-radius: 2px;
         }
-        .toast-notification-header {
+        .lang-btn:hover {
+            color: var(--text-primary);
+            background-color: rgba(145, 94, 255, 0.2);
+        }
+        .lang-btn.active {
+            color: var(--text-primary);
             font-weight: 600;
-            font-size: 1.1rem;
-            margin-bottom: 0.75rem;
-            color: var(--accent-secondary);
         }
-        .toast-notification p { font-size: 0.95rem; }
+
+        /* --- NEW: Social Media Section Styles --- */
+        .social-links-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem; 
+            flex-wrap: wrap; 
+            padding: 1rem 0;
+        }
+        .social-link {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 60px;
+            height: 60px;
+            background: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: 50%; 
+            font-size: 1.8rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .social-link:hover {
+            color: var(--text-primary);
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 0 20px rgba(145, 94, 255, 0.4);
+        }
 
 
         @media (min-width: 768px) {
@@ -203,6 +242,17 @@
                         <a href="#" id="disconnect-btn"><i class="fas fa-sign-out-alt"></i>Disconnect</a>
                     </div>
                 </div>
+            </div>
+             <!-- NEW: Language Switcher -->
+            <div class="language-switcher mt-3">
+                <a class="lang-btn active" data-lang="vi">
+                    <img src="https://flagcdn.com/w20/vn.png" srcset="https://flagcdn.com/w40/vn.png 2x" alt="VI">
+                    <span>Việt</span>
+                </a>
+                <a class="lang-btn" data-lang="en">
+                    <img src="https://flagcdn.com/w20/gb.png" srcset="https://flagcdn.com/w40/gb.png 2x" alt="EN">
+                    <span>English</span>
+                </a>
             </div>
         </div>
     </nav>
@@ -263,6 +313,19 @@
             </div>
         </section>
 
+        <!-- NEW: Social Media Section -->
+        <section id="social-media-section" class="mt-5" style="display:none;">
+            <h2 class="card-title" style="font-size: 1.75rem; text-align: center; margin-bottom: 2rem;">Follow Our Socials</h2>
+            <div class="social-links-container">
+                <a href="#" target="_blank" rel="noopener noreferrer" class="social-link" title="Telegram"><i class="fab fa-telegram-plane"></i></a>
+                <a href="#" target="_blank" rel="noopener noreferrer" class="social-link" title="Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="#" target="_blank" rel="noopener noreferrer" class="social-link" title="Discord"><i class="fab fa-discord"></i></a>
+                <a href="#" target="_blank" rel="noopener noreferrer" class="social-link" title="GitHub"><i class="fab fa-github"></i></a>
+                <a href="#" target="_blank" rel="noopener noreferrer" class="social-link" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+            </div>
+        </section>
+
+
         <section id="crypto-news-feed" class="mt-5" style="display:none;">
             <h2 class="card-title" style="font-size: 1.75rem; text-align: center; margin-bottom: 2rem;">Latest Crypto News</h2>
             <div id="news-content-area"></div>
@@ -322,7 +385,7 @@
     <!-- DỮ LIỆU MẪU CHO CÁC ỨNG DỤNG -->
 
     
-        <!-- SCRIPT CHÍNH (ĐÃ HỢP NHẤT VÀ CẬP NHẬT) -->
+    <!-- SCRIPT CHÍNH (ĐÃ HỢP NHẤT) -->
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // === KHAI BÁO BIẾN TOÀN CỤC ===
@@ -340,8 +403,9 @@
         const searchResultsContainer = document.getElementById('search-results-container');
         const backToMyWalletBtn = document.getElementById('back-to-my-wallet-btn');
 
-        // --- News Elements ---
+        // --- News & Socials Elements ---
         const newsSection = document.getElementById('crypto-news-feed');
+        const socialMediaSection = document.getElementById('social-media-section');
         const newsContentArea = document.getElementById('news-content-area');
 
         // --- Sidebar & Navigation ---
@@ -797,9 +861,9 @@
             } else { holdersEl.innerHTML = `<p class="text-danger">Failed to load holders.</p>`; }
         }
 
-        // <<< SỬA ĐỔI: Chuyển hàm này ra ngoài để có thể tái sử dụng
+        // === LOGIC CHUYỂN VIEW (ĐÃ HỢP NHẤT) ===
         const switchView = (viewToShow) => {
-            [dashboardEl, heroEl, newsSection, appStoreSection].forEach(section => {
+            [dashboardEl, heroEl, newsSection, socialMediaSection, appStoreSection].forEach(section => {
                 if(section) section.style.display = 'none';
             });
             [navDashboard, navApps].forEach(nav => nav.classList.remove('active'));
@@ -807,12 +871,13 @@
             if (viewToShow === 'apps') {
                 appStoreSection.style.display = 'block';
                 navApps.classList.add('active');
-            } else { // 'dashboard' and default cases
+            } else {
                 if (tonConnectUI.connected) {
                     dashboardEl.style.display = 'block';
                 } else {
                     heroEl.style.display = 'flex';
                 }
+                if (socialMediaSection) socialMediaSection.style.display = 'block';
                 if (newsSection) newsSection.style.display = 'block';
                 navDashboard.classList.add('active');
             }
@@ -843,23 +908,6 @@
             });
         };
         
-        // <<< THÊM MỚI: Hàm xử lý định tuyến dựa trên URL hash
-        const handleRouting = () => {
-            const hash = window.location.hash;
-            
-            if (hash.startsWith('#search/')) {
-                const query = decodeURIComponent(hash.substring(8)); // Lấy nội dung sau '#search/'
-                searchInput.value = query;
-                switchView('dashboard'); // Hiển thị view dashboard để thấy ô tìm kiếm
-                handleFastSearch();
-            } else if (hash === '#apps') {
-                switchView('apps');
-            } else {
-                // Mặc định là dashboard (bao gồm cả hero section nếu chưa kết nối ví)
-                switchView('dashboard');
-            }
-        };
-
         // === GẮN CÁC EVENT LISTENER ===
         const toggleSidebar = () => {
             hamburgerBtn.classList.toggle('open');
@@ -870,7 +918,7 @@
         sidebarOverlay.addEventListener('click', toggleSidebar);
 
         tonConnectUI.onStatusChange(async (wallet) => {
-            clearInterval(activityRefreshInterval); 
+            clearInterval(activityRefreshInterval); // Always clear interval on status change
             if (wallet) {
                 connectedWalletAddress = wallet.account.address;
                 const friendlyAddress = await getFriendlyAddress(connectedWalletAddress);
@@ -886,14 +934,14 @@
                 copyAddressBtn.dataset.address = friendlyAddress;
                 myAccountBtn.href = `https://tonviewer.com/${friendlyAddress}`;
                 
-                // <<< SỬA ĐỔI: Gọi hàm định tuyến thay vì switchView trực tiếp
-                handleRouting(); 
+                switchView('dashboard');
                 await fetchAndDisplayAccountData(connectedWalletAddress);
 
+                // Start refreshing activity for the connected wallet
                 activityRefreshInterval = setInterval(() => {
                     console.log('Refreshing activity for connected wallet...');
                     fetchAndDisplayAccountData(connectedWalletAddress);
-                }, 30000); 
+                }, 30000); // Refresh every 30 seconds
 
             } else {
                 connectedWalletAddress = null;
@@ -904,8 +952,7 @@
                 appLogoImg.src = DEFAULT_LOGO_SRC;
                 appLogoImg.style.borderRadius = '0';
                 appLogoText.textContent = '';
-                // <<< SỬA ĐỔI: Gọi hàm định tuyến thay vì switchView trực tiếp
-                handleRouting(); 
+                switchView('dashboard'); // Switch to hero view
             }
         });
         
@@ -918,25 +965,11 @@
             if (address) navigator.clipboard.writeText(address).then(() => { textSpan.textContent = 'Copied!'; setTimeout(() => { textSpan.textContent = 'Copy Address'; }, 2000); });
         });
 
-        // <<< SỬA ĐỔI: Cập nhật URL hash khi tìm kiếm
-        const performSearchAndUpdateUrl = () => {
-             const query = searchInput.value.trim();
-             if (query) {
-                 window.location.hash = `search/${encodeURIComponent(query)}`;
-             } else {
-                // Nếu ô tìm kiếm trống, quay về dashboard
-                window.location.hash = 'dashboard';
-             }
-        };
-        searchButton.addEventListener('click', performSearchAndUpdateUrl);
+        searchButton.addEventListener('click', handleFastSearch);
         searchInput.addEventListener('keyup', (e) => {
-            if (e.key === 'Enter') {
-                 performSearchAndUpdateUrl();
-            } else {
-                // Xử lý tìm kiếm gợi ý mà không thay đổi URL
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(handleFastSearch, 300);
-            }
+            clearTimeout(searchTimeout);
+            if (e.key === 'Enter') handleFastSearch();
+            else searchTimeout = setTimeout(handleFastSearch, 300);
         });
         
         backToMyWalletBtn.addEventListener('click', () => { if (connectedWalletAddress) fetchAndDisplayAccountData(connectedWalletAddress); });
@@ -955,10 +988,9 @@
             if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none';
         });
 
-        // <<< SỬA ĐỔI: Thay đổi sự kiện click của các nút điều hướng để cập nhật URL hash
-        navDashboard.addEventListener('click', (e) => { e.preventDefault(); window.location.hash = 'dashboard'; });
-        navApps.addEventListener('click', (e) => { e.preventDefault(); window.location.hash = 'apps'; });
-        
+        // --- Event Listeners for App Store and Navigation ---
+        navDashboard.addEventListener('click', (e) => { e.preventDefault(); switchView('dashboard'); });
+        navApps.addEventListener('click', (e) => { e.preventDefault(); switchView('apps'); });
         appSearchInput.addEventListener('input', renderApps);
         appSearchButton.addEventListener('click', renderApps);
         appSearchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') renderApps(); });
@@ -971,6 +1003,19 @@
             }
         });
         
+        // --- NEW: Language Switcher Logic ---
+        document.querySelector('.language-switcher').addEventListener('click', (e) => {
+            const langBtn = e.target.closest('.lang-btn');
+            if (!langBtn || langBtn.classList.contains('active')) return;
+            e.preventDefault();
+
+            document.querySelectorAll('.language-switcher .lang-btn').forEach(btn => btn.classList.remove('active'));
+            langBtn.classList.add('active');
+            const selectedLang = langBtn.dataset.lang;
+            console.log(`Language selected: ${selectedLang}`);
+            // TODO: Add logic to change page content based on selected language.
+        });
+
         // === KHỞI TẠO BAN ĐẦU ===
         const heroConnectButton = document.createElement('button');
         heroConnectButton.className = 'btn px-5 py-3';
@@ -979,12 +1024,12 @@
         heroConnectButton.addEventListener('click', () => tonConnectUI.openModal());
         connectWalletHeroBtnContainer.appendChild(heroConnectButton);
         
-        renderApps();
-        fetchCryptoNews(); 
+        renderApps(); // Initial render for app store
+        fetchCryptoNews(); // Fetch news on load
         
-        // <<< THÊM MỚI: Lắng nghe sự kiện thay đổi hash và gọi hàm định tuyến khi tải trang lần đầu
-        window.addEventListener('hashchange', handleRouting);
-        handleRouting(); // Xử lý URL hash hiện tại khi trang vừa tải xong
+        if (!tonConnectUI.connected) {
+            switchView('dashboard'); // This will show the hero section
+        }
     });
     </script>
 </body>
