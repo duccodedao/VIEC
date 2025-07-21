@@ -185,11 +185,10 @@
 <body>
     <div id="sidebar-overlay"></div>
     <nav id="sidebar-menu" class="sidebar">
+        <!-- Thay đổi href từ # thành #dashboard và #apps -->
         <div class="sidebar-nav">
-            <a href="/" class="sidebar-link" id="home">Home</a>   
-            <a href="#" class="sidebar-link active" id="nav-dashboard">Dashboard</a>
-            <a href="#" class="sidebar-link" id="nav-apps">Apps</a>
-       
+            <a href="#dashboard" class="sidebar-link active" id="nav-dashboard">Dashboard</a>
+            <a href="#apps" class="sidebar-link" id="nav-apps">Apps</a>
         </div>
         
         <div class="sidebar-wallet-connect">
@@ -322,7 +321,7 @@
     <!-- DỮ LIỆU MẪU CHO CÁC ỨNG DỤNG -->
 
     
-    <!-- SCRIPT CHÍNH (ĐÃ HỢP NHẤT) -->
+    <!-- SCRIPT CHÍNH (ĐÃ HỢP NHẤT VÀ CẬP NHẬT) -->
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // === KHAI BÁO BIẾN TOÀN CỤC ===
@@ -797,7 +796,7 @@
             } else { holdersEl.innerHTML = `<p class="text-danger">Failed to load holders.</p>`; }
         }
 
-        // === LOGIC CHUYỂN VIEW (ĐÃ HỢP NHẤT) ===
+        // === LOGIC CHUYỂN VIEW VÀ ROUTING (ĐÃ CẬP NHẬT) ===
         const switchView = (viewToShow) => {
             [dashboardEl, heroEl, newsSection, appStoreSection].forEach(section => {
                 if(section) section.style.display = 'none';
@@ -807,7 +806,7 @@
             if (viewToShow === 'apps') {
                 appStoreSection.style.display = 'block';
                 navApps.classList.add('active');
-            } else {
+            } else { // 'dashboard' or default
                 if (tonConnectUI.connected) {
                     dashboardEl.style.display = 'block';
                 } else {
@@ -818,6 +817,25 @@
             }
             if (sidebarMenu.classList.contains('open')) {
                 toggleSidebar();
+            }
+        };
+
+        const handleRouteChange = () => {
+            const hash = window.location.hash.substring(1); // Bỏ dấu '#'
+            const [path, queryString] = hash.split('?');
+            const params = new URLSearchParams(queryString || '');
+            const searchQuery = params.get('search');
+
+            const view = (path === 'apps') ? 'apps' : 'dashboard';
+            switchView(view);
+
+            if (view === 'apps') {
+                if (searchQuery) {
+                    appSearchInput.value = decodeURIComponent(searchQuery);
+                } else {
+                    appSearchInput.value = '';
+                }
+                renderApps(); // Render lại apps với query từ URL
             }
         };
 
@@ -853,7 +871,7 @@
         sidebarOverlay.addEventListener('click', toggleSidebar);
 
         tonConnectUI.onStatusChange(async (wallet) => {
-            clearInterval(activityRefreshInterval); // Always clear interval on status change
+            clearInterval(activityRefreshInterval);
             if (wallet) {
                 connectedWalletAddress = wallet.account.address;
                 const friendlyAddress = await getFriendlyAddress(connectedWalletAddress);
@@ -869,14 +887,13 @@
                 copyAddressBtn.dataset.address = friendlyAddress;
                 myAccountBtn.href = `https://tonviewer.com/${friendlyAddress}`;
                 
-                switchView('dashboard');
+                handleRouteChange(); // Hiển thị view đúng sau khi kết nối ví
                 await fetchAndDisplayAccountData(connectedWalletAddress);
 
-                // Start refreshing activity for the connected wallet
                 activityRefreshInterval = setInterval(() => {
                     console.log('Refreshing activity for connected wallet...');
                     fetchAndDisplayAccountData(connectedWalletAddress);
-                }, 30000); // Refresh every 30 seconds
+                }, 30000);
 
             } else {
                 connectedWalletAddress = null;
@@ -887,7 +904,7 @@
                 appLogoImg.src = DEFAULT_LOGO_SRC;
                 appLogoImg.style.borderRadius = '0';
                 appLogoText.textContent = '';
-                switchView('dashboard'); // Switch to hero view
+                handleRouteChange(); // Hiển thị view đúng (thường là hero) sau khi ngắt kết nối
             }
         });
         
@@ -923,12 +940,30 @@
             if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none';
         });
 
-        // --- Event Listeners for App Store and Navigation ---
-        navDashboard.addEventListener('click', (e) => { e.preventDefault(); switchView('dashboard'); });
-        navApps.addEventListener('click', (e) => { e.preventDefault(); switchView('apps'); });
-        appSearchInput.addEventListener('input', renderApps);
+        // --- Event Listeners for App Store and Navigation (ĐÃ CẬP NHẬT) ---
+        // Thay vì gọi switchView, các link giờ sẽ thay đổi hash, và event 'hashchange' sẽ xử lý
+        navDashboard.addEventListener('click', (e) => { 
+            // Không cần e.preventDefault() vì chúng ta muốn hành vi mặc định của link hash
+            if (sidebarMenu.classList.contains('open')) toggleSidebar();
+        });
+        navApps.addEventListener('click', (e) => {
+            if (sidebarMenu.classList.contains('open')) toggleSidebar();
+        });
+
+        appSearchInput.addEventListener('input', () => {
+            renderApps();
+            // Cập nhật URL khi người dùng gõ tìm kiếm
+            const searchTerm = appSearchInput.value.trim();
+            if (searchTerm) {
+                // Dùng replaceState để không tạo mục lịch sử mới cho mỗi lần gõ phím
+                history.replaceState(null, '', `#apps?search=${encodeURIComponent(searchTerm)}`);
+            } else {
+                history.replaceState(null, '', '#apps');
+            }
+        });
         appSearchButton.addEventListener('click', renderApps);
         appSearchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') renderApps(); });
+        
         appFilterControls.addEventListener('click', (e) => {
             const target = e.target.closest('.app-filter-btn');
             if (target) {
@@ -937,6 +972,9 @@
                 renderApps();
             }
         });
+
+        // Lắng nghe sự kiện thay đổi hash trên URL
+        window.addEventListener('hashchange', handleRouteChange);
         
         // === KHỞI TẠO BAN ĐẦU ===
         const heroConnectButton = document.createElement('button');
@@ -946,12 +984,10 @@
         heroConnectButton.addEventListener('click', () => tonConnectUI.openModal());
         connectWalletHeroBtnContainer.appendChild(heroConnectButton);
         
-        renderApps(); // Initial render for app store
-        fetchCryptoNews(); // Fetch news on load
+        fetchCryptoNews();
         
-        if (!tonConnectUI.connected) {
-            switchView('dashboard'); // This will show the hero section
-        }
+        // Gọi handleRouteChange() khi tải trang lần đầu để xử lý URL hiện tại
+        handleRouteChange();
     });
     </script>
 </body>
