@@ -489,16 +489,25 @@
             }
             const userFriendlyAddress = await getFriendlyAddress(accountInfo.address);
             const priceText = tonPriceUsd ? `$${tonPriceUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'Giá không có sẵn';
+            
+            // SỬA LỖI: Hiển thị số dư TON chính xác hơn, không làm tròn gắt
+            const tonBalance = accountInfo.balance / 1e9;
+            const formattedTonBalance = tonBalance.toLocaleString('en-US', { maximumFractionDigits: 6 });
+
             mainAssetsContent.innerHTML = `
                 <div class="d-flex align-items-center justify-content-between mb-4">
                     <div class="d-flex align-items-center"><img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;"><div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div></div>
-                    <div class="text-end"><h4 class="m-0">${Number((accountInfo.balance / 1e9).toPrecision(6))}</h4><p class="m-0 text-secondary" style="font-size: 0.9rem;">${priceText}</p></div>
+                    <div class="text-end">
+                        <h4 class="m-0">${formattedTonBalance}</h4>
+                        <p class="m-0 text-secondary" style="font-size: 0.9rem;">${priceText}</p>
+                    </div>
                 </div>
                 <div class="d-flex align-items-center justify-content-between mt-4">
                     <div class="d-flex align-items-center"><i class="fas fa-wallet me-3" style="width: 48px; font-size: 24px; text-align: center; color: var(--accent-secondary);"></i><div><h5 class="m-0">Address</h5><p class="m-0 text-secondary">Wallet</p></div></div>
                     <h6><code class="copyable-address" data-address="${userFriendlyAddress}" title="Click to copy">${shortenAddress(userFriendlyAddress)}</code></h6>
                 </div>`;
         }
+
 
         function renderOtherTokens(jettons) {
             otherTokensContent.innerHTML = '';
@@ -570,7 +579,7 @@
 
                 const [accountResult, jettonsResult, nftsResult, eventsResult] = tonapiResults;
                 
-                // KIỂM TRA QUAN TRỌNG: Nếu không lấy được thông tin tài khoản, dừng lại và báo lỗi.
+                // KIỂM TRA QUAN TRỌNG: Nếu không lấy được thông tin tài khoản chính, dừng lại và báo lỗi.
                 if (accountResult.status === 'rejected' || !accountResult.value.ok) {
                     throw new Error(`Could not fetch account info. The address may be incorrect or uninitialized.`);
                 }
@@ -596,11 +605,10 @@
                 const pricesRes = await fetch(`${COINGECKO_API_BASE}/simple/price?ids=${[...coingeckoIdsToFetch].join(',')}&vs_currencies=usd,vnd`);
                 const priceData = pricesRes.ok ? await pricesRes.json() : {};
 
-                // Bước 4: Tính toán tổng giá trị theo đúng yêu cầu: SUM(balance * price)
+                // Bước 4: Tính toán tổng giá trị
                 let totalValueUsd = 0;
                 let totalValueVnd = 0;
                 
-                // 4.1 Tính giá trị của TON = (số dư TON) * (giá TON từ CoinGecko)
                 const tonPriceInfo = priceData['the-open-network'];
                 if (tonPriceInfo) {
                     const tonBalance = accountInfo.balance / 1e9;
@@ -608,14 +616,11 @@
                     totalValueVnd += tonBalance * (tonPriceInfo.vnd || 0);
                 }
                 
-                // 4.2 Lặp qua từng Jetton để tính giá trị và cộng dồn
                 if (jettonsInfo.balances.length > 0) {
                     jettonsInfo.balances.forEach(j => {
                         const coingeckoId = JETTON_ADDRESS_TO_COINGECKO_ID[j.jetton.address];
                         const priceInfo = priceData[coingeckoId];
-                        // Chỉ tính nếu token có trong bản đồ và CoinGecko trả về giá
                         if (priceInfo) {
-                            // Tính giá trị Jetton = (số dư Jetton) * (giá Jetton từ CoinGecko)
                             const jettonBalance = Number(BigInt(j.balance)) / (10 ** (j.jetton.decimals || 9));
                             totalValueUsd += jettonBalance * (priceInfo.usd || 0);
                             totalValueVnd += jettonBalance * (priceInfo.vnd || 0);
