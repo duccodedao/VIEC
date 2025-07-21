@@ -183,7 +183,6 @@
         }
         .toast-notification p { font-size: 0.95rem; }
 
-        /* Kiểu mới cho Card tổng tài sản */
         #total-value-usd {
             font-size: 2.2rem;
             font-weight: 700;
@@ -240,7 +239,6 @@
         </header>
 
         <main id="dashboard">
-            <!-- Thêm Card tổng tài sản ở đây -->
             <div class="row g-4 mb-4">
                 <div class="col-12">
                     <div id="portfolio-overview-card" class="card-glass">
@@ -360,7 +358,25 @@
     document.addEventListener('DOMContentLoaded', () => {
         // === KHAI BÁO BIẾN TOÀN CỤC ===
         const TON_API_BASE = 'https://tonapi.io/v2';
-        
+        const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
+
+        /**
+         * BẢN ĐỒ CHUYỂN ĐỔI TỪ ĐỊA CHỈ JETTON SANG ID CỦA COINGECKO
+         * BẠN CẦN CẬP NHẬT BẢN ĐỒ NÀY THỦ CÔNG KHI MUỐN TÍNH GIÁ TRỊ CỦA TOKEN MỚI.
+         * Bất kỳ token nào không có trong bản đồ này sẽ được coi là có giá trị $0.
+         * 
+         * Cách tìm:
+         * 1. Tìm địa chỉ Jetton Master trên Tonscan (ví dụ: Notcoin).
+         * 2. Tìm ID của token đó trên CoinGecko (ví dụ: ID của Notcoin là 'notcoin').
+         * 3. Thêm vào đây: 'địa-chỉ-jetton': 'id-coingecko'
+         */
+        const JETTON_ADDRESS_TO_COINGECKO_ID = {
+            'EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOT': 'notcoin',
+            'EQA2kCVNwVsil2EM2mB0SkXytxCqQjS4mttjDpnXmwG9T6bO': 'ston-fi',
+            'EQCxE6mUtQJKFnGfaROTKOt1lMTg6GAAAAAAAAAAAAAAAAAAAAAAAAGNcL_e': 'tether', // USDT
+            // Thêm các token khác vào đây
+        };
+
         // --- Elements ---
         const dashboardEl = document.getElementById('dashboard');
         const heroEl = document.getElementById('hero-section');
@@ -397,12 +413,10 @@
         const appFilterControls = document.getElementById('app-filter-controls');
         const jettonDetailModalEl = document.getElementById('jettonDetailModal');
         const jettonDetailModal = new bootstrap.Modal(jettonDetailModalEl);
-        // NEW: Portfolio value elements
         const portfolioContent = document.getElementById('portfolio-overview-content');
         const portfolioSkeleton = document.getElementById('portfolio-overview-skeleton');
         const totalValueUsdEl = document.getElementById('total-value-usd');
         const totalValueVndEl = document.getElementById('total-value-vnd');
-
 
         // --- State Variables ---
         let telegramUserData = null;
@@ -537,7 +551,7 @@
              </div>`;
         }
         
-        // === LOGIC LẤY DỮ LIỆU (CẬP NHẬT) ===
+        // === LOGIC LẤY DỮ LIỆU (ĐÃ CẬP NHẬT HOÀN TOÀN) ===
         async function fetchAndDisplayAccountData(addressToFetch) {
             const isNewAddress = addressToFetch !== lastFetchedAddress;
             if (isNewAddress) {
@@ -557,13 +571,12 @@
             if (!isMyWallet) clearInterval(activityRefreshInterval);
 
             try {
-                // Tách các API call ban đầu
-                const [accountRes, jettonsRes, nftsRes, eventsRes, usdToVndRateRes] = await Promise.all([
+                // Bước 1: Lấy dữ liệu tài khoản cơ bản từ Tonapi
+                const [accountRes, jettonsRes, nftsRes, eventsRes] = await Promise.all([
                     fetch(`${TON_API_BASE}/accounts/${addressToFetch}`),
                     fetch(`${TON_API_BASE}/accounts/${addressToFetch}/jettons`),
                     fetch(`${TON_API_BASE}/accounts/${addressToFetch}/nfts?limit=100&indirect_ownership=false`),
-                    fetch(`${TON_API_BASE}/accounts/${addressToFetch}/events?limit=100`),
-                    fetch(`https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=vnd`)
+                    fetch(`${TON_API_BASE}/accounts/${addressToFetch}/events?limit=100`)
                 ]);
                 
                 if (!accountRes.ok) throw new Error(`Could not fetch account info for ${addressToFetch}.`);
@@ -572,53 +585,58 @@
                 const jettonsInfo = jettonsRes.ok ? await jettonsRes.json() : { balances: [] };
                 const nftsInfo = nftsRes.ok ? await nftsRes.json() : { nft_items: [] };
                 const eventsInfo = eventsRes.ok ? await eventsRes.json() : { events: [] };
-                const usdToVndData = usdToVndRateRes.ok ? await usdToVndRateRes.json() : null;
-                const usdToVndRate = usdToVndData?.tether?.vnd || 25450; // Tỷ giá dự phòng
 
-                // Chuẩn bị danh sách token để lấy giá
-                const tokenSymbols = ['ton'];
-                if (jettonsInfo.balances.length > 0) {
-                    jettonsInfo.balances.forEach(j => tokenSymbols.push(j.jetton.symbol.toLowerCase()));
-                }
-                const uniqueTokenSymbols = [...new Set(tokenSymbols)];
-
-                // Lấy giá của tất cả token
-                const ratesRes = await fetch(`${TON_API_BASE}/rates?tokens=${uniqueTokenSymbols.join(',')}¤cies=usd`);
-                const ratesData = ratesRes.ok ? await ratesRes.json() : { rates: {} };
-                const tokenPrices = ratesData.rates;
-                
-                // --- Tính toán tổng giá trị tài sản ---
-                let totalValueUsd = 0;
-                
-                // 1. Tính giá trị TON
-                const tonPriceUsd = tokenPrices?.['ton']?.prices?.USD;
-                if (tonPriceUsd) {
-                    const tonBalance = accountInfo.balance / 1e9;
-                    totalValueUsd += tonBalance * tonPriceUsd;
-                }
-                
-                // 2. Tính giá trị Jettons
+                // Bước 2: Xây dựng danh sách các ID cần lấy giá từ CoinGecko
+                const coingeckoIdsToFetch = ['the-open-network']; // Luôn lấy giá TON
                 if (jettonsInfo.balances.length > 0) {
                     jettonsInfo.balances.forEach(j => {
-                        const jettonSymbol = j.jetton.symbol.toLowerCase();
-                        const jettonPriceUsd = tokenPrices?.[jettonSymbol]?.prices?.USD;
-                        if (jettonPriceUsd) {
+                        const coingeckoId = JETTON_ADDRESS_TO_COINGECKO_ID[j.jetton.address];
+                        if (coingeckoId) {
+                            coingeckoIdsToFetch.push(coingeckoId);
+                        }
+                    });
+                }
+                const uniqueCoingeckoIds = [...new Set(coingeckoIdsToFetch)];
+
+                // Bước 3: Gọi API CoinGecko một lần duy nhất để lấy giá USD và VNĐ
+                const pricesRes = await fetch(`${COINGECKO_API_BASE}/simple/price?ids=${uniqueCoingeckoIds.join(',')}&vs_currencies=usd,vnd`);
+                const priceData = pricesRes.ok ? await pricesRes.json() : {};
+
+                // Bước 4: Tính toán tổng giá trị tài sản
+                let totalValueUsd = 0;
+                let totalValueVnd = 0;
+                
+                // 4.1 Tính giá trị TON
+                const tonPriceInfo = priceData['the-open-network'];
+                if (tonPriceInfo) {
+                    const tonBalance = accountInfo.balance / 1e9;
+                    totalValueUsd += tonBalance * (tonPriceInfo.usd || 0);
+                    totalValueVnd += tonBalance * (tonPriceInfo.vnd || 0);
+                }
+                
+                // 4.2 Tính giá trị Jettons
+                if (jettonsInfo.balances.length > 0) {
+                    jettonsInfo.balances.forEach(j => {
+                        const coingeckoId = JETTON_ADDRESS_TO_COINGECKO_ID[j.jetton.address];
+                        const priceInfo = priceData[coingeckoId];
+                        if (priceInfo) {
                             const jettonBalance = Number(BigInt(j.balance)) / (10 ** (j.jetton.decimals || 9));
-                            totalValueUsd += jettonBalance * jettonPriceUsd;
+                            totalValueUsd += jettonBalance * (priceInfo.usd || 0);
+                            totalValueVnd += jettonBalance * (priceInfo.vnd || 0);
                         }
                     });
                 }
 
-                // --- Hiển thị kết quả ---
+                // Bước 5: Hiển thị kết quả
                 totalValueUsdEl.textContent = `$${totalValueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                totalValueVndEl.textContent = `${(totalValueUsd * usdToVndRate).toLocaleString('vi-VN')} VNĐ`;
+                totalValueVndEl.textContent = `${totalValueVnd.toLocaleString('vi-VN')} VNĐ`;
                 portfolioSkeleton.style.display = 'none';
                 portfolioContent.style.display = 'block';
 
                 // Render các thành phần khác
                 const newLogs = (eventsInfo.events ?? []).flatMap((event) => parseEvent(event, accountInfo.address));
                 processNewActivity(newLogs);
-                await renderMainAssets(accountInfo, tonPriceUsd);
+                await renderMainAssets(accountInfo, tonPriceInfo?.usd);
                 renderOtherTokens(jettonsInfo.balances ?? []);
                 renderNFTs(nftsInfo.nft_items ?? []);
 
