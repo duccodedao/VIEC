@@ -15,10 +15,10 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK - THÊM MỚI -->
+    <!-- Sử dụng thư viện 'compat' để có cú pháp đơn giản hơn, phù hợp để tích hợp nhanh -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-functions-compat.js"></script>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -200,7 +200,7 @@
             font-weight: 500;
         }
 
-        .task-button:disabled {
+        #checkin-button:disabled {
             background-color: #3a3f5a !important;
             cursor: not-allowed;
         }
@@ -217,7 +217,6 @@
         <div class="sidebar-nav">
             <a href="#dashboard" class="sidebar-link active" id="nav-dashboard">Dashboard</a>
             <a href="#apps" class="sidebar-link" id="nav-apps">Apps</a>
-            <a href="#task" class="sidebar-link" id="nav-task">Task</a>
         </div>
         
         <div class="sidebar-wallet-connect">
@@ -249,8 +248,10 @@
         </header>
 
         <main id="dashboard">
+            <!-- DÀN TRANG ĐƯỢC CẬP NHẬT: Thêm thẻ check-in -->
             <div class="row g-4 mb-4">
-                <div class="col-lg-12">
+                <!-- Thẻ Tổng Quan Tài Sản -->
+                <div class="col-lg-7">
                     <div id="portfolio-overview-card" class="card-glass">
                         <h5 class="card-title">Tổng Quan Tài Sản</h5>
                         <div id="portfolio-overview-content">
@@ -260,6 +261,23 @@
                          <div id="portfolio-overview-skeleton" style="display: none;">
                             <div class="skeleton-loader skeleton-line w-75" style="height: 35px; margin-bottom: 15px;"></div>
                             <div class="skeleton-loader skeleton-line w-50" style="height: 20px;"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- THẺ CHECK-IN MỚI -->
+                <div class="col-lg-5">
+                    <div class="card-glass">
+                        <h5 class="card-title">Điểm Danh Hàng Ngày</h5>
+                        <div id="daily-checkin-content">
+                             <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-secondary mb-0">Điểm của bạn</p>
+                                    <h3 id="user-points" class="fw-bold mb-0">0</h3>
+                                </div>
+                                <button id="checkin-button" class="btn px-4 py-2" style="background-color: var(--accent-secondary); color: white; font-weight: 600;" disabled>
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Kết nối...
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -336,65 +354,6 @@
                 </div>
             </div>
         </main>
-        
-        <main id="task-section" style="display: none;">
-            <div class="text-center mb-5">
-                <h1 class="mb-2" style="font-weight: 700;">Nhiệm Vụ & Phần Thưởng</h1>
-                <p class="lead text-secondary col-md-8 mx-auto">Hoàn thành nhiệm vụ hàng ngày để tích lũy điểm thưởng.</p>
-                 <p class="text-warning fw-bold mb-4"><i class="fas fa-exclamation-triangle me-2"></i>Ghi chú: Điểm sẽ được quy đổi sang token trong tương lai.</p>
-            </div>
-            
-            <div class="row g-4 justify-content-center">
-                <div class="col-lg-6 col-md-8">
-                    <div class="card-glass">
-                        <h5 class="card-title">Điểm Danh Hàng Ngày</h5>
-                        <div id="daily-checkin-content">
-                             <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <p class="text-secondary mb-0">Điểm của bạn</p>
-                                    <h3 id="user-points" class="fw-bold mb-0">0</h3>
-                                </div>
-                                <button id="checkin-button" class="btn px-4 py-2 task-button" style="background-color: var(--accent-secondary); color: white; font-weight: 600;" disabled>
-                                    <i class="fas fa-spinner fa-spin me-2"></i>Kết nối...
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Thẻ Nhiệm vụ Social ĐÃ ĐƯỢC CẬP NHẬT -->
-                <div class="col-lg-6 col-md-8">
-                    <div class="card-glass">
-                        <h5 class="card-title">Nhiệm vụ Social</h5>
-                        <div id="social-tasks-content">
-                            <!-- Nhiệm vụ Telegram -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
-                                    <i class="fab fa-telegram-plane fa-2x me-3" style="color: #2AABEE;"></i>
-                                    <div>
-                                        <h6 class="mb-0">Tham gia kênh Telegram</h6>
-                                        <small class="text-secondary">+20 điểm</small>
-                                    </div>
-                                </div>
-                                <div class="text-end">
-                                    <a href="#" id="telegram-channel-link" target="_blank" rel="noopener noreferrer" class="btn btn-sm mb-2" style="background-color: var(--border-color); width: 120px;">Tham gia</a>
-                                    <button id="verify-telegram-btn" data-task-id="tg_join" class="btn btn-sm task-button" style="background-color: var(--accent-primary); color: white; width: 120px;">Kiểm tra</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                 <div class="col-lg-6 col-md-8">
-                    <div class="card-glass">
-                        <h5 class="card-title">Lịch sử Check-in</h5>
-                        <div id="checkin-history-content" style="max-height: 200px; overflow-y: auto;">
-                           <p class="text-center text-secondary pt-3">Lịch sử điểm danh sẽ sớm được cập nhật.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
     </div>
 
     <div class="modal fade" id="jettonDetailModal" tabindex="-1" aria-labelledby="jettonDetailModalLabel" aria-hidden="true">
@@ -432,8 +391,6 @@
         // --- Elements ---
         const dashboardEl = document.getElementById('dashboard');
         const heroEl = document.getElementById('hero-section');
-        const appStoreSection = document.getElementById('app-store-section');
-        const taskSectionEl = document.getElementById('task-section'); 
         const mainAssetsContent = document.getElementById('main-assets-content');
         const activityFeedContent = document.getElementById('activity-feed-content');
         const otherTokensContent = document.getElementById('other-tokens-content');
@@ -449,7 +406,6 @@
         const sidebarOverlay = document.getElementById('sidebar-overlay');
         const navDashboard = document.getElementById('nav-dashboard');
         const navApps = document.getElementById('nav-apps');
-        const navTask = document.getElementById('nav-task');
         const tonConnectButtonRoot = document.getElementById('ton-connect-button-root');
         const connectWalletHeroBtnContainer = document.getElementById('connect-wallet-hero-btn-container');
         const customWalletContainer = document.getElementById('custom-wallet-button-container');
@@ -461,6 +417,7 @@
         const appLogoImg = document.getElementById('app-logo-img');
         const appLogoText = document.getElementById('app-logo-text');
         const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo_viewc.png';
+        const appStoreSection = document.getElementById('app-store-section');
         const appGrid = document.getElementById('app-grid');
         const appSearchInput = document.getElementById('app-search-input');
         const appSearchButton = document.getElementById('app-search-button');
@@ -485,42 +442,43 @@
         const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
         const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
 
-        // === LOGIC NHIỆM VỤ (TASKS) ===
+        // === LOGIC CHECK-IN VÀ FIREBASE (THÊM MỚI) ===
         const userPointsEl = document.getElementById('user-points');
         const checkinButton = document.getElementById('checkin-button');
-        const verifyTelegramBtn = document.getElementById('verify-telegram-btn');
-        const telegramChannelLink = document.getElementById('telegram-channel-link');
         let db = null;
-        let functions = null; // Firebase Functions
         let checkinInterval = null;
+        const CHECKIN_REWARD = 10; // Điểm thưởng mỗi lần check-in
+        const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000; // 24 giờ (ms)
         
-        // --- Cấu hình nhiệm vụ ---
-        const CHECKIN_REWARD = 10;
-        const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000;
-        const TELEGRAM_TASK_ID = 'tg_join'; // Đặt ID duy nhất cho nhiệm vụ này
-        const TELEGRAM_REWARD = 20;
-        const TELEGRAM_CHANNEL_URL = 'https://t.me/BmassK3_Channel'; // <<=== THAY LINK KÊNH CỦA BẠN VÀO ĐÂY
-
-        async function initializeFirebaseAndTasks(user) {
+        async function initializeFirebaseAndCheckin(user) {
             if (!user || !user.id) {
                 checkinButton.innerHTML = `<i class="fas fa-times-circle me-2"></i> Lỗi User`;
                 return;
             };
 
-            
-            
+            // !!! QUAN TRỌNG: Thay thế các giá trị dưới đây bằng cấu hình Firebase của bạn
+            const firebaseConfig = {
+                apiKey: "AIzaSyBcR1F-Z0jnYlrl6S_e_RiEPgjhUjY2dx4",
+    authDomain: "bmasshd-8504d.firebaseapp.com",
+    projectId: "bmasshd-8504d",
+    storageBucket: "bmasshd-8504d.firebasestorage.app",
+    messagingSenderId: "643152935025",
+    appId: "1:643152935025:web:7b09432ff08c72d62d43d0",
+    measurementId: "G-2R80XFWSD3"
+  };
+
+            // Khởi tạo Firebase
             if (!firebase.apps.length) {
                 firebase.initializeApp(firebaseConfig);
             }
             db = firebase.firestore();
-            functions = firebase.functions(); // Khởi tạo functions
 
+            // Lấy hoặc tạo người dùng trong Firestore và cập nhật UI
             const userData = await getOrCreateUser(user.id);
             updateCheckinUI(userData);
-            initializeTelegramTask(userData);
-
+            
+            // Thêm sự kiện click cho nút check-in
             checkinButton.addEventListener('click', handleCheckin);
-            verifyTelegramBtn.addEventListener('click', handleTelegramVerification);
         }
 
         async function getOrCreateUser(userId) {
@@ -532,8 +490,7 @@
                     id: userId,
                     username: telegramUserData?.username || 'N/A',
                     points: 0,
-                    lastCheckin: null,
-                    completedTasks: [] // Mảng để lưu trữ ID các nhiệm vụ đã hoàn thành
+                    lastCheckin: null
                 };
                 await userRef.set(newUser);
                 return newUser;
@@ -555,16 +512,7 @@
                 return;
             }
             
-            const lastCheckinTime = lastCheckin.toDate().getTime();const firebaseConfig = {
-    apiKey: "AIzaSyBcR1F-Z0jnYlrl6S_e_RiEPgjhUjY2dx4",
-    authDomain: "bmasshd-8504d.firebaseapp.com",
-    projectId: "bmasshd-8504d",
-    storageBucket: "bmasshd-8504d.firebasestorage.app",
-    messagingSenderId: "643152935025",
-    appId: "1:643152935025:web:7b09432ff08c72d62d43d0",
-    measurementId: "G-2R80XFWSD3"
-  };
-
+            const lastCheckinTime = lastCheckin.toDate().getTime();
             const timeSince = Date.now() - lastCheckinTime;
 
             if (timeSince >= CHECKIN_COOLDOWN) {
@@ -572,6 +520,8 @@
                 checkinButton.innerHTML = `<i class="fas fa-calendar-check me-2"></i> Check-in Ngay!`;
             } else {
                 checkinButton.disabled = true;
+                const remainingTime = CHECKIN_COOLDOWN - timeSince;
+
                 const updateCountdown = () => {
                     const now = Date.now();
                     const newRemaining = CHECKIN_COOLDOWN - (now - lastCheckinTime);
@@ -609,7 +559,9 @@
                     const lastCheckin = userData.lastCheckin;
 
                     if (lastCheckin && (Date.now() - lastCheckin.toDate().getTime() < CHECKIN_COOLDOWN)) {
-                        throw new Error('Bạn đã điểm danh rồi. Vui lòng quay lại sau.');
+                        showAppToast('Thông báo', 'Bạn đã điểm danh rồi. Vui lòng quay lại sau.', 'warning');
+                        updateCheckinUI(userData); // Cập nhật lại UI cho đúng
+                        return;
                     }
 
                     const newPoints = (userData.points || 0) + CHECKIN_REWARD;
@@ -621,62 +573,14 @@
                 showAppToast('Thành công!', `Bạn đã nhận được ${CHECKIN_REWARD} điểm.`, 'success');
             } catch (error) {
                 console.error("Check-in failed: ", error);
-                showAppToast('Thất bại', error.message || 'Đã có lỗi xảy ra. Vui lòng thử lại.', 'error');
+                showAppToast('Thất bại', 'Đã có lỗi xảy ra. Vui lòng thử lại.', 'error');
             } finally {
+                 // Luôn lấy lại dữ liệu mới nhất và cập nhật UI sau khi giao dịch
                 const updatedUserData = await getOrCreateUser(userId);
                 updateCheckinUI(updatedUserData);
             }
         }
         
-        function initializeTelegramTask(userData) {
-            telegramChannelLink.href = TELEGRAM_CHANNEL_URL;
-            if (userData?.completedTasks?.includes(TELEGRAM_TASK_ID)) {
-                verifyTelegramBtn.disabled = true;
-                verifyTelegramBtn.innerHTML = `<i class="fas fa-check-circle me-2"></i> Đã hoàn thành`;
-            } else {
-                verifyTelegramBtn.disabled = false;
-                verifyTelegramBtn.textContent = 'Kiểm tra';
-            }
-        }
-
-        async function handleTelegramVerification() {
-            if (!telegramUserData || !telegramUserData.id || !functions) return;
-            
-            verifyTelegramBtn.disabled = true;
-            verifyTelegramBtn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i> Đang kiểm tra...`;
-
-            // Đây là nơi bạn sẽ gọi đến Firebase Cloud Function của mình
-            // Tên của function ví dụ là 'verifyTelegramMembership'
-            // Bạn cần tạo function này trong project Firebase của bạn.
-            try {
-                // const verifyTask = functions.httpsCallable('verifyTelegramMembership');
-                // const result = await verifyTask({ taskId: TELEGRAM_TASK_ID });
-
-                // ***** PHẦN GIẢ LẬP - XÓA KHI CÓ BACKEND THẬT *****
-                // Giả lập một Cloud Function đang chạy và trả về kết quả thành công sau 2 giây
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                const result = { data: { success: true, message: `Bạn đã nhận được ${TELEGRAM_REWARD} điểm.` } }; 
-                // ***** KẾT THÚC PHẦN GIẢ LẬP *****
-
-
-                if (result.data.success) {
-                    showAppToast('Thành công!', result.data.message, 'success');
-                    const updatedUserData = await getOrCreateUser(telegramUserData.id);
-                    // Cập nhật lại toàn bộ UI sau khi có dữ liệu mới
-                    updateCheckinUI(updatedUserData);
-                    initializeTelegramTask(updatedUserData);
-                } else {
-                    throw new Error(result.data.message || 'Xác minh thất bại.');
-                }
-            } catch (error) {
-                console.error("Verification failed: ", error);
-                showAppToast('Thất bại', error.message, 'error');
-                // Nếu thất bại, kích hoạt lại nút để người dùng thử lại
-                verifyTelegramBtn.disabled = false;
-                verifyTelegramBtn.textContent = 'Kiểm tra';
-            }
-        }
-
         function showAppToast(header, message, type = 'info') {
             document.querySelector('.toast-notification')?.remove();
             const toast = document.createElement('div');
@@ -714,7 +618,8 @@
                 tg.ready();
                 if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
                     telegramUserData = tg.initDataUnsafe.user;
-                    initializeFirebaseAndTasks(telegramUserData); // Cập nhật hàm gọi
+                    // BẮT ĐẦU TÍNH NĂNG CHECK-IN KHI CÓ DỮ LIỆU USER
+                    initializeFirebaseAndCheckin(telegramUserData);
                 }
             }
         } catch (e) { 
@@ -899,6 +804,7 @@
             if (!isMyWallet) clearInterval(activityRefreshInterval);
 
             try {
+                // Bước 1: Gọi các API cần thiết
                 const [tonapiResults, coingeckoResult] = await Promise.allSettled([
                     Promise.allSettled([
                         fetch(`${TON_API_BASE}/accounts/${addressToFetch}`),
@@ -921,6 +827,7 @@
                 const eventsInfo = (eventsResult.status === 'fulfilled' && eventsResult.value.ok) ? await eventsResult.value.json() : { events: [] };
                 const priceData = (coingeckoResult.status === 'fulfilled' && coingeckoResult.value.ok) ? await coingeckoResult.value.json() : {};
 
+                // Bước 2: Tính toán giá trị
                 let totalValueUsd = 0;
                 let totalValueVnd = 0;
                 let tonValueUsd = 0;
@@ -949,6 +856,7 @@
                     });
                 }
 
+                // Bước 3: Hiển thị kết quả
                 totalValueUsdEl.textContent = `$${totalValueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                 totalValueVndEl.textContent = `${totalValueVnd.toLocaleString('vi-VN')} VNĐ`;
                 portfolioSkeleton.style.display = 'none';
@@ -1236,21 +1144,17 @@
             }
         }
 
-        // === LOGIC CHUYỂN VIEW VÀ ROUTING (UPDATED) ===
+        // === LOGIC CHUYỂN VIEW VÀ ROUTING ===
         const switchView = (viewToShow) => {
-            [dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl].forEach(section => {
+            [dashboardEl, heroEl, newsSection, appStoreSection].forEach(section => {
                 if(section) section.style.display = 'none';
             });
-            [navDashboard, navApps, navTask].forEach(nav => nav.classList.remove('active'));
+            [navDashboard, navApps].forEach(nav => nav.classList.remove('active'));
 
             if (viewToShow === 'apps') {
                 appStoreSection.style.display = 'block';
                 navApps.classList.add('active');
-            } else if (viewToShow === 'task') {
-                taskSectionEl.style.display = 'block';
-                navTask.classList.add('active');
-            }
-            else { // Default to dashboard
+            } else {
                 if (tonConnectUI.connected) {
                     dashboardEl.style.display = 'block';
                 } else {
@@ -1270,10 +1174,7 @@
             const params = new URLSearchParams(queryString || '');
             const searchQuery = params.get('search');
 
-            let view = 'dashboard'; // Default view
-            if (path === 'apps') view = 'apps';
-            if (path === 'task') view = 'task';
-            
+            const view = (path === 'apps') ? 'apps' : 'dashboard';
             switchView(view);
 
             if (view === 'apps') {
@@ -1330,7 +1231,7 @@
                 copyAddressBtn.dataset.address = friendlyAddress;
                 myAccountBtn.href = `https://tonviewer.com/${friendlyAddress}`;
                 
-                handleRouteChange(); // Gọi sau khi có wallet để hiển thị đúng dashboard
+                handleRouteChange();
                 await fetchAndDisplayAccountData(connectedWalletAddress);
 
                 activityRefreshInterval = setInterval(() => {
@@ -1348,7 +1249,7 @@
                 appLogoImg.src = DEFAULT_LOGO_SRC;
                 appLogoImg.style.borderRadius = '0';
                 appLogoText.textContent = '';
-                handleRouteChange(); // Gọi để hiển thị hero section
+                handleRouteChange();
             }
         });
         
@@ -1384,8 +1285,7 @@
             if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none';
         });
 
-        // UPDATED: Thêm navTask vào danh sách listener
-        [navDashboard, navApps, navTask].forEach(link => link.addEventListener('click', (e) => {
+        [navDashboard, navApps].forEach(link => link.addEventListener('click', () => {
             if (sidebarMenu.classList.contains('open')) toggleSidebar();
         }));
 
@@ -1418,9 +1318,10 @@
         connectWalletHeroBtnContainer.appendChild(heroConnectButton);
         
         fetchCryptoNews();
-        handleRouteChange(); // Gọi để xác định view ban đầu
+        handleRouteChange();
     });
     </script>
+
     
 </body>
 </html>
