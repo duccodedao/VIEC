@@ -874,7 +874,7 @@
             const [metadataRes, historyRes, holdersRes] = await Promise.allSettled([
                 fetch(`${TON_API_BASE}/jettons/${jettonAddress}`),
                 fetch(`${TON_API_BASE}/accounts/${jettonAddress}/events?limit=100`),
-                fetch(`${TON_API_BASE}/jettons/${jettonAddress}/holders?limit=1000`)
+                fetch(`${TON_API_BASE}/jettons/${jettonAddress}/holders?limit=100`)
             ]);
 
             let jettonMetadata = null;
@@ -917,7 +917,7 @@
                         <table class="table table-hover align-middle">
                             <thead>
                                 <tr>
-                                    <th scope="col" style="width: 5%;">#</th>
+                                    <th scope="col" style="width: 5%;">#TOP 100</th>
                                     <th scope="col">Holder</th>
                                     <th scope="col" class="text-end">Balance</th>
                                 </tr>
