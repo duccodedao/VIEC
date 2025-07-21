@@ -15,7 +15,8 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
-    <!-- Firebase SDK - Cập nhật -->
+    <!-- Firebase SDK - THÊM MỚI -->
+    <!-- Sử dụng thư viện 'compat' để có cú pháp đơn giản hơn, phù hợp để tích hợp nhanh -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     
@@ -213,9 +214,11 @@
 <body>
     <div id="sidebar-overlay"></div>
     <nav id="sidebar-menu" class="sidebar">
+        <!-- NAVIGATION UPDATED: Thêm "Task" -->
         <div class="sidebar-nav">
             <a href="#dashboard" class="sidebar-link active" id="nav-dashboard">Dashboard</a>
             <a href="#apps" class="sidebar-link" id="nav-apps">Apps</a>
+            <a href="#task" class="sidebar-link" id="nav-task">Task</a>
         </div>
         
         <div class="sidebar-wallet-connect">
@@ -246,11 +249,11 @@
             </button>
         </header>
 
+        <!-- DASHBOARD SECTION: Thẻ check-in đã được di chuyển -->
         <main id="dashboard">
-            <!-- DÀN TRANG ĐƯỢC CẬP NHẬT: Thêm thẻ check-in -->
             <div class="row g-4 mb-4">
-                <!-- Thẻ Tổng Quan Tài Sản -->
-                <div class="col-lg-7">
+                <!-- Thẻ Tổng Quan Tài Sản - Chỉnh lại chiều rộng -->
+                <div class="col-lg-12">
                     <div id="portfolio-overview-card" class="card-glass">
                         <h5 class="card-title">Tổng Quan Tài Sản</h5>
                         <div id="portfolio-overview-content">
@@ -260,23 +263,6 @@
                          <div id="portfolio-overview-skeleton" style="display: none;">
                             <div class="skeleton-loader skeleton-line w-75" style="height: 35px; margin-bottom: 15px;"></div>
                             <div class="skeleton-loader skeleton-line w-50" style="height: 20px;"></div>
-                        </div>
-                    </div>
-                </div>
-                <!-- THẺ CHECK-IN MỚI -->
-                <div class="col-lg-5">
-                    <div class="card-glass">
-                        <h5 class="card-title">Điểm Danh Hàng Ngày</h5>
-                        <div id="daily-checkin-content">
-                             <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <p class="text-secondary mb-0">Điểm của bạn</p>
-                                    <h3 id="user-points" class="fw-bold mb-0">0</h3>
-                                </div>
-                                <button id="checkin-button" class="btn px-4 py-2" style="background-color: var(--accent-secondary); color: white; font-weight: 600;" disabled>
-                                    <i class="fas fa-spinner fa-spin me-2"></i>Kết nối...
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -309,18 +295,8 @@
                 </div>
                 <div class="col-lg-5">
                      <div class="row g-4">
-                        <!-- THAY ĐỔI CẤU TRÚC CỘT PHẢI -->
-                        <div class="col-12"><div class="card-glass"><h5 class="card-title">Token Portfolio</h5><div id="other-tokens-content" style="max-height: 250px; overflow-y: auto; padding-right: 10px;"></div></div></div>
-                        <!-- THẺ LỊCH SỬ ĐIỂM MỚI -->
-                        <div class="col-12">
-                            <div class="card-glass">
-                                <h5 class="card-title">Lịch sử điểm</h5>
-                                <div id="point-history-content" style="max-height: 220px; overflow-y: auto; padding-right: 10px;">
-                                    <!-- Nội dung lịch sử sẽ được render ở đây -->
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12"><div class="card-glass"><h5 class="card-title">Activity Feed</h5><div id="activity-feed-content" style="max-height: 275px; overflow-y: auto; padding-right: 10px;"></div></div></div>
+                         <div class="col-12"><div class="card-glass"><h5 class="card-title">Token Portfolio</h5><div id="other-tokens-content" style="max-height: 250px; overflow-y: auto; padding-right: 10px;"></div></div></div>
+                        <div class="col-12"><div class="card-glass"><h5 class="card-title">Activity Feed</h5><div id="activity-feed-content" style="max-height: 525px; overflow-y: auto; padding-right: 10px;"></div></div></div>
                      </div>
                 </div>
             </div>
@@ -363,6 +339,81 @@
                 </div>
             </div>
         </main>
+        
+        <!-- NEW TASK SECTION: Khu vực mới cho Check-in và các nhiệm vụ khác -->
+        <main id="task-section" style="display: none;">
+            <div class="text-center mb-5">
+                <h1 class="mb-2" style="font-weight: 700;">Nhiệm Vụ & Phần Thưởng</h1>
+                <p class="lead text-secondary col-md-8 mx-auto">Hoàn thành nhiệm vụ hàng ngày để tích lũy điểm thưởng.</p>
+                 <p class="text-warning fw-bold mb-4"><i class="fas fa-exclamation-triangle me-2"></i>Ghi chú: Điểm sẽ được quy đổi sang token trong tương lai.</p>
+            </div>
+            
+            <div class="row g-4 justify-content-center">
+                <!-- Thẻ Check-in được chuyển vào đây -->
+                <div class="col-lg-6 col-md-8">
+                    <div class="card-glass">
+                        <h5 class="card-title">Điểm Danh Hàng Ngày</h5>
+                        <div id="daily-checkin-content">
+                             <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-secondary mb-0">Điểm của bạn</p>
+                                    <h3 id="user-points" class="fw-bold mb-0">0</h3>
+                                </div>
+                                <button id="checkin-button" class="btn px-4 py-2" style="background-color: var(--accent-secondary); color: white; font-weight: 600;" disabled>
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Kết nối...
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thẻ Nhiệm vụ Social -->
+                <div class="col-lg-6 col-md-8">
+                    <div class="card-glass">
+                        <h5 class="card-title">Nhiệm vụ Social</h5>
+                        <div id="social-tasks-content">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fab fa-twitter fa-2x me-3" style="color: #1DA1F2;"></i>
+                                    <div>
+                                        <h6 class="mb-0">Theo dõi Twitter</h6>
+                                        <small class="text-secondary">+20 điểm</small>
+                                    </div>
+                                </div>
+                                <a href="#" target="_blank" class="btn btn-sm" style="background-color: var(--border-color);">Thực hiện</a>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <i class="fab fa-telegram-plane fa-2x me-3" style="color: #2AABEE;"></i>
+                                    <div>
+                                        <h6 class="mb-0">Tham gia kênh Telegram</h6>
+                                        <small class="text-secondary">+20 điểm</small>
+                                    </div>
+                                </div>
+                                <a href="#" target="_blank" class="btn btn-sm" style="background-color: var(--border-color);">Thực hiện</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thẻ Lịch sử Check-in -->
+                 <div class="col-lg-6 col-md-8">
+                    <div class="card-glass">
+                        <h5 class="card-title">Lịch sử Check-in</h5>
+                        <div id="checkin-history-content" style="max-height: 200px; overflow-y: auto;">
+                           <p class="text-center text-secondary pt-3">Lịch sử điểm danh sẽ sớm được cập nhật.</p>
+                           <!-- Ví dụ về một item lịch sử (có thể thêm bằng JS sau này) -->
+                           <!-- 
+                           <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-secondary border-opacity-25">
+                               <p class="mb-0"><i class="fas fa-calendar-check me-2 text-success"></i>Điểm danh ngày 20/07/2025</p>
+                               <p class="mb-0 fw-bold amount-in">+10</p>
+                           </div> 
+                           -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <div class="modal fade" id="jettonDetailModal" tabindex="-1" aria-labelledby="jettonDetailModalLabel" aria-hidden="true">
@@ -397,9 +448,11 @@
         const TON_API_BASE = 'https://tonapi.io/v2';
         const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
         
-        // --- Elements ---
+        // --- Elements (UPDATED: Thêm taskSectionEl, navTask) ---
         const dashboardEl = document.getElementById('dashboard');
         const heroEl = document.getElementById('hero-section');
+        const appStoreSection = document.getElementById('app-store-section');
+        const taskSectionEl = document.getElementById('task-section'); // Mới
         const mainAssetsContent = document.getElementById('main-assets-content');
         const activityFeedContent = document.getElementById('activity-feed-content');
         const otherTokensContent = document.getElementById('other-tokens-content');
@@ -415,6 +468,7 @@
         const sidebarOverlay = document.getElementById('sidebar-overlay');
         const navDashboard = document.getElementById('nav-dashboard');
         const navApps = document.getElementById('nav-apps');
+        const navTask = document.getElementById('nav-task'); // Mới
         const tonConnectButtonRoot = document.getElementById('ton-connect-button-root');
         const connectWalletHeroBtnContainer = document.getElementById('connect-wallet-hero-btn-container');
         const customWalletContainer = document.getElementById('custom-wallet-button-container');
@@ -426,7 +480,6 @@
         const appLogoImg = document.getElementById('app-logo-img');
         const appLogoText = document.getElementById('app-logo-text');
         const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo_viewc.png';
-        const appStoreSection = document.getElementById('app-store-section');
         const appGrid = document.getElementById('app-grid');
         const appSearchInput = document.getElementById('app-search-input');
         const appSearchButton = document.getElementById('app-search-button');
@@ -451,13 +504,11 @@
         const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
         const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
 
-        // === LOGIC CHECK-IN VÀ FIREBASE (CẬP NHẬT) ===
+        // === LOGIC CHECK-IN VÀ FIREBASE ===
         const userPointsEl = document.getElementById('user-points');
         const checkinButton = document.getElementById('checkin-button');
-        const pointHistoryContent = document.getElementById('point-history-content');
         let db = null;
         let checkinInterval = null;
-        let pointHistoryUnsubscribe = null; // Biến để lưu hàm hủy lắng nghe
         const CHECKIN_REWARD = 10; // Điểm thưởng mỗi lần check-in
         const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000; // 24 giờ (ms)
         
@@ -485,9 +536,6 @@
             const userData = await getOrCreateUser(user.id);
             updateCheckinUI(userData);
             
-            // Bắt đầu lắng nghe lịch sử điểm
-            listenForPointHistory(user.id);
-            
             checkinButton.addEventListener('click', handleCheckin);
         }
 
@@ -500,22 +548,15 @@
                     id: userId,
                     username: telegramUserData?.username || 'N/A',
                     points: 0,
-                    lastCheckin: null,
-                    firstName: telegramUserData?.first_name || '',
-                    lastName: telegramUserData?.last_name || ''
+                    lastCheckin: null
                 };
                 await userRef.set(newUser);
                 return newUser;
             } else {
-                // Cập nhật thông tin nếu cần
-                const existingData = doc.data();
-                if (existingData.username !== telegramUserData?.username) {
-                    await userRef.update({ username: telegramUserData?.username || 'N/A' });
-                }
                 return doc.data();
             }
         }
-        
+
         function updateCheckinUI(userData) {
             if (!userData) return;
             userPointsEl.textContent = userData.points || 0;
@@ -537,6 +578,8 @@
                 checkinButton.innerHTML = `<i class="fas fa-calendar-check me-2"></i> Check-in Ngay!`;
             } else {
                 checkinButton.disabled = true;
+                const remainingTime = CHECKIN_COOLDOWN - timeSince;
+
                 const updateCountdown = () => {
                     const now = Date.now();
                     const newRemaining = CHECKIN_COOLDOWN - (now - lastCheckinTime);
@@ -580,21 +623,9 @@
                     }
 
                     const newPoints = (userData.points || 0) + CHECKIN_REWARD;
-                    const serverTimestamp = firebase.firestore.FieldValue.serverTimestamp();
-                    
-                    // Cập nhật điểm và thời gian check-in
                     transaction.update(userRef, {
                         points: newPoints,
-                        lastCheckin: serverTimestamp
-                    });
-
-                    // Thêm bản ghi vào lịch sử điểm
-                    const historyRef = userRef.collection('point_history').doc();
-                    transaction.set(historyRef, {
-                        points: CHECKIN_REWARD,
-                        type: 'check-in',
-                        description: 'Điểm danh hàng ngày',
-                        timestamp: serverTimestamp
+                        lastCheckin: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 });
                 showAppToast('Thành công!', `Bạn đã nhận được ${CHECKIN_REWARD} điểm.`, 'success');
@@ -602,64 +633,9 @@
                 console.error("Check-in failed: ", error);
                 showAppToast('Thất bại', 'Đã có lỗi xảy ra. Vui lòng thử lại.', 'error');
             } finally {
-                 const updatedUserData = await getOrCreateUser(userId);
-                 updateCheckinUI(updatedUserData);
+                const updatedUserData = await getOrCreateUser(userId);
+                updateCheckinUI(updatedUserData);
             }
-        }
-
-        // HÀM MỚI: Lắng nghe và render lịch sử điểm
-        function listenForPointHistory(userId) {
-            // Hủy lắng nghe cũ nếu có
-            if (pointHistoryUnsubscribe) {
-                pointHistoryUnsubscribe();
-            }
-            
-            pointHistoryContent.innerHTML = skeletonTx.repeat(2); // Skeleton loader
-
-            const historyRef = db.collection('users').doc(String(userId)).collection('point_history');
-            
-            pointHistoryUnsubscribe = historyRef.orderBy('timestamp', 'desc').limit(50).onSnapshot(snapshot => {
-                if (snapshot.empty) {
-                    pointHistoryContent.innerHTML = '<p class="text-secondary text-center p-3">Chưa có lịch sử điểm.</p>';
-                    return;
-                }
-
-                let historyHtml = '';
-                snapshot.forEach(doc => {
-                    const item = doc.data();
-                    historyHtml += renderSingleHistoryItem(item);
-                });
-                pointHistoryContent.innerHTML = historyHtml;
-
-            }, error => {
-                console.error("Error listening to point history: ", error);
-                pointHistoryContent.innerHTML = '<p class="text-danger text-center p-3">Không thể tải lịch sử điểm.</p>';
-            });
-        }
-
-        // HÀM MỚI: Render một mục trong lịch sử
-        function renderSingleHistoryItem(item) {
-            if (!item.timestamp || !item.timestamp.toDate) return ''; 
-
-            const date = item.timestamp.toDate();
-            const formattedDate = date.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-            const isPositive = item.points >= 0;
-            const colorClass = isPositive ? 'amount-in' : 'amount-out';
-            const sign = isPositive ? '+' : '';
-            const iconClass = item.type === 'check-in' ? 'fa-calendar-check' : (isPositive ? 'fa-arrow-up' : 'fa-arrow-down');
-
-            // Mặc định là 'Cập nhật điểm', nhưng ưu tiên description có sẵn
-            const description = item.description || (isPositive ? 'Admin cộng điểm' : 'Admin trừ điểm');
-
-            return `
-                <div class="d-flex justify-content-between align-items-center py-2 border-bottom" style="border-color: var(--border-color) !important; opacity: 0.5;">
-                    <div>
-                        <p class="m-0 fw-bold" style="font-size: 0.9rem;"><i class="fas ${iconClass} me-2 ${colorClass}"></i>${description}</p>
-                        <small class="text-secondary">${formattedDate}</small>
-                    </div>
-                    <h6 class="m-0 fw-bold ${colorClass}">${sign}${item.points}</h6>
-                </div>
-            `;
         }
         
         function showAppToast(header, message, type = 'info') {
@@ -700,9 +676,6 @@
                 if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
                     telegramUserData = tg.initDataUnsafe.user;
                     initializeFirebaseAndCheckin(telegramUserData);
-                } else {
-                     checkinButton.innerHTML = `<i class="fas fa-times-circle me-2"></i> No User`;
-                     checkinButton.disabled = true;
                 }
             }
         } catch (e) { 
@@ -836,7 +809,7 @@
                             ${valueDisplayHtml}
                         </div>`;
                 });
-            } else { otherTokensContent.innerHTML = `<p class="text-secondary text-center p-3">No tokens found.</p>`; }
+            } else { otherTokensContent.innerHTML = `<p class="text-secondary">No tokens found.</p>`; }
         }
 
         function renderNFTs(nfts) {
@@ -848,7 +821,7 @@
                     html += `<div class="col-3"><div title="${nft.metadata?.name || 'NFT'}" style="cursor: pointer;"><img src="${imgUrl}" style="width: 100%; border-radius: 12px; aspect-ratio: 1/1; object-fit: cover;" onerror="this.src='https://via.placeholder.com/100'"></div></div>`;
                 });
                 nftGalleryContent.innerHTML = html + '</div>';
-            } else { nftGalleryContent.innerHTML = `<p class="text-secondary text-center p-3">No NFTs found.</p>`; }
+            } else { nftGalleryContent.innerHTML = `<p class="text-secondary">No NFTs found.</p>`; }
         }
 
         function renderSingleActivityItem(log) {
@@ -859,7 +832,7 @@
             const commentDisplay = log.comment ? `<div class="w-100 mt-2"><p class="m-0 text-secondary" style="font-size: 0.8rem; font-style: italic;"><i class="fas fa-comment-dots me-2"></i>${log.comment}</p></div>` : '';
             const partyAddressHtml = `<code class="copyable-address" data-address="${log.party_full}" title="Click to copy">${log.party}</code>`;
             return `
-             <div class="d-flex flex-wrap align-items-center py-3 border-bottom" style="border-color: var(--border-color) !important; opacity: 0.5;">
+             <div class="d-flex flex-wrap align-items-center py-3 border-bottom border-secondary border-opacity-25">
                 <img src="${log.image}" class="activity-item-icon me-3" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
                 <div class="flex-grow-1"><p class="m-0 fw-bold">${statusIcon}${titleText}</p><p class="m-0 text-secondary" style="font-size: 0.8rem;">${log.party_title}: ${partyAddressHtml}</p></div>
                 <div class="text-end">${amountDisplay}<p class="m-0 text-secondary" style="font-size: 0.8rem;">${new Date(log.timestamp).toLocaleString()}</p></div>
@@ -887,7 +860,6 @@
             if (!isMyWallet) clearInterval(activityRefreshInterval);
 
             try {
-                // Bước 1: Gọi các API cần thiết
                 const [tonapiResults, coingeckoResult] = await Promise.allSettled([
                     Promise.allSettled([
                         fetch(`${TON_API_BASE}/accounts/${addressToFetch}`),
@@ -910,7 +882,6 @@
                 const eventsInfo = (eventsResult.status === 'fulfilled' && eventsResult.value.ok) ? await eventsResult.value.json() : { events: [] };
                 const priceData = (coingeckoResult.status === 'fulfilled' && coingeckoResult.value.ok) ? await coingeckoResult.value.json() : {};
 
-                // Bước 2: Tính toán giá trị
                 let totalValueUsd = 0;
                 let totalValueVnd = 0;
                 let tonValueUsd = 0;
@@ -939,7 +910,6 @@
                     });
                 }
 
-                // Bước 3: Hiển thị kết quả
                 totalValueUsdEl.textContent = `$${totalValueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                 totalValueVndEl.textContent = `${totalValueVnd.toLocaleString('vi-VN')} VNĐ`;
                 portfolioSkeleton.style.display = 'none';
@@ -977,7 +947,7 @@
                 activityFeedContent.innerHTML = initialLogsHtml;
                 currentActivityLogs = newLogs.slice(0, 50);
                 if (currentActivityLogs.length === 0) {
-                    activityFeedContent.innerHTML = `<p class="text-secondary text-center p-3">No recent activity found.</p>`;
+                    activityFeedContent.innerHTML = `<p class="text-secondary">No recent activity found.</p>`;
                 }
             }
         }
@@ -1227,17 +1197,21 @@
             }
         }
 
-        // === LOGIC CHUYỂN VIEW VÀ ROUTING ===
+        // === LOGIC CHUYỂN VIEW VÀ ROUTING (UPDATED) ===
         const switchView = (viewToShow) => {
-            [dashboardEl, heroEl, newsSection, appStoreSection].forEach(section => {
+            [dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl].forEach(section => {
                 if(section) section.style.display = 'none';
             });
-            [navDashboard, navApps].forEach(nav => nav.classList.remove('active'));
+            [navDashboard, navApps, navTask].forEach(nav => nav.classList.remove('active'));
 
             if (viewToShow === 'apps') {
                 appStoreSection.style.display = 'block';
                 navApps.classList.add('active');
-            } else {
+            } else if (viewToShow === 'task') {
+                taskSectionEl.style.display = 'block';
+                navTask.classList.add('active');
+            }
+            else { // Default to dashboard
                 if (tonConnectUI.connected) {
                     dashboardEl.style.display = 'block';
                 } else {
@@ -1257,7 +1231,10 @@
             const params = new URLSearchParams(queryString || '');
             const searchQuery = params.get('search');
 
-            const view = (path === 'apps') ? 'apps' : 'dashboard';
+            let view = 'dashboard'; // Default view
+            if (path === 'apps') view = 'apps';
+            if (path === 'task') view = 'task';
+            
             switchView(view);
 
             if (view === 'apps') {
@@ -1314,7 +1291,7 @@
                 copyAddressBtn.dataset.address = friendlyAddress;
                 myAccountBtn.href = `https://tonviewer.com/${friendlyAddress}`;
                 
-                handleRouteChange();
+                handleRouteChange(); // Gọi sau khi có wallet để hiển thị đúng dashboard
                 await fetchAndDisplayAccountData(connectedWalletAddress);
 
                 activityRefreshInterval = setInterval(() => {
@@ -1332,7 +1309,7 @@
                 appLogoImg.src = DEFAULT_LOGO_SRC;
                 appLogoImg.style.borderRadius = '0';
                 appLogoText.textContent = '';
-                handleRouteChange();
+                handleRouteChange(); // Gọi để hiển thị hero section
             }
         });
         
@@ -1368,7 +1345,8 @@
             if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none';
         });
 
-        [navDashboard, navApps].forEach(link => link.addEventListener('click', () => {
+        // UPDATED: Thêm navTask vào danh sách listener
+        [navDashboard, navApps, navTask].forEach(link => link.addEventListener('click', (e) => {
             if (sidebarMenu.classList.contains('open')) toggleSidebar();
         }));
 
@@ -1401,8 +1379,9 @@
         connectWalletHeroBtnContainer.appendChild(heroConnectButton);
         
         fetchCryptoNews();
-        handleRouteChange();
+        handleRouteChange(); // Gọi để xác định view ban đầu
     });
     </script>
+    
 </body>
 </html>
