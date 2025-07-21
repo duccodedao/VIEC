@@ -395,12 +395,11 @@
             buttonRootId: 'ton-connect-button-root' 
         });
 
-        // === CÁC HÀM TIỆN ÍCH (CẬP NHẬT) ===
+        // === CÁC HÀM TIỆN ÍCH ===
         const shortenAddress = (addr, start = 6, end = 6) => addr ? (addr.includes('.') ? addr : `${addr.slice(0, start)}...${addr.slice(-end)}`) : 'Unknown';
         
         const formatBalance = (bigIntString, decimals, symbol = '') => {
             try {
-                // Sử dụng mặc định là 9 nếu decimals không hợp lệ
                 const validDecimals = (typeof decimals === 'number' && !isNaN(decimals)) ? decimals : 9;
                 const balance = parseFloat(BigInt(bigIntString)) / (10 ** validDecimals);
                 const formattedNumber = balance.toLocaleString('en-US', {
@@ -733,7 +732,7 @@
             }
         }
         
-        // === LOGIC MODAL (CẬP NHẬT) ===
+        // === LOGIC MODAL (ĐÃ SỬA LỖI) ===
         async function showJettonDetails(jettonAddress) {
             jettonDetailModal.show();
             const headerEl = document.getElementById('jetton-modal-header-content');
@@ -783,13 +782,14 @@
                 } else { historyEl.innerHTML = `<p class="text-secondary text-center p-3">No history found.</p>`; }
             } else { historyEl.innerHTML = `<p class="text-danger">Failed to load history.</p>`; }
 
-            // === PHẦN CẬP NHẬT CHO TAB HOLDERS ===
+            // === PHẦN SỬA LỖI CHO TAB HOLDERS ===
             if (holdersRes.status === 'fulfilled' && holdersRes.value.ok) {
                 const data = await holdersRes.value.json();
                 const decimals = jettonMetadata?.decimals;
                 const symbol = jettonMetadata?.symbol || '';
                 
-                if (data.holders?.length > 0) {
+                // SỬA LỖI: Dùng `data.addresses` thay vì `data.holders`
+                if (data.addresses?.length > 0) {
                     let tableHtml = `
                         <table class="table table-hover align-middle">
                             <thead>
@@ -801,16 +801,15 @@
                             </thead>
                             <tbody>
                     `;
-                    for (const [index, holder] of data.holders.entries()) {
+                    // SỬA LỖI: Lặp qua `data.addresses`
+                    for (const [index, holder] of data.addresses.entries()) {
                         const ownerWalletAddress = holder.owner.address;
                         const friendlyDisplayAddress = await getFriendlyAddress(ownerWalletAddress);
                         
-                        // Hiển thị tên .ton nếu có, hoặc địa chỉ rút gọn
                         const displayName = holder.owner.name 
                             ? `<strong>${holder.owner.name}</strong>`
                             : `<code class="copyable-address" data-address="${friendlyDisplayAddress}" title="Click to copy">${shortenAddress(friendlyDisplayAddress)}</code>`;
 
-                        // Hiển thị thêm địa chỉ rút gọn bên dưới nếu có tên .ton
                         const fullAddressHtml = holder.owner.name 
                             ? `<br><small class="text-secondary"><code class="copyable-address" data-address="${friendlyDisplayAddress}" title="Click to copy">${shortenAddress(friendlyDisplayAddress, 10, 10)}</code></small>` 
                             : '';
