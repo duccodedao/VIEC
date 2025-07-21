@@ -482,27 +482,42 @@
         };
         
         // === CÁC HÀM RENDER GIAO DIỆN ===
-        async function renderMainAssets(accountInfo, tonPriceUsd) {
+        async function renderMainAssets(accountInfo, tonPriceUsd, tonValueUsd, tonValueVnd) {
             if (!accountInfo) {
                 mainAssetsContent.innerHTML = `<p class="text-danger">Could not load account data.</p>`;
                 return;
             }
             const userFriendlyAddress = await getFriendlyAddress(accountInfo.address);
-            const priceText = tonPriceUsd ? `$${tonPriceUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'Giá không có sẵn';
+            const priceText = tonPriceUsd ? `(@ $${tonPriceUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})` : '';
             
-            // SỬA LỖI: Hiển thị số dư TON chính xác hơn, không làm tròn gắt
+            // Lấy số dư TON chính xác và định dạng lại để hiển thị
             const tonBalance = accountInfo.balance / 1e9;
             const formattedTonBalance = tonBalance.toLocaleString('en-US', { maximumFractionDigits: 6 });
 
+            // Hiển thị giá trị riêng của TON
+            const tonValueHtml = `
+                <hr style="border-color: var(--border-color); opacity: 0.5;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-secondary">Giá trị</span>
+                    <div class="text-end">
+                        <strong style="font-size: 1.1rem;">$${tonValueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                        <br>
+                        <small class="text-secondary">${tonValueVnd.toLocaleString('vi-VN')} VNĐ</small>
+                    </div>
+                </div>
+            `;
+
             mainAssetsContent.innerHTML = `
-                <div class="d-flex align-items-center justify-content-between mb-4">
+                <div class="d-flex align-items-center justify-content-between mb-2">
                     <div class="d-flex align-items-center"><img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;"><div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div></div>
                     <div class="text-end">
                         <h4 class="m-0">${formattedTonBalance}</h4>
                         <p class="m-0 text-secondary" style="font-size: 0.9rem;">${priceText}</p>
                     </div>
                 </div>
-                <div class="d-flex align-items-center justify-content-between mt-4">
+                ${tonValueHtml}
+                <hr style="border-color: var(--border-color); opacity: 0.5;">
+                <div class="d-flex align-items-center justify-content-between mt-3">
                     <div class="d-flex align-items-center"><i class="fas fa-wallet me-3" style="width: 48px; font-size: 24px; text-align: center; color: var(--accent-secondary);"></i><div><h5 class="m-0">Address</h5><p class="m-0 text-secondary">Wallet</p></div></div>
                     <h6><code class="copyable-address" data-address="${userFriendlyAddress}" title="Click to copy">${shortenAddress(userFriendlyAddress)}</code></h6>
                 </div>`;
@@ -549,7 +564,7 @@
              </div>`;
         }
         
-        // === LOGIC LẤY DỮ LIỆU (ĐÃ SỬA LỖI VÀ TÁI CẤU TRÚC) ===
+        // === LOGIC LẤY DỮ LIỆU ===
         async function fetchAndDisplayAccountData(addressToFetch) {
             const isNewAddress = addressToFetch !== lastFetchedAddress;
             if (isNewAddress) {
@@ -569,7 +584,7 @@
             if (!isMyWallet) clearInterval(activityRefreshInterval);
 
             try {
-                // Bước 1: Lấy dữ liệu tài khoản cơ bản từ Tonapi bằng Promise.allSettled
+                // Bước 1: Lấy dữ liệu tài khoản cơ bản từ Tonapi
                 const tonapiResults = await Promise.allSettled([
                     fetch(`${TON_API_BASE}/accounts/${addressToFetch}`),
                     fetch(`${TON_API_BASE}/accounts/${addressToFetch}/jettons`),
@@ -579,13 +594,11 @@
 
                 const [accountResult, jettonsResult, nftsResult, eventsResult] = tonapiResults;
                 
-                // KIỂM TRA QUAN TRỌNG: Nếu không lấy được thông tin tài khoản chính, dừng lại và báo lỗi.
                 if (accountResult.status === 'rejected' || !accountResult.value.ok) {
                     throw new Error(`Could not fetch account info. The address may be incorrect or uninitialized.`);
                 }
                 const accountInfo = await accountResult.value.json();
 
-                // Xử lý các kết quả khác một cách an toàn
                 const jettonsInfo = (jettonsResult.status === 'fulfilled' && jettonsResult.value.ok) ? await jettonsResult.value.json() : { balances: [] };
                 const nftsInfo = (nftsResult.status === 'fulfilled' && nftsResult.value.ok) ? await nftsResult.value.json() : { nft_items: [] };
                 const eventsInfo = (eventsResult.status === 'fulfilled' && eventsResult.value.ok) ? await eventsResult.value.json() : { events: [] };
@@ -595,9 +608,7 @@
                 if (jettonsInfo.balances.length > 0) {
                     jettonsInfo.balances.forEach(j => {
                         const coingeckoId = JETTON_ADDRESS_TO_COINGECKO_ID[j.jetton.address];
-                        if (coingeckoId) {
-                            coingeckoIdsToFetch.add(coingeckoId);
-                        }
+                        if (coingeckoId) coingeckoIdsToFetch.add(coingeckoId);
                     });
                 }
                 
@@ -608,12 +619,16 @@
                 // Bước 4: Tính toán tổng giá trị
                 let totalValueUsd = 0;
                 let totalValueVnd = 0;
+                let tonValueUsd = 0;
+                let tonValueVnd = 0;
                 
                 const tonPriceInfo = priceData['the-open-network'];
                 if (tonPriceInfo) {
                     const tonBalance = accountInfo.balance / 1e9;
-                    totalValueUsd += tonBalance * (tonPriceInfo.usd || 0);
-                    totalValueVnd += tonBalance * (tonPriceInfo.vnd || 0);
+                    tonValueUsd = tonBalance * (tonPriceInfo.usd || 0);
+                    tonValueVnd = tonBalance * (tonPriceInfo.vnd || 0);
+                    totalValueUsd += tonValueUsd;
+                    totalValueVnd += tonValueVnd;
                 }
                 
                 if (jettonsInfo.balances.length > 0) {
@@ -634,10 +649,10 @@
                 portfolioSkeleton.style.display = 'none';
                 portfolioContent.style.display = 'block';
 
-                // Render các thành phần khác của giao diện
+                // Render các thành phần khác
                 const newLogs = (eventsInfo.events ?? []).flatMap((event) => parseEvent(event, accountInfo.address));
                 processNewActivity(newLogs);
-                await renderMainAssets(accountInfo, tonPriceInfo?.usd);
+                await renderMainAssets(accountInfo, tonPriceInfo?.usd, tonValueUsd, tonValueVnd); // Truyền giá trị riêng của TON
                 renderOtherTokens(jettonsInfo.balances ?? []);
                 renderNFTs(nftsInfo.nft_items ?? []);
                 if (nftsResult.status === 'rejected') {
