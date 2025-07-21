@@ -560,7 +560,7 @@
             if (!isMyWallet) clearInterval(activityRefreshInterval);
 
             try {
-                // Bước 1: Lấy dữ liệu tài khoản cơ bản từ Tonapi bằng Promise.allSettled để tăng độ ổn định
+                // Bước 1: Lấy dữ liệu tài khoản cơ bản từ Tonapi bằng Promise.allSettled
                 const tonapiResults = await Promise.allSettled([
                     fetch(`${TON_API_BASE}/accounts/${addressToFetch}`),
                     fetch(`${TON_API_BASE}/accounts/${addressToFetch}/jettons`),
@@ -570,19 +570,19 @@
 
                 const [accountResult, jettonsResult, nftsResult, eventsResult] = tonapiResults;
                 
-                // KIỂM TRA QUAN TRỌNG: Nếu không lấy được thông tin tài khoản chính, dừng lại và báo lỗi.
+                // KIỂM TRA QUAN TRỌNG: Nếu không lấy được thông tin tài khoản, dừng lại và báo lỗi.
                 if (accountResult.status === 'rejected' || !accountResult.value.ok) {
                     throw new Error(`Could not fetch account info. The address may be incorrect or uninitialized.`);
                 }
                 const accountInfo = await accountResult.value.json();
 
-                // Xử lý các kết quả khác một cách an toàn (nếu lỗi thì dùng giá trị mặc định)
+                // Xử lý các kết quả khác một cách an toàn
                 const jettonsInfo = (jettonsResult.status === 'fulfilled' && jettonsResult.value.ok) ? await jettonsResult.value.json() : { balances: [] };
                 const nftsInfo = (nftsResult.status === 'fulfilled' && nftsResult.value.ok) ? await nftsResult.value.json() : { nft_items: [] };
                 const eventsInfo = (eventsResult.status === 'fulfilled' && eventsResult.value.ok) ? await eventsResult.value.json() : { events: [] };
                 
                 // Bước 2: Xây dựng danh sách ID để lấy giá từ CoinGecko
-                const coingeckoIdsToFetch = new Set(['the-open-network']); // Luôn lấy giá TON
+                const coingeckoIdsToFetch = new Set(['the-open-network']);
                 if (jettonsInfo.balances.length > 0) {
                     jettonsInfo.balances.forEach(j => {
                         const coingeckoId = JETTON_ADDRESS_TO_COINGECKO_ID[j.jetton.address];
@@ -596,10 +596,11 @@
                 const pricesRes = await fetch(`${COINGECKO_API_BASE}/simple/price?ids=${[...coingeckoIdsToFetch].join(',')}&vs_currencies=usd,vnd`);
                 const priceData = pricesRes.ok ? await pricesRes.json() : {};
 
-                // Bước 4: Tính toán tổng giá trị
+                // Bước 4: Tính toán tổng giá trị theo đúng yêu cầu: SUM(balance * price)
                 let totalValueUsd = 0;
                 let totalValueVnd = 0;
                 
+                // 4.1 Tính giá trị của TON = (số dư TON) * (giá TON từ CoinGecko)
                 const tonPriceInfo = priceData['the-open-network'];
                 if (tonPriceInfo) {
                     const tonBalance = accountInfo.balance / 1e9;
@@ -607,11 +608,14 @@
                     totalValueVnd += tonBalance * (tonPriceInfo.vnd || 0);
                 }
                 
+                // 4.2 Lặp qua từng Jetton để tính giá trị và cộng dồn
                 if (jettonsInfo.balances.length > 0) {
                     jettonsInfo.balances.forEach(j => {
                         const coingeckoId = JETTON_ADDRESS_TO_COINGECKO_ID[j.jetton.address];
                         const priceInfo = priceData[coingeckoId];
+                        // Chỉ tính nếu token có trong bản đồ và CoinGecko trả về giá
                         if (priceInfo) {
+                            // Tính giá trị Jetton = (số dư Jetton) * (giá Jetton từ CoinGecko)
                             const jettonBalance = Number(BigInt(j.balance)) / (10 ** (j.jetton.decimals || 9));
                             totalValueUsd += jettonBalance * (priceInfo.usd || 0);
                             totalValueVnd += jettonBalance * (priceInfo.vnd || 0);
@@ -625,7 +629,7 @@
                 portfolioSkeleton.style.display = 'none';
                 portfolioContent.style.display = 'block';
 
-                // Render các thành phần khác
+                // Render các thành phần khác của giao diện
                 const newLogs = (eventsInfo.events ?? []).flatMap((event) => parseEvent(event, accountInfo.address));
                 processNewActivity(newLogs);
                 await renderMainAssets(accountInfo, tonPriceInfo?.usd);
@@ -637,7 +641,6 @@
 
             } catch (error) {
                 console.error("Error fetching account data:", error);
-                // Hiển thị lỗi cụ thể hơn
                 mainAssetsContent.innerHTML = `<p class="text-danger"><strong>Error:</strong> ${error.message}</p>`;
                 [otherTokensContent, nftGalleryContent, activityFeedContent].forEach(el => el.innerHTML = `<p class="text-secondary">Data unavailable.</p>`);
                 portfolioSkeleton.style.display = 'none';
