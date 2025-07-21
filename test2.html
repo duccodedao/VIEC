@@ -15,6 +15,11 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
+    <!-- Firebase SDK - THÊM MỚI -->
+    <!-- Sử dụng thư viện 'compat' để có cú pháp đơn giản hơn, phù hợp để tích hợp nhanh -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -195,6 +200,10 @@
             font-weight: 500;
         }
 
+        #checkin-button:disabled {
+            background-color: #3a3f5a !important;
+            cursor: not-allowed;
+        }
 
         @media (min-width: 768px) {
             .hero-section h1 { font-size: 3.5rem; }
@@ -239,8 +248,10 @@
         </header>
 
         <main id="dashboard">
+            <!-- DÀN TRANG ĐƯỢC CẬP NHẬT: Thêm thẻ check-in -->
             <div class="row g-4 mb-4">
-                <div class="col-12">
+                <!-- Thẻ Tổng Quan Tài Sản -->
+                <div class="col-lg-7">
                     <div id="portfolio-overview-card" class="card-glass">
                         <h5 class="card-title">Tổng Quan Tài Sản</h5>
                         <div id="portfolio-overview-content">
@@ -250,6 +261,23 @@
                          <div id="portfolio-overview-skeleton" style="display: none;">
                             <div class="skeleton-loader skeleton-line w-75" style="height: 35px; margin-bottom: 15px;"></div>
                             <div class="skeleton-loader skeleton-line w-50" style="height: 20px;"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- THẺ CHECK-IN MỚI -->
+                <div class="col-lg-5">
+                    <div class="card-glass">
+                        <h5 class="card-title">Điểm Danh Hàng Ngày</h5>
+                        <div id="daily-checkin-content">
+                             <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-secondary mb-0">Điểm của bạn</p>
+                                    <h3 id="user-points" class="fw-bold mb-0">0</h3>
+                                </div>
+                                <button id="checkin-button" class="btn px-4 py-2" style="background-color: var(--accent-secondary); color: white; font-weight: 600;" disabled>
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Kết nối...
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -414,14 +442,190 @@
         const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
         const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
 
+        // === LOGIC CHECK-IN VÀ FIREBASE (THÊM MỚI) ===
+        const userPointsEl = document.getElementById('user-points');
+        const checkinButton = document.getElementById('checkin-button');
+        let db = null;
+        let checkinInterval = null;
+        const CHECKIN_REWARD = 10; // Điểm thưởng mỗi lần check-in
+        const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000; // 24 giờ (ms)
+        
+        async function initializeFirebaseAndCheckin(user) {
+            if (!user || !user.id) {
+                checkinButton.innerHTML = `<i class="fas fa-times-circle me-2"></i> Lỗi User`;
+                return;
+            };
+
+            // !!! QUAN TRỌNG: Thay thế các giá trị dưới đây bằng cấu hình Firebase của bạn
+            const firebaseConfig = {
+                apiKey: "YOUR_API_KEY",
+                authDomain: "YOUR_AUTH_DOMAIN",
+                projectId: "YOUR_PROJECT_ID",
+                storageBucket: "YOUR_STORAGE_BUCKET",
+                messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+                appId: "YOUR_APP_ID"
+            };
+
+            // Khởi tạo Firebase
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            db = firebase.firestore();
+
+            // Lấy hoặc tạo người dùng trong Firestore và cập nhật UI
+            const userData = await getOrCreateUser(user.id);
+            updateCheckinUI(userData);
+            
+            // Thêm sự kiện click cho nút check-in
+            checkinButton.addEventListener('click', handleCheckin);
+        }
+
+        async function getOrCreateUser(userId) {
+            const userRef = db.collection('users').doc(String(userId));
+            const doc = await userRef.get();
+
+            if (!doc.exists) {
+                const newUser = {
+                    id: userId,
+                    username: telegramUserData?.username || 'N/A',
+                    points: 0,
+                    lastCheckin: null
+                };
+                await userRef.set(newUser);
+                return newUser;
+            } else {
+                return doc.data();
+            }
+        }
+
+        function updateCheckinUI(userData) {
+            if (!userData) return;
+            userPointsEl.textContent = userData.points || 0;
+
+            const { lastCheckin } = userData;
+            if (checkinInterval) clearInterval(checkinInterval);
+
+            if (!lastCheckin) {
+                checkinButton.disabled = false;
+                checkinButton.innerHTML = `<i class="fas fa-calendar-check me-2"></i> Check-in Ngay!`;
+                return;
+            }
+            
+            const lastCheckinTime = lastCheckin.toDate().getTime();
+            const timeSince = Date.now() - lastCheckinTime;
+
+            if (timeSince >= CHECKIN_COOLDOWN) {
+                checkinButton.disabled = false;
+                checkinButton.innerHTML = `<i class="fas fa-calendar-check me-2"></i> Check-in Ngay!`;
+            } else {
+                checkinButton.disabled = true;
+                const remainingTime = CHECKIN_COOLDOWN - timeSince;
+
+                const updateCountdown = () => {
+                    const now = Date.now();
+                    const newRemaining = CHECKIN_COOLDOWN - (now - lastCheckinTime);
+                    if (newRemaining <= 0) {
+                        clearInterval(checkinInterval);
+                        checkinButton.disabled = false;
+                        checkinButton.innerHTML = `<i class="fas fa-calendar-check me-2"></i> Check-in Ngay!`;
+                    } else {
+                        const hours = Math.floor((newRemaining / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
+                        const minutes = Math.floor((newRemaining / 1000 / 60) % 60).toString().padStart(2, '0');
+                        const seconds = Math.floor((newRemaining / 1000) % 60).toString().padStart(2, '0');
+                        checkinButton.innerHTML = `<i class="fas fa-hourglass-half me-2"></i> ${hours}:${minutes}:${seconds}`;
+                    }
+                };
+                updateCountdown();
+                checkinInterval = setInterval(updateCountdown, 1000);
+            }
+        }
+
+        async function handleCheckin() {
+            if (!telegramUserData || !telegramUserData.id) return;
+
+            checkinButton.disabled = true;
+            checkinButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...`;
+            
+            const userId = String(telegramUserData.id);
+            const userRef = db.collection('users').doc(userId);
+            
+            try {
+                await db.runTransaction(async (transaction) => {
+                    const userDoc = await transaction.get(userRef);
+                    if (!userDoc.exists) throw "User document not found!";
+
+                    const userData = userDoc.data();
+                    const lastCheckin = userData.lastCheckin;
+
+                    if (lastCheckin && (Date.now() - lastCheckin.toDate().getTime() < CHECKIN_COOLDOWN)) {
+                        showAppToast('Thông báo', 'Bạn đã điểm danh rồi. Vui lòng quay lại sau.', 'warning');
+                        updateCheckinUI(userData); // Cập nhật lại UI cho đúng
+                        return;
+                    }
+
+                    const newPoints = (userData.points || 0) + CHECKIN_REWARD;
+                    transaction.update(userRef, {
+                        points: newPoints,
+                        lastCheckin: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+                showAppToast('Thành công!', `Bạn đã nhận được ${CHECKIN_REWARD} điểm.`, 'success');
+            } catch (error) {
+                console.error("Check-in failed: ", error);
+                showAppToast('Thất bại', 'Đã có lỗi xảy ra. Vui lòng thử lại.', 'error');
+            } finally {
+                 // Luôn lấy lại dữ liệu mới nhất và cập nhật UI sau khi giao dịch
+                const updatedUserData = await getOrCreateUser(userId);
+                updateCheckinUI(updatedUserData);
+            }
+        }
+        
+        function showAppToast(header, message, type = 'info') {
+            document.querySelector('.toast-notification')?.remove();
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            
+            let iconClass = 'fas fa-info-circle';
+            if (type === 'success') iconClass = 'fas fa-check-circle';
+            if (type === 'error') iconClass = 'fas fa-times-circle';
+            if (type === 'warning') iconClass = 'fas fa-exclamation-triangle';
+            
+            toast.innerHTML = `
+                <div class="toast-notification-header"><i class="${iconClass} me-2"></i> ${header}</div>
+                <p class="m-0">${message}</p>
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 100);
+            const hideTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+            }, 5000);
+
+            toast.addEventListener('click', () => {
+                clearTimeout(hideTimeout);
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+            }, { once: true });
+        }
+
+
         // === KHỞI TẠO CÁC THƯ VIỆN ===
         try {
             if (window.Telegram && window.Telegram.WebApp) {
                 const tg = window.Telegram.WebApp;
                 tg.ready();
-                if (tg.initDataUnsafe && tg.initDataUnsafe.user) telegramUserData = tg.initDataUnsafe.user;
+                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                    telegramUserData = tg.initDataUnsafe.user;
+                    // BẮT ĐẦU TÍNH NĂNG CHECK-IN KHI CÓ DỮ LIỆU USER
+                    initializeFirebaseAndCheckin(telegramUserData);
+                }
             }
-        } catch (e) { console.error("Could not initialize Telegram Web App:", e); }
+        } catch (e) { 
+            console.error("Could not initialize Telegram Web App:", e); 
+            checkinButton.innerHTML = `<i class="fas fa-times-circle me-2"></i> Lỗi TG`;
+            checkinButton.disabled = true;
+        }
 
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ 
             manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json',
@@ -695,31 +899,10 @@
         }
 
         function showTransactionPopup(log) {
-            document.querySelector('.toast-notification')?.remove();
-            const toast = document.createElement('div');
-            toast.className = 'toast-notification';
-            
-            const amountDisplay = log.amount !== null ? `<strong class="${log.direction === 'in' ? 'amount-in' : 'amount-out'}">${log.sign} ${log.amount.toLocaleString('en-US', {maximumFractionDigits: 4})} ${log.symbol}</strong>` : `a ${log.symbol} transfer`;
+             const amountDisplay = log.amount !== null ? `<strong class="${log.direction === 'in' ? 'amount-in' : 'amount-out'}">${log.sign} ${log.amount.toLocaleString('en-US', {maximumFractionDigits: 4})} ${log.symbol}</strong>` : `a ${log.symbol} transfer`;
             const actionText = log.direction === 'in' ? `Received ${amountDisplay} from` : `Sent ${amountDisplay} to`;
-
-            toast.innerHTML = `
-                <div class="toast-notification-header"><i class="fas fa-bell me-2"></i> New Transaction</div>
-                <p class="m-0">${actionText} ${log.party}</p>
-                <small class="text-secondary">${new Date(log.timestamp).toLocaleString()}</small>
-            `;
-            document.body.appendChild(toast);
-
-            setTimeout(() => toast.classList.add('show'), 100);
-            const hideTimeout = setTimeout(() => {
-                toast.classList.remove('show');
-                toast.addEventListener('transitionend', () => toast.remove(), { once: true });
-            }, 7000);
-
-            toast.addEventListener('click', () => {
-                clearTimeout(hideTimeout);
-                toast.classList.remove('show');
-                toast.addEventListener('transitionend', () => toast.remove(), { once: true });
-            }, { once: true });
+            const message = `${actionText} ${log.party}`;
+            showAppToast('New Transaction', message);
         }
 
         function parseEvent(event, viewingRawAddress) {
@@ -874,7 +1057,7 @@
             const [metadataRes, historyRes, holdersRes] = await Promise.allSettled([
                 fetch(`${TON_API_BASE}/jettons/${jettonAddress}`),
                 fetch(`${TON_API_BASE}/accounts/${jettonAddress}/events?limit=100`),
-                fetch(`${TON_API_BASE}/jettons/${jettonAddress}/holders?limit=1000`)
+                fetch(`${TON_API_BASE}/jettons/${jettonAddress}/holders?limit=100`)
             ]);
 
             let jettonMetadata = null;
@@ -917,7 +1100,7 @@
                         <table class="table table-hover align-middle">
                             <thead>
                                 <tr>
-                                    <th scope="col" style="width: 5%;">#</th>
+                                    <th scope="col" style="width: 5%;">#100</th>
                                     <th scope="col">Holder</th>
                                     <th scope="col" class="text-end">Balance</th>
                                 </tr>
