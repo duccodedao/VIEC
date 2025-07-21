@@ -79,11 +79,11 @@
         .status-failed { color: var(--color-failed); }
         .verified-tick { color: var(--color-verified); margin-left: 5px; font-size: 0.9em; }
 
-        .jetton-item { cursor: pointer; transition: background-color: 0.2s; border-radius: 8px; }
+        .jetton-item { cursor: pointer; transition: background-color 0.2s; border-radius: 8px; }
         .jetton-item:hover { background-color: rgba(145, 94, 255, 0.1); }
         
         #search-results-container { max-height: 40vh; overflow-y: auto; }
-        .search-result-item { cursor: pointer; padding: 10px; border-radius: 8px; transition: background-color: 0.2s ease; }
+        .search-result-item { cursor: pointer; padding: 10px; border-radius: 8px; transition: background-color 0.2s ease; }
         .search-result-item:hover { background-color: rgba(145, 94, 255, 0.1); }
         .search-result-item img { width: 32px; height: 32px; border-radius: 50%; }
         
@@ -417,7 +417,7 @@
         let searchTimeout;
 
         // --- Skeletons ---
-        const skeletonAsset = `<div class="d-flex align-items-center justify-content-between mb-3"><div class="d-flex align-items-center"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div><div class="skeleton-loader skeleton-line w-50"></div><div class="skeleton-loader skeleton-line" style="width: 80px;"></div></div></div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div></div>`;
+        const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
         const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
 
         // === KHỞI TẠO CÁC THƯ VIỆN ===
@@ -473,15 +473,15 @@
         const setSkeletonLoaders = (isInitial = true) => {
             portfolioSkeleton.style.display = 'block';
             portfolioContent.style.display = 'none';
-            mainAssetsContent.innerHTML = skeletonAsset + skeletonAsset;
-            otherTokensContent.innerHTML = skeletonAsset.repeat(3);
+            mainAssetsContent.innerHTML = skeletonAsset;
+            otherTokensContent.innerHTML = skeletonTx.repeat(3);
             nftGalleryContent.innerHTML = `<div class="row g-2">${Array(4).fill('<div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div>').join('')}</div>`;
             if (isInitial) {
                 activityFeedContent.innerHTML = skeletonTx.repeat(5);
             }
         };
         
-        // === CÁC HÀM RENDER GIAO DIỆN (CẬP NHẬT) ===
+        // === CÁC HÀM RENDER GIAO DIỆN ===
         async function renderMainAssets(accountInfo, tonPriceUsd, tonValueUsd, tonValueVnd) {
             if (!accountInfo) {
                 mainAssetsContent.innerHTML = `<p class="text-danger">Could not load account data.</p>`;
@@ -489,69 +489,75 @@
             }
             const userFriendlyAddress = await getFriendlyAddress(accountInfo.address);
 
-            // Chuẩn bị các giá trị để hiển thị
             const tonBalance = accountInfo.balance / 1e9;
             const formattedTonBalance = tonBalance.toLocaleString('en-US', { maximumFractionDigits: 6 });
             const formattedPriceUsd = tonPriceUsd ? `$${tonPriceUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}` : 'N/A';
             const formattedValueUsd = tonValueUsd ? `$${tonValueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'N/A';
             const formattedValueVnd = tonValueVnd ? `${tonValueVnd.toLocaleString('vi-VN')} VNĐ` : 'N/A';
             
-            // Cấu trúc lại HTML để hiển thị rõ ràng từng mục
             mainAssetsContent.innerHTML = `
-                <div class="d-flex align-items-center mb-4">
+                <div class="d-flex align-items-center mb-3">
                     <img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;">
-                    <div>
-                        <h5 class="m-0">TON</h5>
-                        <p class="m-0 text-secondary">The Open Network</p>
-                    </div>
+                    <div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div>
                 </div>
-
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-secondary">Số dư</span>
-                    <strong style="font-size: 1.1rem;">${formattedTonBalance}</strong>
+                    <span class="text-secondary">Số dư</span><strong style="font-size: 1.1rem;">${formattedTonBalance}</strong>
                 </div>
-
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-secondary">Giá hiện tại</span>
-                    <strong>${formattedPriceUsd}</strong>
+                    <span class="text-secondary">Giá hiện tại</span><strong>${formattedPriceUsd}</strong>
                 </div>
-
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="text-secondary">Tổng giá trị</span>
                     <div class="text-end">
-                        <strong style="font-size: 1.1rem;">${formattedValueUsd}</strong>
-                        <br>
+                        <strong style="font-size: 1.1rem;">${formattedValueUsd}</strong><br>
                         <small class="text-secondary">${formattedValueVnd}</small>
                     </div>
                 </div>
-                
                 <hr style="border-color: var(--border-color); opacity: 0.5;">
-
                 <div class="d-flex align-items-center justify-content-between mt-3">
                     <div class="d-flex align-items-center">
                         <i class="fas fa-wallet me-3" style="width: 48px; font-size: 24px; text-align: center; color: var(--accent-secondary);"></i>
-                        <div>
-                            <h5 class="m-0">Address</h5>
-                            <p class="m-0 text-secondary">Wallet</p>
-                        </div>
+                        <div><h5 class="m-0">Address</h5><p class="m-0 text-secondary">Wallet</p></div>
                     </div>
                     <h6><code class="copyable-address" data-address="${userFriendlyAddress}" title="Click to copy">${shortenAddress(userFriendlyAddress)}</code></h6>
                 </div>
             `;
         }
 
-
-        function renderOtherTokens(jettons) {
+        function renderOtherTokens(jettons, priceData) {
             otherTokensContent.innerHTML = '';
             if (jettons?.length > 0) {
                 jettons.forEach(j => {
-                    const displayBalance = Number((Number(BigInt(j.balance)) / (10 ** (j.jetton.decimals || 9))).toPrecision(15));
+                    const balance = Number(BigInt(j.balance)) / (10 ** (j.jetton.decimals || 9));
                     const verifiedTick = j.jetton.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
-                    otherTokensContent.innerHTML += `<div class="d-flex align-items-center justify-content-between mb-3 p-2 jetton-item" data-jetton-address="${j.jetton.address}">
-                        <div class="d-flex align-items-center"><img src="${j.jetton.image}" class="me-3 jetton-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png'"><div><h6 class="m-0">${j.jetton.symbol}${verifiedTick}</h6></div></div><h6 class="m-0">${displayBalance.toLocaleString('en-US')}</h6></div>`;
+                    
+                    let valueDisplayHtml;
+                    const coingeckoId = JETTON_ADDRESS_TO_COINGECKO_ID[j.jetton.address];
+                    const priceInfo = priceData[coingeckoId];
+
+                    if (priceInfo && priceInfo.usd) {
+                        const valueUsd = balance * priceInfo.usd;
+                        valueDisplayHtml = `
+                            <div class="text-end">
+                                <h6 class="m-0">$${valueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h6>
+                                <small class="text-secondary">${balance.toLocaleString('en-US', { maximumFractionDigits: 4 })} ${j.jetton.symbol}</small>
+                            </div>`;
+                    } else {
+                        valueDisplayHtml = `<h6 class="m-0">${balance.toLocaleString('en-US', { maximumFractionDigits: 4 })}</h6>`;
+                    }
+
+                    otherTokensContent.innerHTML += `
+                        <div class="d-flex align-items-center justify-content-between mb-3 p-2 jetton-item" data-jetton-address="${j.jetton.address}">
+                            <div class="d-flex align-items-center">
+                                <img src="${j.jetton.image}" class="me-3 jetton-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png'">
+                                <div><h6 class="m-0">${j.jetton.symbol}${verifiedTick}</h6></div>
+                            </div>
+                            ${valueDisplayHtml}
+                        </div>`;
                 });
             } else { otherTokensContent.innerHTML = `<p class="text-secondary">No tokens found.</p>`; }
         }
+
 
         function renderNFTs(nfts) {
             nftGalleryContent.innerHTML = '';
@@ -633,7 +639,7 @@
                 const pricesRes = await fetch(`${COINGECKO_API_BASE}/simple/price?ids=${[...coingeckoIdsToFetch].join(',')}&vs_currencies=usd,vnd`);
                 const priceData = pricesRes.ok ? await pricesRes.json() : {};
 
-                // Bước 4: Tính toán tổng giá trị
+                // Bước 4: Tính toán giá trị
                 let totalValueUsd = 0;
                 let totalValueVnd = 0;
                 let tonValueUsd = 0;
@@ -670,7 +676,7 @@
                 const newLogs = (eventsInfo.events ?? []).flatMap((event) => parseEvent(event, accountInfo.address));
                 processNewActivity(newLogs);
                 await renderMainAssets(accountInfo, tonPriceInfo?.usd, tonValueUsd, tonValueVnd);
-                renderOtherTokens(jettonsInfo.balances ?? []);
+                renderOtherTokens(jettonsInfo.balances ?? [], priceData);
                 renderNFTs(nftsInfo.nft_items ?? []);
                 if (nftsResult.status === 'rejected') {
                     nftGalleryContent.innerHTML = `<p class="text-warning">Could not load NFTs.</p>`;
