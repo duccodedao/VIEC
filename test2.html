@@ -79,11 +79,11 @@
         .status-failed { color: var(--color-failed); }
         .verified-tick { color: var(--color-verified); margin-left: 5px; font-size: 0.9em; }
 
-        .jetton-item { cursor: pointer; transition: background-color 0.2s; border-radius: 8px; }
+        .jetton-item { cursor: pointer; transition: background-color: 0.2s; border-radius: 8px; }
         .jetton-item:hover { background-color: rgba(145, 94, 255, 0.1); }
         
         #search-results-container { max-height: 40vh; overflow-y: auto; }
-        .search-result-item { cursor: pointer; padding: 10px; border-radius: 8px; transition: background-color 0.2s ease; }
+        .search-result-item { cursor: pointer; padding: 10px; border-radius: 8px; transition: background-color: 0.2s ease; }
         .search-result-item:hover { background-color: rgba(145, 94, 255, 0.1); }
         .search-result-item img { width: 32px; height: 32px; border-radius: 50%; }
         
@@ -359,13 +359,7 @@
         // === KHAI BÁO BIẾN TOÀN CỤC ===
         const TON_API_BASE = 'https://tonapi.io/v2';
         const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
-
-        const JETTON_ADDRESS_TO_COINGECKO_ID = {
-            'EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOT': 'notcoin',
-            'EQA2kCVNwVsil2EM2mB0SkXytxCqQjS4mttjDpnXmwG9T6bO': 'ston-fi',
-            'EQCxE6mUtQJKFnGfaROTKOt1lMTg6GAAAAAAAAAAAAAAAAAAAAAAAAGNcL_e': 'tether',
-        };
-
+        
         // --- Elements ---
         const dashboardEl = document.getElementById('dashboard');
         const heroEl = document.getElementById('hero-section');
@@ -524,7 +518,7 @@
             `;
         }
 
-        function renderOtherTokens(jettons, priceData) {
+        function renderOtherTokens(jettons) {
             otherTokensContent.innerHTML = '';
             if (jettons?.length > 0) {
                 jettons.forEach(j => {
@@ -532,11 +526,10 @@
                     const verifiedTick = j.jetton.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
                     
                     let valueDisplayHtml;
-                    const coingeckoId = JETTON_ADDRESS_TO_COINGECKO_ID[j.jetton.address];
-                    const priceInfo = priceData[coingeckoId];
+                    const priceUsdt = j.price?.prices?.USDT;
 
-                    if (priceInfo && priceInfo.usd) {
-                        const valueUsd = balance * priceInfo.usd;
+                    if (priceUsdt) {
+                        const valueUsd = balance * priceUsdt;
                         valueDisplayHtml = `
                             <div class="text-end">
                                 <h6 class="m-0">$${valueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h6>
@@ -557,7 +550,6 @@
                 });
             } else { otherTokensContent.innerHTML = `<p class="text-secondary">No tokens found.</p>`; }
         }
-
 
         function renderNFTs(nfts) {
             nftGalleryContent.innerHTML = '';
@@ -607,80 +599,70 @@
             if (!isMyWallet) clearInterval(activityRefreshInterval);
 
             try {
-                // Bước 1: Lấy dữ liệu tài khoản cơ bản từ Tonapi
-                const tonapiResults = await Promise.allSettled([
-                    fetch(`${TON_API_BASE}/accounts/${addressToFetch}`),
-                    fetch(`${TON_API_BASE}/accounts/${addressToFetch}/jettons`),
-                    fetch(`${TON_API_BASE}/accounts/${addressToFetch}/nfts?limit=100&indirect_ownership=false`),
-                    fetch(`${TON_API_BASE}/accounts/${addressToFetch}/events?limit=100`)
+                // Bước 1: Gọi các API cần thiết
+                const [tonapiResults, coingeckoResult] = await Promise.allSettled([
+                    Promise.allSettled([
+                        fetch(`${TON_API_BASE}/accounts/${addressToFetch}`),
+                        fetch(`${TON_API_BASE}/accounts/${addressToFetch}/jettons?currencies=usdt`),
+                        fetch(`${TON_API_BASE}/accounts/${addressToFetch}/nfts?limit=100&indirect_ownership=false`),
+                        fetch(`${TON_API_BASE}/accounts/${addressToFetch}/events?limit=100`)
+                    ]),
+                    fetch(`${COINGECKO_API_BASE}/simple/price?ids=the-open-network&vs_currencies=usd,vnd`)
                 ]);
 
-                const [accountResult, jettonsResult, nftsResult, eventsResult] = tonapiResults;
+                const [accountResult, jettonsResult, nftsResult, eventsResult] = tonapiResults.value;
                 
                 if (accountResult.status === 'rejected' || !accountResult.value.ok) {
                     throw new Error(`Could not fetch account info. The address may be incorrect or uninitialized.`);
                 }
                 const accountInfo = await accountResult.value.json();
-
+                
                 const jettonsInfo = (jettonsResult.status === 'fulfilled' && jettonsResult.value.ok) ? await jettonsResult.value.json() : { balances: [] };
                 const nftsInfo = (nftsResult.status === 'fulfilled' && nftsResult.value.ok) ? await nftsResult.value.json() : { nft_items: [] };
                 const eventsInfo = (eventsResult.status === 'fulfilled' && eventsResult.value.ok) ? await eventsResult.value.json() : { events: [] };
-                
-                // Bước 2: Xây dựng danh sách ID để lấy giá từ CoinGecko
-                const coingeckoIdsToFetch = new Set(['the-open-network']);
-                if (jettonsInfo.balances.length > 0) {
-                    jettonsInfo.balances.forEach(j => {
-                        const coingeckoId = JETTON_ADDRESS_TO_COINGECKO_ID[j.jetton.address];
-                        if (coingeckoId) coingeckoIdsToFetch.add(coingeckoId);
-                    });
-                }
-                
-                // Bước 3: Gọi API CoinGecko
-                const pricesRes = await fetch(`${COINGECKO_API_BASE}/simple/price?ids=${[...coingeckoIdsToFetch].join(',')}&vs_currencies=usd,vnd`);
-                const priceData = pricesRes.ok ? await pricesRes.json() : {};
+                const priceData = (coingeckoResult.status === 'fulfilled' && coingeckoResult.value.ok) ? await coingeckoResult.value.json() : {};
 
-                // Bước 4: Tính toán giá trị
+                // Bước 2: Tính toán giá trị
                 let totalValueUsd = 0;
                 let totalValueVnd = 0;
                 let tonValueUsd = 0;
                 let tonValueVnd = 0;
                 
                 const tonPriceInfo = priceData['the-open-network'];
-                if (tonPriceInfo) {
+                if (tonPriceInfo && tonPriceInfo.usd && tonPriceInfo.vnd) {
                     const tonBalance = accountInfo.balance / 1e9;
-                    tonValueUsd = tonBalance * (tonPriceInfo.usd || 0);
-                    tonValueVnd = tonBalance * (tonPriceInfo.vnd || 0);
+                    tonValueUsd = tonBalance * tonPriceInfo.usd;
+                    tonValueVnd = tonBalance * tonPriceInfo.vnd;
                     totalValueUsd += tonValueUsd;
                     totalValueVnd += tonValueVnd;
                 }
                 
+                const usdToVndRate = (tonPriceInfo?.vnd && tonPriceInfo?.usd) ? tonPriceInfo.vnd / tonPriceInfo.usd : 25450;
+                
                 if (jettonsInfo.balances.length > 0) {
                     jettonsInfo.balances.forEach(j => {
-                        const coingeckoId = JETTON_ADDRESS_TO_COINGECKO_ID[j.jetton.address];
-                        const priceInfo = priceData[coingeckoId];
-                        if (priceInfo) {
+                        const priceUsdt = j.price?.prices?.USDT;
+                        if (priceUsdt) {
                             const jettonBalance = Number(BigInt(j.balance)) / (10 ** (j.jetton.decimals || 9));
-                            totalValueUsd += jettonBalance * (priceInfo.usd || 0);
-                            totalValueVnd += jettonBalance * (priceInfo.vnd || 0);
+                            const jettonValueUsd = jettonBalance * priceUsdt;
+                            totalValueUsd += jettonValueUsd;
+                            totalValueVnd += jettonValueUsd * usdToVndRate;
                         }
                     });
                 }
 
-                // Bước 5: Hiển thị kết quả
+                // Bước 3: Hiển thị kết quả
                 totalValueUsdEl.textContent = `$${totalValueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                 totalValueVndEl.textContent = `${totalValueVnd.toLocaleString('vi-VN')} VNĐ`;
                 portfolioSkeleton.style.display = 'none';
                 portfolioContent.style.display = 'block';
 
-                // Render các thành phần khác
                 const newLogs = (eventsInfo.events ?? []).flatMap((event) => parseEvent(event, accountInfo.address));
                 processNewActivity(newLogs);
                 await renderMainAssets(accountInfo, tonPriceInfo?.usd, tonValueUsd, tonValueVnd);
-                renderOtherTokens(jettonsInfo.balances ?? [], priceData);
+                renderOtherTokens(jettonsInfo.balances);
                 renderNFTs(nftsInfo.nft_items ?? []);
-                if (nftsResult.status === 'rejected') {
-                    nftGalleryContent.innerHTML = `<p class="text-warning">Could not load NFTs.</p>`;
-                }
+                if (nftsResult.status === 'rejected') nftGalleryContent.innerHTML = `<p class="text-warning">Could not load NFTs.</p>`;
 
             } catch (error) {
                 console.error("Error fetching account data:", error);
