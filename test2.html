@@ -360,21 +360,10 @@
         const TON_API_BASE = 'https://tonapi.io/v2';
         const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
 
-        /**
-         * BẢN ĐỒ CHUYỂN ĐỔI TỪ ĐỊA CHỈ JETTON SANG ID CỦA COINGECKO
-         * BẠN CẦN CẬP NHẬT BẢN ĐỒ NÀY THỦ CÔNG KHI MUỐN TÍNH GIÁ TRỊ CỦA TOKEN MỚI.
-         * Bất kỳ token nào không có trong bản đồ này sẽ được coi là có giá trị $0.
-         * 
-         * Cách tìm:
-         * 1. Tìm địa chỉ Jetton Master trên Tonscan (ví dụ: Notcoin).
-         * 2. Tìm ID của token đó trên CoinGecko (ví dụ: ID của Notcoin là 'notcoin').
-         * 3. Thêm vào đây: 'địa-chỉ-jetton': 'id-coingecko'
-         */
         const JETTON_ADDRESS_TO_COINGECKO_ID = {
             'EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOT': 'notcoin',
             'EQA2kCVNwVsil2EM2mB0SkXytxCqQjS4mttjDpnXmwG9T6bO': 'ston-fi',
-            'EQCxE6mUtQJKFnGfaROTKOt1lMTg6GAAAAAAAAAAAAAAAAAAAAAAAAGNcL_e': 'tether', // USDT
-            // Thêm các token khác vào đây
+            'EQCxE6mUtQJKFnGfaROTKOt1lMTg6GAAAAAAAAAAAAAAAAAAAAAAAAGNcL_e': 'tether',
         };
 
         // --- Elements ---
@@ -551,7 +540,7 @@
              </div>`;
         }
         
-        // === LOGIC LẤY DỮ LIỆU (ĐÃ CẬP NHẬT HOÀN TOÀN) ===
+        // === LOGIC LẤY DỮ LIỆU (ĐÃ SỬA LỖI VÀ TÁI CẤU TRÚC) ===
         async function fetchAndDisplayAccountData(addressToFetch) {
             const isNewAddress = addressToFetch !== lastFetchedAddress;
             if (isNewAddress) {
@@ -571,42 +560,46 @@
             if (!isMyWallet) clearInterval(activityRefreshInterval);
 
             try {
-                // Bước 1: Lấy dữ liệu tài khoản cơ bản từ Tonapi
-                const [accountRes, jettonsRes, nftsRes, eventsRes] = await Promise.all([
+                // Bước 1: Lấy dữ liệu tài khoản cơ bản từ Tonapi bằng Promise.allSettled để tăng độ ổn định
+                const tonapiResults = await Promise.allSettled([
                     fetch(`${TON_API_BASE}/accounts/${addressToFetch}`),
                     fetch(`${TON_API_BASE}/accounts/${addressToFetch}/jettons`),
                     fetch(`${TON_API_BASE}/accounts/${addressToFetch}/nfts?limit=100&indirect_ownership=false`),
                     fetch(`${TON_API_BASE}/accounts/${addressToFetch}/events?limit=100`)
                 ]);
-                
-                if (!accountRes.ok) throw new Error(`Could not fetch account info for ${addressToFetch}.`);
-                
-                const accountInfo = await accountRes.json();
-                const jettonsInfo = jettonsRes.ok ? await jettonsRes.json() : { balances: [] };
-                const nftsInfo = nftsRes.ok ? await nftsRes.json() : { nft_items: [] };
-                const eventsInfo = eventsRes.ok ? await eventsRes.json() : { events: [] };
 
-                // Bước 2: Xây dựng danh sách các ID cần lấy giá từ CoinGecko
-                const coingeckoIdsToFetch = ['the-open-network']; // Luôn lấy giá TON
+                const [accountResult, jettonsResult, nftsResult, eventsResult] = tonapiResults;
+                
+                // KIỂM TRA QUAN TRỌNG: Nếu không lấy được thông tin tài khoản chính, dừng lại và báo lỗi.
+                if (accountResult.status === 'rejected' || !accountResult.value.ok) {
+                    throw new Error(`Could not fetch account info. The address may be incorrect or uninitialized.`);
+                }
+                const accountInfo = await accountResult.value.json();
+
+                // Xử lý các kết quả khác một cách an toàn (nếu lỗi thì dùng giá trị mặc định)
+                const jettonsInfo = (jettonsResult.status === 'fulfilled' && jettonsResult.value.ok) ? await jettonsResult.value.json() : { balances: [] };
+                const nftsInfo = (nftsResult.status === 'fulfilled' && nftsResult.value.ok) ? await nftsResult.value.json() : { nft_items: [] };
+                const eventsInfo = (eventsResult.status === 'fulfilled' && eventsResult.value.ok) ? await eventsResult.value.json() : { events: [] };
+                
+                // Bước 2: Xây dựng danh sách ID để lấy giá từ CoinGecko
+                const coingeckoIdsToFetch = new Set(['the-open-network']); // Luôn lấy giá TON
                 if (jettonsInfo.balances.length > 0) {
                     jettonsInfo.balances.forEach(j => {
                         const coingeckoId = JETTON_ADDRESS_TO_COINGECKO_ID[j.jetton.address];
                         if (coingeckoId) {
-                            coingeckoIdsToFetch.push(coingeckoId);
+                            coingeckoIdsToFetch.add(coingeckoId);
                         }
                     });
                 }
-                const uniqueCoingeckoIds = [...new Set(coingeckoIdsToFetch)];
-
-                // Bước 3: Gọi API CoinGecko một lần duy nhất để lấy giá USD và VNĐ
-                const pricesRes = await fetch(`${COINGECKO_API_BASE}/simple/price?ids=${uniqueCoingeckoIds.join(',')}&vs_currencies=usd,vnd`);
+                
+                // Bước 3: Gọi API CoinGecko
+                const pricesRes = await fetch(`${COINGECKO_API_BASE}/simple/price?ids=${[...coingeckoIdsToFetch].join(',')}&vs_currencies=usd,vnd`);
                 const priceData = pricesRes.ok ? await pricesRes.json() : {};
 
-                // Bước 4: Tính toán tổng giá trị tài sản
+                // Bước 4: Tính toán tổng giá trị
                 let totalValueUsd = 0;
                 let totalValueVnd = 0;
                 
-                // 4.1 Tính giá trị TON
                 const tonPriceInfo = priceData['the-open-network'];
                 if (tonPriceInfo) {
                     const tonBalance = accountInfo.balance / 1e9;
@@ -614,7 +607,6 @@
                     totalValueVnd += tonBalance * (tonPriceInfo.vnd || 0);
                 }
                 
-                // 4.2 Tính giá trị Jettons
                 if (jettonsInfo.balances.length > 0) {
                     jettonsInfo.balances.forEach(j => {
                         const coingeckoId = JETTON_ADDRESS_TO_COINGECKO_ID[j.jetton.address];
@@ -639,10 +631,14 @@
                 await renderMainAssets(accountInfo, tonPriceInfo?.usd);
                 renderOtherTokens(jettonsInfo.balances ?? []);
                 renderNFTs(nftsInfo.nft_items ?? []);
+                if (nftsResult.status === 'rejected') {
+                    nftGalleryContent.innerHTML = `<p class="text-warning">Could not load NFTs.</p>`;
+                }
 
             } catch (error) {
                 console.error("Error fetching account data:", error);
-                mainAssetsContent.innerHTML = `<p class="text-danger"><strong>Error:</strong> Could not load data. The account might be uninitialized.</p>`;
+                // Hiển thị lỗi cụ thể hơn
+                mainAssetsContent.innerHTML = `<p class="text-danger"><strong>Error:</strong> ${error.message}</p>`;
                 [otherTokensContent, nftGalleryContent, activityFeedContent].forEach(el => el.innerHTML = `<p class="text-secondary">Data unavailable.</p>`);
                 portfolioSkeleton.style.display = 'none';
                 portfolioContent.style.display = 'block';
