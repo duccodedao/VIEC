@@ -79,11 +79,11 @@
         .status-failed { color: var(--color-failed); }
         .verified-tick { color: var(--color-verified); margin-left: 5px; font-size: 0.9em; }
 
-        .jetton-item { cursor: pointer; transition: background-color 0.2s; border-radius: 8px; }
+        .jetton-item { cursor: pointer; transition: background-color: 0.2s; border-radius: 8px; }
         .jetton-item:hover { background-color: rgba(145, 94, 255, 0.1); }
         
         #search-results-container { max-height: 40vh; overflow-y: auto; }
-        .search-result-item { cursor: pointer; padding: 10px; border-radius: 8px; transition: background-color 0.2s ease; }
+        .search-result-item { cursor: pointer; padding: 10px; border-radius: 8px; transition: background-color: 0.2s ease; }
         .search-result-item:hover { background-color: rgba(145, 94, 255, 0.1); }
         .search-result-item img { width: 32px; height: 32px; border-radius: 50%; }
         
@@ -481,46 +481,63 @@
             }
         };
         
-        // === CÁC HÀM RENDER GIAO DIỆN ===
+        // === CÁC HÀM RENDER GIAO DIỆN (CẬP NHẬT) ===
         async function renderMainAssets(accountInfo, tonPriceUsd, tonValueUsd, tonValueVnd) {
             if (!accountInfo) {
                 mainAssetsContent.innerHTML = `<p class="text-danger">Could not load account data.</p>`;
                 return;
             }
             const userFriendlyAddress = await getFriendlyAddress(accountInfo.address);
-            const priceText = tonPriceUsd ? `(@ $${tonPriceUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})` : '';
-            
-            // Lấy số dư TON chính xác và định dạng lại để hiển thị
+
+            // Chuẩn bị các giá trị để hiển thị
             const tonBalance = accountInfo.balance / 1e9;
             const formattedTonBalance = tonBalance.toLocaleString('en-US', { maximumFractionDigits: 6 });
-
-            // Hiển thị giá trị riêng của TON
-            const tonValueHtml = `
-                <hr style="border-color: var(--border-color); opacity: 0.5;">
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="text-secondary">Giá trị</span>
-                    <div class="text-end">
-                        <strong style="font-size: 1.1rem;">$${tonValueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
-                        <br>
-                        <small class="text-secondary">${tonValueVnd.toLocaleString('vi-VN')} VNĐ</small>
+            const formattedPriceUsd = tonPriceUsd ? `$${tonPriceUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}` : 'N/A';
+            const formattedValueUsd = tonValueUsd ? `$${tonValueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'N/A';
+            const formattedValueVnd = tonValueVnd ? `${tonValueVnd.toLocaleString('vi-VN')} VNĐ` : 'N/A';
+            
+            // Cấu trúc lại HTML để hiển thị rõ ràng từng mục
+            mainAssetsContent.innerHTML = `
+                <div class="d-flex align-items-center mb-4">
+                    <img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;">
+                    <div>
+                        <h5 class="m-0">TON</h5>
+                        <p class="m-0 text-secondary">The Open Network</p>
                     </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-secondary">Số dư</span>
+                    <strong style="font-size: 1.1rem;">${formattedTonBalance}</strong>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-secondary">Giá hiện tại</span>
+                    <strong>${formattedPriceUsd}</strong>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-secondary">Tổng giá trị</span>
+                    <div class="text-end">
+                        <strong style="font-size: 1.1rem;">${formattedValueUsd}</strong>
+                        <br>
+                        <small class="text-secondary">${formattedValueVnd}</small>
+                    </div>
+                </div>
+                
+                <hr style="border-color: var(--border-color); opacity: 0.5;">
+
+                <div class="d-flex align-items-center justify-content-between mt-3">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-wallet me-3" style="width: 48px; font-size: 24px; text-align: center; color: var(--accent-secondary);"></i>
+                        <div>
+                            <h5 class="m-0">Address</h5>
+                            <p class="m-0 text-secondary">Wallet</p>
+                        </div>
+                    </div>
+                    <h6><code class="copyable-address" data-address="${userFriendlyAddress}" title="Click to copy">${shortenAddress(userFriendlyAddress)}</code></h6>
                 </div>
             `;
-
-            mainAssetsContent.innerHTML = `
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <div class="d-flex align-items-center"><img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;"><div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div></div>
-                    <div class="text-end">
-                        <h4 class="m-0">${formattedTonBalance}</h4>
-                        <p class="m-0 text-secondary" style="font-size: 0.9rem;">${priceText}</p>
-                    </div>
-                </div>
-                ${tonValueHtml}
-                <hr style="border-color: var(--border-color); opacity: 0.5;">
-                <div class="d-flex align-items-center justify-content-between mt-3">
-                    <div class="d-flex align-items-center"><i class="fas fa-wallet me-3" style="width: 48px; font-size: 24px; text-align: center; color: var(--accent-secondary);"></i><div><h5 class="m-0">Address</h5><p class="m-0 text-secondary">Wallet</p></div></div>
-                    <h6><code class="copyable-address" data-address="${userFriendlyAddress}" title="Click to copy">${shortenAddress(userFriendlyAddress)}</code></h6>
-                </div>`;
         }
 
 
@@ -652,7 +669,7 @@
                 // Render các thành phần khác
                 const newLogs = (eventsInfo.events ?? []).flatMap((event) => parseEvent(event, accountInfo.address));
                 processNewActivity(newLogs);
-                await renderMainAssets(accountInfo, tonPriceInfo?.usd, tonValueUsd, tonValueVnd); // Truyền giá trị riêng của TON
+                await renderMainAssets(accountInfo, tonPriceInfo?.usd, tonValueUsd, tonValueVnd);
                 renderOtherTokens(jettonsInfo.balances ?? []);
                 renderNFTs(nftsInfo.nft_items ?? []);
                 if (nftsResult.status === 'rejected') {
