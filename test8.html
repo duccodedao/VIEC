@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -23,7 +24,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-
     <style>
         :root {
             --bg-color: #050816;
@@ -55,25 +55,25 @@
 
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
-        .main-container { max-width: 1400px; padding: 2rem 1rem; margin: auto; }
+        .main-container { max-width: 1400px; padding: 1.5rem 1rem; margin: auto; }
         .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 2rem; }
         .header-logo { display: flex; align-items: center; text-decoration: none; color: var(--text-primary); gap: 10px; z-index: 1100; }
         .header-logo img { height: 40px; width: 40px; object-fit: cover; transition: all 0.3s ease; }
         .header-logo span { font-size: 1.1rem; font-weight: 600; }
         
-        .card-glass { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 1.5rem; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: all 0.3s ease; height: 100%; }
+        .card-glass { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 1.25rem; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: all 0.3s ease; height: 100%; }
         .card-glass:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
         .card-title { font-weight: 600; margin-bottom: 1.5rem; font-size: 1.25rem; }
         
-        .hero-section, .login-section { text-align: center; padding: 4rem 0; min-height: 70vh; display: flex; align-items: center; justify-content: center;}
-        .hero-section h1, .login-section h1 { font-size: 2.5rem; font-weight: 700; }
+        .hero-section, .login-section { text-align: center; padding: 4rem 1rem; min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center;}
+        .hero-section h1, .login-section h1 { font-size: 2rem; font-weight: 700; }
         .hero-section .highlight, .login-section .highlight { color: var(--accent-primary); }
 
         .skeleton-loader { background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); background-size: 200% 100%; border-radius: 8px; animation: shimmer 1.5s infinite; }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         .skeleton-line { height: 20px; margin-bottom: 10px; }
         
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
@@ -224,7 +224,7 @@
             color: var(--accent-secondary);
         }
 
-        /* UPDATED Leaderboard Styles */
+        /* Leaderboard Styles */
         .leaderboard-list {
             max-width: 800px;
             margin: auto;
@@ -246,10 +246,10 @@
         .leaderboard-rank {
             font-size: 1.2rem;
             font-weight: 700;
-            width: 50px; /* Increased width to fit icons and numbers nicely */
+            width: 50px;
             color: var(--text-secondary);
             text-align: center;
-            flex-shrink: 0; /* Prevent rank from shrinking */
+            flex-shrink: 0;
             margin-right: 10px;
         }
         .leaderboard-avatar {
@@ -258,49 +258,33 @@
             border-radius: 50%;
             object-fit: cover;
             margin-right: 15px;
-            border: 3px solid var(--border-color); /* Default border */
+            border: 3px solid var(--border-color);
             transition: all 0.3s ease;
         }
         .leaderboard-name {
             font-weight: 600;
             flex-grow: 1;
-            min-width: 0; /* Fix for text-truncate */
+            min-width: 0;
         }
         .leaderboard-exp {
             font-size: 1.1rem;
             font-weight: 700;
             color: var(--accent-secondary);
         }
-
-        /* --- Special styles for Top 3 --- */
-
-        /* Medal icon colors */
         .leaderboard-item.rank-1 .rank-icon { color: var(--gold); }
         .leaderboard-item.rank-2 .rank-icon { color: var(--silver); }
         .leaderboard-item.rank-3 .rank-icon { color: var(--bronze); }
-
-        /* Avatar border colors for Top 3 */
-        .leaderboard-item.rank-1 .leaderboard-avatar {
-            border-color: var(--gold);
-        }
-        .leaderboard-item.rank-2 .leaderboard-avatar {
-            border-color: var(--silver);
-        }
-        .leaderboard-item.rank-3 .leaderboard-avatar {
-            border-color: var(--bronze);
-        }
-        .rank-icon {
-            font-size: 1.8rem; /* Make medal icon larger */
-        }
-
-        /* Highlight current user */
+        .leaderboard-item.rank-1 .leaderboard-avatar { border-color: var(--gold); }
+        .leaderboard-item.rank-2 .leaderboard-avatar { border-color: var(--silver); }
+        .leaderboard-item.rank-3 .leaderboard-avatar { border-color: var(--bronze); }
+        .rank-icon { font-size: 1.8rem; }
         .leaderboard-item.current-user {
             border-color: var(--accent-primary);
             box-shadow: 0 0 20px rgba(145, 94, 255, 0.4);
             transform: scale(1.03);
         }
         
-        /* Admin & Referral Form Styles */
+        /* Form Styles */
         .form-control, .form-select {
             background-color: rgba(23, 27, 48, 0.8);
             border-color: var(--border-color);
@@ -312,9 +296,7 @@
             color: var(--text-primary);
             box-shadow: 0 0 0 0.25rem rgba(145, 94, 255, 0.25);
         }
-        .form-control::placeholder {
-            color: var(--text-secondary);
-        }
+        .form-control::placeholder { color: var(--text-secondary); }
         .form-select {
              background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23915EFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
         }
@@ -324,12 +306,111 @@
              color: var(--accent-secondary);
         }
 
+        /* Admin Table Styles */
+        #admin-section .table {
+            --bs-table-bg: transparent;
+            --bs-table-border-color: var(--border-color);
+            --bs-table-color: var(--text-primary);
+            --bs-table-hover-bg: rgba(145, 94, 255, 0.1);
+            white-space: nowrap;
+        }
+        #admin-section thead th {
+            color: var(--text-secondary);
+            background-color: rgba(145, 94, 255, 0.05);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+        #admin-section tbody tr {
+            transition: background-color 0.2s ease;
+        }
+        #admin-section tbody td {
+            padding: 0.75rem;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border-color);
+        }
+        #admin-section tbody tr:last-child td {
+            border-bottom: none;
+        }
+        #admin-section tbody img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+        }
+        #admin-section .text-truncate {
+            max-width: 150px;
+        }
+        #admin-load-more-btn {
+            border-color: var(--accent-secondary);
+            color: var(--accent-secondary);
+            font-weight: 600;
+        }
+        #admin-load-more-btn:hover {
+            background-color: var(--accent-secondary);
+            color: white;
+        }
 
+        /* Airdrop Page Styles */
+        .airdrop-stat-card {
+            background: linear-gradient(135deg, rgba(145, 94, 255, 0.1), rgba(43, 203, 196, 0.1));
+            padding: 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+        }
+        .airdrop-stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent-secondary);
+        }
+        .airdrop-stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        .airdrop-stat-label {
+            color: var(--text-secondary);
+        }
+        #airdrop-reward-card {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            padding: 2rem;
+        }
+        #airdrop-reward-logo {
+            width: 32px;
+            height: 32px;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        #airdrop-eligibility-status.eligible { color: var(--color-verified); }
+        #airdrop-eligibility-status.ineligible { color: var(--color-out); }
+        #claim-button {
+            background: white;
+            color: var(--accent-primary);
+            font-weight: 700;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+        #claim-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255,255,255,0.3);
+        }
+        #claim-button:disabled {
+            background: #ccc;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        /* Responsive Adjustments */
         @media (min-width: 768px) {
             .hero-section h1, .login-section h1 { font-size: 3.5rem; }
             .card-glass { padding: 2rem; }
+            .main-container { padding: 2rem; }
         }
-        
     </style>
 </head>
 <body>
@@ -340,6 +421,7 @@
             <a href="#apps" class="sidebar-link" id="nav-apps">Apps</a>
             <a href="#task" class="sidebar-link" id="nav-task">Task</a>
             <a href="#referral" class="sidebar-link" id="nav-referral">Giới thiệu</a>
+            <a href="#airdrop" class="sidebar-link" id="nav-airdrop">Airdrop</a>
             <a href="#leaderboard" class="sidebar-link" id="nav-leaderboard">Leaderboard</a>
             <a href="#account" class="sidebar-link" id="nav-account">Account</a>
             <a href="#admin" class="sidebar-link" id="nav-admin" style="display: none;">Admin</a>
@@ -386,7 +468,7 @@
                     <p class="lead text-secondary col-md-8 mx-auto">Quản lý thông tin cá nhân và cài đặt của bạn.</p>
                 </div>
                 <div class="row justify-content-center">
-                    <div class="col-lg-6 col-md-8">
+                    <div class="col-12 col-md-10 col-lg-8 col-xl-6">
                         <div class="card-glass p-4 text-center">
                             <img id="profile-photo" src="" alt="User Photo" class="rounded-circle mb-3" style="width: 120px; height: 120px; border: 3px solid var(--accent-primary);">
                             <h3 id="profile-fullname" class="fw-bold"></h3>
@@ -405,7 +487,7 @@
 
         <main id="dashboard" style="display: none;">
             <div class="row g-4 mb-4">
-                <div class="col-lg-12">
+                <div class="col-12">
                     <div id="portfolio-overview-card" class="card-glass">
                         <h5 class="card-title">Tổng Quan Tài Sản</h5>
                         <div id="portfolio-overview-content">
@@ -422,16 +504,16 @@
 
             <div id="account-search-section" class="mb-4">
                 <div class="input-group">
-                    <input type="text" id="account-search-input" class="form-control" placeholder="Search by name or paste an address" style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--text-primary); border-right: 0;">
-                    <button id="account-search-button" class="btn" style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--accent-primary);"><i class="fas fa-search"></i></button>
+                    <input type="text" id="account-search-input" class="form-control" placeholder="Search by name or paste an address">
+                    <button id="account-search-button" class="btn"><i class="fas fa-search"></i></button>
                 </div>
                 <div id="search-results-container" class="mt-2 card-glass" style="padding: 1rem; display: none;"></div>
             </div>
 
              <div class="row g-4">
-                <div class="col-lg-7">
+                <div class="col-12 col-lg-7 mb-4 mb-lg-0">
                     <div class="row g-4">
-                        <div class="col-md-12">
+                        <div class="col-12">
                             <div class="card-glass">
                                 <h5 class="card-title d-flex justify-content-between align-items-center">
                                     <span>Core Assets</span>
@@ -442,19 +524,34 @@
                                 <div id="main-assets-content"></div>
                             </div>
                         </div>
-                        <div class="col-md-12"><div class="card-glass"><h5 class="card-title">NFT Gallery</h5><div id="nft-gallery-content" style="max-height: 420px; overflow-y: auto;"></div></div></div>
+                        <div class="col-12">
+                            <div class="card-glass">
+                                <h5 class="card-title">NFT Gallery</h5>
+                                <div id="nft-gallery-content" style="max-height: 420px; overflow-y: auto;"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-5">
+                <div class="col-12 col-lg-5">
                      <div class="row g-4">
-                         <div class="col-12"><div class="card-glass"><h5 class="card-title">Token Portfolio</h5><div id="other-tokens-content" style="max-height: 250px; overflow-y: auto; padding-right: 10px;"></div></div></div>
-                        <div class="col-12"><div class="card-glass"><h5 class="card-title">Activity Feed</h5><div id="activity-feed-content" style="max-height: 525px; overflow-y: auto; padding-right: 10px;"></div></div></div>
+                         <div class="col-12">
+                            <div class="card-glass">
+                                <h5 class="card-title">Token Portfolio</h5>
+                                <div id="other-tokens-content" style="max-height: 250px; overflow-y: auto; padding-right: 10px;"></div>
+                            </div>
+                         </div>
+                        <div class="col-12">
+                            <div class="card-glass">
+                                <h5 class="card-title">Activity Feed</h5>
+                                <div id="activity-feed-content" style="max-height: 525px; overflow-y: auto; padding-right: 10px;"></div>
+                            </div>
+                        </div>
                      </div>
                 </div>
             </div>
         </main>
         
-        <section id="hero-section" class="hero-section" style="display: none;">
+        <section id="hero-section" class="hero-section">
             <div class="container">
                 <h1 class="mb-4">Welcome to the <span class="highlight">Neuralis</span><br/>Web3 Experience</h1>
                 <p class="lead text-secondary col-md-8 mx-auto mb-4">Connect your wallet to visualize your assets and interact with the VIEC ecosystem in a stunning, next-generation interface.</p>
@@ -470,7 +567,7 @@
         </section>
 
         <section id="crypto-news-feed" class="mt-5" style="display:none;">
-            <h2 class="card-title" style="font-size: 1.75rem; text-align: center; margin-bottom: 2rem;">Latest Crypto News</h2>
+            <h2 class="card-title fs-2 text-center mb-4">Latest Crypto News</h2>
             <div id="news-content-area"></div>
         </section>
 
@@ -480,10 +577,10 @@
                     <h1 class="mb-2" style="font-weight: 700;">Khám Phá Mini Apps</h1>
                     <p class="lead text-secondary col-md-8 mx-auto">Các ứng dụng, game và công cụ mạnh mẽ nhất trong hệ sinh thái.</p>
                 </div>
-                <div id="app-search-section" class="mb-4">
+                <div id="app-search-section" class="mb-4 col-md-8 col-lg-6 mx-auto">
                     <div class="input-group">
-                        <input type="text" id="app-search-input" class="form-control" placeholder="Tìm kiếm theo tên..." style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--text-primary); border-right: 0;">
-                        <button class="btn" id="app-search-button" style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--accent-primary);"><i class="fas fa-search"></i></button>
+                        <input type="text" id="app-search-input" class="form-control" placeholder="Tìm kiếm theo tên...">
+                        <button class="btn" id="app-search-button"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div id="app-filter-controls" class="app-filter-bar">
@@ -494,7 +591,8 @@
                     <button class="app-filter-btn" data-filter="CEX">CEX</button>
                     <button class="app-filter-btn" data-filter="Tiện ích">Tiện ích</button>
                 </div>
-                <div id="app-grid" class="row g-3">
+                <div id="app-grid" class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
+                    <!-- Apps will be rendered by JS -->
                 </div>
             </div>
         </main>
@@ -506,7 +604,7 @@
                     <p class="lead text-secondary col-md-8 mx-auto">Hoàn thành nhiệm vụ để nhận thưởng. Phần thưởng EXP sẽ được quy đổi sang token trong tương lai.</p>
                 </div>
                 <div class="row justify-content-center g-4">
-                    <div class="col-lg-6 col-md-8">
+                    <div class="col-12 col-md-10 col-lg-8 col-xl-6">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <div>
                                 <p class="text-secondary mb-0">Tổng số dư EXP của bạn</p>
@@ -516,10 +614,7 @@
                         <div class="card-glass mb-4">
                             <h5 class="card-title">Check-in Hàng Ngày</h5>
                             <div id="daily-checkin-content" class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <p class="mb-1">Điểm danh để nhận <strong style="color: var(--accent-primary);">+10 EXP</strong>.</p>
-                                    <p class="text-secondary mb-0" style="font-size: 0.85rem;">Tích lũy EXP để đổi lấy token sau này!</p>
-                                </div>
+                                <p class="mb-0">Điểm danh để nhận <strong style="color: var(--accent-primary);">+10 EXP</strong>. Tích lũy EXP để đổi lấy token sau này!</p>
                                 <button id="checkin-button" class="btn px-4 py-2" style="background-color: var(--accent-secondary); color: white; font-weight: 600; flex-shrink: 0; min-width: 130px;" disabled>
                                     <i class="fas fa-spinner fa-spin me-2"></i>Chờ...
                                 </button>
@@ -543,33 +638,137 @@
                     <p class="lead text-secondary col-md-8 mx-auto">Mời bạn bè tham gia và cả hai cùng nhận thưởng. Nhận <strong style="color: var(--accent-secondary);">200 EXP</strong> cho mỗi lượt mời thành công!</p>
                 </div>
                 <div class="row justify-content-center g-4">
-                    <div class="col-lg-7 col-md-9">
-                        <div class="card-glass mb-4">
-                            <h5 class="card-title"><i class="fas fa-link me-2"></i>Link Mời Của Bạn</h5>
-                            <div id="referral-links-container">
-                                <!-- Links will be generated by JS -->
+                    <div class="col-12 col-md-10 col-lg-8">
+                        <div class="card-glass">
+                            <ul class="nav nav-tabs" id="referralTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab"><i class="fas fa-link me-2"></i>Mã của bạn</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="invited-list-tab" data-bs-toggle="tab" data-bs-target="#invited-list-pane" type="button" role="tab"><i class="fas fa-users me-2"></i>Người đã mời (<span id="referral-count">0</span>)</button>
+                                </li>
+                            </ul>
+                            
+                            <div class="tab-content pt-4">
+                                <div class="tab-pane fade show active" id="my-codes-pane" role="tabpanel">
+                                    <div id="referral-links-container"></div>
+                                    <div id="referral-codes-container"></div>
+                                     <div id="referral-input-container" class="mt-4" style="display: none;">
+                                        <h6 class="mb-2"><i class="fas fa-user-plus me-2"></i>Nhập Mã Mời</h6>
+                                        <p class="text-secondary small">Nếu bạn được ai đó mời nhưng chưa nhập mã, hãy nhập vào đây.</p>
+                                        <div class="input-group">
+                                            <input type="text" id="referral-code-input" class="form-control" placeholder="Nhập mã của người mời...">
+                                            <button class="btn" id="referral-code-submit" style="background-color: var(--accent-secondary); color: white;">Xác nhận</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="invited-list-pane" role="tabpanel" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+                                    <!-- Invited users list will be rendered here -->
+                                </div>
                             </div>
-                        </div>
-                        <div class="card-glass mb-4">
-                            <h5 class="card-title"><i class="fas fa-key me-2"></i>Mã Mời Của Bạn</h5>
-                             <div id="referral-codes-container">
-                                <!-- Codes will be generated by JS -->
-                            </div>
-                        </div>
-                         <div id="referral-input-container" class="card-glass" style="display: none;">
-                            <h5 class="card-title"><i class="fas fa-user-plus me-2"></i>Nhập Mã Mời</h5>
-                            <p class="text-secondary small">Nếu bạn được ai đó mời nhưng chưa nhập mã, hãy nhập vào đây.</p>
-                            <div class="input-group">
-                                <input type="text" id="referral-code-input" class="form-control" placeholder="Nhập mã của người mời...">
-                                <button class="btn" id="referral-code-submit" style="background-color: var(--accent-secondary); color: white;">Xác nhận</button>
-                            </div>
-                        </div>
-                        <div class="card-glass text-center">
-                             <p class="text-secondary mb-1">Bạn đã mời thành công</p>
-                             <h3 id="referral-count" class="fw-bold" style="color: var(--accent-primary);">0 người</h3>
                         </div>
                     </div>
                 </div>
+            </div>
+        </main>
+
+        <main id="airdrop-section" style="display: none;">
+            <div class="container">
+                 <div id="airdrop-coming-soon" style="display: none;" class="text-center p-5 card-glass col-md-8 mx-auto">
+                    <i class="fas fa-rocket fa-3x text-secondary mb-3"></i>
+                    <h2 class="mb-2" style="font-weight: 700;">Tính năng Airdrop Sắp Ra Mắt!</h2>
+                    <p class="lead text-secondary">Hãy theo dõi để không bỏ lỡ những thông báo mới nhất. Chúng tôi đang làm việc chăm chỉ để mang đến cho bạn những phần thưởng hấp dẫn.</p>
+                </div>
+
+                <div id="airdrop-content-wrapper">
+                    <div class="text-center mb-5">
+                        <h1 class="mb-2" style="font-weight: 700;">Airdrop Token VIEC</h1>
+                        <p class="lead text-secondary col-md-8 mx-auto">Phần thưởng token VIEC sẽ được phân bổ dựa trên mức độ hoạt động tích cực của bạn. Tích lũy càng nhiều, phần thưởng càng lớn!</p>
+                    </div>
+                    
+                    <div id="airdrop-content-loading" class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+
+                    <div id="airdrop-content-logged-in" style="display: none;">
+                        <div class="row justify-content-center g-4">
+                            <!-- Allocation Rules Card -->
+                            <div class="col-12 col-md-10 col-lg-8">
+                                <div class="card-glass p-4">
+                                <h5 class="card-title text-center">Cơ Chế Tính Điểm</h5>
+                                <p class="text-center text-secondary">Điểm Airdrop cuối cùng được tính bằng cách nhân số lượng hoạt động của bạn với các hệ số điểm tương ứng do quản trị viên thiết lập.</p>
+                                <div class="row text-center mt-4">
+                                   <div class="col-4">
+                                        <i class="fas fa-users airdrop-stat-icon" style="color:var(--accent-primary)"></i>
+                                        <p class="text-secondary mb-0"><strong>Lượt Mời</strong></p>
+                                   </div>
+                                   <div class="col-4">
+                                       <i class="fas fa-calendar-check airdrop-stat-icon"></i>
+                                       <p class="text-secondary mb-0"><strong>Lượt Check-in</strong></p>
+                                   </div>
+                                   <div class="col-4">
+                                        <i class="fas fa-star airdrop-stat-icon" style="color:var(--gold)"></i>
+                                       <p class="text-secondary mb-0"><strong>Điểm EXP</strong></p>
+                                   </div>
+                               </div>
+                                </div>
+                            </div>
+
+                            <!-- User Stats -->
+                            <div class="col-12 col-md-10 col-lg-8">
+                                <h5 class="card-title text-center mt-4">Thống Kê Của Bạn</h5>
+                            </div>
+                            <div class="col-12 col-md-10 col-lg-8">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="airdrop-stat-card">
+                                            <i class="fas fa-users airdrop-stat-icon"></i>
+                                            <div id="airdrop-ref-count" class="airdrop-stat-value">0</div>
+                                            <div class="airdrop-stat-label">Lượt mời</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="airdrop-stat-card">
+                                            <i class="fas fa-calendar-check airdrop-stat-icon"></i>
+                                            <div id="airdrop-checkin-count" class="airdrop-stat-value">0</div>
+                                            <div class="airdrop-stat-label">Lần Check-in</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="airdrop-stat-card">
+                                            <i class="fas fa-star airdrop-stat-icon" style="color: var(--gold)"></i>
+                                            <div id="airdrop-exp-count" class="airdrop-stat-value">0</div>
+                                            <div class="airdrop-stat-label">Điểm EXP</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Total Reward & Eligibility -->
+                            <div class="col-12 col-md-10 col-lg-8 mt-4">
+                                <div id="airdrop-reward-card" class="card-glass text-center">
+                                    <h6 class="text-white-50">PHẦN THƯỞNG VIEC CỦA BẠN</h6>
+                                    <div class="d-flex justify-content-center align-items-center">
+                                        <h2 id="airdrop-reward-value" class="fw-bold display-4 mb-0">0</h2>
+                                        <img src="https://duccodedao.github.io/VIEC/img/logo.png" id="airdrop-reward-logo" alt="VIEC Token">
+                                    </div>
+                                    <p id="airdrop-eligibility-status" class="fw-bold mt-2 mb-0 fs-5"></p>
+                                    <div id="airdrop-claim-container" class="mt-3"></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div id="airdrop-content-logged-out" class="text-center p-5 card-glass col-md-8 mx-auto" style="display: none;">
+                        <i class="fas fa-wallet fa-3x text-secondary mb-3"></i>
+                        <h4 class="text-secondary">Vui lòng kết nối ví</h4>
+                        <p class="text-secondary">Kết nối ví của bạn để xem thống kê và tính toán phần thưởng airdrop tiềm năng.</p>
+                    </div>
+                </div>
+
             </div>
         </main>
         
@@ -587,10 +786,10 @@
             <div class="container">
                 <div class="text-center mb-5">
                     <h1 class="mb-2" style="font-weight: 700;">Admin Panel</h1>
-                    <p class="lead text-secondary col-md-8 mx-auto">Công cụ quản lý EXP của người dùng.</p>
+                    <p class="lead text-secondary col-md-8 mx-auto">Công cụ quản lý người dùng và sự kiện.</p>
                 </div>
-                <div class="row justify-content-center">
-                    <div class="col-lg-6 col-md-8">
+                <div class="row justify-content-center g-4">
+                    <div class="col-12 col-lg-10 col-xl-8">
                         <div class="card-glass">
                             <h5 class="card-title">Chỉnh sửa EXP</h5>
                             <form id="admin-exp-form">
@@ -614,7 +813,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="admin-exp-amount" class="form-label">Số lượng EXP</label>
-                                    <input type="number" class="form-control" id="admin-exp-amount" placeholder="e.g., 100" required min="0">
+                                    <input type="number" class="form-control" id="admin-exp-amount" placeholder="e.g., 100" required min="1">
                                 </div>
                                 <div class="mb-3">
                                     <label for="admin-task-name" class="form-label">Lý do (Task Name)</label>
@@ -624,6 +823,75 @@
                                     <i class="fas fa-check me-2"></i>Xác nhận
                                 </button>
                             </form>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-10 col-xl-8">
+                        <div class="card-glass">
+                            <h5 class="card-title">Cấu hình Airdrop & Xuất dữ liệu</h5>
+                            <div id="admin-airdrop-settings-form">
+                                <div class="d-flex justify-content-around mb-4">
+                                    <div class="form-check form-switch fs-5">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="airdrop-live-switch">
+                                        <label class="form-check-label" for="airdrop-live-switch">Airdrop Live</label>
+                                    </div>
+                                    <div class="form-check form-switch fs-5">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="claim-enabled-switch">
+                                        <label class="form-check-label" for="claim-enabled-switch">Cho phép Claim</label>
+                                    </div>
+                                </div>
+
+                                <hr style="border-color: var(--border-color); opacity: 0.5;">
+                                <h6 class="text-secondary text-center my-3">CÔNG THỨC TÍNH ĐIỂM</h6>
+                                <div class="row g-3 mb-4">
+                                     <div class="col-md-4">
+                                        <label for="ref-multiplier-input" class="form-label">Điểm mỗi Lượt mời</label>
+                                        <input type="number" class="form-control" id="ref-multiplier-input" value="50" min="0">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="checkin-multiplier-input" class="form-label">Điểm mỗi Check-in</label>
+                                        <input type="number" class="form-control" id="checkin-multiplier-input" value="30" min="0">
+                                    </div>
+                                     <div class="col-md-4">
+                                        <label for="exp-multiplier-input" class="form-label">Điểm mỗi EXP</label>
+                                        <input type="number" class="form-control" id="exp-multiplier-input" value="20" min="0">
+                                    </div>
+                                </div>
+
+                                <hr style="border-color: var(--border-color); opacity: 0.5;">
+                                <h6 class="text-secondary text-center my-3">ĐIỀU KIỆN TỐI THIỂU</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label for="min-checkins-input" class="form-label">Tối thiểu Check-in</label>
+                                        <input type="number" class="form-control" id="min-checkins-input" value="0" min="0">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="min-referrals-input" class="form-label">Tối thiểu Lượt mời</label>
+                                        <input type="number" class="form-control" id="min-referrals-input" value="0" min="0">
+                                    </div>
+                                     <div class="col-md-4">
+                                        <label for="min-exp-input" class="form-label">Tối thiểu EXP</label>
+                                        <input type="number" class="form-control" id="min-exp-input" value="0" min="0">
+                                    </div>
+                                </div>
+                                <div id="admin-settings-status" class="mt-3"></div>
+                                <div class="d-flex gap-3 mt-3">
+                                    <button type="button" id="save-settings-btn" class="btn w-100" style="background-color: var(--accent-secondary); color: white;">Lưu Cài Đặt</button>
+                                    <button type="button" id="export-csv-btn" class="btn btn-outline-light w-100">Xuất File Excel (CSV)</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="card-glass">
+                            <h5 class="card-title">Danh sách Người dùng</h5>
+                            <div id="admin-user-list-container">
+                                <!-- JS renders table here -->
+                            </div>
+                            <div class="text-center mt-3">
+                                <button id="admin-load-more-btn" class="btn btn-outline-secondary" style="display: none;">Tải thêm</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -684,8 +952,9 @@
         const REFERRAL_SESSION_KEY = 'neuralisReferralCode';
         
         // --- CONFIGURATION ---
-        const YOUR_TELEGRAM_BOT_NAME = "BmassK3_bot"; // IMPORTANT: Replace with your bot name
-        const YOUR_WEB_APP_URL = "https://bmass.vercel.app/t"; // IMPORTANT: Replace with your web app's base URL
+        const YOUR_TELEGRAM_BOT_NAME = "bmassk3_bot"; 
+        const YOUR_MINI_APP_NAME = "BmassK3"; 
+        const YOUR_WEB_APP_URL = "https://bmass.vercel.app/wallet.html";
         
         // Admin Credentials
         const ADMIN_ADDRESS = '0:eef2fc994996c062f45143f8d6e3fd048811a26c01aaef6c126636164663401a';
@@ -712,6 +981,7 @@
         const navApps = document.getElementById('nav-apps');
         const navTask = document.getElementById('nav-task');
         const navReferral = document.getElementById('nav-referral');
+        const navAirdrop = document.getElementById('nav-airdrop');
         const navLeaderboard = document.getElementById('nav-leaderboard');
         const navAccount = document.getElementById('nav-account'); 
         const navAdmin = document.getElementById('nav-admin');
@@ -732,6 +1002,7 @@
         const leaderboardSectionEl = document.getElementById('leaderboard-section');
         const adminSectionEl = document.getElementById('admin-section');
         const referralSectionEl = document.getElementById('referral-section');
+        const airdropSectionEl = document.getElementById('airdrop-section');
         const appGrid = document.getElementById('app-grid');
         const appSearchInput = document.getElementById('app-search-input');
         const appSearchButton = document.getElementById('app-search-button');
@@ -752,12 +1023,17 @@
         const taskHistoryContent = document.getElementById('task-history-content');
         const adminExpForm = document.getElementById('admin-exp-form');
         const adminSubmitBtn = document.getElementById('admin-submit-btn');
+        const adminUserListContainer = document.getElementById('admin-user-list-container');
+        const adminLoadMoreBtn = document.getElementById('admin-load-more-btn');
         const referralInputContainer = document.getElementById('referral-input-container');
         const referralCodeInput = document.getElementById('referral-code-input');
         const referralCodeSubmit = document.getElementById('referral-code-submit');
         const referralInputContainerHero = document.getElementById('referral-input-container-hero');
         const referralCodeInputHero = document.getElementById('referral-code-input-hero');
         const referralCodeSubmitHero = document.getElementById('referral-code-submit-hero');
+        const saveSettingsBtn = document.getElementById('save-settings-btn');
+        const exportCsvBtn = document.getElementById('export-csv-btn');
+        const adminSettingsStatusEl = document.getElementById('admin-settings-status');
 
 
         const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo_viewc.png';
@@ -767,6 +1043,7 @@
         let telegramUserData = null;
         let connectedWalletAddress = null; // Raw address from wallet
         let currentUserData = null; // Full user profile from Firestore
+        let airdropSettings = null; // Will hold all airdrop settings from admin
         let lastFetchedAddress = null;
         let currentActivityLogs = [];
         let activityRefreshInterval = null;
@@ -774,11 +1051,16 @@
         let searchTimeout;
         let db = null;
         let checkinInterval = null;
+        let lastVisibleAdminUser = null; // For admin pagination
         
         // Constants
         const REFERRAL_REWARD = 200;
         const CHECKIN_REWARD = 10;
         const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000;
+        const ADMIN_USERS_PER_PAGE = 50;
+        const CLAIM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
+        const CLAIM_AMOUNT_NANOTONS = "10000"; // 0.00001 TON
+
         const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
         const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
 
@@ -809,6 +1091,20 @@
             return isAdminByAddress || isAdminByUID;
         }
 
+        // --- Unified Airdrop Calculation Function ---
+        function calculateViecReward(user, settings) {
+            if (!user || !settings) return 0;
+            const refCount = user.referralCount || 0;
+            const checkinCount = user.checkinCount || 0;
+            const expCount = user.points || 0;
+            
+            const refMultiplier = settings.refMultiplier ?? 50;
+            const checkinMultiplier = settings.checkinMultiplier ?? 30;
+            const expMultiplier = settings.expMultiplier ?? 20;
+
+            return (refCount * refMultiplier) + (checkinCount * checkinMultiplier) + (expCount * expMultiplier);
+        }
+
         async function loadOrCreateUserByAddress(address) {
             if (!address || !db) return;
 
@@ -824,8 +1120,11 @@
                     address: address,
                     points: 0,
                     lastCheckin: null,
+                    checkinCount: 0,
                     referralCount: 0,
                     referredBy: null,
+                    hasClaimed: false, // New field
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
                 if (telegramUserData) {
                     newUser.telegramId = telegramUserData.id;
@@ -917,7 +1216,7 @@
                     
                     // 3. Update the new user's document to mark them as referred
                     const newUserRef = db.collection('users').doc(newAddress);
-                    transaction.update(newUserRef, { referredBy: referrerCode });
+                    transaction.update(newUserRef, { referredBy: String(referrerCode) }); // Always store as string
                 });
 
                 showAppToast('Thành công!', `Bạn đã được giới thiệu bởi ${referrerData.fullName || shortenAddress(referrerData.address)}!`, 'success');
@@ -1026,7 +1325,8 @@
                     const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
                     transaction.update(userRef, {
                         points: newPoints,
-                        lastCheckin: newTimestamp
+                        lastCheckin: newTimestamp,
+                        checkinCount: firebase.firestore.FieldValue.increment(1) // Increment checkin count
                     });
                     
                     const historyRef = userRef.collection('task_history').doc();
@@ -1161,6 +1461,78 @@
             }
         }
         
+        async function fetchAndRenderAdminUserList(isInitialLoad = true) {
+            if (!adminUserListContainer || !db) return;
+
+            adminLoadMoreBtn.disabled = true;
+            adminLoadMoreBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Loading...`;
+
+            if (isInitialLoad) {
+                lastVisibleAdminUser = null;
+                adminUserListContainer.innerHTML = `<div class="table-responsive"><table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">EXP</th><th scope="col">VIEC Reward</th><th scope="col">Referred</th><th scope="col">Referred By</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table></div>`;
+            }
+            
+            try {
+                const settings = await fetchAirdropSettings(); // Fetch settings once
+                let query = db.collection('users').orderBy('createdAt', 'desc').limit(ADMIN_USERS_PER_PAGE);
+
+                if (!isInitialLoad && lastVisibleAdminUser) {
+                    query = query.startAfter(lastVisibleAdminUser);
+                }
+
+                const snapshot = await query.get();
+                const tableBody = adminUserListContainer.querySelector('tbody');
+
+                if (snapshot.empty && isInitialLoad) {
+                    adminUserListContainer.innerHTML = `<p class="text-secondary text-center p-3">No users found.</p>`;
+                    adminLoadMoreBtn.style.display = 'none';
+                    return;
+                }
+
+                lastVisibleAdminUser = snapshot.docs[snapshot.docs.length - 1];
+
+                for (const doc of snapshot.docs) {
+                    const user = doc.data();
+                    const displayName = user.fullName || (user.username ? `@${user.username}` : 'N/A');
+                    const avatarUrl = user.photoUrl || GENERIC_WALLET_ICON;
+                    const joinDate = user.createdAt ? user.createdAt.toDate().toLocaleDateString('vi-VN') : 'N/A';
+                    const viecReward = calculateViecReward(user, settings); // Use the unified function
+                    
+                    const row = tableBody.insertRow();
+                    row.innerHTML = `
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="${avatarUrl}" class="me-2 flex-shrink-0" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" onerror="this.src='${GENERIC_WALLET_ICON}'">
+                                <div class="text-truncate" style="min-width: 120px;">
+                                    <strong class="d-block text-truncate">${displayName}</strong>
+                                </div>
+                            </div>
+                        </td>
+                        <td><code class="copyable-address" data-address="${user.address}" title="Click to copy Raw Address">${shortenAddress(user.address, 6, 6)}</code></td>
+                        <td>${user.telegramId || 'N/A'}</td>
+                        <td class="fw-bold" style="color: var(--accent-secondary);">${(user.points || 0).toLocaleString()}</td>
+                        <td class="fw-bold" style="color: var(--accent-primary);">${viecReward.toLocaleString()}</td>
+                        <td>${user.referralCount || 0}</td>
+                        <td><div style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${user.referredBy || 'N/A'}</div></td>
+                        <td>${joinDate}</td>
+                    `;
+                }
+
+                if (snapshot.docs.length < ADMIN_USERS_PER_PAGE) {
+                    adminLoadMoreBtn.style.display = 'none';
+                } else {
+                    adminLoadMoreBtn.style.display = 'block';
+                }
+
+            } catch (error) {
+                console.error("Error fetching user list for admin:", error);
+                adminUserListContainer.innerHTML = `<p class="text-danger text-center p-3">Failed to load user list.</p>`;
+            } finally {
+                adminLoadMoreBtn.disabled = false;
+                adminLoadMoreBtn.innerHTML = `Tải thêm`;
+            }
+        }
+
         async function handleAdminExpUpdate(e) {
             e.preventDefault();
             if (!db) {
@@ -1278,17 +1650,65 @@
             `;
         }
         
+        async function fetchAndRenderInvitedUsers() {
+            const invitedListPane = document.getElementById('invited-list-pane');
+            if (!currentUserData || !db || !invitedListPane) return;
+
+            invitedListPane.innerHTML = skeletonTx.repeat(3);
+            
+            try {
+                // Firestore doesn't support OR queries on different fields. We run two queries and merge.
+                const queryByAddress = db.collection('users').where('referredBy', '==', currentUserData.address);
+                const queryByUID = currentUserData.telegramId ? db.collection('users').where('referredBy', '==', String(currentUserData.telegramId)) : null;
+
+                const [addressSnapshot, uidSnapshot] = await Promise.all([
+                    queryByAddress.get(),
+                    queryByUID ? queryByUID.get() : Promise.resolve({ docs: [] })
+                ]);
+                
+                const invitedUsers = new Map(); // Use a map to handle potential duplicates
+                addressSnapshot.forEach(doc => invitedUsers.set(doc.id, doc.data()));
+                uidSnapshot.forEach(doc => invitedUsers.set(doc.id, doc.data()));
+
+                if (invitedUsers.size === 0) {
+                    invitedListPane.innerHTML = `<p class="text-secondary text-center p-3">Bạn chưa mời được ai. Chia sẻ mã của bạn ngay!</p>`;
+                    return;
+                }
+
+                let listHtml = '';
+                invitedUsers.forEach(user => {
+                    const displayName = user.fullName || (user.username ? `@${user.username}` : shortenAddress(user.address));
+                    const avatarUrl = user.photoUrl || GENERIC_WALLET_ICON;
+                    const joinDate = user.createdAt ? user.createdAt.toDate().toLocaleDateString('vi-VN') : 'N/A';
+                    listHtml += `
+                        <div class="d-flex align-items-center p-2 mb-2" style="background: rgba(0,0,0,0.2); border-radius: 12px;">
+                            <img src="${avatarUrl}" class="me-3" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;" onerror="this.src='${GENERIC_WALLET_ICON}'">
+                            <div class="flex-grow-1">
+                                <p class="m-0 fw-bold">${displayName}</p>
+                                <p class="m-0 text-secondary" style="font-size: 0.8rem;">Tham gia ngày: ${joinDate}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                invitedListPane.innerHTML = listHtml;
+                
+            } catch(error) {
+                console.error("Error fetching invited users:", error);
+                invitedListPane.innerHTML = `<p class="text-danger text-center p-3">Lỗi tải danh sách người được mời.</p>`;
+            }
+        }
+        
         function renderReferralSection() {
             if (!currentUserData) return;
             const linksContainer = document.getElementById('referral-links-container');
             const codesContainer = document.getElementById('referral-codes-container');
             const referralCountEl = document.getElementById('referral-count');
             
-            let linksHtml = '';
-            let codesHtml = '';
+            linksContainer.innerHTML = '';
+            codesContainer.innerHTML = '';
 
-            const webLink = `${YOUR_WEB_APP_URL}#dashboard?ref=${currentUserData.address}`;
-            linksHtml += `
+            const webLink = `${YOUR_WEB_APP_URL}?ref=${currentUserData.address}`;
+            linksContainer.innerHTML += `
                 <div class="mb-3">
                     <label class="form-label small text-secondary">Link mời cho Web:</label>
                     <div class="input-group">
@@ -1296,7 +1716,7 @@
                         <button class="btn btn-outline-secondary copyable-code" data-code="${webLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
                     </div>
                 </div>`;
-            codesHtml += `
+            codesContainer.innerHTML += `
                  <div class="mb-2">
                     <label class="form-label small text-secondary">Mã mời (Địa chỉ ví):</label>
                     <div class="input-group">
@@ -1306,16 +1726,16 @@
                 </div>`;
             
             if (currentUserData.telegramId) {
-                const miniAppLink = `https://t.me/${YOUR_TELEGRAM_BOT_NAME}?start=${currentUserData.telegramId}`;
-                 linksHtml += `
+                const miniAppLink = `https://t.me/${YOUR_TELEGRAM_BOT_NAME}/${YOUR_MINI_APP_NAME}?startapp=${currentUserData.telegramId}`;
+                 linksContainer.innerHTML += `
                     <div class="mb-2">
-                        <label class="form-label small text-secondary">Link mời cho Mini App:</label>
+                        <label class="form-label small text-secondary">Link mời cho Mini App (Mở trực tiếp):</label>
                         <div class="input-group">
                             <input type="text" class="form-control" value="${miniAppLink}" readonly>
                             <button class="btn btn-outline-secondary copyable-code" data-code="${miniAppLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
                         </div>
                     </div>`;
-                codesHtml += `
+                codesContainer.innerHTML += `
                     <div class="mb-2">
                         <label class="form-label small text-secondary">Mã mời (UID):</label>
                         <div class="input-group">
@@ -1325,9 +1745,138 @@
                     </div>`;
             }
             
-            linksContainer.innerHTML = linksHtml;
-            codesContainer.innerHTML = codesHtml;
-            referralCountEl.textContent = `${currentUserData.referralCount || 0} người`;
+            referralCountEl.textContent = `${currentUserData.referralCount || 0}`;
+            fetchAndRenderInvitedUsers();
+        }
+
+        async function fetchAirdropSettings() {
+            if (airdropSettings) return airdropSettings; // Return cached if available
+            try {
+                const docRef = db.collection('admin_settings').doc('airdrop_criteria');
+                const doc = await docRef.get();
+                if (doc.exists) {
+                    airdropSettings = doc.data();
+                } else {
+                     // Default settings if not set by admin
+                    airdropSettings = { 
+                        isAirdropLive: false,
+                        isClaimingEnabled: false,
+                        minCheckins: 0, 
+                        minReferrals: 0, 
+                        minExp: 0,
+                        refMultiplier: 50,
+                        checkinMultiplier: 30,
+                        expMultiplier: 20
+                    };
+                }
+                return airdropSettings;
+            } catch (error) {
+                console.error("Error fetching airdrop settings:", error);
+                // Fallback to default on error
+                return { isAirdropLive: false, isClaimingEnabled: false, minCheckins: 0, minReferrals: 0, minExp: 0, refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 20 };
+            }
+        }
+
+        async function renderAirdropSection() {
+            const airdropWrapper = document.getElementById('airdrop-content-wrapper');
+            const comingSoonEl = document.getElementById('airdrop-coming-soon');
+            const loadingEl = document.getElementById('airdrop-content-loading');
+            const loggedInContent = document.getElementById('airdrop-content-logged-in');
+            const loggedOutContent = document.getElementById('airdrop-content-logged-out');
+
+            loadingEl.style.display = 'block';
+            loggedInContent.style.display = 'none';
+            loggedOutContent.style.display = 'none';
+            airdropWrapper.style.display = 'none';
+            comingSoonEl.style.display = 'none';
+
+            const settings = await fetchAirdropSettings();
+
+            // The main switch
+            if (!settings.isAirdropLive) {
+                loadingEl.style.display = 'none';
+                airdropWrapper.style.display = 'none';
+                comingSoonEl.style.display = 'block';
+                return;
+            }
+            
+            airdropWrapper.style.display = 'block';
+
+            if (!currentUserData) {
+                loadingEl.style.display = 'none';
+                loggedOutContent.style.display = 'block';
+                return;
+            }
+
+            const reward = calculateViecReward(currentUserData, settings);
+            const isEligible = (currentUserData.referralCount || 0) >= settings.minReferrals &&
+                               (currentUserData.checkinCount || 0) >= settings.minCheckins &&
+                               (currentUserData.points || 0) >= settings.minExp;
+
+            document.getElementById('airdrop-ref-count').textContent = (currentUserData.referralCount || 0).toLocaleString();
+            document.getElementById('airdrop-checkin-count').textContent = (currentUserData.checkinCount || 0).toLocaleString();
+            document.getElementById('airdrop-exp-count').textContent = (currentUserData.points || 0).toLocaleString();
+            document.getElementById('airdrop-reward-value').textContent = reward.toLocaleString();
+
+            const eligibilityStatusEl = document.getElementById('airdrop-eligibility-status');
+            const claimContainer = document.getElementById('airdrop-claim-container');
+            claimContainer.innerHTML = ''; // Clear previous state
+
+            if (isEligible) {
+                eligibilityStatusEl.textContent = 'BẠN ĐỦ ĐIỀU KIỆN';
+                eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
+
+                if (currentUserData.hasClaimed) {
+                     claimContainer.innerHTML = `<p class="mt-3 fw-bold" style="color: var(--color-verified);"><i class="fas fa-check-circle me-2"></i>Đã Claim Thành Công</p>`;
+                } else if (settings.isClaimingEnabled) {
+                     claimContainer.innerHTML = `<button id="claim-button" class="btn mt-2">Xác Nhận Claim</button>`;
+                     document.getElementById('claim-button').addEventListener('click', handleClaimRequest);
+                } else {
+                    claimContainer.innerHTML = `<p class="text-white-50 mt-3 fst-italic">Việc Claim sẽ sớm được mở. Vui lòng quay lại sau!</p>`;
+                }
+
+            } else {
+                eligibilityStatusEl.textContent = 'BẠN CHƯA ĐỦ ĐIỀU KIỆN';
+                eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
+            }
+            
+            loadingEl.style.display = 'none';
+            loggedInContent.style.display = 'block';
+        }
+
+        async function handleClaimRequest() {
+            const claimButton = document.getElementById('claim-button');
+            if (!claimButton) return;
+
+            claimButton.disabled = true;
+            claimButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...`;
+            
+            const transaction = {
+                validUntil: Math.floor(Date.now() / 1000) + 60, // 60 seconds
+                messages: [{
+                    address: CLAIM_WALLET_ADDRESS,
+                    amount: CLAIM_AMOUNT_NANOTONS
+                }]
+            };
+
+            try {
+                await tonConnectUI.sendTransaction(transaction);
+                
+                // Important: Update Firestore to mark as claimed
+                const userRef = db.collection('users').doc(currentUserData.address);
+                await userRef.update({ hasClaimed: true });
+
+                // Update local state and UI immediately
+                currentUserData.hasClaimed = true;
+                showAppToast('Thành công', 'Giao dịch xác nhận đã được gửi!', 'success');
+                renderAirdropSection(); // Re-render to show "Claimed" status
+
+            } catch (error) {
+                console.error("Claim transaction failed:", error);
+                showAppToast('Giao dịch thất bại', 'Vui lòng thử lại.', 'error');
+                claimButton.disabled = false;
+                claimButton.textContent = 'Xác Nhận Claim';
+            }
         }
 
         function identifyTelegramUser() {
@@ -1346,7 +1895,7 @@
                         appLogoImg.style.borderRadius = '50%';
                         appLogoText.textContent = `@${telegramUserData.username}` || telegramUserData.first_name || 'Telegram User';
                         
-                        // Capture referral code from start_param
+                        // Capture referral code from start_param (startapp)
                         if (tg.initDataUnsafe.start_param) {
                             console.log("Referral code found in start_param:", tg.initDataUnsafe.start_param);
                             sessionStorage.setItem(REFERRAL_SESSION_KEY, tg.initDataUnsafe.start_param);
@@ -1382,17 +1931,17 @@
         
         function captureWebReferral() {
             try {
-                 const params = new URLSearchParams(window.location.hash.split('?')[1]);
+                 const params = new URLSearchParams(window.location.search);
                  const refCode = params.get('ref');
                  if (refCode) {
-                    console.log("Referral code found in URL hash:", refCode);
+                    console.log("Referral code found in URL:", refCode);
                     sessionStorage.setItem(REFERRAL_SESSION_KEY, refCode);
-                    // Clean the URL
-                    const newUrl = window.location.pathname + window.location.hash.split('?')[0];
+                    // Clean the URL to remove the ref parameter after capturing it
+                    const newUrl = window.location.pathname + window.location.hash;
                     history.replaceState(null, '', newUrl);
                  }
             } catch(e) {
-                // Do nothing if hash is invalid
+                 console.error("Error capturing web referral:", e);
             }
         }
 
@@ -1461,13 +2010,13 @@
         // --- UI & Navigation ---
         
         const switchView = (viewToShow) => {
-            [dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl, accountSectionEl, leaderboardSectionEl, adminSectionEl, referralSectionEl].forEach(section => {
+            [dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl, accountSectionEl, leaderboardSectionEl, adminSectionEl, referralSectionEl, airdropSectionEl].forEach(section => {
                 if(section) section.style.display = 'none';
             });
-            [navDashboard, navApps, navTask, navLeaderboard, navAccount, navAdmin, navReferral].forEach(nav => nav.classList.remove('active'));
+            [navDashboard, navApps, navTask, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(nav => nav.classList.remove('active'));
 
             const isLoggedIn = !!connectedWalletAddress;
-            [navTask, navAccount, navReferral].forEach(nav => nav.style.display = isLoggedIn ? 'block' : 'none');
+            [navTask, navAccount, navReferral, navAirdrop].forEach(nav => nav.style.display = isLoggedIn ? 'block' : 'none');
 
             if (viewToShow === 'account' && isLoggedIn) {
                 accountSectionEl.style.display = 'block';
@@ -1481,6 +2030,10 @@
             } else if (viewToShow === 'referral' && isLoggedIn) {
                 referralSectionEl.style.display = 'block';
                 navReferral.classList.add('active');
+            } else if (viewToShow === 'airdrop') {
+                airdropSectionEl.style.display = 'block';
+                navAirdrop.classList.add('active');
+                renderAirdropSection();
             } else if (viewToShow === 'leaderboard') {
                 leaderboardSectionEl.style.display = 'block';
                 navLeaderboard.classList.add('active');
@@ -1488,6 +2041,17 @@
             } else if (viewToShow === 'admin' && isLoggedIn && isCurrentUserAdmin()){
                 adminSectionEl.style.display = 'block';
                 navAdmin.classList.add('active');
+                fetchAndRenderAdminUserList(true); 
+                fetchAirdropSettings().then(settings => {
+                     document.getElementById('airdrop-live-switch').checked = settings.isAirdropLive || false;
+                     document.getElementById('claim-enabled-switch').checked = settings.isClaimingEnabled || false;
+                     document.getElementById('min-checkins-input').value = settings.minCheckins || 0;
+                     document.getElementById('min-referrals-input').value = settings.minReferrals || 0;
+                     document.getElementById('min-exp-input').value = settings.minExp || 0;
+                     document.getElementById('ref-multiplier-input').value = settings.refMultiplier ?? 50;
+                     document.getElementById('checkin-multiplier-input').value = settings.checkinMultiplier ?? 30;
+                     document.getElementById('exp-multiplier-input').value = settings.expMultiplier ?? 20;
+                });
             } else { 
                 if (isLoggedIn) {
                     dashboardEl.style.display = 'block';
@@ -1501,19 +2065,21 @@
         };
         
         const handleRouteChange = () => {
-            const hash = window.location.hash.substring(1) || 'dashboard';
+            let hash = window.location.hash.substring(1) || 'dashboard';
             const [path, queryString] = hash.split('?');
             
-            if (!connectedWalletAddress && ['task', 'account', 'admin', 'referral'].includes(path)) {
-                showAppToast('Yêu cầu kết nối ví', 'Tính năng này yêu cầu kết nối ví.', 'warning');
-                window.location.hash = '#dashboard';
-                return;
+            // Allow airdrop page even if logged out, to show connect message or coming soon
+            const protectedRoutes = ['task', 'account', 'admin', 'referral'];
+            if (!connectedWalletAddress && protectedRoutes.includes(path)) {
+                 showAppToast('Yêu cầu kết nối ví', 'Tính năng này yêu cầu kết nối ví.', 'warning');
+                 window.location.hash = '#dashboard';
+                 hash = 'dashboard';
             }
             
             if (path === 'admin' && !isCurrentUserAdmin()){
                  showAppToast('Từ chối truy cập', 'Bạn không có quyền truy cập trang này.', 'error');
                  window.location.hash = '#dashboard';
-                 return;
+                 hash = 'dashboard'; 
             }
 
             switchView(path);
@@ -1993,7 +2559,7 @@
             }
             filteredApps.forEach(app => {
                 const appCard = document.createElement('div');
-                appCard.className = 'col-3 col-md-3';
+                appCard.className = 'col'; // Bootstrap grid will handle columns via parent
                 appCard.innerHTML = `<a href="${app.link}" target="_blank" rel="noopener noreferrer" class="app-item"><div class="app-item-img-wrapper"><img src="${app.image}" alt="${app.name} logo" class="app-item-img" onerror="this.src='https://via.placeholder.com/90?text=App';"></div><span class="app-item-name">${app.name}</span></a>`;
                 appGrid.appendChild(appCard);
             });
@@ -2020,6 +2586,117 @@
             sidebarOverlay.classList.toggle('open');
         };
 
+        async function saveAirdropSettings() {
+            const isAirdropLive = document.getElementById('airdrop-live-switch').checked;
+            const isClaimingEnabled = document.getElementById('claim-enabled-switch').checked;
+            const minCheckins = parseInt(document.getElementById('min-checkins-input').value, 10);
+            const minReferrals = parseInt(document.getElementById('min-referrals-input').value, 10);
+            const minExp = parseInt(document.getElementById('min-exp-input').value, 10);
+            const refMultiplier = parseFloat(document.getElementById('ref-multiplier-input').value) || 0;
+            const checkinMultiplier = parseFloat(document.getElementById('checkin-multiplier-input').value) || 0;
+            const expMultiplier = parseFloat(document.getElementById('exp-multiplier-input').value) || 0;
+
+            if (isNaN(minCheckins) || isNaN(minReferrals) || isNaN(minExp) || isNaN(refMultiplier) || isNaN(checkinMultiplier) || isNaN(expMultiplier)) {
+                showAppToast('Lỗi', 'Vui lòng nhập giá trị số hợp lệ.', 'error');
+                return;
+            }
+            
+            saveSettingsBtn.disabled = true;
+            adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
+
+            try {
+                const settingsRef = db.collection('admin_settings').doc('airdrop_criteria');
+                const newSettings = { isAirdropLive, isClaimingEnabled, minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier };
+                await settingsRef.set(newSettings);
+                airdropSettings = newSettings; // Update local cache
+                adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
+                showAppToast('Thành công', 'Đã lưu cài đặt Airdrop.', 'success');
+            } catch (error) {
+                console.error("Error saving airdrop settings:", error);
+                adminSettingsStatusEl.innerHTML = `<span class="text-danger">Lưu thất bại.</span>`;
+                showAppToast('Lỗi', 'Không thể lưu cài đặt.', 'error');
+            } finally {
+                saveSettingsBtn.disabled = false;
+                 setTimeout(() => { adminSettingsStatusEl.innerHTML = ''; }, 3000);
+            }
+        }
+
+        async function exportAirdropData() {
+            exportCsvBtn.disabled = true;
+            adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang chuẩn bị dữ liệu...`;
+            
+            try {
+                const settings = await fetchAirdropSettings();
+                const eligibleUsers = [];
+                let lastVisible = null;
+
+                while (true) {
+                    let query = db.collection('users').orderBy('createdAt').limit(500);
+                    if(lastVisible) {
+                        query = query.startAfter(lastVisible);
+                    }
+                    const snapshot = await query.get();
+                    
+                    if (snapshot.empty) {
+                        break;
+                    }
+
+                    snapshot.forEach(doc => {
+                        const user = doc.data();
+                        
+                        const isEligible = (user.referralCount || 0) >= settings.minReferrals &&
+                                           (user.checkinCount || 0) >= settings.minCheckins &&
+                                           (user.points || 0) >= settings.minExp;
+                        
+                        if (isEligible) {
+                            const reward = calculateViecReward(user, settings);
+                            eligibleUsers.push({ address: user.address, reward: reward });
+                        }
+                    });
+                    
+                    if (snapshot.docs.length < 500) {
+                        break; // Reached the end
+                    }
+                    lastVisible = snapshot.docs[snapshot.docs.length - 1];
+                }
+                
+                adminSettingsStatusEl.innerHTML = `<i class="fas fa-file-csv me-2"></i>Đang tạo file...`;
+                
+                if (eligibleUsers.length === 0) {
+                    showAppToast('Thông báo', 'Không có người dùng nào đủ điều kiện.', 'info');
+                    adminSettingsStatusEl.innerHTML = `<span class="text-warning">Không có ai đủ điều kiện.</span>`;
+                    return;
+                }
+
+                let csvContent = "address,quantity\n";
+                eligibleUsers.forEach(item => {
+                    csvContent += `${item.address},${item.reward}\n`;
+                });
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                const airdropDate = new Date().toISOString().slice(0, 10);
+                link.setAttribute("download", `airdrop-viec-${airdropDate}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                showAppToast('Thành công', `Đã xuất ${eligibleUsers.length} người dùng đủ điều kiện.`, 'success');
+                adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã xuất file thành công!</span>`;
+
+            } catch (error) {
+                console.error("Error exporting airdrop data:", error);
+                showAppToast('Lỗi', 'Không thể xuất dữ liệu.', 'error');
+                adminSettingsStatusEl.innerHTML = `<span class="text-danger">Xuất file thất bại.</span>`;
+            } finally {
+                exportCsvBtn.disabled = false;
+                setTimeout(() => { adminSettingsStatusEl.innerHTML = ''; }, 4000);
+            }
+        }
+
         // --- Event Listeners ---
         hamburgerBtn.addEventListener('click', toggleSidebar);
         sidebarOverlay.addEventListener('click', toggleSidebar);
@@ -2029,8 +2706,11 @@
         checkinButton.addEventListener('click', handleCheckin);
         popupCheckinButton.addEventListener('click', handleCheckin);
         if (adminExpForm) adminExpForm.addEventListener('submit', handleAdminExpUpdate);
+        if (adminLoadMoreBtn) adminLoadMoreBtn.addEventListener('click', () => fetchAndRenderAdminUserList(false));
         referralCodeSubmit.addEventListener('click', handleManualReferralInput);
         referralCodeSubmitHero.addEventListener('click', handleManualReferralInput);
+        if(saveSettingsBtn) saveSettingsBtn.addEventListener('click', saveAirdropSettings);
+        if(exportCsvBtn) exportCsvBtn.addEventListener('click', exportAirdropData);
 
 
         customWalletButton.addEventListener('click', () => { walletDropdown.style.display = walletDropdown.style.display === 'block' ? 'none' : 'block'; });
@@ -2056,7 +2736,7 @@
             if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none'; 
         });
         
-        [navDashboard, navApps, navTask, navLeaderboard, navAccount, navAdmin, navReferral].forEach(link => link.addEventListener('click', (e) => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
+        [navDashboard, navApps, navTask, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(link => link.addEventListener('click', (e) => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
         appSearchInput.addEventListener('input', () => { renderApps(); const searchTerm = appSearchInput.value.trim(); const newUrl = searchTerm ? `#apps?search=${encodeURIComponent(searchTerm)}` : '#apps'; history.replaceState(null, '', newUrl); });
         appSearchButton.addEventListener('click', renderApps);
         appSearchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') renderApps(); });
