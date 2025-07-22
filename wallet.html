@@ -1,3 +1,9 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NEURALIS - The VIEC Experience</title>
 
     <!-- Meta SEO -->
@@ -50,20 +56,18 @@
 
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
-        .main-container { max-width: 1400px; padding: 2rem 1rem; margin: auto; }
-        .content-container { max-width: 700px; margin: auto; }
-
+        .main-container { max-width: 1400px; padding: 1.5rem 1rem; margin: auto; }
         .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 2rem; }
         .header-logo { display: flex; align-items: center; text-decoration: none; color: var(--text-primary); gap: 10px; z-index: 1100; }
         .header-logo img { height: 40px; width: 40px; object-fit: cover; transition: all 0.3s ease; }
         .header-logo span { font-size: 1.1rem; font-weight: 600; }
         
-        .card-glass { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 1.5rem; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: all 0.3s ease; height: 100%; }
+        .card-glass { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 1.25rem; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: all 0.3s ease; height: 100%; }
         .card-glass:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
         .card-title { font-weight: 600; margin-bottom: 1.5rem; font-size: 1.25rem; }
         
-        .hero-section, .login-section { text-align: center; padding: 4rem 0; min-height: 70vh; display: flex; align-items: center; justify-content: center;}
-        .hero-section h1, .login-section h1 { font-size: 2.5rem; font-weight: 700; }
+        .hero-section, .login-section { text-align: center; padding: 4rem 1rem; min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center;}
+        .hero-section h1, .login-section h1 { font-size: 2rem; font-weight: 700; }
         .hero-section .highlight, .login-section .highlight { color: var(--accent-primary); }
 
         .skeleton-loader { background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); background-size: 200% 100%; border-radius: 8px; animation: shimmer 1.5s infinite; }
@@ -221,12 +225,12 @@
             color: var(--accent-secondary);
         }
 
-        /* Leaderboard, Admin List, Referral List Styles */
-        .leaderboard-list, .admin-user-list, .referred-user-list {
+        /* Leaderboard Styles */
+        .leaderboard-list {
             max-width: 800px;
             margin: auto;
         }
-        .leaderboard-item, .admin-user-item, .referred-user-item {
+        .leaderboard-item {
             display: flex;
             align-items: center;
             background: var(--card-color);
@@ -236,7 +240,7 @@
             margin-bottom: 10px;
             transition: all 0.2s ease;
         }
-        .leaderboard-item:hover, .admin-user-item:hover, .referred-user-item:hover {
+        .leaderboard-item:hover {
             transform: scale(1.02);
             border-color: var(--accent-secondary);
         }
@@ -249,7 +253,7 @@
             flex-shrink: 0;
             margin-right: 10px;
         }
-        .leaderboard-avatar, .admin-user-avatar, .referred-user-avatar {
+        .leaderboard-avatar {
             width: 48px;
             height: 48px;
             border-radius: 50%;
@@ -258,23 +262,16 @@
             border: 3px solid var(--border-color);
             transition: all 0.3s ease;
         }
-        .leaderboard-name, .admin-user-name, .referred-user-name {
+        .leaderboard-name {
             font-weight: 600;
             flex-grow: 1;
-            min-width: 0; /* Fix for text-truncate */
+            min-width: 0;
         }
-        .leaderboard-exp, .admin-user-exp {
+        .leaderboard-exp {
             font-size: 1.1rem;
             font-weight: 700;
             color: var(--accent-secondary);
-            text-align: right;
         }
-        .admin-user-details {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        /* --- Special styles for Top 3 --- */
         .leaderboard-item.rank-1 .rank-icon { color: var(--gold); }
         .leaderboard-item.rank-2 .rank-icon { color: var(--silver); }
         .leaderboard-item.rank-3 .rank-icon { color: var(--bronze); }
@@ -282,15 +279,13 @@
         .leaderboard-item.rank-2 .leaderboard-avatar { border-color: var(--silver); }
         .leaderboard-item.rank-3 .leaderboard-avatar { border-color: var(--bronze); }
         .rank-icon { font-size: 1.8rem; }
-
-        /* Highlight current user */
         .leaderboard-item.current-user {
             border-color: var(--accent-primary);
             box-shadow: 0 0 20px rgba(145, 94, 255, 0.4);
             transform: scale(1.03);
         }
         
-        /* Admin & Referral Form Styles */
+        /* Form Styles */
         .form-control, .form-select {
             background-color: rgba(23, 27, 48, 0.8);
             border-color: var(--border-color);
@@ -302,9 +297,7 @@
             color: var(--text-primary);
             box-shadow: 0 0 0 0.25rem rgba(145, 94, 255, 0.25);
         }
-        .form-control::placeholder {
-            color: var(--text-secondary);
-        }
+        .form-control::placeholder { color: var(--text-secondary); }
         .form-select {
              background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23915EFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
         }
@@ -314,12 +307,12 @@
              color: var(--accent-secondary);
         }
 
-
+        /* Responsive Adjustments */
         @media (min-width: 768px) {
             .hero-section h1, .login-section h1 { font-size: 3.5rem; }
             .card-glass { padding: 2rem; }
+            .main-container { padding: 2rem; }
         }
-        
     </style>
 </head>
 <body>
@@ -370,27 +363,32 @@
         </header>
         
         <main id="account-section" style="display: none;">
-            <div class="container content-container">
+            <div class="container">
                 <div class="text-center mb-5">
                     <h1 class="mb-2" style="font-weight: 700;">Thông Tin Tài Khoản</h1>
-                    <p class="lead text-secondary col-md-10 mx-auto">Quản lý thông tin cá nhân và cài đặt của bạn.</p>
+                    <p class="lead text-secondary col-md-8 mx-auto">Quản lý thông tin cá nhân và cài đặt của bạn.</p>
                 </div>
-                <div class="card-glass p-4 text-center">
-                    <img id="profile-photo" src="" alt="User Photo" class="rounded-circle mb-3" style="width: 120px; height: 120px; border: 3px solid var(--accent-primary);">
-                    <h3 id="profile-fullname" class="fw-bold"></h3>
-                    <p id="profile-username" class="text-secondary fs-5"></p>
-                    <hr style="border-color: var(--border-color); opacity: 0.5;">
-                    <div id="profile-details" class="text-start p-2"></div>
-                     <button id="full-logout-btn" class="btn mt-4 w-100" style="background-color: var(--color-out); color: white;">
-                        <i class="fas fa-sign-out-alt me-2"></i>Đăng Xuất Hoàn Toàn
-                    </button>
+                <div class="row justify-content-center">
+                    <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+                        <div class="card-glass p-4 text-center">
+                            <img id="profile-photo" src="" alt="User Photo" class="rounded-circle mb-3" style="width: 120px; height: 120px; border: 3px solid var(--accent-primary);">
+                            <h3 id="profile-fullname" class="fw-bold"></h3>
+                            <p id="profile-username" class="text-secondary fs-5"></p>
+                            <hr style="border-color: var(--border-color); opacity: 0.5;">
+                            <div id="profile-details" class="text-start p-2">
+                            </div>
+                             <button id="full-logout-btn" class="btn mt-4 w-100" style="background-color: var(--color-out); color: white;">
+                                <i class="fas fa-sign-out-alt me-2"></i>Đăng Xuất Hoàn Toàn
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
 
         <main id="dashboard" style="display: none;">
             <div class="row g-4 mb-4">
-                <div class="col-lg-12">
+                <div class="col-12">
                     <div id="portfolio-overview-card" class="card-glass">
                         <h5 class="card-title">Tổng Quan Tài Sản</h5>
                         <div id="portfolio-overview-content">
@@ -407,16 +405,16 @@
 
             <div id="account-search-section" class="mb-4">
                 <div class="input-group">
-                    <input type="text" id="account-search-input" class="form-control" placeholder="Search by name or paste an address" style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--text-primary); border-right: 0;">
-                    <button id="account-search-button" class="btn" style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--accent-primary);"><i class="fas fa-search"></i></button>
+                    <input type="text" id="account-search-input" class="form-control" placeholder="Search by name or paste an address">
+                    <button id="account-search-button" class="btn"><i class="fas fa-search"></i></button>
                 </div>
                 <div id="search-results-container" class="mt-2 card-glass" style="padding: 1rem; display: none;"></div>
             </div>
 
              <div class="row g-4">
-                <div class="col-lg-7">
+                <div class="col-12 col-lg-7 mb-4 mb-lg-0">
                     <div class="row g-4">
-                        <div class="col-md-12">
+                        <div class="col-12">
                             <div class="card-glass">
                                 <h5 class="card-title d-flex justify-content-between align-items-center">
                                     <span>Core Assets</span>
@@ -427,19 +425,34 @@
                                 <div id="main-assets-content"></div>
                             </div>
                         </div>
-                        <div class="col-md-12"><div class="card-glass"><h5 class="card-title">NFT Gallery</h5><div id="nft-gallery-content" style="max-height: 420px; overflow-y: auto;"></div></div></div>
+                        <div class="col-12">
+                            <div class="card-glass">
+                                <h5 class="card-title">NFT Gallery</h5>
+                                <div id="nft-gallery-content" style="max-height: 420px; overflow-y: auto;"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-5">
+                <div class="col-12 col-lg-5">
                      <div class="row g-4">
-                         <div class="col-12"><div class="card-glass"><h5 class="card-title">Token Portfolio</h5><div id="other-tokens-content" style="max-height: 250px; overflow-y: auto; padding-right: 10px;"></div></div></div>
-                        <div class="col-12"><div class="card-glass"><h5 class="card-title">Activity Feed</h5><div id="activity-feed-content" style="max-height: 525px; overflow-y: auto; padding-right: 10px;"></div></div></div>
+                         <div class="col-12">
+                            <div class="card-glass">
+                                <h5 class="card-title">Token Portfolio</h5>
+                                <div id="other-tokens-content" style="max-height: 250px; overflow-y: auto; padding-right: 10px;"></div>
+                            </div>
+                         </div>
+                        <div class="col-12">
+                            <div class="card-glass">
+                                <h5 class="card-title">Activity Feed</h5>
+                                <div id="activity-feed-content" style="max-height: 525px; overflow-y: auto; padding-right: 10px;"></div>
+                            </div>
+                        </div>
                      </div>
                 </div>
             </div>
         </main>
         
-        <section id="hero-section" class="hero-section" style="display: none;">
+        <section id="hero-section" class="hero-section">
             <div class="container">
                 <h1 class="mb-4">Welcome to the <span class="highlight">Neuralis</span><br/>Web3 Experience</h1>
                 <p class="lead text-secondary col-md-8 mx-auto mb-4">Connect your wallet to visualize your assets and interact with the VIEC ecosystem in a stunning, next-generation interface.</p>
@@ -455,7 +468,7 @@
         </section>
 
         <section id="crypto-news-feed" class="mt-5" style="display:none;">
-            <h2 class="card-title" style="font-size: 1.75rem; text-align: center; margin-bottom: 2rem;">Latest Crypto News</h2>
+            <h2 class="card-title fs-2 text-center mb-4">Latest Crypto News</h2>
             <div id="news-content-area"></div>
         </section>
 
@@ -465,10 +478,10 @@
                     <h1 class="mb-2" style="font-weight: 700;">Khám Phá Mini Apps</h1>
                     <p class="lead text-secondary col-md-8 mx-auto">Các ứng dụng, game và công cụ mạnh mẽ nhất trong hệ sinh thái.</p>
                 </div>
-                <div id="app-search-section" class="mb-4">
+                <div id="app-search-section" class="mb-4 col-md-8 col-lg-6 mx-auto">
                     <div class="input-group">
-                        <input type="text" id="app-search-input" class="form-control" placeholder="Tìm kiếm theo tên..." style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--text-primary); border-right: 0;">
-                        <button class="btn" id="app-search-button" style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--accent-primary);"><i class="fas fa-search"></i></button>
+                        <input type="text" id="app-search-input" class="form-control" placeholder="Tìm kiếm theo tên...">
+                        <button class="btn" id="app-search-button"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div id="app-filter-controls" class="app-filter-bar">
@@ -479,72 +492,78 @@
                     <button class="app-filter-btn" data-filter="CEX">CEX</button>
                     <button class="app-filter-btn" data-filter="Tiện ích">Tiện ích</button>
                 </div>
-                <div id="app-grid" class="row g-3">
+                <div id="app-grid" class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
+                    <!-- Apps will be rendered by JS -->
                 </div>
             </div>
         </main>
 
         <main id="task-section" style="display: none;">
-            <div class="container content-container">
+            <div class="container">
                 <div class="text-center mb-5">
                     <h1 class="mb-2" style="font-weight: 700;">Nhiệm Vụ & Phần Thưởng</h1>
-                    <p class="lead text-secondary mx-auto">Hoàn thành nhiệm vụ để nhận thưởng. Phần thưởng EXP sẽ được quy đổi sang token trong tương lai.</p>
+                    <p class="lead text-secondary col-md-8 mx-auto">Hoàn thành nhiệm vụ để nhận thưởng. Phần thưởng EXP sẽ được quy đổi sang token trong tương lai.</p>
                 </div>
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <p class="text-secondary mb-0">Tổng số dư EXP của bạn</p>
-                        <h2 id="task-exp-balance" class="fw-bold mb-0">0</h2>
-                    </div>
-                </div>
-                <div class="card-glass mb-4">
-                    <h5 class="card-title">Check-in Hàng Ngày</h5>
-                    <div id="daily-checkin-content" class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="mb-1">Điểm danh để nhận <strong style="color: var(--accent-primary);">+10 EXP</strong>.</p>
-                            <p class="text-secondary mb-0" style="font-size: 0.85rem;">Tích lũy EXP để đổi lấy token sau này!</p>
+                <div class="row justify-content-center g-4">
+                    <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <p class="text-secondary mb-0">Tổng số dư EXP của bạn</p>
+                                <h2 id="task-exp-balance" class="fw-bold mb-0">0</h2>
+                            </div>
                         </div>
-                        <button id="checkin-button" class="btn px-4 py-2" style="background-color: var(--accent-secondary); color: white; font-weight: 600; flex-shrink: 0; min-width: 130px;" disabled>
-                            <i class="fas fa-spinner fa-spin me-2"></i>Chờ...
-                        </button>
-                    </div>
-                </div>
-                <div class="card-glass">
-                    <h5 class="card-title">Lịch sử Hoạt động</h5>
-                    <div id="task-history-content" style="max-height: 300px; overflow-y: auto;">
-                        <p class="text-secondary text-center p-3">Chưa có hoạt động nào.</p>
+                        <div class="card-glass mb-4">
+                            <h5 class="card-title">Check-in Hàng Ngày</h5>
+                            <div id="daily-checkin-content" class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="mb-1">Điểm danh để nhận <strong style="color: var(--accent-primary);">+10 EXP</strong>.</p>
+                                    <p class="text-secondary mb-0" style="font-size: 0.85rem;">Tích lũy EXP để đổi lấy token sau này!</p>
+                                </div>
+                                <button id="checkin-button" class="btn px-4 py-2" style="background-color: var(--accent-secondary); color: white; font-weight: 600; flex-shrink: 0; min-width: 130px;" disabled>
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Chờ...
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-glass">
+                            <h5 class="card-title">Lịch sử Hoạt động</h5>
+                            <div id="task-history-content" style="max-height: 300px; overflow-y: auto;">
+                                <p class="text-secondary text-center p-3">Chưa có hoạt động nào.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </main>
         
         <main id="referral-section" style="display: none;">
-             <div class="container content-container">
+             <div class="container">
                 <div class="text-center mb-5">
                     <h1 class="mb-2" style="font-weight: 700;">Mời Bạn Bè</h1>
-                    <p class="lead text-secondary mx-auto">Mời bạn bè tham gia và nhận <strong style="color: var(--accent-secondary);">200 EXP</strong> cho mỗi lượt mời thành công!</p>
+                    <p class="lead text-secondary col-md-8 mx-auto">Mời bạn bè tham gia và cả hai cùng nhận thưởng. Nhận <strong style="color: var(--accent-secondary);">200 EXP</strong> cho mỗi lượt mời thành công!</p>
                 </div>
-
-                <div class="card-glass mb-4">
-                    <h5 class="card-title"><i class="fas fa-link me-2"></i>Link Mời Của Bạn</h5>
-                    <div id="referral-links-container"></div>
-                </div>
-                <div class="card-glass mb-4">
-                    <h5 class="card-title"><i class="fas fa-key me-2"></i>Mã Mời Của Bạn</h5>
-                     <div id="referral-codes-container"></div>
-                </div>
-                <div id="referral-input-container" class="card-glass mb-4" style="display: none;">
-                    <h5 class="card-title"><i class="fas fa-user-plus me-2"></i>Nhập Mã Mời</h5>
-                    <p class="text-secondary small">Nếu bạn được ai đó mời nhưng chưa nhập mã, hãy nhập vào đây.</p>
-                    <div class="input-group">
-                        <input type="text" id="referral-code-input" class="form-control" placeholder="Nhập mã của người mời...">
-                        <button class="btn" id="referral-code-submit" style="background-color: var(--accent-secondary); color: white;">Xác nhận</button>
+                <div class="row justify-content-center g-4">
+                    <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+                        <div class="card-glass mb-4">
+                            <h5 class="card-title"><i class="fas fa-link me-2"></i>Link Mời Của Bạn</h5>
+                            <div id="referral-links-container"></div>
+                        </div>
+                        <div class="card-glass mb-4">
+                            <h5 class="card-title"><i class="fas fa-key me-2"></i>Mã Mời Của Bạn</h5>
+                             <div id="referral-codes-container"></div>
+                        </div>
+                         <div id="referral-input-container" class="card-glass" style="display: none;">
+                            <h5 class="card-title"><i class="fas fa-user-plus me-2"></i>Nhập Mã Mời</h5>
+                            <p class="text-secondary small">Nếu bạn được ai đó mời nhưng chưa nhập mã, hãy nhập vào đây.</p>
+                            <div class="input-group">
+                                <input type="text" id="referral-code-input" class="form-control" placeholder="Nhập mã của người mời...">
+                                <button class="btn" id="referral-code-submit" style="background-color: var(--accent-secondary); color: white;">Xác nhận</button>
+                            </div>
+                        </div>
+                        <div class="card-glass text-center">
+                             <p class="text-secondary mb-1">Bạn đã mời thành công</p>
+                             <h3 id="referral-count" class="fw-bold" style="color: var(--accent-primary);">0 người</h3>
+                        </div>
                     </div>
-                </div>
-                <div class="card-glass text-center">
-                     <h5 class="card-title mb-3"><i class="fas fa-users me-2"></i>Danh sách đã mời (<span id="referral-count">0</span>)</h5>
-                     <div id="referred-users-list" class="referred-user-list" style="max-height: 300px; overflow-y: auto;">
-                        <!-- Referred users will be rendered here -->
-                     </div>
                 </div>
             </div>
         </main>
@@ -563,18 +582,10 @@
             <div class="container">
                 <div class="text-center mb-5">
                     <h1 class="mb-2" style="font-weight: 700;">Admin Panel</h1>
-                    <p class="lead text-secondary col-md-8 mx-auto">Công cụ quản lý và xem thông tin người dùng.</p>
+                    <p class="lead text-secondary col-md-8 mx-auto">Công cụ quản lý EXP của người dùng.</p>
                 </div>
-                <div class="row justify-content-center g-4">
-                    <div class="col-12 col-md-10 col-lg-8">
-                         <div class="card-glass mb-4">
-                            <h5 class="card-title">Danh sách Người dùng</h5>
-                            <div id="admin-user-list-container" class="admin-user-list" style="max-height: 500px; overflow-y: auto;">
-                                <!-- Admin user list will be rendered here -->
-                            </div>
-                        </div>
-                    </div>
-                     <div class="col-12 col-md-10 col-lg-8">
+                <div class="row justify-content-center">
+                    <div class="col-12 col-md-10 col-lg-8 col-xl-6">
                         <div class="card-glass">
                             <h5 class="card-title">Chỉnh sửa EXP</h5>
                             <form id="admin-exp-form">
@@ -669,7 +680,7 @@
         
         // --- CONFIGURATION ---
         const YOUR_TELEGRAM_BOT_NAME = "bmassk3_bot"; 
-        const YOUR_MINI_APP_NAME = "Bma"; 
+        const YOUR_MINI_APP_NAME = "BmassK3"; 
         const YOUR_WEB_APP_URL = "https://bmass.vercel.app/wallet.html";
         
         // Admin Credentials
@@ -852,6 +863,7 @@
             console.log(`Attempting to apply referral code "${referrerCode}" for new user ${newAddress}`);
 
             let referrerQuery;
+            // Check if referrerCode is numeric (UID) or a string (address)
             if (!isNaN(referrerCode)) {
                 referrerQuery = db.collection('users').where('telegramId', '==', parseInt(referrerCode, 10));
             } else {
@@ -869,6 +881,7 @@
                 const referrerRef = referrerDoc.ref;
                 const referrerData = referrerDoc.data();
                 
+                // Prevent self-referral
                 if (referrerData.address === newAddress) {
                     showAppToast('Lỗi', 'Bạn không thể tự giới thiệu chính mình.', 'warning');
                     return;
@@ -876,15 +889,12 @@
 
                 const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
                 
+                // Use a transaction to ensure atomicity
                 await db.runTransaction(async (transaction) => {
                     const freshReferrerDoc = await transaction.get(referrerRef);
-                    const newUserDocForRef = await db.collection('users').doc(newAddress).get();
-
                     if (!freshReferrerDoc.exists) throw "Referrer not found in transaction";
-                    if (!newUserDocForRef.exists) throw "New user not found for referral logging";
 
-                    const newUserData = newUserDocForRef.data();
-                    
+                    // 1. Update referrer's points and referral count
                     const currentPoints = freshReferrerDoc.data().points || 0;
                     const currentRefCount = freshReferrerDoc.data().referralCount || 0;
                     transaction.update(referrerRef, {
@@ -892,6 +902,7 @@
                         referralCount: currentRefCount + 1
                     });
 
+                    // 2. Add history log to referrer
                     const referrerHistoryRef = referrerRef.collection('task_history').doc();
                     transaction.set(referrerHistoryRef, {
                         taskName: 'Mời bạn bè thành công',
@@ -900,13 +911,7 @@
                         referredUser: newAddress 
                     });
                     
-                    const referredUserLogRef = referrerRef.collection('referrals').doc(newAddress);
-                     transaction.set(referredUserLogRef, {
-                        fullName: newUserData.fullName || 'N/A',
-                        photoUrl: newUserData.photoUrl || DEFAULT_LOGO_SRC,
-                        timestamp: newTimestamp
-                    });
-                    
+                    // 3. Update the new user's document to mark them as referred
                     const newUserRef = db.collection('users').doc(newAddress);
                     transaction.update(newUserRef, { referredBy: referrerCode });
                 });
@@ -937,6 +942,7 @@
                 navAdmin.style.display = 'none';
             }
             
+            // Hide referral input for users who have already been referred
             if(currentUserData.referredBy) {
                 referralInputContainer.style.display = 'none';
                 referralInputContainerHero.style.display = 'none';
@@ -948,8 +954,8 @@
         }
         
         function updateExpBalances(newExp) {
-            taskExpBalanceEl.textContent = newExp.toLocaleString('en-US');
-            headerExpBalanceEl.textContent = newExp.toLocaleString('en-US');
+            taskExpBalanceEl.textContent = newExp;
+            headerExpBalanceEl.textContent = newExp;
         }
 
         function updateCheckinUI(userData) {
@@ -1317,78 +1323,7 @@
             
             linksContainer.innerHTML = linksHtml;
             codesContainer.innerHTML = codesHtml;
-            referralCountEl.textContent = `${currentUserData.referralCount || 0}`;
-            renderReferredUsersList();
-        }
-        
-        async function renderReferredUsersList() {
-            if (!currentUserData || !db) return;
-            const listContainer = document.getElementById('referred-users-list');
-            listContainer.innerHTML = skeletonTx;
-            
-            try {
-                const snapshot = await db.collection('users').doc(currentUserData.address).collection('referrals').orderBy('timestamp', 'desc').get();
-                if (snapshot.empty) {
-                    listContainer.innerHTML = `<p class="text-secondary text-center p-3">Bạn chưa mời được ai.</p>`;
-                    return;
-                }
-                
-                let listHtml = '';
-                snapshot.forEach(doc => {
-                    const user = doc.data();
-                    const displayName = user.fullName || 'Telegram User';
-                    const avatarUrl = user.photoUrl || GENERIC_WALLET_ICON;
-                    listHtml += `
-                        <div class="referred-user-item">
-                            <img src="${avatarUrl}" class="referred-user-avatar" onerror="this.src='${GENERIC_WALLET_ICON}'">
-                            <div class="referred-user-name text-truncate">${displayName}</div>
-                        </div>
-                    `;
-                });
-                listContainer.innerHTML = listHtml;
-            } catch (error) {
-                console.error("Error fetching referred users:", error);
-                listContainer.innerHTML = `<p class="text-danger text-center p-3">Không thể tải danh sách.</p>`;
-            }
-        }
-        
-        async function fetchAndRenderAdminUserList() {
-             if (!db) return;
-             const listContainer = document.getElementById('admin-user-list-container');
-             listContainer.innerHTML = skeletonTx.repeat(5);
-
-             try {
-                const snapshot = await db.collection('users').orderBy('points', 'desc').limit(100).get();
-                 if (snapshot.empty) {
-                    listContainer.innerHTML = `<p class="text-secondary text-center p-3">Không có người dùng nào trong hệ thống.</p>`;
-                    return;
-                }
-                
-                let listHtml = '';
-                snapshot.forEach(doc => {
-                    const user = doc.data();
-                    const displayName = user.fullName || (user.username ? `@${user.username}` : shortenAddress(user.address));
-                    const avatarUrl = user.photoUrl || GENERIC_WALLET_ICON;
-                    
-                    listHtml += `
-                        <div class="admin-user-item">
-                            <img src="${avatarUrl}" class="admin-user-avatar" onerror="this.src='${GENERIC_WALLET_ICON}'">
-                            <div class="admin-user-name text-truncate">
-                                ${displayName}
-                                <div class="admin-user-details">
-                                    UID: ${user.telegramId || 'N/A'} | Wallet: <code class="copyable-address" data-address="${user.address}">${shortenAddress(user.address)}</code>
-                                </div>
-                            </div>
-                            <div class="admin-user-exp">${(user.points || 0).toLocaleString()} EXP</div>
-                        </div>
-                    `;
-                });
-                listContainer.innerHTML = listHtml;
-
-             } catch (error) {
-                 console.error("Error fetching admin user list:", error);
-                 listContainer.innerHTML = `<p class="text-danger text-center p-3">Lỗi khi tải danh sách người dùng.</p>`;
-             }
+            referralCountEl.textContent = `${currentUserData.referralCount || 0} người`;
         }
 
         function identifyTelegramUser() {
@@ -1407,6 +1342,7 @@
                         appLogoImg.style.borderRadius = '50%';
                         appLogoText.textContent = `@${telegramUserData.username}` || telegramUserData.first_name || 'Telegram User';
                         
+                        // Capture referral code from start_param (startapp)
                         if (tg.initDataUnsafe.start_param) {
                             console.log("Referral code found in start_param:", tg.initDataUnsafe.start_param);
                             sessionStorage.setItem(REFERRAL_SESSION_KEY, tg.initDataUnsafe.start_param);
@@ -1447,6 +1383,7 @@
                  if (refCode) {
                     console.log("Referral code found in URL:", refCode);
                     sessionStorage.setItem(REFERRAL_SESSION_KEY, refCode);
+                    // Clean the URL to remove the ref parameter after capturing it
                     const newUrl = window.location.pathname + window.location.hash;
                     history.replaceState(null, '', newUrl);
                  }
@@ -1547,7 +1484,6 @@
             } else if (viewToShow === 'admin' && isLoggedIn && isCurrentUserAdmin()){
                 adminSectionEl.style.display = 'block';
                 navAdmin.classList.add('active');
-                fetchAndRenderAdminUserList();
             } else { 
                 if (isLoggedIn) {
                     dashboardEl.style.display = 'block';
@@ -2053,7 +1989,7 @@
             }
             filteredApps.forEach(app => {
                 const appCard = document.createElement('div');
-                appCard.className = 'col-3 col-md-3';
+                appCard.className = 'col'; // Bootstrap grid will handle columns via parent
                 appCard.innerHTML = `<a href="${app.link}" target="_blank" rel="noopener noreferrer" class="app-item"><div class="app-item-img-wrapper"><img src="${app.image}" alt="${app.name} logo" class="app-item-img" onerror="this.src='https://via.placeholder.com/90?text=App';"></div><span class="app-item-name">${app.name}</span></a>`;
                 appGrid.appendChild(appCard);
             });
