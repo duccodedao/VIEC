@@ -48,10 +48,46 @@
             animation: gradientBG 15s ease infinite;
             overflow-x: hidden;
             font-size: 16px;
+            /* Add padding to top to avoid content hidden behind the new prompt */
+            padding-top: 60px;
         }
 
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
+        /* NEW: Styles for the Mini App prompt bar */
+        #mini-app-prompt {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(15, 18, 41, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 10px 15px;
+            z-index: 1200;
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        #mini-app-prompt p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        #mini-app-prompt .btn-open-tg {
+            background-color: #2AABEE;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 500;
+            text-decoration: none;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+
         .main-container { max-width: 1400px; padding: 2rem 1rem; margin: auto; }
         .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 2rem; }
         .header-logo { display: flex; align-items: center; text-decoration: none; color: var(--text-primary); gap: 10px; z-index: 1100; }
@@ -225,16 +261,30 @@
             .hero-section h1, .login-section h1 { font-size: 3.5rem; }
             .card-glass { padding: 2rem; }
         }
+        
+        @media (max-width: 576px) {
+            body { padding-top: 80px; } /* More space on small screens for prompt */
+            #mini-app-prompt { flex-direction: column; text-align: center; }
+        }
+
     </style>
 </head>
 <body>
+    <!-- NEW: Mini App Prompt Bar -->
+    <div id="mini-app-prompt">
+        <p>Để có trải nghiệm đầy đủ và nhận thưởng, hãy mở trong Mini App!</p>
+        <a href="https://t.me/bmassk3_bot/BmassK3" target="_blank" rel="noopener noreferrer" class="btn-open-tg">
+            <i class="fab fa-telegram-plane me-1"></i> Mở Ngay
+        </a>
+    </div>
+
     <div id="sidebar-overlay"></div>
     <nav id="sidebar-menu" class="sidebar">
         <div class="sidebar-nav">
             <a href="#dashboard" class="sidebar-link active" id="nav-dashboard">Dashboard</a>
             <a href="#apps" class="sidebar-link" id="nav-apps">Apps</a>
             <a href="#task" class="sidebar-link" id="nav-task">Task</a>
-            <a href="#login" class="sidebar-link" id="nav-login">Login</a>
+            <a href="#account" class="sidebar-link" id="nav-account">Account</a>
         </div>
         
         <div class="sidebar-wallet-connect">
@@ -271,6 +321,7 @@
             </div>
         </header>
 
+        <!-- Login Section is no longer used for routing but kept in HTML for the TG link -->
         <main id="login-section" class="login-section" style="display: none;">
             <div class="container">
                 <div class="row justify-content-center">
@@ -278,7 +329,6 @@
                         <div class="card-glass p-4 p-md-5">
                             <h1 class="mb-3">Join <span class="highlight">Neuralis</span></h1>
                             <p class="lead text-secondary mb-4">Để tiếp tục, vui lòng mở ứng dụng trực tiếp trong Telegram.</p>
-                            
                             <a href="https://t.me/bmassk3_bot/BmassK3" target="_blank" rel="noopener noreferrer" class="btn btn-lg w-100" style="background-color: #2AABEE; color: white;">
                                 <i class="fab fa-telegram-plane me-2"></i> Mở trong Telegram
                             </a>
@@ -485,8 +535,6 @@
     <script src="apps-data.js"></script>
     
     <script>
-    // The onTelegramAuth function is no longer needed and has been removed.
-
     document.addEventListener('DOMContentLoaded', () => {
         const TON_API_BASE = 'https://tonapi.io/v2';
         const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
@@ -512,7 +560,7 @@
         const navDashboard = document.getElementById('nav-dashboard');
         const navApps = document.getElementById('nav-apps');
         const navTask = document.getElementById('nav-task');
-        const navLogin = document.getElementById('nav-login');
+        const navAccount = document.getElementById('nav-account'); // Changed from navLogin
         const tonConnectButtonRoot = document.getElementById('ton-connect-button-root');
         const connectWalletHeroBtnContainer = document.getElementById('connect-wallet-hero-btn-container');
         const customWalletContainer = document.getElementById('custom-wallet-button-container');
@@ -538,6 +586,7 @@
         const portfolioSkeleton = document.getElementById('portfolio-overview-skeleton');
         const totalValueUsdEl = document.getElementById('total-value-usd');
         const totalValueVndEl = document.getElementById('total-value-vnd');
+        const miniAppPrompt = document.getElementById('mini-app-prompt'); // NEW
 
         let telegramUserData = null;
         let connectedWalletAddress = null;
@@ -775,7 +824,7 @@
                 tonConnectUI.disconnect();
             }
             telegramUserData = null;
-            window.location.href = window.location.pathname + '#login'; 
+            window.location.href = window.location.pathname; // Go to homepage
             window.location.reload();
         }
 
@@ -823,7 +872,7 @@
         window.handleUserIdentified = (user) => {
             if (telegramUserData) return; 
             telegramUserData = user;
-            console.log("User identified:", telegramUserData);
+            console.log("User identified (from Mini App):", telegramUserData);
 
             const session = {
                 userData: user,
@@ -835,10 +884,7 @@
             appLogoImg.style.borderRadius = '50%';
             appLogoText.textContent = `@${telegramUserData.username}` || telegramUserData.first_name || 'Telegram User';
             
-            navLogin.textContent = 'Account';
-            navLogin.href = '#account';
             renderAccountSection();
-            
             initializeFirebaseAndCheckin(telegramUserData);
 
             if (window.location.hash.includes('login')) {
@@ -850,42 +896,48 @@
 
         function checkUserSession() {
             const sessionJSON = localStorage.getItem(USER_SESSION_KEY);
-            if (!sessionJSON) {
-                console.log("No user session found.");
-                return false;
-            }
+            if (!sessionJSON) return false;
             try {
                 const session = JSON.parse(sessionJSON);
                 if (Date.now() > session.expiresAt) {
-                    console.log("User session expired.");
                     localStorage.removeItem(USER_SESSION_KEY);
                     return false;
                 }
-                console.log("Valid user session found.");
                 window.handleUserIdentified(session.userData);
                 return true;
             } catch (error) {
-                console.error("Error parsing user session.", error);
                 localStorage.removeItem(USER_SESSION_KEY);
                 return false;
             }
         }
-
+        
+        // **UPDATED**: This is the main logic handler
         function initializeUser() {
+            let isMiniApp = false;
             try {
                 if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
                     const tg = window.Telegram.WebApp;
                     tg.ready();
                     console.log("Running in Telegram Mini App context.");
-                    window.handleUserIdentified(tg.initDataUnsafe.user);
-                    return;
+                    isMiniApp = true;
+                    // Try to restore session first, then use TG data
+                    if (!checkUserSession()) {
+                       window.handleUserIdentified(tg.initDataUnsafe.user);
+                    }
                 }
             } catch (e) { 
                 console.error("Could not initialize Telegram Web App:", e); 
             }
-            console.log("Not in Mini App context. App will show login page.");
-            handleRouteChange();
+            
+            // If not in a Mini App, run as a public website
+            if (!isMiniApp) {
+                console.log("Running in public web context (Guest Mode).");
+                miniAppPrompt.style.display = 'flex'; // Show the prompt bar
+                appLogoText.textContent = 'Neuralis'; // Default app name for guests
+                handleRouteChange(); // Load the default public view
+            }
         }
+
 
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ 
             manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json',
@@ -1305,38 +1357,33 @@
             } else { holdersEl.innerHTML = `<p class="text-danger">Failed to load holders.</p>`; }
         }
 
+        // **UPDATED**: This function now handles both logged-in and guest users
         const switchView = (viewToShow) => {
             [loginSectionEl, dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl, accountSectionEl].forEach(section => {
                 if(section) section.style.display = 'none';
             });
-            [navDashboard, navApps, navTask, navLogin].forEach(nav => nav.classList.remove('active'));
+            [navDashboard, navApps, navTask, navAccount].forEach(nav => nav.classList.remove('active'));
 
-            if (!telegramUserData) {
-                loginSectionEl.style.display = 'flex';
-                navLogin.classList.add('active');
-                navLogin.textContent = 'Login';
-                navLogin.href = '#login';
-                [navDashboard, navApps, navTask, navLogin].forEach(n => n.style.display = 'none');
-                navLogin.style.display = 'block';
-                if (sidebarMenu.classList.contains('open')) toggleSidebar();
-                return;
+            // Configure sidebar based on login state
+            if (telegramUserData) {
+                navTask.style.display = 'block';
+                navAccount.style.display = 'block';
+            } else {
+                navTask.style.display = 'none';
+                navAccount.style.display = 'none';
             }
-
-            [navDashboard, navApps, navTask, navLogin].forEach(n => n.style.display = 'block');
-            navLogin.style.display = 'block';
 
             if (viewToShow === 'account') {
                 accountSectionEl.style.display = 'block';
-                navLogin.classList.add('active');
+                navAccount.classList.add('active');
             } else if (viewToShow === 'apps') {
                 appStoreSection.style.display = 'block';
                 navApps.classList.add('active');
             } else if (viewToShow === 'task') {
                 taskSectionEl.style.display = 'block';
                 navTask.classList.add('active');
-                 if (db) fetchTaskHistory(); 
-            } else { 
-                if (tonConnectUI.connected) {
+            } else { // 'dashboard' or default view
+                if (telegramUserData && tonConnectUI.connected) {
                     dashboardEl.style.display = 'block';
                 } else {
                     heroEl.style.display = 'flex';
@@ -1346,22 +1393,30 @@
             }
             if (sidebarMenu.classList.contains('open')) toggleSidebar();
         };
-
+        
+        // **UPDATED**: This function now guards routes
         const handleRouteChange = () => {
             const hash = window.location.hash.substring(1);
             const [path, queryString] = hash.split('?');
             
-            let view = 'dashboard';
-            if (!telegramUserData || path === 'login') {
-                 view = 'login';
-            } else if (path === 'apps') {
+            // **NEW**: Guard private routes
+            if (!telegramUserData && (path === 'task' || path === 'account')) {
+                showAppToast('Yêu cầu đăng nhập', 'Tính năng này chỉ có trong Mini App.', 'warning');
+                window.location.hash = '#dashboard'; // Redirect to a safe page
+                return;
+            }
+
+            let view = 'dashboard'; // Default view is now dashboard/hero
+            if (path === 'apps') {
                 view = 'apps';
             } else if (path === 'task') {
                 view = 'task';
             } else if (path === 'account') {
                 view = 'account';
             }
+            
             switchView(view);
+
             if (view === 'apps') {
                 const params = new URLSearchParams(queryString || '');
                 const searchQuery = params.get('search');
@@ -1412,20 +1467,22 @@
                 customWalletButton.textContent = shortenAddress(friendlyAddress);
                 copyAddressBtn.dataset.address = friendlyAddress;
                 myAccountBtn.href = `https://tonviewer.com/${friendlyAddress}`;
-                handleRouteChange();
-                await fetchAndDisplayAccountData(connectedWalletAddress);
-                activityRefreshInterval = setInterval(() => {
-                    if(lastFetchedAddress === connectedWalletAddress) {
-                        fetchAndDisplayAccountData(connectedWalletAddress);
-                    }
-                }, 30000);
+                if (telegramUserData) { // Only fetch personal data if logged in
+                    handleRouteChange();
+                    await fetchAndDisplayAccountData(connectedWalletAddress);
+                    activityRefreshInterval = setInterval(() => {
+                        if(lastFetchedAddress === connectedWalletAddress) {
+                            fetchAndDisplayAccountData(connectedWalletAddress);
+                        }
+                    }, 30000);
+                }
             } else {
                 connectedWalletAddress = null;
                 lastFetchedAddress = null;
                 currentActivityLogs = [];
                 tonConnectButtonRoot.style.display = 'block';
                 customWalletContainer.style.display = 'none';
-                handleRouteChange();
+                handleRouteChange(); // Refresh view to show hero section
             }
         });
         
@@ -1436,7 +1493,7 @@
         backToMyWalletBtn.addEventListener('click', () => { if (connectedWalletAddress) fetchAndDisplayAccountData(connectedWalletAddress); });
         otherTokensContent.addEventListener('click', (e) => { const jettonItem = e.target.closest('.jetton-item'); if (jettonItem) showJettonDetails(jettonItem.dataset.jettonAddress); });
         document.body.addEventListener('click', (e) => { const target = e.target.closest('.copyable-address'); if (target?.dataset?.address) { navigator.clipboard.writeText(target.dataset.address).then(() => { const originalText = target.textContent; target.textContent = 'Copied!'; target.classList.add('copied'); setTimeout(() => { target.textContent = originalText; target.classList.remove('copied'); }, 1500); }); } if (!customWalletContainer?.contains(e.target)) walletDropdown.style.display = 'none'; if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none'; });
-        [navDashboard, navApps, navTask, navLogin].forEach(link => link.addEventListener('click', () => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
+        [navDashboard, navApps, navTask, navAccount].forEach(link => link.addEventListener('click', () => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
         appSearchInput.addEventListener('input', () => { renderApps(); const searchTerm = appSearchInput.value.trim(); const newUrl = searchTerm ? `#apps?search=${encodeURIComponent(searchTerm)}` : '#apps'; history.replaceState(null, '', newUrl); });
         appSearchButton.addEventListener('click', renderApps);
         appSearchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') renderApps(); });
@@ -1450,9 +1507,10 @@
         heroConnectButton.addEventListener('click', () => tonConnectUI.openModal());
         connectWalletHeroBtnContainer.appendChild(heroConnectButton);
         fetchCryptoNews();
-        if (!checkUserSession()) {
-            initializeUser();
-        }
+        
+        // **ENTRY POINT**
+        initializeUser();
+
     });
     </script>
 </body>
