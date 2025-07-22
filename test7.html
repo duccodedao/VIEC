@@ -221,6 +221,14 @@
             color: var(--accent-secondary);
         }
 
+        /* Make checkin card content area taller to balance history card */
+        #daily-checkin-content {
+            min-height: 110px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
         @media (min-width: 768px) {
             .hero-section h1, .login-section h1 { font-size: 3.5rem; }
             .card-glass { padding: 2rem; }
@@ -431,7 +439,7 @@
                         <div class="card-glass">
                             <h5 class="card-title">Lịch sử Check-in</h5>
                             <div id="task-history-content" style="max-height: 300px; overflow-y: auto;">
-                                <p class="text-secondary text-center">Chưa có hoạt động nào.</p>
+                                <p class="text-secondary text-center p-3">Chưa có hoạt động nào.</p>
                             </div>
                         </div>
                     </div>
@@ -575,7 +583,7 @@
         
         const CHECKIN_REWARD = 10;
         const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000;
-
+        
         async function initializeFirebaseAndCheckin(user) {
             if (!user || !user.id) {
                 checkinButton.innerHTML = `<i class="fas fa-times-circle me-2"></i> Lỗi User`;
