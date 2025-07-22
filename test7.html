@@ -224,8 +224,8 @@
             color: var(--accent-secondary);
         }
 
-        /* NEW: Leaderboard Styles */
-        .leaderboard-container {
+        /* UPDATED Leaderboard Styles */
+        .leaderboard-list {
             max-width: 800px;
             margin: auto;
         }
@@ -246,9 +246,11 @@
         .leaderboard-rank {
             font-size: 1.2rem;
             font-weight: 700;
-            width: 50px;
+            width: 50px; /* Increased width to fit icons and numbers nicely */
             color: var(--text-secondary);
             text-align: center;
+            flex-shrink: 0; /* Prevent rank from shrinking */
+            margin-right: 10px;
         }
         .leaderboard-avatar {
             width: 48px;
@@ -256,42 +258,47 @@
             border-radius: 50%;
             object-fit: cover;
             margin-right: 15px;
-            border: 2px solid var(--border-color);
+            border: 3px solid var(--border-color); /* Default border */
+            transition: all 0.3s ease;
         }
         .leaderboard-name {
             font-weight: 600;
             flex-grow: 1;
+            min-width: 0; /* Fix for text-truncate */
         }
         .leaderboard-exp {
             font-size: 1.1rem;
             font-weight: 700;
             color: var(--accent-secondary);
         }
-        .rank-icon {
-            font-size: 1.5rem;
-            margin-right: 10px;
-        }
-        .rank-1 .rank-icon { color: var(--gold); }
-        .rank-2 .rank-icon { color: var(--silver); }
-        .rank-3 .rank-icon { color: var(--bronze); }
 
+        /* --- Special styles for Top 3 --- */
+
+        /* Medal icon colors */
+        .leaderboard-item.rank-1 .rank-icon { color: var(--gold); }
+        .leaderboard-item.rank-2 .rank-icon { color: var(--silver); }
+        .leaderboard-item.rank-3 .rank-icon { color: var(--bronze); }
+
+        /* Avatar border colors for Top 3 */
+        .leaderboard-item.rank-1 .leaderboard-avatar {
+            border-color: var(--gold);
+        }
+        .leaderboard-item.rank-2 .leaderboard-avatar {
+            border-color: var(--silver);
+        }
+        .leaderboard-item.rank-3 .leaderboard-avatar {
+            border-color: var(--bronze);
+        }
+        .rank-icon {
+            font-size: 1.8rem; /* Make medal icon larger */
+        }
+
+        /* Highlight current user */
         .leaderboard-item.current-user {
             border-color: var(--accent-primary);
             box-shadow: 0 0 20px rgba(145, 94, 255, 0.4);
             transform: scale(1.03);
         }
-        .top-rank-card {
-            padding-top: 2rem;
-            position: relative;
-        }
-        .top-rank-card .leaderboard-avatar {
-            width: 80px;
-            height: 80px;
-            border-width: 3px;
-        }
-        .top-rank-card.rank-1 { border-color: var(--gold); }
-        .top-rank-card.rank-2 { border-color: var(--silver); }
-        .top-rank-card.rank-3 { border-color: var(--bronze); }
 
 
         @media (min-width: 768px) {
@@ -308,7 +315,7 @@
             <a href="#dashboard" class="sidebar-link active" id="nav-dashboard">Dashboard</a>
             <a href="#apps" class="sidebar-link" id="nav-apps">Apps</a>
             <a href="#task" class="sidebar-link" id="nav-task">Task</a>
-            <a href="#leaderboard" class="sidebar-link" id="nav-leaderboard">Leaderboard</a> <!-- NEW -->
+            <a href="#leaderboard" class="sidebar-link" id="nav-leaderboard">Leaderboard</a>
             <a href="#account" class="sidebar-link" id="nav-account">Account</a>
         </div>
         
@@ -496,22 +503,16 @@
             </div>
         </main>
         
-        <!-- NEW: Leaderboard Section -->
         <main id="leaderboard-section" style="display: none;">
-            <div class="leaderboard-container">
+            <div class="container">
                 <div class="text-center mb-5">
                     <h1 class="mb-2" style="font-weight: 700;">Bảng Xếp Hạng</h1>
                     <p class="lead text-secondary col-md-8 mx-auto">Vinh danh những người dùng tích cực nhất. Hãy tích lũy EXP để leo hạng!</p>
                 </div>
                 
-                <!-- Top 3 Users -->
-                <div id="leaderboard-top-3" class="row justify-content-center g-4 mb-5">
-                    <!-- Top 3 will be dynamically inserted here -->
-                </div>
-                
-                <!-- Rest of the list -->
-                <div id="leaderboard-list">
-                    <!-- Ranks 4+ will be dynamically inserted here -->
+                <!-- The entire list will be rendered here -->
+                <div id="leaderboard-list" class="leaderboard-list">
+                    <!-- Ranks will be dynamically inserted here -->
                 </div>
             </div>
         </main>
@@ -568,6 +569,7 @@
         const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
         const USER_SESSION_KEY = 'neuralisUserSession';
 
+        // Element Selectors
         const accountSectionEl = document.getElementById('account-section');
         const dashboardEl = document.getElementById('dashboard');
         const heroEl = document.getElementById('hero-section');
@@ -601,8 +603,6 @@
         const myAccountBtn = document.getElementById('my-account-btn');
         const appLogoImg = document.getElementById('app-logo-img');
         const appLogoText = document.getElementById('app-logo-text');
-        const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo_viewc.png';
-        const GENERIC_WALLET_ICON = 'https://ton.org/download/ton_symbol.png'; // Generic icon for web-only users
         const appStoreSection = document.getElementById('app-store-section');
         const taskSectionEl = document.getElementById('task-section');
         const leaderboardSectionEl = document.getElementById('leaderboard-section');
@@ -616,20 +616,6 @@
         const portfolioSkeleton = document.getElementById('portfolio-overview-skeleton');
         const totalValueUsdEl = document.getElementById('total-value-usd');
         const totalValueVndEl = document.getElementById('total-value-vnd');
-
-        // --- State Variables ---
-        let telegramUserData = null;
-        let connectedWalletAddress = null; // Raw address from wallet
-        let currentUserData = null; // Full user profile from Firestore
-        let lastFetchedAddress = null;
-        let currentActivityLogs = [];
-        let activityRefreshInterval = null;
-        const addressCache = {};
-        let searchTimeout;
-
-        const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
-        const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
-
         const taskExpBalanceEl = document.getElementById('task-exp-balance');
         const headerExpDisplay = document.getElementById('header-exp-display');
         const headerExpBalanceEl = document.getElementById('header-exp-balance');
@@ -638,13 +624,27 @@
         const checkinPopupModalEl = document.getElementById('checkinPopupModal');
         const checkinPopupModal = new bootstrap.Modal(checkinPopupModalEl);
         const taskHistoryContent = document.getElementById('task-history-content');
-        
+        const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo_viewc.png';
+        const GENERIC_WALLET_ICON = 'https://ton.org/download/ton_symbol.png';
+
+        // State Variables
+        let telegramUserData = null;
+        let connectedWalletAddress = null; // Raw address from wallet
+        let currentUserData = null; // Full user profile from Firestore
+        let lastFetchedAddress = null;
+        let currentActivityLogs = [];
+        let activityRefreshInterval = null;
+        const addressCache = {};
+        let searchTimeout;
         let db = null;
         let checkinInterval = null;
         
+        // Constants
         const CHECKIN_REWARD = 10;
         const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000;
-        
+        const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
+        const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
+
         // --- Core Logic ---
 
         function initializeFirebase() {
@@ -665,12 +665,6 @@
             db = firebase.firestore();
         }
 
-        /**
-         * The new central function for user data management.
-         * Fetches or creates a user record in Firestore based on their wallet address.
-         * If Telegram data is available, it merges it into the record.
-         * @param {string} address The raw wallet address.
-         */
         async function loadOrCreateUserByAddress(address) {
             if (!address || !db) return;
 
@@ -685,7 +679,6 @@
                     points: 0,
                     lastCheckin: null,
                 };
-                // If the user is logging in from the Mini App for the first time with this wallet
                 if (telegramUserData) {
                     newUser.telegramId = telegramUserData.id;
                     newUser.username = telegramUserData.username || `user${telegramUserData.id}`;
@@ -696,8 +689,6 @@
                 userData = newUser;
             } else {
                 userData = doc.data();
-                // If user exists (e.g., from web) and is now logging in via Mini App,
-                // update their record with Telegram info.
                 if (telegramUserData && !userData.telegramId) {
                     console.log(`Linking Telegram data to existing address: ${address}`);
                     const updates = {
@@ -715,9 +706,6 @@
             updateUIAfterLogin();
         }
 
-        /**
-         * Updates all relevant UI components after user data is loaded/updated.
-         */
         function updateUIAfterLogin() {
             if (!currentUserData) return;
             
@@ -725,8 +713,8 @@
             updateExpBalances(currentUserData.points || 0);
             updateCheckinUI(currentUserData);
             fetchTaskHistory();
-            renderAccountSection(); // Update account tab if TG data is present
-            handleRouteChange(); // Re-evaluate the view
+            renderAccountSection(); 
+            handleRouteChange(); 
         }
         
         function updateExpBalances(newExp) {
@@ -745,11 +733,6 @@
             if (isEligible) {
                 checkinButton.disabled = false;
                 checkinButton.innerHTML = `<i class="fas fa-calendar-check me-2"></i> Nhận thưởng`;
-                // Optionally show the popup if eligible
-                const currentHash = window.location.hash.substring(1);
-                if (currentHash === 'task' && !checkinPopupModalEl.classList.contains('show')) {
-                   // checkinPopupModal.show();
-                }
             } else {
                 checkinButton.disabled = true;
                 const lastCheckinTime = lastCheckin.toDate().getTime();
@@ -780,7 +763,6 @@
             };
             
             checkinPopupModal.hide();
-
             checkinButton.disabled = true;
             popupCheckinButton.disabled = true;
             checkinButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...`;
@@ -797,7 +779,7 @@
 
                     if (lastCheckin && (Date.now() - lastCheckin.toDate().getTime() < CHECKIN_COOLDOWN)) {
                         showAppToast('Thông báo', 'Bạn đã điểm danh rồi. Vui lòng quay lại sau.', 'warning');
-                        return; // No need to throw error, just inform
+                        return;
                     }
 
                     const newPoints = (userData.points || 0) + CHECKIN_REWARD;
@@ -819,7 +801,6 @@
                 console.error("Check-in failed: ", error);
                 showAppToast('Thất bại', 'Đã có lỗi xảy ra. Vui lòng thử lại.', 'error');
             } finally {
-                // Refetch data from firestore to update UI
                 const updatedDoc = await userRef.get();
                 if(updatedDoc.exists) {
                     currentUserData = updatedDoc.data();
@@ -868,15 +849,12 @@
         async function fetchAndRenderLeaderboard() {
             if (!db) initializeFirebase();
 
-            const top3Container = document.getElementById('leaderboard-top-3');
             const listContainer = document.getElementById('leaderboard-list');
             const skeletonItem = `<div class="leaderboard-item"><div class="skeleton-loader leaderboard-rank" style="height: 24px; width: 40px; border-radius: 8px;"></div><img class="skeleton-loader leaderboard-avatar"><div class="flex-grow-1"><div class="skeleton-loader skeleton-line w-50"></div></div><div class="skeleton-loader skeleton-line" style="width: 80px;"></div></div>`;
-            top3Container.innerHTML = '';
-            listContainer.innerHTML = skeletonItem.repeat(5);
+            listContainer.innerHTML = skeletonItem.repeat(7);
 
             try {
                 const snapshot = await db.collection('users').orderBy('points', 'desc').limit(50).get();
-                top3Container.innerHTML = '';
                 listContainer.innerHTML = '';
 
                 if (snapshot.empty) {
@@ -887,36 +865,37 @@
                 let rank = 1;
                 snapshot.forEach(doc => {
                     const user = doc.data();
-                    // Display logic based on available data
                     const displayName = user.fullName || (user.username ? `@${user.username}`: shortenAddress(user.address));
                     const avatarUrl = user.photoUrl || GENERIC_WALLET_ICON;
                     const isCurrentUser = connectedWalletAddress && user.address === connectedWalletAddress;
 
-                    const medals = ['fa-medal', 'fa-medal', 'fa-medal'];
-                    
-                    if (rank <= 3) {
-                        const col = document.createElement('div');
-                        col.className = 'col-lg-4 col-md-6';
-                        col.innerHTML = `
-                            <div class="card-glass text-center top-rank-card rank-${rank} ${isCurrentUser ? 'current-user' : ''}">
-                                <i class="fas ${medals[rank-1]} rank-icon" style="font-size: 2.5rem; position: absolute; top: -20px; left: 50%; transform: translateX(-50%);"></i>
-                                <img src="${avatarUrl}" class="leaderboard-avatar mx-auto mb-3" onerror="this.src='${GENERIC_WALLET_ICON}'">
-                                <h5 class="leaderboard-name text-truncate">${displayName}</h5>
-                                <p class="leaderboard-exp">${(user.points || 0).toLocaleString()} EXP</p>
-                            </div>
-                        `;
-                        top3Container.appendChild(col);
+                    let rankDisplay;
+                    let rankClass = ''; 
+
+                    if (rank === 1) {
+                        rankClass = 'rank-1';
+                        rankDisplay = `<i class="fas fa-medal rank-icon"></i>`;
+                    } else if (rank === 2) {
+                        rankClass = 'rank-2';
+                        rankDisplay = `<i class="fas fa-medal rank-icon"></i>`;
+                    } else if (rank === 3) {
+                        rankClass = 'rank-3';
+                        rankDisplay = `<i class="fas fa-medal rank-icon"></i>`;
                     } else {
-                        const item = document.createElement('div');
-                        item.className = `leaderboard-item ${isCurrentUser ? 'current-user' : ''}`;
-                        item.innerHTML = `
-                            <span class="leaderboard-rank">#${rank}</span>
-                            <img src="${avatarUrl}" class="leaderboard-avatar" onerror="this.src='${GENERIC_WALLET_ICON}'">
-                            <span class="leaderboard-name text-truncate">${displayName}</span>
-                            <span class="leaderboard-exp">${(user.points || 0).toLocaleString()} EXP</span>
-                        `;
-                        listContainer.appendChild(item);
+                        rankDisplay = `#${rank}`;
                     }
+
+                    const item = document.createElement('div');
+                    item.className = `leaderboard-item ${isCurrentUser ? 'current-user' : ''} ${rankClass}`;
+                    
+                    item.innerHTML = `
+                        <div class="leaderboard-rank">${rankDisplay}</div>
+                        <img src="${avatarUrl}" class="leaderboard-avatar" onerror="this.src='${GENERIC_WALLET_ICON}'">
+                        <div class="leaderboard-name text-truncate">${displayName}</div>
+                        <div class="leaderboard-exp">${(user.points || 0).toLocaleString()} EXP</div>
+                    `;
+                    
+                    listContainer.appendChild(item);
                     rank++;
                 });
 
@@ -931,7 +910,7 @@
             console.log("Logging out completely...");
             localStorage.removeItem(USER_SESSION_KEY);
             if (tonConnectUI.connected) {
-                tonConnectUI.disconnect(); // This will trigger onStatusChange and reset the state
+                tonConnectUI.disconnect();
             } else {
                 window.location.reload();
             }
@@ -946,19 +925,17 @@
         }
         
         function renderAccountSection() {
-            // This section only makes sense if we have telegram data
-            if (!currentUserData || !currentUserData.telegramId) {
-                // Hide or show a message that this info is only available via Mini App
-                if(accountSectionEl.style.display === 'block') {
-                    accountSectionEl.innerHTML = `<div class="text-center p-5"><h3 class="text-secondary">Thông tin tài khoản chỉ hiển thị khi truy cập từ Mini App.</h3></div>`;
-                }
-                return;
-            }
-
             const profilePhoto = document.getElementById('profile-photo');
             const profileFullname = document.getElementById('profile-fullname');
             const profileUsername = document.getElementById('profile-username');
             const profileDetails = document.getElementById('profile-details');
+
+            if (!currentUserData || !currentUserData.telegramId) {
+                if(accountSectionEl.style.display === 'block') {
+                    document.querySelector('#account-section .container').innerHTML = `<div class="text-center p-5 card-glass"><h3 class="text-secondary">Thông tin tài khoản chỉ hiển thị khi truy cập từ Mini App.</h3><p class="text-secondary">Hãy kết nối ví của bạn trong Mini App để đồng bộ hóa dữ liệu.</p></div>`;
+                }
+                return;
+            }
             
             profilePhoto.src = currentUserData.photoUrl || DEFAULT_LOGO_SRC;
             profileFullname.textContent = currentUserData.fullName || 'Anonymous';
@@ -976,7 +953,6 @@
             `;
         }
 
-        // Mini-app specific user identification
         function identifyTelegramUser() {
             try {
                 if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
@@ -985,7 +961,6 @@
                     console.log("Running in Telegram Mini App context.");
                     
                     telegramUserData = tg.initDataUnsafe.user;
-
                     const session = { userData: telegramUserData, expiresAt: Date.now() + (24 * 60 * 60 * 1000) };
                     localStorage.setItem(USER_SESSION_KEY, JSON.stringify(session));
                     
@@ -993,7 +968,6 @@
                     appLogoImg.style.borderRadius = '50%';
                     appLogoText.textContent = `@${telegramUserData.username}` || telegramUserData.first_name || 'Telegram User';
                     
-                    // If a wallet is already connected, trigger the data merge
                     if(tonConnectUI.connected) {
                         loadOrCreateUserByAddress(tonConnectUI.account.address);
                     }
@@ -1003,7 +977,6 @@
             }
         }
         
-        // Session check for returning mini-app users
         function checkUserSession() {
             const sessionJSON = localStorage.getItem(USER_SESSION_KEY);
             if (!sessionJSON) return;
@@ -1023,8 +996,8 @@
         }
 
         function initializeApp() {
-            checkUserSession(); // Check for a lingering TG session first
-            identifyTelegramUser(); // Try to initialize as a Mini App
+            checkUserSession(); 
+            identifyTelegramUser(); 
             
             if (!telegramUserData) {
                 console.log("Running in public web context (Guest Mode).");
@@ -1032,7 +1005,7 @@
             }
             
             initializeFirebase();
-            handleRouteChange(); // Initial page load route
+            handleRouteChange(); 
         }
 
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ 
@@ -1040,24 +1013,19 @@
             buttonRootId: 'ton-connect-button-root' 
         });
 
-        // --- Wallet Connection Handler (Central Point of Logic) ---
         tonConnectUI.onStatusChange(async (wallet) => {
             clearInterval(activityRefreshInterval);
 
             if (wallet) {
-                // WALLET CONNECTED
                 connectedWalletAddress = wallet.account.address;
                 const friendlyAddress = await getFriendlyAddress(connectedWalletAddress);
                 
-                // Update UI to show connected state
                 tonConnectButtonRoot.style.display = 'none';
                 customWalletContainer.style.display = 'block';
                 customWalletButton.textContent = shortenAddress(friendlyAddress);
                 copyAddressBtn.dataset.address = friendlyAddress;
                 myAccountBtn.href = `https://tonviewer.com/${friendlyAddress}`;
 
-                // This is the key step: Load or create the user based on the address
-                // This will also merge Telegram data if it exists.
                 await loadOrCreateUserByAddress(connectedWalletAddress);
                 
                 await fetchAndDisplayAccountData(connectedWalletAddress);
@@ -1068,18 +1036,16 @@
                 }, 30000);
 
             } else {
-                // WALLET DISCONNECTED
                 connectedWalletAddress = null;
                 lastFetchedAddress = null;
                 currentUserData = null;
                 currentActivityLogs = [];
 
-                // Update UI to show disconnected state
                 tonConnectButtonRoot.style.display = 'block';
                 customWalletContainer.style.display = 'none';
                 headerExpDisplay.classList.add('d-none');
                 
-                handleRouteChange(); // Re-evaluate view for a logged-out user
+                handleRouteChange();
             }
         });
         
@@ -1091,7 +1057,6 @@
             });
             [navDashboard, navApps, navTask, navLeaderboard, navAccount].forEach(nav => nav.classList.remove('active'));
 
-            // Show/hide nav links based on login state
             const isLoggedIn = !!connectedWalletAddress;
             navTask.style.display = isLoggedIn ? 'block' : 'none';
             navAccount.style.display = isLoggedIn ? 'block' : 'none';
@@ -1126,7 +1091,6 @@
             const hash = window.location.hash.substring(1) || 'dashboard';
             const [path, queryString] = hash.split('?');
             
-            // Redirect if trying to access protected views while logged out
             if (!connectedWalletAddress && (path === 'task' || path === 'account')) {
                 showAppToast('Yêu cầu kết nối ví', 'Tính năng này yêu cầu kết nối ví.', 'warning');
                 window.location.hash = '#dashboard';
@@ -1145,8 +1109,7 @@
 
         const shortenAddress = (addr, start = 6, end = 6) => addr ? (addr.includes('.') ? addr : `${addr.slice(0, start)}...${addr.slice(-end)}`) : 'Unknown';
 
-        // --- Unchanged Helper & Fetching functions below this line ---
-        // (These were mostly correct and don't need the core logic change)
+        // --- Unchanged Helper & Fetching functions ---
         
         const formatBalance = (bigIntString, decimals, symbol = '') => {
             try {
@@ -1616,7 +1579,7 @@
         backToMyWalletBtn.addEventListener('click', () => { if (connectedWalletAddress) fetchAndDisplayAccountData(connectedWalletAddress); });
         otherTokensContent.addEventListener('click', (e) => { const jettonItem = e.target.closest('.jetton-item'); if (jettonItem) showJettonDetails(jettonItem.dataset.jettonAddress); });
         document.body.addEventListener('click', (e) => { const target = e.target.closest('.copyable-address'); if (target?.dataset?.address) { navigator.clipboard.writeText(target.dataset.address).then(() => { const originalText = target.textContent; target.textContent = 'Copied!'; target.classList.add('copied'); setTimeout(() => { target.textContent = originalText; target.classList.remove('copied'); }, 1500); }); } if (!customWalletContainer?.contains(e.target)) walletDropdown.style.display = 'none'; if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none'; });
-        [navDashboard, navApps, navTask, navLeaderboard, navAccount].forEach(link => link.addEventListener('click', (e) => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); window.location.hash = e.currentTarget.hash; }));
+        [navDashboard, navApps, navTask, navLeaderboard, navAccount].forEach(link => link.addEventListener('click', (e) => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
         appSearchInput.addEventListener('input', () => { renderApps(); const searchTerm = appSearchInput.value.trim(); const newUrl = searchTerm ? `#apps?search=${encodeURIComponent(searchTerm)}` : '#apps'; history.replaceState(null, '', newUrl); });
         appSearchButton.addEventListener('click', renderApps);
         appSearchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') renderApps(); });
@@ -1638,4 +1601,3 @@
     </script>
 </body>
 </html>
-
