@@ -65,9 +65,9 @@
         .card-glass:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
         .card-title { font-weight: 600; margin-bottom: 1.5rem; font-size: 1.25rem; }
         
-        .hero-section { text-align: center; padding: 4rem 0; min-height: 70vh; display: flex; align-items: center; justify-content: center;}
-        .hero-section h1 { font-size: 2.5rem; font-weight: 700; }
-        .hero-section .highlight { color: var(--accent-primary); }
+        .hero-section, .login-section { text-align: center; padding: 4rem 0; min-height: 70vh; display: flex; align-items: center; justify-content: center;}
+        .hero-section h1, .login-section h1 { font-size: 2.5rem; font-weight: 700; }
+        .hero-section .highlight, .login-section .highlight { color: var(--accent-primary); }
 
         .skeleton-loader { background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); background-size: 200% 100%; border-radius: 8px; animation: shimmer 1.5s infinite; }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
@@ -116,6 +116,14 @@
         .tab-content .table-hover > tbody > tr:hover > * {
             --bs-table-accent-bg: rgba(145, 94, 255, 0.15);
         }
+
+        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        .news-card { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 15px; overflow: hidden; transition: all 0.3s ease; text-decoration: none; color: var(--text-primary); }
+        .news-card:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
+        .news-card-img { width: 100%; height: 180px; object-fit: cover; }
+        .news-card-body { padding: 1rem; }
+        .news-card-title { font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .news-card-source { font-size: 0.8rem; color: var(--text-secondary); }
 
         .hamburger-btn { width: 40px; height: 40px; background: transparent; border: none; padding: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; cursor: pointer; z-index: 1100; }
         .hamburger-btn span { display: block; width: 24px; height: 2px; background-color: var(--text-primary); border-radius: 2px; transition: all 0.3s ease-in-out; }
@@ -216,7 +224,7 @@
             color: var(--accent-secondary);
         }
 
-        /* Leaderboard Styles */
+        /* NEW: Leaderboard Styles */
         .leaderboard-container {
             max-width: 800px;
             margin: auto;
@@ -287,7 +295,7 @@
 
 
         @media (min-width: 768px) {
-            .hero-section h1 { font-size: 3.5rem; }
+            .hero-section h1, .login-section h1 { font-size: 3.5rem; }
             .card-glass { padding: 2rem; }
         }
         
@@ -300,7 +308,7 @@
             <a href="#dashboard" class="sidebar-link active" id="nav-dashboard">Dashboard</a>
             <a href="#apps" class="sidebar-link" id="nav-apps">Apps</a>
             <a href="#task" class="sidebar-link" id="nav-task">Task</a>
-            <a href="#leaderboard" class="sidebar-link" id="nav-leaderboard">Leaderboard</a>
+            <a href="#leaderboard" class="sidebar-link" id="nav-leaderboard">Leaderboard</a> <!-- NEW -->
             <a href="#account" class="sidebar-link" id="nav-account">Account</a>
         </div>
         
@@ -413,12 +421,17 @@
             </div>
         </main>
         
-        <section id="hero-section" class="hero-section">
+        <section id="hero-section" class="hero-section" style="display: none;">
             <div class="container">
                 <h1 class="mb-4">Welcome to the <span class="highlight">Neuralis</span><br/>Web3 Experience</h1>
                 <p class="lead text-secondary col-md-8 mx-auto mb-4">Connect your wallet to visualize your assets and interact with the VIEC ecosystem in a stunning, next-generation interface.</p>
                 <div id="connect-wallet-hero-btn-container"></div>
             </div>
+        </section>
+
+        <section id="crypto-news-feed" class="mt-5" style="display:none;">
+            <h2 class="card-title" style="font-size: 1.75rem; text-align: center; margin-bottom: 2rem;">Latest Crypto News</h2>
+            <div id="news-content-area"></div>
         </section>
 
         <main id="app-store-section" style="display: none;">
@@ -450,7 +463,7 @@
             <div class="container">
                 <div class="text-center mb-5">
                     <h1 class="mb-2" style="font-weight: 700;">Nhiệm Vụ & Phần Thưởng</h1>
-                    <p class="lead text-secondary col-md-8 mx-auto">Hoàn thành nhiệm vụ để nhận thưởng EXP. EXP sẽ được quy đổi sang token trong tương lai.</p>
+                    <p class="lead text-secondary col-md-8 mx-auto">Truy cập Mini App hàng ngày, hoàn thành nhiệm vụ để nhận thưởng. Phần thưởng EXP sẽ được quy đổi sang token trong tương lai.</p>
                 </div>
                 <div class="row justify-content-center g-4">
                     <div class="col-lg-6 col-md-8">
@@ -483,6 +496,7 @@
             </div>
         </main>
         
+        <!-- NEW: Leaderboard Section -->
         <main id="leaderboard-section" style="display: none;">
             <div class="leaderboard-container">
                 <div class="text-center mb-5">
@@ -490,10 +504,12 @@
                     <p class="lead text-secondary col-md-8 mx-auto">Vinh danh những người dùng tích cực nhất. Hãy tích lũy EXP để leo hạng!</p>
                 </div>
                 
-                <div id="leaderboard-top-3" class="row justify-content-center align-items-end g-4 mb-5">
-                    <!-- Top 3 users will be dynamically inserted here -->
+                <!-- Top 3 Users -->
+                <div id="leaderboard-top-3" class="row justify-content-center g-4 mb-5">
+                    <!-- Top 3 will be dynamically inserted here -->
                 </div>
                 
+                <!-- Rest of the list -->
                 <div id="leaderboard-list">
                     <!-- Ranks 4+ will be dynamically inserted here -->
                 </div>
@@ -548,55 +564,1022 @@
     
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // --- GLOBAL STATE ---
-        let telegramUserData = null;
-        let connectedWalletAddress = null;
-        let currentUserIdentifier = null; // Can be TG ID or Wallet Address
-        let db = null;
-        // --- END GLOBAL STATE ---
+        const TON_API_BASE = 'https://tonapi.io/v2';
+        const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
+        const USER_SESSION_KEY = 'neuralisUserSession';
 
-        // --- DOM ELEMENTS ---
         const accountSectionEl = document.getElementById('account-section');
         const dashboardEl = document.getElementById('dashboard');
         const heroEl = document.getElementById('hero-section');
-        const appStoreSection = document.getElementById('app-store-section');
-        const taskSectionEl = document.getElementById('task-section');
-        const leaderboardSectionEl = document.getElementById('leaderboard-section');
-        
+        const mainAssetsContent = document.getElementById('main-assets-content');
+        const activityFeedContent = document.getElementById('activity-feed-content');
+        const otherTokensContent = document.getElementById('other-tokens-content');
+        const nftGalleryContent = document.getElementById('nft-gallery-content');
+        const searchInput = document.getElementById('account-search-input');
+        const searchButton = document.getElementById('account-search-button');
+        const searchResultsContainer = document.getElementById('search-results-container');
+        const backToMyWalletBtn = document.getElementById('back-to-my-wallet-btn');
+        const newsSection = document.getElementById('crypto-news-feed');
+        const newsContentArea = document.getElementById('news-content-area');
+        const hamburgerBtn = document.getElementById('hamburger-menu-btn');
+        const sidebarMenu = document.getElementById('sidebar-menu');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
         const navDashboard = document.getElementById('nav-dashboard');
         const navApps = document.getElementById('nav-apps');
         const navTask = document.getElementById('nav-task');
         const navLeaderboard = document.getElementById('nav-leaderboard');
-        const navAccount = document.getElementById('nav-account');
-        
+        const navAccount = document.getElementById('nav-account'); 
+        const tonConnectButtonRoot = document.getElementById('ton-connect-button-root');
+        const connectWalletHeroBtnContainer = document.getElementById('connect-wallet-hero-btn-container');
+        const customWalletContainer = document.getElementById('custom-wallet-button-container');
+        const customWalletButton = document.getElementById('custom-wallet-button');
+        const walletDropdown = document.getElementById('wallet-dropdown');
+        const copyAddressBtn = document.getElementById('copy-address-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const disconnectWalletBtn = document.getElementById('disconnect-wallet-btn');
+        const fullLogoutBtn = document.getElementById('full-logout-btn');
+        const myAccountBtn = document.getElementById('my-account-btn');
         const appLogoImg = document.getElementById('app-logo-img');
         const appLogoText = document.getElementById('app-logo-text');
+        const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo_viewc.png';
+        const GENERIC_WALLET_ICON = 'https://ton.org/download/ton_symbol.png'; // Generic icon for web-only users
+        const appStoreSection = document.getElementById('app-store-section');
+        const taskSectionEl = document.getElementById('task-section');
+        const leaderboardSectionEl = document.getElementById('leaderboard-section');
+        const appGrid = document.getElementById('app-grid');
+        const appSearchInput = document.getElementById('app-search-input');
+        const appSearchButton = document.getElementById('app-search-button');
+        const appFilterControls = document.getElementById('app-filter-controls');
+        const jettonDetailModalEl = document.getElementById('jettonDetailModal');
+        const jettonDetailModal = new bootstrap.Modal(jettonDetailModalEl);
+        const portfolioContent = document.getElementById('portfolio-overview-content');
+        const portfolioSkeleton = document.getElementById('portfolio-overview-skeleton');
+        const totalValueUsdEl = document.getElementById('total-value-usd');
+        const totalValueVndEl = document.getElementById('total-value-vnd');
+
+        // --- State Variables ---
+        let telegramUserData = null;
+        let connectedWalletAddress = null; // Raw address from wallet
+        let currentUserData = null; // Full user profile from Firestore
+        let lastFetchedAddress = null;
+        let currentActivityLogs = [];
+        let activityRefreshInterval = null;
+        const addressCache = {};
+        let searchTimeout;
+
+        const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
+        const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
+
+        const taskExpBalanceEl = document.getElementById('task-exp-balance');
         const headerExpDisplay = document.getElementById('header-exp-display');
         const headerExpBalanceEl = document.getElementById('header-exp-balance');
         const checkinButton = document.getElementById('checkin-button');
-        const taskExpBalanceEl = document.getElementById('task-exp-balance');
+        const popupCheckinButton = document.getElementById('popup-checkin-button');
+        const checkinPopupModalEl = document.getElementById('checkinPopupModal');
+        const checkinPopupModal = new bootstrap.Modal(checkinPopupModalEl);
         const taskHistoryContent = document.getElementById('task-history-content');
         
-        const tonConnectButtonRoot = document.getElementById('ton-connect-button-root');
-        const customWalletContainer = document.getElementById('custom-wallet-button-container');
-        const customWalletButton = document.getElementById('custom-wallet-button');
-        const disconnectWalletBtn = document.getElementById('disconnect-wallet-btn');
-        const fullLogoutBtn = document.getElementById('full-logout-btn');
-        // --- END DOM ELEMENTS ---
+        let db = null;
+        let checkinInterval = null;
         
-        const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo_viewc.png';
         const CHECKIN_REWARD = 10;
         const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000;
-        let checkinInterval = null;
+        
+        // --- Core Logic ---
+
+        function initializeFirebase() {
+            if (db) return;
+            const firebaseConfig = {
+                apiKey: "AIzaSyCHjgJkqVmgpZ6s5HRobpqB6XT--Sa2_zY",
+                authDomain: "tgapp-30a28.firebaseapp.com",
+                projectId: "tgapp-30a28",
+                storageBucket: "tgapp-30a28.firebasestorage.app",
+                messagingSenderId: "329047273664",
+                appId: "1:329047273664:web:c9e1bfe367afb54953fd25",
+                measurementId: "G-68P4PT49B0"
+            };
+
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            db = firebase.firestore();
+        }
+
+        /**
+         * The new central function for user data management.
+         * Fetches or creates a user record in Firestore based on their wallet address.
+         * If Telegram data is available, it merges it into the record.
+         * @param {string} address The raw wallet address.
+         */
+        async function loadOrCreateUserByAddress(address) {
+            if (!address || !db) return;
+
+            const userRef = db.collection('users').doc(address);
+            const doc = await userRef.get();
+            let userData;
+
+            if (!doc.exists) {
+                console.log(`Creating new user profile for address: ${address}`);
+                const newUser = {
+                    address: address,
+                    points: 0,
+                    lastCheckin: null,
+                };
+                // If the user is logging in from the Mini App for the first time with this wallet
+                if (telegramUserData) {
+                    newUser.telegramId = telegramUserData.id;
+                    newUser.username = telegramUserData.username || `user${telegramUserData.id}`;
+                    newUser.fullName = `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim();
+                    newUser.photoUrl = telegramUserData.photo_url || DEFAULT_LOGO_SRC;
+                }
+                await userRef.set(newUser);
+                userData = newUser;
+            } else {
+                userData = doc.data();
+                // If user exists (e.g., from web) and is now logging in via Mini App,
+                // update their record with Telegram info.
+                if (telegramUserData && !userData.telegramId) {
+                    console.log(`Linking Telegram data to existing address: ${address}`);
+                    const updates = {
+                        telegramId: telegramUserData.id,
+                        username: telegramUserData.username || `user${telegramUserData.id}`,
+                        fullName: `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim(),
+                        photoUrl: telegramUserData.photo_url || DEFAULT_LOGO_SRC,
+                    };
+                    await userRef.update(updates);
+                    userData = { ...userData, ...updates };
+                }
+            }
+            
+            currentUserData = userData;
+            updateUIAfterLogin();
+        }
+
+        /**
+         * Updates all relevant UI components after user data is loaded/updated.
+         */
+        function updateUIAfterLogin() {
+            if (!currentUserData) return;
+            
+            headerExpDisplay.classList.remove('d-none');
+            updateExpBalances(currentUserData.points || 0);
+            updateCheckinUI(currentUserData);
+            fetchTaskHistory();
+            renderAccountSection(); // Update account tab if TG data is present
+            handleRouteChange(); // Re-evaluate the view
+        }
+        
+        function updateExpBalances(newExp) {
+            taskExpBalanceEl.textContent = newExp;
+            headerExpBalanceEl.textContent = newExp;
+        }
+
+        function updateCheckinUI(userData) {
+            if (!userData) return;
+
+            if (checkinInterval) clearInterval(checkinInterval);
+            
+            const { lastCheckin } = userData;
+            const isEligible = !lastCheckin || (Date.now() - lastCheckin.toDate().getTime() >= CHECKIN_COOLDOWN);
+
+            if (isEligible) {
+                checkinButton.disabled = false;
+                checkinButton.innerHTML = `<i class="fas fa-calendar-check me-2"></i> Nhận thưởng`;
+                // Optionally show the popup if eligible
+                const currentHash = window.location.hash.substring(1);
+                if (currentHash === 'task' && !checkinPopupModalEl.classList.contains('show')) {
+                   // checkinPopupModal.show();
+                }
+            } else {
+                checkinButton.disabled = true;
+                const lastCheckinTime = lastCheckin.toDate().getTime();
+
+                const updateCountdown = () => {
+                    const now = Date.now();
+                    const newRemaining = CHECKIN_COOLDOWN - (now - lastCheckinTime);
+                    if (newRemaining <= 0) {
+                        clearInterval(checkinInterval);
+                        checkinButton.disabled = false;
+                        checkinButton.innerHTML = `<i class="fas fa-calendar-check me-2"></i> Nhận thưởng`;
+                    } else {
+                        const hours = Math.floor((newRemaining / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
+                        const minutes = Math.floor((newRemaining / 1000 / 60) % 60).toString().padStart(2, '0');
+                        const seconds = Math.floor((newRemaining / 1000) % 60).toString().padStart(2, '0');
+                        checkinButton.innerHTML = `<i class="fas fa-hourglass-half me-2"></i> ${hours}:${minutes}:${seconds}`;
+                    }
+                };
+                updateCountdown();
+                checkinInterval = setInterval(updateCountdown, 1000);
+            }
+        }
+
+        async function handleCheckin() {
+            if (!connectedWalletAddress || !db) {
+                showAppToast('Lỗi', 'Vui lòng kết nối ví để check-in.', 'error');
+                return;
+            };
+            
+            checkinPopupModal.hide();
+
+            checkinButton.disabled = true;
+            popupCheckinButton.disabled = true;
+            checkinButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...`;
+            
+            const userRef = db.collection('users').doc(connectedWalletAddress);
+            
+            try {
+                await db.runTransaction(async (transaction) => {
+                    const userDoc = await transaction.get(userRef);
+                    if (!userDoc.exists) throw "User document not found!";
+
+                    const userData = userDoc.data();
+                    const lastCheckin = userData.lastCheckin;
+
+                    if (lastCheckin && (Date.now() - lastCheckin.toDate().getTime() < CHECKIN_COOLDOWN)) {
+                        showAppToast('Thông báo', 'Bạn đã điểm danh rồi. Vui lòng quay lại sau.', 'warning');
+                        return; // No need to throw error, just inform
+                    }
+
+                    const newPoints = (userData.points || 0) + CHECKIN_REWARD;
+                    const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+                    transaction.update(userRef, {
+                        points: newPoints,
+                        lastCheckin: newTimestamp
+                    });
+                    
+                    const historyRef = userRef.collection('task_history').doc();
+                    transaction.set(historyRef, {
+                        taskName: 'Check-in Hàng ngày',
+                        exp: CHECKIN_REWARD,
+                        timestamp: newTimestamp
+                    });
+                });
+                showAppToast('Thành công!', `Bạn đã nhận được ${CHECKIN_REWARD} EXP.`, 'success');
+            } catch (error) {
+                console.error("Check-in failed: ", error);
+                showAppToast('Thất bại', 'Đã có lỗi xảy ra. Vui lòng thử lại.', 'error');
+            } finally {
+                // Refetch data from firestore to update UI
+                const updatedDoc = await userRef.get();
+                if(updatedDoc.exists) {
+                    currentUserData = updatedDoc.data();
+                    updateUIAfterLogin();
+                }
+                popupCheckinButton.disabled = false;
+            }
+        }
+        
+        async function fetchTaskHistory() {
+            if (!connectedWalletAddress || !db) return;
+
+            const historyRef = db.collection('users').doc(connectedWalletAddress).collection('task_history').orderBy('timestamp', 'desc').limit(20);
+
+            try {
+                const snapshot = await historyRef.get();
+                if (snapshot.empty) {
+                    taskHistoryContent.innerHTML = `<p class="text-secondary text-center p-3">Chưa có hoạt động nào.</p>`;
+                    return;
+                }
+                
+                let historyHtml = '';
+                snapshot.forEach(doc => {
+                    const item = doc.data();
+                    const date = item.timestamp ? item.timestamp.toDate().toLocaleString('vi-VN') : 'N/A';
+                    const iconClass = 'fa-calendar-check';
+                    
+                    historyHtml += `
+                        <div class="task-history-item">
+                            <i class="fas ${iconClass} task-history-icon"></i>
+                            <div class="flex-grow-1">
+                                <p class="m-0 fw-bold">${item.taskName}</p>
+                                <p class="m-0 text-secondary" style="font-size: 0.8rem;">${date}</p>
+                            </div>
+                            <strong class="amount-in">+${item.exp} EXP</strong>
+                        </div>
+                    `;
+                });
+                taskHistoryContent.innerHTML = historyHtml;
+            } catch(error) {
+                console.error("Error fetching task history:", error);
+                taskHistoryContent.innerHTML = `<p class="text-danger text-center p-3">Lỗi tải lịch sử.</p>`;
+            }
+        }
+
+        async function fetchAndRenderLeaderboard() {
+            if (!db) initializeFirebase();
+
+            const top3Container = document.getElementById('leaderboard-top-3');
+            const listContainer = document.getElementById('leaderboard-list');
+            const skeletonItem = `<div class="leaderboard-item"><div class="skeleton-loader leaderboard-rank" style="height: 24px; width: 40px; border-radius: 8px;"></div><img class="skeleton-loader leaderboard-avatar"><div class="flex-grow-1"><div class="skeleton-loader skeleton-line w-50"></div></div><div class="skeleton-loader skeleton-line" style="width: 80px;"></div></div>`;
+            top3Container.innerHTML = '';
+            listContainer.innerHTML = skeletonItem.repeat(5);
+
+            try {
+                const snapshot = await db.collection('users').orderBy('points', 'desc').limit(50).get();
+                top3Container.innerHTML = '';
+                listContainer.innerHTML = '';
+
+                if (snapshot.empty) {
+                    listContainer.innerHTML = `<p class="text-secondary text-center p-3">Chưa có ai trên bảng xếp hạng. Hãy là người đầu tiên!</p>`;
+                    return;
+                }
+                
+                let rank = 1;
+                snapshot.forEach(doc => {
+                    const user = doc.data();
+                    // Display logic based on available data
+                    const displayName = user.fullName || (user.username ? `@${user.username}`: shortenAddress(user.address));
+                    const avatarUrl = user.photoUrl || GENERIC_WALLET_ICON;
+                    const isCurrentUser = connectedWalletAddress && user.address === connectedWalletAddress;
+
+                    const medals = ['fa-medal', 'fa-medal', 'fa-medal'];
+                    
+                    if (rank <= 3) {
+                        const col = document.createElement('div');
+                        col.className = 'col-lg-4 col-md-6';
+                        col.innerHTML = `
+                            <div class="card-glass text-center top-rank-card rank-${rank} ${isCurrentUser ? 'current-user' : ''}">
+                                <i class="fas ${medals[rank-1]} rank-icon" style="font-size: 2.5rem; position: absolute; top: -20px; left: 50%; transform: translateX(-50%);"></i>
+                                <img src="${avatarUrl}" class="leaderboard-avatar mx-auto mb-3" onerror="this.src='${GENERIC_WALLET_ICON}'">
+                                <h5 class="leaderboard-name text-truncate">${displayName}</h5>
+                                <p class="leaderboard-exp">${(user.points || 0).toLocaleString()} EXP</p>
+                            </div>
+                        `;
+                        top3Container.appendChild(col);
+                    } else {
+                        const item = document.createElement('div');
+                        item.className = `leaderboard-item ${isCurrentUser ? 'current-user' : ''}`;
+                        item.innerHTML = `
+                            <span class="leaderboard-rank">#${rank}</span>
+                            <img src="${avatarUrl}" class="leaderboard-avatar" onerror="this.src='${GENERIC_WALLET_ICON}'">
+                            <span class="leaderboard-name text-truncate">${displayName}</span>
+                            <span class="leaderboard-exp">${(user.points || 0).toLocaleString()} EXP</span>
+                        `;
+                        listContainer.appendChild(item);
+                    }
+                    rank++;
+                });
+
+            } catch (error) {
+                console.error("Error fetching leaderboard:", error);
+                listContainer.innerHTML = `<p class="text-danger text-center p-3">Không thể tải bảng xếp hạng. Vui lòng thử lại sau.</p>`;
+            }
+        }
+        
+        function handleFullLogout(e) {
+            if (e) e.preventDefault();
+            console.log("Logging out completely...");
+            localStorage.removeItem(USER_SESSION_KEY);
+            if (tonConnectUI.connected) {
+                tonConnectUI.disconnect(); // This will trigger onStatusChange and reset the state
+            } else {
+                window.location.reload();
+            }
+        }
+
+        function handleDisconnectWallet(e) {
+            if (e) e.preventDefault();
+            if (tonConnectUI.connected) {
+                tonConnectUI.disconnect();
+            }
+            walletDropdown.style.display = 'none';
+        }
+        
+        function renderAccountSection() {
+            // This section only makes sense if we have telegram data
+            if (!currentUserData || !currentUserData.telegramId) {
+                // Hide or show a message that this info is only available via Mini App
+                if(accountSectionEl.style.display === 'block') {
+                    accountSectionEl.innerHTML = `<div class="text-center p-5"><h3 class="text-secondary">Thông tin tài khoản chỉ hiển thị khi truy cập từ Mini App.</h3></div>`;
+                }
+                return;
+            }
+
+            const profilePhoto = document.getElementById('profile-photo');
+            const profileFullname = document.getElementById('profile-fullname');
+            const profileUsername = document.getElementById('profile-username');
+            const profileDetails = document.getElementById('profile-details');
+            
+            profilePhoto.src = currentUserData.photoUrl || DEFAULT_LOGO_SRC;
+            profileFullname.textContent = currentUserData.fullName || 'Anonymous';
+            profileUsername.textContent = currentUserData.username ? `@${currentUserData.username}` : 'No username';
+
+            profileDetails.innerHTML = `
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="metadata-key">Telegram ID:</span>
+                    <span>${currentUserData.telegramId}</span>
+                </div>
+                 <div class="d-flex justify-content-between mb-2">
+                    <span class="metadata-key">Connected Wallet:</span>
+                    <span class="copyable-address" data-address="${currentUserData.address}" title="Click to copy">${shortenAddress(currentUserData.address)}</span>
+                </div>
+            `;
+        }
+
+        // Mini-app specific user identification
+        function identifyTelegramUser() {
+            try {
+                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+                    const tg = window.Telegram.WebApp;
+                    tg.ready();
+                    console.log("Running in Telegram Mini App context.");
+                    
+                    telegramUserData = tg.initDataUnsafe.user;
+
+                    const session = { userData: telegramUserData, expiresAt: Date.now() + (24 * 60 * 60 * 1000) };
+                    localStorage.setItem(USER_SESSION_KEY, JSON.stringify(session));
+                    
+                    appLogoImg.src = telegramUserData.photo_url || DEFAULT_LOGO_SRC;
+                    appLogoImg.style.borderRadius = '50%';
+                    appLogoText.textContent = `@${telegramUserData.username}` || telegramUserData.first_name || 'Telegram User';
+                    
+                    // If a wallet is already connected, trigger the data merge
+                    if(tonConnectUI.connected) {
+                        loadOrCreateUserByAddress(tonConnectUI.account.address);
+                    }
+                }
+            } catch (e) { 
+                console.error("Could not initialize Telegram Web App:", e); 
+            }
+        }
+        
+        // Session check for returning mini-app users
+        function checkUserSession() {
+            const sessionJSON = localStorage.getItem(USER_SESSION_KEY);
+            if (!sessionJSON) return;
+            try {
+                const session = JSON.parse(sessionJSON);
+                if (Date.now() > session.expiresAt) {
+                    localStorage.removeItem(USER_SESSION_KEY);
+                    return;
+                }
+                telegramUserData = session.userData;
+                appLogoImg.src = telegramUserData.photo_url || DEFAULT_LOGO_SRC;
+                appLogoImg.style.borderRadius = '50%';
+                appLogoText.textContent = `@${telegramUserData.username}` || telegramUserData.first_name || 'Telegram User';
+            } catch (error) {
+                localStorage.removeItem(USER_SESSION_KEY);
+            }
+        }
+
+        function initializeApp() {
+            checkUserSession(); // Check for a lingering TG session first
+            identifyTelegramUser(); // Try to initialize as a Mini App
+            
+            if (!telegramUserData) {
+                console.log("Running in public web context (Guest Mode).");
+                appLogoText.textContent = 'Neuralis';
+            }
+            
+            initializeFirebase();
+            handleRouteChange(); // Initial page load route
+        }
 
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ 
             manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json',
             buttonRootId: 'ton-connect-button-root' 
         });
 
-        // --- UTILITY FUNCTIONS ---
-        const shortenAddress = (addr, start = 6, end = 4) => addr ? (addr.includes('.') ? addr : `${addr.slice(0, start)}...${addr.slice(-end)}`) : 'Unknown';
+        // --- Wallet Connection Handler (Central Point of Logic) ---
+        tonConnectUI.onStatusChange(async (wallet) => {
+            clearInterval(activityRefreshInterval);
+
+            if (wallet) {
+                // WALLET CONNECTED
+                connectedWalletAddress = wallet.account.address;
+                const friendlyAddress = await getFriendlyAddress(connectedWalletAddress);
+                
+                // Update UI to show connected state
+                tonConnectButtonRoot.style.display = 'none';
+                customWalletContainer.style.display = 'block';
+                customWalletButton.textContent = shortenAddress(friendlyAddress);
+                copyAddressBtn.dataset.address = friendlyAddress;
+                myAccountBtn.href = `https://tonviewer.com/${friendlyAddress}`;
+
+                // This is the key step: Load or create the user based on the address
+                // This will also merge Telegram data if it exists.
+                await loadOrCreateUserByAddress(connectedWalletAddress);
+                
+                await fetchAndDisplayAccountData(connectedWalletAddress);
+                activityRefreshInterval = setInterval(() => {
+                    if(lastFetchedAddress === connectedWalletAddress) {
+                        fetchAndDisplayAccountData(connectedWalletAddress);
+                    }
+                }, 30000);
+
+            } else {
+                // WALLET DISCONNECTED
+                connectedWalletAddress = null;
+                lastFetchedAddress = null;
+                currentUserData = null;
+                currentActivityLogs = [];
+
+                // Update UI to show disconnected state
+                tonConnectButtonRoot.style.display = 'block';
+                customWalletContainer.style.display = 'none';
+                headerExpDisplay.classList.add('d-none');
+                
+                handleRouteChange(); // Re-evaluate view for a logged-out user
+            }
+        });
         
+        // --- UI & Navigation ---
+        
+        const switchView = (viewToShow) => {
+            [dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl, accountSectionEl, leaderboardSectionEl].forEach(section => {
+                if(section) section.style.display = 'none';
+            });
+            [navDashboard, navApps, navTask, navLeaderboard, navAccount].forEach(nav => nav.classList.remove('active'));
+
+            // Show/hide nav links based on login state
+            const isLoggedIn = !!connectedWalletAddress;
+            navTask.style.display = isLoggedIn ? 'block' : 'none';
+            navAccount.style.display = isLoggedIn ? 'block' : 'none';
+
+            if (viewToShow === 'account' && isLoggedIn) {
+                accountSectionEl.style.display = 'block';
+                navAccount.classList.add('active');
+                renderAccountSection();
+            } else if (viewToShow === 'apps') {
+                appStoreSection.style.display = 'block';
+                navApps.classList.add('active');
+            } else if (viewToShow === 'task' && isLoggedIn) {
+                taskSectionEl.style.display = 'block';
+                navTask.classList.add('active');
+            } else if (viewToShow === 'leaderboard') {
+                leaderboardSectionEl.style.display = 'block';
+                navLeaderboard.classList.add('active');
+                fetchAndRenderLeaderboard(); 
+            } else { 
+                if (isLoggedIn) {
+                    dashboardEl.style.display = 'block';
+                } else {
+                    heroEl.style.display = 'flex';
+                }
+                if (newsSection) newsSection.style.display = 'block';
+                navDashboard.classList.add('active');
+            }
+            if (sidebarMenu.classList.contains('open')) toggleSidebar();
+        };
+        
+        const handleRouteChange = () => {
+            const hash = window.location.hash.substring(1) || 'dashboard';
+            const [path, queryString] = hash.split('?');
+            
+            // Redirect if trying to access protected views while logged out
+            if (!connectedWalletAddress && (path === 'task' || path === 'account')) {
+                showAppToast('Yêu cầu kết nối ví', 'Tính năng này yêu cầu kết nối ví.', 'warning');
+                window.location.hash = '#dashboard';
+                return;
+            }
+
+            switchView(path);
+
+            if (path === 'apps') {
+                const params = new URLSearchParams(queryString || '');
+                const searchQuery = params.get('search');
+                appSearchInput.value = searchQuery ? decodeURIComponent(searchQuery) : '';
+                renderApps();
+            }
+        };
+
+        const shortenAddress = (addr, start = 6, end = 6) => addr ? (addr.includes('.') ? addr : `${addr.slice(0, start)}...${addr.slice(-end)}`) : 'Unknown';
+
+        // --- Unchanged Helper & Fetching functions below this line ---
+        // (These were mostly correct and don't need the core logic change)
+        
+        const formatBalance = (bigIntString, decimals, symbol = '') => {
+            try {
+                const validDecimals = (typeof decimals === 'number' && !isNaN(decimals)) ? decimals : 9;
+                const balance = parseFloat(BigInt(bigIntString)) / (10 ** validDecimals);
+                const formattedNumber = balance.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 6
+                });
+                return `${formattedNumber} ${symbol}`;
+            } catch (e) {
+                return `0 ${symbol}`;
+            }
+        };
+
+        async function getFriendlyAddress(address) {
+            if (!address || typeof address !== 'string' || address.includes('.')) return address;
+            if (!address.includes(':')) return address;
+            if (addressCache[address]) return addressCache[address];
+            try {
+                const response = await fetch(`https://toncenter.com/api/v2/detectAddress?address=${encodeURIComponent(address)}`);
+                if (!response.ok) throw new Error('API response not OK');
+                const data = await response.json();
+                const friendlyAddress = data?.result?.non_bounceable?.b64url || address;
+                addressCache[address] = friendlyAddress;
+                return friendlyAddress;
+            } catch (error) {
+                console.warn(`Could not convert address ${address}:`, error);
+                return address;
+            }
+        }
+        
+        const getRaw = (addrObj) => addrObj?.raw_form || (typeof addrObj?.address === 'string' ? addrObj.address : null);
+        
+        const setSkeletonLoaders = (isInitial = true) => {
+            portfolioSkeleton.style.display = 'block';
+            portfolioContent.style.display = 'none';
+            mainAssetsContent.innerHTML = skeletonAsset;
+            otherTokensContent.innerHTML = skeletonTx.repeat(3);
+            nftGalleryContent.innerHTML = `<div class="row g-2">${Array(4).fill('<div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px;"></div></div>').join('')}</div>`;
+            if (isInitial) {
+                activityFeedContent.innerHTML = skeletonTx.repeat(5);
+            }
+        };
+        
+        async function renderMainAssets(accountInfo, tonPriceUsd, tonValueUsd, tonValueVnd) {
+            if (!accountInfo) {
+                mainAssetsContent.innerHTML = `<p class="text-danger">Could not load account data.</p>`;
+                return;
+            }
+            const userFriendlyAddress = await getFriendlyAddress(accountInfo.address);
+            const tonBalance = accountInfo.balance / 1e9;
+            const formattedTonBalance = tonBalance.toLocaleString('en-US', { maximumFractionDigits: 6 });
+            const formattedPriceUsd = tonPriceUsd ? `$${tonPriceUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}` : 'N/A';
+            const formattedValueUsd = tonValueUsd ? `$${tonValueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'N/A';
+            const formattedValueVnd = tonValueVnd ? `${tonValueVnd.toLocaleString('vi-VN')} VNĐ` : 'N/A';
+            
+            mainAssetsContent.innerHTML = `
+                <div class="d-flex align-items-center mb-3">
+                    <img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;">
+                    <div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-secondary">Số dư</span><strong style="font-size: 1.1rem;">${formattedTonBalance}</strong>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-secondary">Giá hiện tại</span><strong>${formattedPriceUsd}</strong>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-secondary">Tổng giá trị</span>
+                    <div class="text-end">
+                        <strong style="font-size: 1.1rem;">${formattedValueUsd}</strong><br>
+                        <small class="text-secondary">${formattedValueVnd}</small>
+                    </div>
+                </div>
+                <hr style="border-color: var(--border-color); opacity: 0.5;">
+                <div class="d-flex align-items-center justify-content-between mt-3">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-wallet me-3" style="width: 48px; font-size: 24px; text-align: center; color: var(--accent-secondary);"></i>
+                        <div><h5 class="m-0">Address</h5><p class="m-0 text-secondary">Wallet</p></div>
+                    </div>
+                    <h6><code class="copyable-address" data-address="${userFriendlyAddress}" title="Click to copy">${shortenAddress(userFriendlyAddress)}</code></h6>
+                </div>
+            `;
+        }
+
+        function renderOtherTokens(jettons) {
+            otherTokensContent.innerHTML = '';
+            if (jettons?.length > 0) {
+                jettons.forEach(j => {
+                    const balance = Number(BigInt(j.balance)) / (10 ** (j.jetton.decimals || 9));
+                    const verifiedTick = j.jetton.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
+                    let valueDisplayHtml;
+                    const priceUsdt = j.price?.prices?.USDT;
+                    if (priceUsdt) {
+                        const valueUsd = balance * priceUsdt;
+                        valueDisplayHtml = `
+                            <div class="text-end">
+                                <h6 class="m-0">$${valueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h6>
+                                <small class="text-secondary">${balance.toLocaleString('en-US', { maximumFractionDigits: 4 })} ${j.jetton.symbol}</small>
+                            </div>`;
+                    } else {
+                        valueDisplayHtml = `<h6 class="m-0">${balance.toLocaleString('en-US', { maximumFractionDigits: 4 })}</h6>`;
+                    }
+                    otherTokensContent.innerHTML += `
+                        <div class="d-flex align-items-center justify-content-between mb-3 p-2 jetton-item" data-jetton-address="${j.jetton.address}">
+                            <div class="d-flex align-items-center">
+                                <img src="${j.jetton.image}" class="me-3 jetton-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png'">
+                                <div><h6 class="m-0">${j.jetton.symbol}${verifiedTick}</h6></div>
+                            </div>
+                            ${valueDisplayHtml}
+                        </div>`;
+                });
+            } else { otherTokensContent.innerHTML = `<p class="text-secondary">No tokens found.</p>`; }
+        }
+
+        function renderNFTs(nfts) {
+            nftGalleryContent.innerHTML = '';
+            if (nfts?.length > 0) {
+                let html = '<div class="row g-2">';
+                nfts.slice(0, 18).forEach(nft => {
+                    const imgUrl = nft.previews?.[nft.previews.length - 1]?.url || nft.metadata?.image || 'https://via.placeholder.com/100';
+                    html += `<div class="col-3"><div title="${nft.metadata?.name || 'NFT'}" style="cursor: pointer;"><img src="${imgUrl}" style="width: 100%; border-radius: 12px; aspect-ratio: 1/1; object-fit: cover;" onerror="this.src='https://via.placeholder.com/100'"></div></div>`;
+                });
+                nftGalleryContent.innerHTML = html + '</div>';
+            } else { nftGalleryContent.innerHTML = `<p class="text-secondary">No NFTs found.</p>`; }
+        }
+
+        function renderSingleActivityItem(log) {
+            const statusIcon = log.status === 'ok' ? `<i class="fas fa-check-circle status-icon status-ok"></i>` : `<i class="fas fa-exclamation-circle status-icon status-failed"></i>`;
+            const titleText = log.status !== 'ok' ? `<span class="text-warning">${log.title} (Failed)</span>` : log.title;
+            const colorClass = log.direction === 'in' ? 'amount-in' : 'amount-out';
+            const amountDisplay = log.amount !== null ? `<p class="m-0 fw-bold ${colorClass}">${log.sign} ${log.amount.toLocaleString('en-US', {maximumFractionDigits: 4})} ${log.symbol}</p>` : `<p class="m-0 fw-bold">${log.symbol} Transfer</p>`;
+            const commentDisplay = log.comment ? `<div class="w-100 mt-2"><p class="m-0 text-secondary" style="font-size: 0.8rem; font-style: italic;"><i class="fas fa-comment-dots me-2"></i>${log.comment}</p></div>` : '';
+            const partyAddressHtml = `<code class="copyable-address" data-address="${log.party_full}" title="Click to copy">${log.party}</code>`;
+            return `
+             <div class="d-flex flex-wrap align-items-center py-3 border-bottom border-secondary border-opacity-25">
+                <img src="${log.image}" class="activity-item-icon me-3" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
+                <div class="flex-grow-1"><p class="m-0 fw-bold">${statusIcon}${titleText}</p><p class="m-0 text-secondary" style="font-size: 0.8rem;">${log.party_title}: ${partyAddressHtml}</p></div>
+                <div class="text-end">${amountDisplay}<p class="m-0 text-secondary" style="font-size: 0.8rem;">${new Date(log.timestamp).toLocaleString()}</p></div>
+                ${commentDisplay}
+             </div>`;
+        }
+        
+        async function fetchAndDisplayAccountData(addressToFetch) {
+            const isNewAddress = addressToFetch !== lastFetchedAddress;
+            if (isNewAddress) {
+                currentActivityLogs = [];
+                activityFeedContent.innerHTML = '';
+                lastFetchedAddress = addressToFetch;
+                setSkeletonLoaders(true);
+            } else {
+                setSkeletonLoaders(false);
+            }
+            searchResultsContainer.style.display = 'none';
+            searchInput.value = '';
+            const isMyWallet = connectedWalletAddress && addressToFetch === connectedWalletAddress;
+            backToMyWalletBtn.style.display = isMyWallet ? 'none' : 'block';
+            if (!isMyWallet) clearInterval(activityRefreshInterval);
+            try {
+                const [tonapiResults, coingeckoResult] = await Promise.allSettled([
+                    Promise.allSettled([
+                        fetch(`${TON_API_BASE}/accounts/${addressToFetch}`),
+                        fetch(`${TON_API_BASE}/accounts/${addressToFetch}/jettons?currencies=usdt`),
+                        fetch(`${TON_API_BASE}/accounts/${addressToFetch}/nfts?limit=100&indirect_ownership=false`),
+                        fetch(`${TON_API_BASE}/accounts/${addressToFetch}/events?limit=100`)
+                    ]),
+                    fetch(`${COINGECKO_API_BASE}/simple/price?ids=the-open-network&vs_currencies=usd,vnd`)
+                ]);
+                const [accountResult, jettonsResult, nftsResult, eventsResult] = tonapiResults.value;
+                if (accountResult.status === 'rejected' || !accountResult.value.ok) throw new Error(`Could not fetch account info.`);
+                const accountInfo = await accountResult.value.json();
+                const jettonsInfo = (jettonsResult.status === 'fulfilled' && jettonsResult.value.ok) ? await jettonsResult.value.json() : { balances: [] };
+                const nftsInfo = (nftsResult.status === 'fulfilled' && nftsResult.value.ok) ? await nftsResult.value.json() : { nft_items: [] };
+                const eventsInfo = (eventsResult.status === 'fulfilled' && eventsResult.value.ok) ? await eventsResult.value.json() : { events: [] };
+                const priceData = (coingeckoResult.status === 'fulfilled' && coingeckoResult.value.ok) ? await coingeckoResult.value.json() : {};
+                let totalValueUsd = 0, totalValueVnd = 0, tonValueUsd = 0, tonValueVnd = 0;
+                const tonPriceInfo = priceData['the-open-network'];
+                if (tonPriceInfo && tonPriceInfo.usd && tonPriceInfo.vnd) {
+                    const tonBalance = accountInfo.balance / 1e9;
+                    tonValueUsd = tonBalance * tonPriceInfo.usd;
+                    tonValueVnd = tonBalance * tonPriceInfo.vnd;
+                    totalValueUsd += tonValueUsd;
+                    totalValueVnd += tonValueVnd;
+                }
+                const usdToVndRate = (tonPriceInfo?.vnd && tonPriceInfo?.usd) ? tonPriceInfo.vnd / tonPriceInfo.usd : 25450;
+                if (jettonsInfo.balances.length > 0) {
+                    jettonsInfo.balances.forEach(j => {
+                        const priceUsdt = j.price?.prices?.USDT;
+                        if (priceUsdt) {
+                            const jettonBalance = Number(BigInt(j.balance)) / (10 ** (j.jetton.decimals || 9));
+                            const jettonValueUsd = jettonBalance * priceUsdt;
+                            totalValueUsd += jettonValueUsd;
+                            totalValueVnd += jettonValueUsd * usdToVndRate;
+                        }
+                    });
+                }
+                totalValueUsdEl.textContent = `$${totalValueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                totalValueVndEl.textContent = `${totalValueVnd.toLocaleString('vi-VN')} VNĐ`;
+                portfolioSkeleton.style.display = 'none';
+                portfolioContent.style.display = 'block';
+                const newLogs = (eventsInfo.events ?? []).flatMap((event) => parseEvent(event, accountInfo.address));
+                processNewActivity(newLogs);
+                await renderMainAssets(accountInfo, tonPriceInfo?.usd, tonValueUsd, tonValueVnd);
+                renderOtherTokens(jettonsInfo.balances);
+                renderNFTs(nftsInfo.nft_items ?? []);
+                if (nftsResult.status === 'rejected') nftGalleryContent.innerHTML = `<p class="text-warning">Could not load NFTs.</p>`;
+            } catch (error) {
+                console.error("Error fetching account data:", error);
+                mainAssetsContent.innerHTML = `<p class="text-danger"><strong>Error:</strong> ${error.message}</p>`;
+                [otherTokensContent, nftGalleryContent, activityFeedContent].forEach(el => el.innerHTML = `<p class="text-secondary">Data unavailable.</p>`);
+                portfolioSkeleton.style.display = 'none';
+                portfolioContent.style.display = 'block';
+                totalValueUsdEl.textContent = '$ -';
+                totalValueVndEl.textContent = '- VNĐ';
+            }
+        }
+        
+        function processNewActivity(newLogs) {
+            const existingHashes = new Set(currentActivityLogs.map(log => log.hash));
+            const genuinelyNewLogs = newLogs.filter(log => !existingHashes.has(log.hash));
+            if (genuinelyNewLogs.length > 0) {
+                const newLogsHtml = genuinelyNewLogs.map(log => renderSingleActivityItem(log)).join('');
+                activityFeedContent.insertAdjacentHTML('afterbegin', newLogsHtml);
+                currentActivityLogs = [...genuinelyNewLogs, ...currentActivityLogs];
+                showTransactionPopup(genuinelyNewLogs[0]);
+            } else if (currentActivityLogs.length === 0) {
+                const initialLogsHtml = newLogs.slice(0, 50).map(log => renderSingleActivityItem(log)).join('');
+                activityFeedContent.innerHTML = initialLogsHtml;
+                currentActivityLogs = newLogs.slice(0, 50);
+                if (currentActivityLogs.length === 0) {
+                    activityFeedContent.innerHTML = `<p class="text-secondary">No recent activity found.</p>`;
+                }
+            }
+        }
+
+        function showTransactionPopup(log) {
+             const amountDisplay = log.amount !== null ? `<strong class="${log.direction === 'in' ? 'amount-in' : 'amount-out'}">${log.sign} ${log.amount.toLocaleString('en-US', {maximumFractionDigits: 4})} ${log.symbol}</strong>` : `a ${log.symbol} transfer`;
+            const actionText = log.direction === 'in' ? `Received ${amountDisplay} from` : `Sent ${amountDisplay} to`;
+            const message = `${actionText} ${log.party}`;
+            showAppToast('New Transaction', message);
+        }
+
+        function parseEvent(event, viewingRawAddress) {
+            const logs = [];
+            if (!event?.actions) return logs;
+            event.actions.forEach((action, actionIndex) => {
+                try {
+                    const log = { hash: `${event.hash}-${actionIndex}`, timestamp: event.timestamp * 1000, status: action.status, amount: null };
+                    const isViewingAddress = (partyObj) => getRaw(partyObj) === viewingRawAddress;
+                    const processParty = (partyObj) => ({ short: partyObj?.name || shortenAddress(partyObj?.address), full: partyObj?.address });
+                    if (action.type === 'TonTransfer' && action.TonTransfer) {
+                        const t = action.TonTransfer;
+                        log.direction = isViewingAddress(t.sender) ? 'out' : 'in';
+                        log.title = "TON Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
+                        log.amount = Number(t.amount) / 1e9;
+                        log.symbol = 'TON'; log.party_title = log.direction === 'out' ? 'To' : 'From';
+                        const partyInfo = processParty(log.direction === 'out' ? t.recipient : t.sender);
+                        log.party = partyInfo.short; log.party_full = partyInfo.full;
+                        log.image = 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
+                        if (log.party) logs.push(log);
+                    } else if (action.type === 'JettonTransfer' && action.JettonTransfer) {
+                        const t = action.JettonTransfer;
+                        log.direction = isViewingAddress(t.sender) ? 'out' : 'in';
+                        log.title = "Jetton Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
+                        log.amount = Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9));
+                        log.symbol = t.jetton?.symbol || 'Token'; log.party_title = log.direction === 'out' ? 'To' : 'From';
+                        const partyInfo = processParty(log.direction === 'out' ? t.recipient : t.sender);
+                        log.party = partyInfo.short; log.party_full = partyInfo.full;
+                        log.image = t.jetton?.image || 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
+                        if (log.party) logs.push(log);
+                    }
+                } catch (e) { console.warn("Could not parse an action:", action, "Error:", e); }
+            });
+            return logs;
+        }
+
+        async function fetchCryptoNews() {
+            if (!newsContentArea) return;
+            newsContentArea.innerHTML = `<div class="news-grid">${skeletonTx.repeat(3)}</div>`;
+            try {
+                const response = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN&limit=6');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const newsData = await response.json();
+                newsContentArea.innerHTML = '';
+                if (newsData.Type === 100 && newsData.Data?.length > 0) {
+                    let newsHtml = '<div class="news-grid">';
+                    newsData.Data.forEach(article => {
+                        newsHtml += `
+                        <a href="${article.url}" target="_blank" rel="noopener noreferrer" class="news-card">
+                            <img src="${article.imageurl}" class="news-card-img" onerror="this.style.display='none'">
+                            <div class="news-card-body">
+                                <h3 class="news-card-title">${article.title}</h3>
+                                <p class="news-card-source">${article.source} - ${new Date(article.published_on * 1000).toLocaleDateString()}</p>
+                            </div>
+                        </a>`;
+                    });
+                    newsContentArea.innerHTML = newsHtml + '</div>';
+                } else { newsContentArea.innerHTML = '<p class="text-secondary text-center">No news found.</p>'; }
+            } catch (error) {
+                console.error("Error fetching crypto news:", error);
+                newsContentArea.innerHTML = '<p class="text-danger text-center">Could not load news feed.</p>';
+            }
+        }
+        
+        async function handleFastSearch() {
+            const query = searchInput.value.trim();
+            if (!query) { searchResultsContainer.style.display = 'none'; return; }
+            if ((query.length >= 48 && query.includes(':')) || query.length === 48 || query.endsWith('.ton')) { fetchAndDisplayAccountData(query); return; }
+            searchResultsContainer.style.display = 'block';
+            searchResultsContainer.innerHTML = `<div class="p-2 text-center text-secondary">${skeletonTx}</div>`;
+            try {
+                const response = await fetch(`${TON_API_BASE}/accounts/search?name=${encodeURIComponent(query)}`);
+                if (!response.ok) throw new Error('Search API failed');
+                const data = await response.json();
+                const results = data.addresses || [];
+                searchResultsContainer.innerHTML = '';
+                if (results.length > 0) {
+                    for (const res of results) {
+                        const friendlyAddress = await getFriendlyAddress(res.address);
+                        const isJetton = res.name && res.name.toLowerCase().includes('jetton');
+                        const item = document.createElement('div');
+                        item.className = 'd-flex align-items-center p-2 mb-1 search-result-item';
+                        item.dataset.address = res.address;
+                        item.dataset.type = isJetton ? 'jetton' : 'account';
+                        const imageUrl = res.preview || res.icon || 'https://ton.org/download/ton_symbol.png';
+                        const verifiedTick = res.trust === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
+                        const addressHtml = `<code class="copyable-address" data-address="${friendlyAddress}" title="Click to copy">${shortenAddress(friendlyAddress)}</code>`;
+                        item.innerHTML = `
+                            <img src="${imageUrl}" class="me-3 search-result-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
+                            <div class="flex-grow-1">
+                                <p class="m-0 fw-bold">${res.name || 'Unnamed'} ${verifiedTick}</p>
+                                <p class="m-0 text-secondary" style="font-size: 0.8rem;">${addressHtml}</p>
+                            </div>`;
+                        item.addEventListener('click', (e) => {
+                            if (e.target.classList.contains('copyable-address')) return;
+                            searchResultsContainer.style.display = 'none';
+                            searchInput.value = '';
+                            if (item.dataset.type === 'jetton') {
+                                showJettonDetails(item.dataset.address);
+                            } else {
+                                fetchAndDisplayAccountData(item.dataset.address);
+                            }
+                        });
+                        searchResultsContainer.appendChild(item);
+                    }
+                } else { searchResultsContainer.innerHTML = '<p class="text-secondary text-center p-3">No results.</p>'; }
+            } catch (error) {
+                console.error('Error during search:', error);
+                searchResultsContainer.innerHTML = '<p class="text-danger text-center p-3">Search failed.</p>';
+            }
+        }
+        
+        async function showJettonDetails(jettonAddress) {
+            jettonDetailModal.show();
+            const headerEl = document.getElementById('jetton-modal-header-content');
+            const metadataEl = document.getElementById('metadata-tab-pane');
+            const historyEl = document.getElementById('history-tab-pane');
+            const holdersEl = document.getElementById('holders-tab-pane');
+            const holdersTabBtn = document.getElementById('holders-tab');
+            if (holdersTabBtn) holdersTabBtn.textContent = 'Holders';
+            headerEl.innerHTML = `<h5 class="modal-title">Loading Jetton...</h5>`;
+            [metadataEl, historyEl, holdersEl].forEach(el => el.innerHTML = `<div class="w-100 text-center p-5">${skeletonTx}</div>`);
+            const [metadataRes, historyRes, holdersRes] = await Promise.allSettled([
+                fetch(`${TON_API_BASE}/jettons/${jettonAddress}`),
+                fetch(`${TON_API_BASE}/accounts/${jettonAddress}/events?limit=100`),
+                fetch(`${TON_API_BASE}/jettons/${jettonAddress}/holders?limit=100`)
+            ]);
+            let jettonMetadata = null;
+            if (metadataRes.status === 'fulfilled' && metadataRes.value.ok) {
+                const data = await metadataRes.value.json();
+                jettonMetadata = data.metadata;
+                if (holdersTabBtn && data.holders_count) holdersTabBtn.textContent = `Holders (${data.holders_count.toLocaleString('en-US')})`;
+                const friendlyJettonAddress = await getFriendlyAddress(jettonMetadata.address);
+                const verifiedTick = data.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
+                headerEl.innerHTML = `<img src="${jettonMetadata.image}" class="me-3 jetton-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png'"><h5 class="modal-title">${jettonMetadata.name} (${jettonMetadata.symbol}) ${verifiedTick}</h5>`;
+                const addressHtml = `<code class="copyable-address" data-address="${friendlyJettonAddress}" title="Click to copy">${shortenAddress(friendlyJettonAddress, 10, 10)}</code>`;
+                const totalSupply = formatBalance(data.total_supply, jettonMetadata.decimals, jettonMetadata.symbol);
+                metadataEl.innerHTML = `<p class="mb-3">${jettonMetadata.description || 'No description.'}</p><div class="row g-3"><div class="col-12"><span class="metadata-key">Address:</span> <span class="fs-sm text-break">${addressHtml}</span></div><div class="col-md-6"><span class="metadata-key">Decimals:</span> ${jettonMetadata.decimals}</div><div class="col-md-6"><span class="metadata-key">Mintable:</span> ${data.mintable ? 'Yes' : 'No'}</div><div class="col-12"><span class="metadata-key">Total Supply:</span> ${totalSupply}</div></div>`;
+            } else { metadataEl.innerHTML = `<p class="text-danger">Failed to load metadata.</p>`; }
+
+            if (historyRes.status === 'fulfilled' && historyRes.value.ok) {
+                const data = await historyRes.value.json();
+                const historyLogs = (data.events ?? []).flatMap((e) => parseEvent(e, jettonAddress));
+                if (historyLogs.length > 0) {
+                    historyEl.innerHTML = '';
+                    historyLogs.slice(0, 50).forEach(log => {
+                       const partyAddressHtml = `<code class="copyable-address" data-address="${log.party_full}" title="Click to copy">${shortenAddress(log.party)}</code>`;
+                       historyEl.innerHTML += `<div class="d-flex flex-wrap justify-content-between align-items-center p-2 border-bottom border-secondary border-opacity-25"><div><small>${log.title} to/from ${partyAddressHtml}</small></div><div class="text-end"><small class="${log.direction === 'in' ? 'amount-in' : 'amount-out'}">${log.sign} ${log.amount.toLocaleString()}</small><br><small class="text-secondary">${new Date(log.timestamp).toLocaleDateString()}</small></div></div>`;
+                    });
+                } else { historyEl.innerHTML = `<p class="text-secondary text-center p-3">No history.</p>`; }
+            } else { historyEl.innerHTML = `<p class="text-danger">Failed to load history.</p>`; }
+
+            if (holdersRes.status === 'fulfilled' && holdersRes.value.ok) {
+                const data = await holdersRes.value.json();
+                const decimals = jettonMetadata?.decimals;
+                const symbol = jettonMetadata?.symbol || '';
+                if (data.addresses?.length > 0) {
+                    let tableHtml = `<table class="table table-hover align-middle"><thead><tr><th scope="col" style="width: 5%;">#100</th><th scope="col">Holder</th><th scope="col" class="text-end">Balance</th></tr></thead><tbody>`;
+                    for (const [index, holder] of data.addresses.entries()) {
+                        const ownerWalletAddress = holder.owner.address;
+                        const friendlyDisplayAddress = await getFriendlyAddress(ownerWalletAddress);
+                        const displayName = holder.owner.name ? `<strong>${holder.owner.name}</strong>` : `<code class="copyable-address" data-address="${friendlyDisplayAddress}" title="Click to copy">${shortenAddress(friendlyDisplayAddress)}</code>`;
+                        const fullAddressHtml = holder.owner.name ? `<br><small class="text-secondary"><code class="copyable-address" data-address="${friendlyDisplayAddress}" title="Click to copy">${shortenAddress(friendlyDisplayAddress, 10, 10)}</code></small>` : '';
+                        tableHtml += `<tr><th scope="row">${index + 1}</th><td>${displayName}${fullAddressHtml}</td><td class="text-end fw-bold">${formatBalance(holder.balance, decimals, symbol)}</td></tr>`;
+                    }
+                    tableHtml += `</tbody></table>`;
+                    holdersEl.innerHTML = tableHtml;
+                } else { holdersEl.innerHTML = `<p class="text-secondary text-center p-3">No holders.</p>`; }
+            } else { holdersEl.innerHTML = `<p class="text-danger">Failed to load holders.</p>`; }
+        }
+
+        const renderApps = () => {
+            if (!appGrid || typeof appsData === 'undefined') return;
+            const searchTerm = appSearchInput.value.toLowerCase();
+            const activeFilter = appFilterControls.querySelector('.app-filter-btn.active').dataset.filter;
+            let filteredApps = appsData.filter(app => 
+                (activeFilter === 'all' || app.category.includes(activeFilter)) &&
+                (!searchTerm || app.name.toLowerCase().includes(searchTerm))
+            );
+            appGrid.innerHTML = '';
+            if (filteredApps.length === 0) {
+                appGrid.innerHTML = `<div class="col-12 text-center mt-4"><p class="text-secondary fs-5">Không tìm thấy ứng dụng.</p></div>`;
+                return;
+            }
+            filteredApps.forEach(app => {
+                const appCard = document.createElement('div');
+                appCard.className = 'col-3 col-md-3';
+                appCard.innerHTML = `<a href="${app.link}" target="_blank" rel="noopener noreferrer" class="app-item"><div class="app-item-img-wrapper"><img src="${app.image}" alt="${app.name} logo" class="app-item-img" onerror="this.src='https://via.placeholder.com/90?text=App';"></div><span class="app-item-name">${app.name}</span></a>`;
+                appGrid.appendChild(appCard);
+            });
+        };
+
         function showAppToast(header, message, type = 'info') {
             document.querySelector('.toast-notification')?.remove();
             const toast = document.createElement('div');
@@ -612,380 +1595,47 @@
             toast.addEventListener('click', () => { clearTimeout(hideTimeout); toast.classList.remove('show'); toast.addEventListener('transitionend', () => toast.remove(), { once: true }); }, { once: true });
         }
         
-        // --- FIREBASE & USER DATA FUNCTIONS ---
-        function initializeFirebase() {
-            if (db) return;
-            const firebaseConfig = { apiKey: "AIzaSyCHjgJkqVmgpZ6s5HRobpqB6XT--Sa2_zY", authDomain: "tgapp-30a28.firebaseapp.com", projectId: "tgapp-30a28", storageBucket: "tgapp-30a28.firebasestorage.app", messagingSenderId: "329047273664", appId: "1:329047273664:web:c9e1bfe367afb54953fd25", measurementId: "G-68P4PT49B0" };
-            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-        }
+        const toggleSidebar = () => {
+            hamburgerBtn.classList.toggle('open');
+            sidebarMenu.classList.toggle('open');
+            sidebarOverlay.classList.toggle('open');
+        };
 
-        async function getOrCreateUser(identifier, tgUserObject = null) {
-            initializeFirebase();
-            const userRef = db.collection('users').doc(String(identifier));
-            const doc = await userRef.get();
-
-            let updateData = {};
-            let isNew = false;
-            
-            if (tgUserObject) {
-                updateData.fullName = `${tgUserObject.first_name || ''} ${tgUserObject.last_name || ''}`.trim() || 'Telegram User';
-                updateData.photoUrl = tgUserObject.photo_url || DEFAULT_LOGO_SRC;
-                updateData.username = tgUserObject.username || 'N/A';
-            }
-
-            if (!doc.exists) {
-                isNew = true;
-                const newUser = {
-                    id: identifier,
-                    points: 0,
-                    lastCheckin: null,
-                    fullName: tgUserObject ? updateData.fullName : shortenAddress(identifier),
-                    photoUrl: tgUserObject ? updateData.photoUrl : DEFAULT_LOGO_SRC,
-                    username: tgUserObject ? updateData.username : 'N/A',
-                    walletAddress: null
-                };
-                await userRef.set(newUser);
-                console.log(`Created new user profile in Firestore for ID: ${identifier}`);
-                return newUser;
-            } else {
-                const data = doc.data();
-                let needsUpdate = false;
-                if (tgUserObject && (data.fullName !== updateData.fullName || data.photoUrl !== updateData.photoUrl)) {
-                    needsUpdate = true;
-                }
-                if (needsUpdate) {
-                    await userRef.update(updateData);
-                    console.log(`Updating profile for ID: ${identifier}`);
-                    return { ...data, ...updateData };
-                }
-                return data;
-            }
-        }
+        // --- Event Listeners ---
+        hamburgerBtn.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+        logoutBtn.addEventListener('click', handleFullLogout);
+        fullLogoutBtn.addEventListener('click', handleFullLogout);
+        disconnectWalletBtn.addEventListener('click', handleDisconnectWallet);
+        checkinButton.addEventListener('click', handleCheckin);
+        popupCheckinButton.addEventListener('click', handleCheckin);
+        customWalletButton.addEventListener('click', () => { walletDropdown.style.display = walletDropdown.style.display === 'block' ? 'none' : 'block'; });
+        copyAddressBtn.addEventListener('click', (e) => { e.preventDefault(); const address = e.currentTarget.dataset.address; const textSpan = e.currentTarget.querySelector('span'); if (address) navigator.clipboard.writeText(address).then(() => { textSpan.textContent = 'Copied!'; setTimeout(() => { textSpan.textContent = 'Copy Address'; }, 2000); }); });
+        searchButton.addEventListener('click', handleFastSearch);
+        searchInput.addEventListener('keyup', (e) => { clearTimeout(searchTimeout); if (e.key === 'Enter') handleFastSearch(); else searchTimeout = setTimeout(handleFastSearch, 300); });
+        backToMyWalletBtn.addEventListener('click', () => { if (connectedWalletAddress) fetchAndDisplayAccountData(connectedWalletAddress); });
+        otherTokensContent.addEventListener('click', (e) => { const jettonItem = e.target.closest('.jetton-item'); if (jettonItem) showJettonDetails(jettonItem.dataset.jettonAddress); });
+        document.body.addEventListener('click', (e) => { const target = e.target.closest('.copyable-address'); if (target?.dataset?.address) { navigator.clipboard.writeText(target.dataset.address).then(() => { const originalText = target.textContent; target.textContent = 'Copied!'; target.classList.add('copied'); setTimeout(() => { target.textContent = originalText; target.classList.remove('copied'); }, 1500); }); } if (!customWalletContainer?.contains(e.target)) walletDropdown.style.display = 'none'; if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none'; });
+        [navDashboard, navApps, navTask, navLeaderboard, navAccount].forEach(link => link.addEventListener('click', (e) => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); window.location.hash = e.currentTarget.hash; }));
+        appSearchInput.addEventListener('input', () => { renderApps(); const searchTerm = appSearchInput.value.trim(); const newUrl = searchTerm ? `#apps?search=${encodeURIComponent(searchTerm)}` : '#apps'; history.replaceState(null, '', newUrl); });
+        appSearchButton.addEventListener('click', renderApps);
+        appSearchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') renderApps(); });
+        appFilterControls.addEventListener('click', (e) => { const target = e.target.closest('.app-filter-btn'); if (target) { appFilterControls.querySelector('.active').classList.remove('active'); target.classList.add('active'); renderApps(); } });
+        window.addEventListener('hashchange', handleRouteChange);
         
-        async function mergeProvisionalAccount(tgId, address) {
-            const provisionalRef = db.collection('users').doc(address);
-            const provisionalDoc = await provisionalRef.get();
-
-            if (provisionalDoc.exists) {
-                const provisionalData = provisionalDoc.data();
-                const mainUserRef = db.collection('users').doc(String(tgId));
-                
-                await db.runTransaction(async (transaction) => {
-                    const mainDoc = await transaction.get(mainUserRef);
-                    if (!mainDoc.exists) return; // Should exist, but safety check
-                    
-                    const mainData = mainDoc.data();
-                    const mergedPoints = (mainData.points || 0) + (provisionalData.points || 0);
-                    
-                    transaction.update(mainUserRef, { points: mergedPoints, walletAddress: address });
-                    transaction.delete(provisionalRef);
-                });
-                
-                console.log(`Merged points from provisional account ${address} into main account ${tgId}.`);
-                showAppToast('Tài khoản đã được liên kết!', 'Điểm EXP từ ví của bạn đã được gộp vào tài khoản Telegram.', 'success');
-            } else {
-                // Just link the address
-                const mainUserRef = db.collection('users').doc(String(tgId));
-                await mainUserRef.update({ walletAddress: address });
-                console.log(`Linked wallet ${address} to user ${tgId}.`);
-            }
-        }
-
-        // --- CHECK-IN & TASK FUNCTIONS ---
-        async function setupTaskSystem() {
-            currentUserIdentifier = telegramUserData?.id || connectedWalletAddress;
-            if (!currentUserIdentifier) {
-                if(checkinInterval) clearInterval(checkinInterval);
-                checkinButton.disabled = true;
-                checkinButton.innerHTML = `<i class="fas fa-link me-2"></i> Kết nối`;
-                return;
-            }
-
-            const userData = await getOrCreateUser(currentUserIdentifier, telegramUserData);
-            updateCheckinUI(userData);
-            fetchTaskHistory();
-            checkinButton.addEventListener('click', handleCheckin);
-        }
-
-        function updateCheckinUI(userData) {
-            if (!userData) return;
-            updateExpBalances(userData.points || 0);
-            if(checkinInterval) clearInterval(checkinInterval);
-            
-            const { lastCheckin } = userData;
-            const isEligible = !lastCheckin || (Date.now() - lastCheckin.toDate().getTime() >= CHECKIN_COOLDOWN);
-
-            if (isEligible) {
-                checkinButton.disabled = false;
-                checkinButton.innerHTML = `<i class="fas fa-calendar-check me-2"></i> Nhận thưởng`;
-            } else {
-                checkinButton.disabled = true;
-                const updateCountdown = () => {
-                    const newRemaining = CHECKIN_COOLDOWN - (Date.now() - lastCheckin.toDate().getTime());
-                    if (newRemaining <= 0) {
-                        clearInterval(checkinInterval);
-                        checkinButton.disabled = false;
-                        checkinButton.innerHTML = `<i class="fas fa-calendar-check me-2"></i> Nhận thưởng`;
-                    } else {
-                        const h = Math.floor((newRemaining / 3600000) % 24).toString().padStart(2, '0');
-                        const m = Math.floor((newRemaining / 60000) % 60).toString().padStart(2, '0');
-                        const s = Math.floor((newRemaining / 1000) % 60).toString().padStart(2, '0');
-                        checkinButton.innerHTML = `<i class="fas fa-hourglass-half me-2"></i> ${h}:${m}:${s}`;
-                    }
-                };
-                updateCountdown();
-                checkinInterval = setInterval(updateCountdown, 1000);
-            }
-        }
-
-        async function handleCheckin() {
-            if (!currentUserIdentifier) return;
-            checkinButton.disabled = true;
-            checkinButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...`;
-            
-            const userRef = db.collection('users').doc(String(currentUserIdentifier));
-            try {
-                await db.runTransaction(async (t) => {
-                    const userDoc = await t.get(userRef);
-                    if (!userDoc.exists) throw "User not found!";
-                    const data = userDoc.data();
-                    if (data.lastCheckin && (Date.now() - data.lastCheckin.toDate().getTime() < CHECKIN_COOLDOWN)) {
-                        throw new Error("Already checked in.");
-                    }
-                    const newPoints = (data.points || 0) + CHECKIN_REWARD;
-                    const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
-                    t.update(userRef, { points: newPoints, lastCheckin: newTimestamp });
-                    const historyRef = userRef.collection('task_history').doc();
-                    t.set(historyRef, { taskName: 'Check-in Hàng ngày', exp: CHECKIN_REWARD, timestamp: newTimestamp });
-                });
-                showAppToast('Thành công!', `Bạn đã nhận được ${CHECKIN_REWARD} EXP.`, 'success');
-            } catch (error) {
-                console.error("Check-in failed: ", error);
-                if(error.message !== "Already checked in.") {
-                    showAppToast('Thất bại', 'Có lỗi xảy ra, vui lòng thử lại.', 'error');
-                }
-            } finally {
-                const updatedUserData = await getOrCreateUser(currentUserIdentifier, telegramUserData);
-                updateCheckinUI(updatedUserData);
-                fetchTaskHistory();
-            }
-        }
+        const heroConnectButton = document.createElement('button');
+        heroConnectButton.className = 'btn px-5 py-3';
+        heroConnectButton.style = 'background-color: var(--accent-primary); color: white; font-weight: 600;';
+        heroConnectButton.textContent = 'Connect Wallet';
+        heroConnectButton.addEventListener('click', () => tonConnectUI.openModal());
+        connectWalletHeroBtnContainer.appendChild(heroConnectButton);
         
-        async function fetchTaskHistory() {
-            if (!currentUserIdentifier) return;
-            const historyRef = db.collection('users').doc(String(currentUserIdentifier)).collection('task_history').orderBy('timestamp', 'desc').limit(20);
-            try {
-                const snapshot = await historyRef.get();
-                if (snapshot.empty) {
-                    taskHistoryContent.innerHTML = `<p class="text-secondary text-center p-3">Chưa có hoạt động nào.</p>`;
-                    return;
-                }
-                taskHistoryContent.innerHTML = snapshot.docs.map(doc => {
-                    const item = doc.data();
-                    const date = item.timestamp ? item.timestamp.toDate().toLocaleString('vi-VN') : 'N/A';
-                    return `<div class="task-history-item">
-                                <i class="fas fa-calendar-check task-history-icon"></i>
-                                <div class="flex-grow-1">
-                                    <p class="m-0 fw-bold">${item.taskName}</p>
-                                    <p class="m-0 text-secondary" style="font-size: 0.8rem;">${date}</p>
-                                </div>
-                                <strong class="amount-in">+${item.exp} EXP</strong>
-                            </div>`;
-                }).join('');
-            } catch(error) {
-                taskHistoryContent.innerHTML = `<p class="text-danger text-center p-3">Lỗi tải lịch sử.</p>`;
-            }
-        }
-        
-        // --- LEADERBOARD FUNCTIONS ---
-        async function fetchAndRenderLeaderboard() {
-            const top3Container = document.getElementById('leaderboard-top-3');
-            const listContainer = document.getElementById('leaderboard-list');
-            const skeletonItem = `<div class="leaderboard-item"><div class="skeleton-loader leaderboard-rank" style="height: 24px; width: 40px; border-radius: 8px;"></div><img class="skeleton-loader leaderboard-avatar"><div class="flex-grow-1"><div class="skeleton-loader skeleton-line w-50"></div></div><div class="skeleton-loader skeleton-line" style="width: 80px;"></div></div>`;
-            top3Container.innerHTML = '';
-            listContainer.innerHTML = skeletonItem.repeat(5);
+        // --- App Initialization ---
+        fetchCryptoNews();
+        initializeApp();
 
-            initializeFirebase();
-            try {
-                const snapshot = await db.collection('users').orderBy('points', 'desc').limit(50).get();
-                top3Container.innerHTML = '';
-                listContainer.innerHTML = '';
-
-                if (snapshot.empty) {
-                    listContainer.innerHTML = `<p class="text-secondary text-center p-3">Chưa có ai trên bảng xếp hạng.</p>`;
-                    return;
-                }
-                
-                const users = snapshot.docs.map(doc => doc.data());
-                
-                users.forEach((user, index) => {
-                    const rank = index + 1;
-                    const isCurrentUser = currentUserIdentifier && (user.id === currentUserIdentifier || user.walletAddress === currentUserIdentifier);
-                    const medals = ['fa-trophy', 'fa-medal', 'fa-award'];
-                    
-                    if (rank <= 3) {
-                        const orderClass = rank === 1 ? 'order-md-2' : (rank === 2 ? 'order-md-1' : 'order-md-3');
-                        const col = document.createElement('div');
-                        col.className = `col-lg-4 col-md-4 ${orderClass}`;
-                        col.innerHTML = `
-                            <div class="card-glass text-center top-rank-card rank-${rank}">
-                                <i class="fas ${medals[rank-1]} rank-icon" style="font-size: 2.5rem; position: absolute; top: -20px; left: 50%; transform: translateX(-50%);"></i>
-                                <img src="${user.photoUrl || DEFAULT_LOGO_SRC}" class="leaderboard-avatar mx-auto mb-3" onerror="this.src='${DEFAULT_LOGO_SRC}'">
-                                <h5 class="leaderboard-name text-truncate">${user.fullName || 'Anonymous'}</h5>
-                                <p class="leaderboard-exp">${(user.points || 0).toLocaleString()} EXP</p>
-                            </div>
-                        `;
-                        top3Container.appendChild(col);
-                    } else {
-                        const item = document.createElement('div');
-                        item.className = `leaderboard-item ${isCurrentUser ? 'current-user' : ''}`;
-                        item.innerHTML = `
-                            <span class="leaderboard-rank">#${rank}</span>
-                            <img src="${user.photoUrl || DEFAULT_LOGO_SRC}" class="leaderboard-avatar" onerror="this.src='${DEFAULT_LOGO_SRC}'">
-                            <span class="leaderboard-name text-truncate">${user.fullName || 'Anonymous'}</span>
-                            <span class="leaderboard-exp">${(user.points || 0).toLocaleString()} EXP</span>
-                        `;
-                        listContainer.appendChild(item);
-                    }
-                });
-
-            } catch (error) {
-                console.error("Error fetching leaderboard:", error);
-                listContainer.innerHTML = `<p class="text-danger text-center p-3">Không thể tải bảng xếp hạng.</p>`;
-            }
-        }
-        
-        // --- UI & ROUTING ---
-        function updateUIForState() {
-            currentUserIdentifier = telegramUserData?.id || connectedWalletAddress;
-
-            // Header & Sidebar
-            if (telegramUserData) {
-                appLogoImg.src = telegramUserData.photo_url || DEFAULT_LOGO_SRC;
-                appLogoImg.style.borderRadius = '50%';
-                appLogoText.textContent = `@${telegramUserData.username || telegramUserData.first_name}`;
-                navAccount.style.display = 'block';
-                fullLogoutBtn.style.display = 'block';
-            } else {
-                appLogoImg.src = 'https://duccodedao.github.io/VIEC/img/logo.png';
-                appLogoImg.style.borderRadius = '0';
-                appLogoText.textContent = 'Neuralis';
-                navAccount.style.display = 'none';
-                fullLogoutBtn.style.display = 'none';
-            }
-
-            if (currentUserIdentifier) {
-                navTask.style.display = 'block';
-                headerExpDisplay.classList.remove('d-none');
-            } else {
-                navTask.style.display = 'none';
-                headerExpDisplay.classList.add('d-none');
-            }
-            
-            // Wallet button
-            if (connectedWalletAddress) {
-                tonConnectButtonRoot.style.display = 'none';
-                customWalletContainer.style.display = 'block';
-                customWalletButton.textContent = shortenAddress(connectedWalletAddress);
-            } else {
-                tonConnectButtonRoot.style.display = 'block';
-                customWalletContainer.style.display = 'none';
-            }
-        }
-        
-        function switchView(viewToShow) {
-            [dashboardEl, heroEl, appStoreSection, taskSectionEl, accountSectionEl, leaderboardSectionEl].forEach(el => el.style.display = 'none');
-            [navDashboard, navApps, navTask, navLeaderboard, navAccount].forEach(nav => nav.classList.remove('active'));
-
-            if (viewToShow === 'dashboard') {
-                if (connectedWalletAddress) dashboardEl.style.display = 'block';
-                else heroEl.style.display = 'flex';
-                navDashboard.classList.add('active');
-            } else if (viewToShow === 'apps') {
-                appStoreSection.style.display = 'block';
-                navApps.classList.add('active');
-            } else if (viewToShow === 'leaderboard') {
-                leaderboardSectionEl.style.display = 'block';
-                navLeaderboard.classList.add('active');
-                fetchAndRenderLeaderboard();
-            } else if (viewToShow === 'task' && currentUserIdentifier) {
-                taskSectionEl.style.display = 'block';
-                navTask.classList.add('active');
-            } else if (viewToShow === 'account' && telegramUserData) {
-                accountSectionEl.style.display = 'block';
-                navAccount.classList.add('active');
-            }
-            
-            if (sidebarMenu.classList.contains('open')) sidebarMenu.classList.remove('open');
-            if (sidebarOverlay.classList.contains('open')) sidebarOverlay.classList.remove('open');
-            if (hamburgerBtn.classList.contains('open')) hamburgerBtn.classList.remove('open');
-        }
-
-        function handleRouteChange() {
-            const hash = window.location.hash.substring(1) || 'dashboard';
-            const [path] = hash.split('?');
-            
-            const privateRoutes = {
-                'task': !!currentUserIdentifier,
-                'account': !!telegramUserData
-            };
-
-            if (privateRoutes.hasOwnProperty(path) && !privateRoutes[path]) {
-                showAppToast('Quyền truy cập bị từ chối', 'Vui lòng kết nối ví hoặc đăng nhập qua Mini App để dùng tính năng này.', 'warning');
-                window.location.hash = 'dashboard';
-                return;
-            }
-            
-            switchView(path);
-        }
-
-        // --- MAIN INITIALIZATION LOGIC ---
-        function main() {
-            let isMiniApp = false;
-            try {
-                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
-                    const tg = window.Telegram.WebApp;
-                    tg.ready();
-                    isMiniApp = true;
-                    telegramUserData = tg.initDataUnsafe.user;
-                    console.log("Running in Telegram Mini App context. User:", telegramUserData.id);
-                }
-            } catch (e) { console.log("Not running in Mini App context."); }
-            
-            updateUIForState();
-            setupTaskSystem(); // Setup based on initial state
-            handleRouteChange(); // Initial route
-            
-            // Event Listeners
-            tonConnectUI.onStatusChange(async (wallet) => {
-                if (wallet) {
-                    connectedWalletAddress = TON_CONNECT_UI.toUserFriendlyAddress(wallet.account.address);
-                    console.log(`Wallet connected: ${connectedWalletAddress}`);
-                    
-                    if (telegramUserData) {
-                        await mergeProvisionalAccount(telegramUserData.id, connectedWalletAddress);
-                    }
-                } else {
-                    connectedWalletAddress = null;
-                    console.log('Wallet disconnected.');
-                }
-                updateUIForState();
-                setupTaskSystem();
-                handleRouteChange(); // Re-evaluate view after connection status changes
-            });
-
-            // Other general listeners
-            fullLogoutBtn.addEventListener('click', () => {
-                localStorage.clear();
-                window.location.reload();
-            });
-            disconnectWalletBtn.addEventListener('click', () => tonConnectUI.disconnect());
-            window.addEventListener('hashchange', handleRouteChange);
-        }
-
-        main();
     });
     </script>
 </body>
 </html>
+```
