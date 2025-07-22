@@ -515,7 +515,7 @@
                         <div class="card-glass mb-4">
                             <h5 class="card-title">Check-in Hàng Ngày</h5>
                             <div id="daily-checkin-content" class="d-flex justify-content-between align-items-center">
-                                <p class="mb-0">Điểm danh hàng ngày để nhận <strong style="color: var(--accent-primary);">+10 EXP</strong>. Tích lũy để đổi token sau này!</p>
+                                <p class="mb-0">Điểm danh để nhận <strong style="color: var(--accent-primary);">+10 EXP</strong>. Tích lũy EXP để đổi lấy token sau này!</p>
                                 <button id="checkin-button" class="btn px-4 py-2" style="background-color: var(--accent-secondary); color: white; font-weight: 600; flex-shrink: 0; min-width: 130px;" disabled>
                                     <i class="fas fa-spinner fa-spin me-2"></i>Chờ...
                                 </button>
@@ -541,19 +541,12 @@
                 <div class="row justify-content-center g-4">
                     <div class="col-12 col-md-10 col-lg-8">
                         <div class="card-glass">
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <div>
-                                    <p class="text-secondary mb-0">Bạn đã mời thành công</p>
-                                    <h3 id="referral-count" class="fw-bold mb-0" style="color: var(--accent-primary);">0 người</h3>
-                                </div>
-                            </div>
-                            
                             <ul class="nav nav-tabs" id="referralTab" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab">Mã của bạn</button>
+                                    <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab"><i class="fas fa-link me-2"></i>Mã của bạn</button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="invited-list-tab" data-bs-toggle="tab" data-bs-target="#invited-list-pane" type="button" role="tab">Người đã mời</button>
+                                    <button class="nav-link" id="invited-list-tab" data-bs-toggle="tab" data-bs-target="#invited-list-pane" type="button" role="tab"><i class="fas fa-users me-2"></i>Người đã mời (<span id="referral-count">0</span>)</button>
                                 </li>
                             </ul>
                             
@@ -570,7 +563,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="tab-pane fade" id="invited-list-pane" role="tabpanel" style="max-height: 400px; overflow-y: auto;">
+                                <div class="tab-pane fade" id="invited-list-pane" role="tabpanel" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
                                     <!-- Invited users list will be rendered here -->
                                 </div>
                             </div>
@@ -638,6 +631,9 @@
                             <h5 class="card-title">Danh sách Người dùng</h5>
                             <div id="admin-user-list-container">
                                 <!-- JS renders table here -->
+                            </div>
+                            <div class="text-center mt-3">
+                                <button id="admin-load-more-btn" class="btn btn-outline-secondary" style="display: none;">Tải thêm</button>
                             </div>
                         </div>
                     </div>
@@ -769,6 +765,7 @@
         const adminExpForm = document.getElementById('admin-exp-form');
         const adminSubmitBtn = document.getElementById('admin-submit-btn');
         const adminUserListContainer = document.getElementById('admin-user-list-container');
+        const adminLoadMoreBtn = document.getElementById('admin-load-more-btn');
         const referralInputContainer = document.getElementById('referral-input-container');
         const referralCodeInput = document.getElementById('referral-code-input');
         const referralCodeSubmit = document.getElementById('referral-code-submit');
@@ -791,11 +788,13 @@
         let searchTimeout;
         let db = null;
         let checkinInterval = null;
+        let lastVisibleAdminUser = null; // For admin pagination
         
         // Constants
         const REFERRAL_REWARD = 200;
         const CHECKIN_REWARD = 10;
         const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000;
+        const ADMIN_USERS_PER_PAGE = 50;
         const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
         const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
 
@@ -935,7 +934,7 @@
                     
                     // 3. Update the new user's document to mark them as referred
                     const newUserRef = db.collection('users').doc(newAddress);
-                    transaction.update(newUserRef, { referredBy: referrerCode });
+                    transaction.update(newUserRef, { referredBy: String(referrerCode) }); // Always store as string
                 });
 
                 showAppToast('Thành công!', `Bạn đã được giới thiệu bởi ${referrerData.fullName || shortenAddress(referrerData.address)}!`, 'success');
@@ -1179,69 +1178,72 @@
             }
         }
         
-        async function fetchAndRenderAdminUserList() {
+        async function fetchAndRenderAdminUserList(isInitialLoad = true) {
             if (!adminUserListContainer || !db) return;
 
-            // Skeleton loader for the table
-            adminUserListContainer.innerHTML = `<div class="table-responsive"><table class="table table-sm"><thead><tr><th>User</th><th>Address</th><th>EXP</th><th>Joined</th></tr></thead><tbody>` +
-                `<tr><td><div class="d-flex align-items-center"><div class="skeleton-loader me-2" style="width:36px;height:36px;border-radius:50%;"></div><div><div class="skeleton-loader skeleton-line w-100 mb-1"></div><div class="skeleton-loader skeleton-line w-75"></div></div></div></td><td><div class="skeleton-loader skeleton-line"></div></td><td><div class="skeleton-loader skeleton-line w-50"></div></td><td><div class="skeleton-loader skeleton-line w-75"></div></td></tr>`.repeat(5) +
-                `</tbody></table></div>`;
+            adminLoadMoreBtn.disabled = true;
+            adminLoadMoreBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Loading...`;
 
+            if (isInitialLoad) {
+                lastVisibleAdminUser = null;
+                adminUserListContainer.innerHTML = `<div class="table-responsive"><table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">EXP</th><th scope="col">Referred</th><th scope="col">Referred By</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table></div>`;
+            }
+            
             try {
-                const snapshot = await db.collection('users').orderBy('createdAt', 'desc').limit(200).get();
-                if (snapshot.empty) {
-                    adminUserListContainer.innerHTML = `<p class="text-secondary text-center p-3">No users found in the database.</p>`;
+                let query = db.collection('users').orderBy('createdAt', 'desc').limit(ADMIN_USERS_PER_PAGE);
+
+                if (!isInitialLoad && lastVisibleAdminUser) {
+                    query = query.startAfter(lastVisibleAdminUser);
+                }
+
+                const snapshot = await query.get();
+                const tableBody = adminUserListContainer.querySelector('tbody');
+
+                if (snapshot.empty && isInitialLoad) {
+                    adminUserListContainer.innerHTML = `<p class="text-secondary text-center p-3">No users found.</p>`;
+                    adminLoadMoreBtn.style.display = 'none';
                     return;
                 }
 
-                let tableHtml = `<div class="table-responsive">
-                    <table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;">
-                        <thead>
-                            <tr>
-                                <th scope="col">User</th>
-                                <th scope="col">Wallet Address</th>
-                                <th scope="col">UID</th>
-                                <th scope="col">EXP</th>
-                                <th scope="col">Referred</th>
-                                <th scope="col">Referred By</th>
-                                <th scope="col">Joined</th>
-                            </tr>
-                        </thead>
-                        <tbody>`;
-                
+                lastVisibleAdminUser = snapshot.docs[snapshot.docs.length - 1];
+
                 for (const doc of snapshot.docs) {
                     const user = doc.data();
                     const displayName = user.fullName || (user.username ? `@${user.username}` : 'N/A');
                     const avatarUrl = user.photoUrl || GENERIC_WALLET_ICON;
                     const joinDate = user.createdAt ? user.createdAt.toDate().toLocaleDateString('vi-VN') : 'N/A';
-                    const friendlyAddress = await getFriendlyAddress(user.address);
-
-                    tableHtml += `
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <img src="${avatarUrl}" class="me-2 flex-shrink-0" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" onerror="this.src='${GENERIC_WALLET_ICON}'">
-                                    <div class="text-truncate" style="min-width: 120px;">
-                                        <strong class="d-block text-truncate">${displayName}</strong>
-                                    </div>
+                    
+                    const row = tableBody.insertRow();
+                    row.innerHTML = `
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="${avatarUrl}" class="me-2 flex-shrink-0" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" onerror="this.src='${GENERIC_WALLET_ICON}'">
+                                <div class="text-truncate" style="min-width: 120px;">
+                                    <strong class="d-block text-truncate">${displayName}</strong>
                                 </div>
-                            </td>
-                            <td><code class="copyable-address" data-address="${user.address}" title="Click to copy Raw Address">${shortenAddress(friendlyAddress, 6, 6)}</code></td>
-                            <td>${user.telegramId || 'N/A'}</td>
-                            <td class="fw-bold" style="color: var(--accent-secondary);">${(user.points || 0).toLocaleString()}</td>
-                            <td>${user.referralCount || 0}</td>
-                            <td><div style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${user.referredBy || 'N/A'}</div></td>
-                            <td>${joinDate}</td>
-                        </tr>
+                            </div>
+                        </td>
+                        <td><code class="copyable-address" data-address="${user.address}" title="Click to copy Raw Address">${shortenAddress(user.address, 6, 6)}</code></td>
+                        <td>${user.telegramId || 'N/A'}</td>
+                        <td class="fw-bold" style="color: var(--accent-secondary);">${(user.points || 0).toLocaleString()}</td>
+                        <td>${user.referralCount || 0}</td>
+                        <td><div style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${user.referredBy || 'N/A'}</div></td>
+                        <td>${joinDate}</td>
                     `;
                 }
 
-                tableHtml += `</tbody></table></div>`;
-                adminUserListContainer.innerHTML = tableHtml;
+                if (snapshot.docs.length < ADMIN_USERS_PER_PAGE) {
+                    adminLoadMoreBtn.style.display = 'none';
+                } else {
+                    adminLoadMoreBtn.style.display = 'block';
+                }
 
             } catch (error) {
                 console.error("Error fetching user list for admin:", error);
-                adminUserListContainer.innerHTML = `<p class="text-danger text-center p-3">Failed to load user list. Check console for details.</p>`;
+                adminUserListContainer.innerHTML = `<p class="text-danger text-center p-3">Failed to load user list.</p>`;
+            } finally {
+                adminLoadMoreBtn.disabled = false;
+                adminLoadMoreBtn.innerHTML = `Tải thêm`;
             }
         }
 
@@ -1457,7 +1459,7 @@
                     </div>`;
             }
             
-            referralCountEl.textContent = `${currentUserData.referralCount || 0} người`;
+            referralCountEl.textContent = `${currentUserData.referralCount || 0}`;
             fetchAndRenderInvitedUsers();
         }
 
@@ -1619,7 +1621,7 @@
             } else if (viewToShow === 'admin' && isLoggedIn && isCurrentUserAdmin()){
                 adminSectionEl.style.display = 'block';
                 navAdmin.classList.add('active');
-                fetchAndRenderAdminUserList();
+                fetchAndRenderAdminUserList(true); // Initial load
             } else { 
                 if (isLoggedIn) {
                     dashboardEl.style.display = 'block';
@@ -2161,6 +2163,7 @@
         checkinButton.addEventListener('click', handleCheckin);
         popupCheckinButton.addEventListener('click', handleCheckin);
         if (adminExpForm) adminExpForm.addEventListener('submit', handleAdminExpUpdate);
+        if (adminLoadMoreBtn) adminLoadMoreBtn.addEventListener('click', () => fetchAndRenderAdminUserList(false));
         referralCodeSubmit.addEventListener('click', handleManualReferralInput);
         referralCodeSubmitHero.addEventListener('click', handleManualReferralInput);
 
