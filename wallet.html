@@ -543,7 +543,7 @@
                     <p class="lead text-secondary col-md-8 mx-auto">Mời bạn bè tham gia và cả hai cùng nhận thưởng. Nhận <strong style="color: var(--accent-secondary);">200 EXP</strong> cho mỗi lượt mời thành công!</p>
                 </div>
                 <div class="row justify-content-center g-4">
-                    <div class="col-lg-7 col-md-9">
+                    <div class="col-lg-6 col-md-8">
                         <div class="card-glass mb-4">
                             <h5 class="card-title"><i class="fas fa-link me-2"></i>Link Mời Của Bạn</h5>
                             <div id="referral-links-container">
@@ -684,8 +684,10 @@
         const REFERRAL_SESSION_KEY = 'neuralisReferralCode';
         
         // --- CONFIGURATION ---
-        const YOUR_TELEGRAM_BOT_NAME = "BmassK3_bot"; // IMPORTANT: Replace with your bot name
-        const YOUR_WEB_APP_URL = "https://bmass.vercel.app/"; // IMPORTANT: Replace with your web app's base URL
+        // IMPORTANT: Replace with your actual bot username and mini app name
+        const YOUR_TELEGRAM_BOT_NAME = "your_bot_name_here"; 
+        const YOUR_MINI_APP_NAME = "your_app_name_here"; // The app name you set in BotFather
+        const YOUR_WEB_APP_URL = "https://your-domain.com/wallet.html"; // The full URL to this HTML file
         
         // Admin Credentials
         const ADMIN_ADDRESS = '0:eef2fc994996c062f45143f8d6e3fd048811a26c01aaef6c126636164663401a';
@@ -1287,7 +1289,7 @@
             let linksHtml = '';
             let codesHtml = '';
 
-            const webLink = `${YOUR_WEB_APP_URL}#dashboard?ref=${currentUserData.address}`;
+            const webLink = `${YOUR_WEB_APP_URL}?ref=${currentUserData.address}`;
             linksHtml += `
                 <div class="mb-3">
                     <label class="form-label small text-secondary">Link mời cho Web:</label>
@@ -1306,10 +1308,10 @@
                 </div>`;
             
             if (currentUserData.telegramId) {
-                const miniAppLink = `https://t.me/${YOUR_TELEGRAM_BOT_NAME}?start=${currentUserData.telegramId}`;
+                const miniAppLink = `https://t.me/${YOUR_TELEGRAM_BOT_NAME}/${YOUR_MINI_APP_NAME}?startapp=${currentUserData.telegramId}`;
                  linksHtml += `
                     <div class="mb-2">
-                        <label class="form-label small text-secondary">Link mời cho Mini App:</label>
+                        <label class="form-label small text-secondary">Link mời cho Mini App (Mở trực tiếp):</label>
                         <div class="input-group">
                             <input type="text" class="form-control" value="${miniAppLink}" readonly>
                             <button class="btn btn-outline-secondary copyable-code" data-code="${miniAppLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
@@ -1346,7 +1348,7 @@
                         appLogoImg.style.borderRadius = '50%';
                         appLogoText.textContent = `@${telegramUserData.username}` || telegramUserData.first_name || 'Telegram User';
                         
-                        // Capture referral code from start_param
+                        // Capture referral code from start_param (startapp)
                         if (tg.initDataUnsafe.start_param) {
                             console.log("Referral code found in start_param:", tg.initDataUnsafe.start_param);
                             sessionStorage.setItem(REFERRAL_SESSION_KEY, tg.initDataUnsafe.start_param);
@@ -1382,17 +1384,17 @@
         
         function captureWebReferral() {
             try {
-                 const params = new URLSearchParams(window.location.hash.split('?')[1]);
+                 const params = new URLSearchParams(window.location.search);
                  const refCode = params.get('ref');
                  if (refCode) {
-                    console.log("Referral code found in URL hash:", refCode);
+                    console.log("Referral code found in URL:", refCode);
                     sessionStorage.setItem(REFERRAL_SESSION_KEY, refCode);
-                    // Clean the URL
-                    const newUrl = window.location.pathname + window.location.hash.split('?')[0];
+                    // Clean the URL to remove the ref parameter after capturing it
+                    const newUrl = window.location.pathname + window.location.hash;
                     history.replaceState(null, '', newUrl);
                  }
             } catch(e) {
-                // Do nothing if hash is invalid
+                 console.error("Error capturing web referral:", e);
             }
         }
 
@@ -1501,19 +1503,19 @@
         };
         
         const handleRouteChange = () => {
-            const hash = window.location.hash.substring(1) || 'dashboard';
+            let hash = window.location.hash.substring(1) || 'dashboard';
             const [path, queryString] = hash.split('?');
             
             if (!connectedWalletAddress && ['task', 'account', 'admin', 'referral'].includes(path)) {
                 showAppToast('Yêu cầu kết nối ví', 'Tính năng này yêu cầu kết nối ví.', 'warning');
                 window.location.hash = '#dashboard';
-                return;
+                hash = 'dashboard'; 
             }
             
             if (path === 'admin' && !isCurrentUserAdmin()){
                  showAppToast('Từ chối truy cập', 'Bạn không có quyền truy cập trang này.', 'error');
                  window.location.hash = '#dashboard';
-                 return;
+                 hash = 'dashboard'; 
             }
 
             switchView(path);
