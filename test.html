@@ -1,32 +1,4 @@
-Chắc chắn rồi. Đây là một tính năng bảo mật nâng cao và rất thú vị. Để triển khai xác thực sinh trắc học (Touch ID/Face ID) với thời gian chờ 5 phút, chúng ta sẽ sử dụng **Web Authentication API (WebAuthn)**, một tiêu chuẩn web hiện đại cho phép các trang web yêu cầu xác thực an toàn.
-
-**Quan trọng:** Việc triển khai WebAuthn đầy đủ và an toàn đòi hỏi cả logic phía client (trình duyệt) và phía server (máy chủ). Trong ví dụ này, tôi sẽ mô phỏng các hoạt động phía máy chủ bằng cách sử dụng Firestore để lưu trữ thông tin xác thực, nhưng tôi sẽ ghi chú rõ những phần nào cần được xử lý trên một máy chủ thực sự trong một ứng dụng sản xuất để đảm bảo an toàn.
-
-Dưới đây là mã đã được cập nhật với các thay đổi:
-
-### Các thay đổi chính:
-
-1.  **Giao diện người dùng trong trang Account:**
-    *   Một mục mới có tên "Bảo mật sinh trắc học" được thêm vào trang "Tài khoản".
-    *   Người dùng có thể bấm vào nút "Bật Face ID/Touch ID" để đăng ký thiết bị của họ.
-    *   Trạng thái sẽ hiển thị là "Đã bật" hoặc "Chưa bật".
-
-2.  **Màn hình khóa (Lock Screen):**
-    *   Một lớp phủ toàn màn hình sẽ xuất hiện khi người dùng mở ứng dụng hoặc quay lại ứng dụng sau 5 phút không hoạt động.
-    *   Lớp phủ này yêu cầu người dùng xác thực bằng sinh trắc học để tiếp tục.
-
-3.  **Luồng hoạt động:**
-    *   **Đăng ký:** Khi người dùng bật tính năng này lần đầu, trình duyệt sẽ yêu cầu họ xác thực bằng Touch ID/Face ID. Một cặp khóa công khai/riêng tư được tạo ra. Khóa riêng tư được lưu trữ an toàn trên thiết bị và không bao giờ rời đi. Khóa công khai được gửi đến Firestore để lưu lại.
-    *   **Xác thực:** Mỗi khi cần xác thực, một "thử thách" (challenge) ngẫu nhiên sẽ được tạo ra. Trình duyệt yêu cầu người dùng ký vào thử thách này bằng khóa riêng tư của họ (đây là lúc màn hình Touch ID/Face ID hiện lên). Kết quả sẽ được gửi đi để xác minh.
-    *   **Thời gian chờ 5 phút:** Ứng dụng sẽ sử dụng `localStorage` để ghi lại dấu thời gian (timestamp) của lần xác thực thành công cuối cùng. Nếu thời gian hiện tại lớn hơn dấu thời gian đó cộng với 5 phút, màn hình khóa sẽ được kích hoạt.
-
----
-
-### Mã nguồn HTML, CSS, và JavaScript đầy đủ
-
-Đây là mã nguồn hoàn chỉnh. Bạn có thể thay thế toàn bộ tệp của mình.
-
-```html
+l
 <!DOCTYPE html>
 <html lang="vi">
 <head>
