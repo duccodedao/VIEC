@@ -697,22 +697,22 @@
                             <!-- Allocation Rules Card -->
                             <div class="col-12 col-md-10 col-lg-8">
                                 <div class="card-glass p-4">
-                                <h5 class="card-title text-center">Tỷ Lệ Tính Điểm</h5>
-                                <p class="text-center text-secondary">Điểm Airdrop cuối cùng của bạn được tính dựa trên công thức và các hoạt động sau.</p>
+                                <h5 class="card-title text-center">Cơ Chế Tính Điểm</h5>
+                                <p class="text-center text-secondary">Điểm Airdrop cuối cùng được tính bằng cách nhân số lượng hoạt động của bạn với các hệ số điểm tương ứng do quản trị viên thiết lập.</p>
                                 <div class="row text-center mt-4">
-                                    <div class="col-4">
-                                        <h3 class="fw-bold" style="color: var(--accent-primary);">50%</h3>
-                                        <p class="text-secondary mb-0">từ<br/><strong>Lượt Mời (Ref)</strong></p>
-                                    </div>
-                                    <div class="col-4">
-                                        <h3 class="fw-bold" style="color: var(--accent-secondary);">30%</h3>
-                                        <p class="text-secondary mb-0">từ<br/><strong>Lượt Check-in</strong></p>
-                                    </div>
-                                    <div class="col-4">
-                                            <h3 class="fw-bold" style="color: var(--gold);">20%</h3>
-                                        <p class="text-secondary mb-0">từ<br/><strong>Điểm EXP</strong></p>
-                                    </div>
-                                </div>
+                                   <div class="col-4">
+                                        <i class="fas fa-users airdrop-stat-icon" style="color:var(--accent-primary)"></i>
+                                        <p class="text-secondary mb-0"><strong>Lượt Mời</strong></p>
+                                   </div>
+                                   <div class="col-4">
+                                       <i class="fas fa-calendar-check airdrop-stat-icon"></i>
+                                       <p class="text-secondary mb-0"><strong>Lượt Check-in</strong></p>
+                                   </div>
+                                   <div class="col-4">
+                                        <i class="fas fa-star airdrop-stat-icon" style="color:var(--gold)"></i>
+                                       <p class="text-secondary mb-0"><strong>Điểm EXP</strong></p>
+                                   </div>
+                               </div>
                                 </div>
                             </div>
 
@@ -840,6 +840,26 @@
                                         <label class="form-check-label" for="claim-enabled-switch">Cho phép Claim</label>
                                     </div>
                                 </div>
+
+                                <hr style="border-color: var(--border-color); opacity: 0.5;">
+                                <h6 class="text-secondary text-center my-3">CÔNG THỨC TÍNH ĐIỂM</h6>
+                                <div class="row g-3 mb-4">
+                                     <div class="col-md-4">
+                                        <label for="ref-multiplier-input" class="form-label">Điểm mỗi Lượt mời</label>
+                                        <input type="number" class="form-control" id="ref-multiplier-input" value="50" min="0">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="checkin-multiplier-input" class="form-label">Điểm mỗi Check-in</label>
+                                        <input type="number" class="form-control" id="checkin-multiplier-input" value="30" min="0">
+                                    </div>
+                                     <div class="col-md-4">
+                                        <label for="exp-multiplier-input" class="form-label">Điểm mỗi EXP</label>
+                                        <input type="number" class="form-control" id="exp-multiplier-input" value="20" min="0">
+                                    </div>
+                                </div>
+
+                                <hr style="border-color: var(--border-color); opacity: 0.5;">
+                                <h6 class="text-secondary text-center my-3">ĐIỀU KIỆN TỐI THIỂU</h6>
                                 <div class="row g-3">
                                     <div class="col-md-4">
                                         <label for="min-checkins-input" class="form-label">Tối thiểu Check-in</label>
@@ -1072,12 +1092,17 @@
         }
 
         // --- Unified Airdrop Calculation Function ---
-        function calculateViecReward(user) {
-            if (!user) return 0;
+        function calculateViecReward(user, settings) {
+            if (!user || !settings) return 0;
             const refCount = user.referralCount || 0;
             const checkinCount = user.checkinCount || 0;
             const expCount = user.points || 0;
-            return (refCount * 50) + (checkinCount * 30) + (expCount * 20);
+            
+            const refMultiplier = settings.refMultiplier ?? 50;
+            const checkinMultiplier = settings.checkinMultiplier ?? 30;
+            const expMultiplier = settings.expMultiplier ?? 20;
+
+            return (refCount * refMultiplier) + (checkinCount * checkinMultiplier) + (expCount * expMultiplier);
         }
 
         async function loadOrCreateUserByAddress(address) {
@@ -1448,6 +1473,7 @@
             }
             
             try {
+                const settings = await fetchAirdropSettings(); // Fetch settings once
                 let query = db.collection('users').orderBy('createdAt', 'desc').limit(ADMIN_USERS_PER_PAGE);
 
                 if (!isInitialLoad && lastVisibleAdminUser) {
@@ -1470,7 +1496,7 @@
                     const displayName = user.fullName || (user.username ? `@${user.username}` : 'N/A');
                     const avatarUrl = user.photoUrl || GENERIC_WALLET_ICON;
                     const joinDate = user.createdAt ? user.createdAt.toDate().toLocaleDateString('vi-VN') : 'N/A';
-                    const viecReward = calculateViecReward(user);
+                    const viecReward = calculateViecReward(user, settings); // Use the unified function
                     
                     const row = tableBody.insertRow();
                     row.innerHTML = `
@@ -1737,14 +1763,17 @@
                         isClaimingEnabled: false,
                         minCheckins: 0, 
                         minReferrals: 0, 
-                        minExp: 0 
+                        minExp: 0,
+                        refMultiplier: 50,
+                        checkinMultiplier: 30,
+                        expMultiplier: 20
                     };
                 }
                 return airdropSettings;
             } catch (error) {
                 console.error("Error fetching airdrop settings:", error);
                 // Fallback to default on error
-                return { isAirdropLive: false, isClaimingEnabled: false, minCheckins: 0, minReferrals: 0, minExp: 0 };
+                return { isAirdropLive: false, isClaimingEnabled: false, minCheckins: 0, minReferrals: 0, minExp: 0, refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 20 };
             }
         }
 
@@ -1779,7 +1808,7 @@
                 return;
             }
 
-            const reward = calculateViecReward(currentUserData);
+            const reward = calculateViecReward(currentUserData, settings);
             const isEligible = (currentUserData.referralCount || 0) >= settings.minReferrals &&
                                (currentUserData.checkinCount || 0) >= settings.minCheckins &&
                                (currentUserData.points || 0) >= settings.minExp;
@@ -2019,6 +2048,9 @@
                      document.getElementById('min-checkins-input').value = settings.minCheckins || 0;
                      document.getElementById('min-referrals-input').value = settings.minReferrals || 0;
                      document.getElementById('min-exp-input').value = settings.minExp || 0;
+                     document.getElementById('ref-multiplier-input').value = settings.refMultiplier ?? 50;
+                     document.getElementById('checkin-multiplier-input').value = settings.checkinMultiplier ?? 30;
+                     document.getElementById('exp-multiplier-input').value = settings.expMultiplier ?? 20;
                 });
             } else { 
                 if (isLoggedIn) {
@@ -2560,8 +2592,11 @@
             const minCheckins = parseInt(document.getElementById('min-checkins-input').value, 10);
             const minReferrals = parseInt(document.getElementById('min-referrals-input').value, 10);
             const minExp = parseInt(document.getElementById('min-exp-input').value, 10);
+            const refMultiplier = parseFloat(document.getElementById('ref-multiplier-input').value) || 0;
+            const checkinMultiplier = parseFloat(document.getElementById('checkin-multiplier-input').value) || 0;
+            const expMultiplier = parseFloat(document.getElementById('exp-multiplier-input').value) || 0;
 
-            if (isNaN(minCheckins) || isNaN(minReferrals) || isNaN(minExp)) {
+            if (isNaN(minCheckins) || isNaN(minReferrals) || isNaN(minExp) || isNaN(refMultiplier) || isNaN(checkinMultiplier) || isNaN(expMultiplier)) {
                 showAppToast('Lỗi', 'Vui lòng nhập giá trị số hợp lệ.', 'error');
                 return;
             }
@@ -2571,7 +2606,7 @@
 
             try {
                 const settingsRef = db.collection('admin_settings').doc('airdrop_criteria');
-                const newSettings = { isAirdropLive, isClaimingEnabled, minCheckins, minReferrals, minExp };
+                const newSettings = { isAirdropLive, isClaimingEnabled, minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier };
                 await settingsRef.set(newSettings);
                 airdropSettings = newSettings; // Update local cache
                 adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
@@ -2591,7 +2626,7 @@
             adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang chuẩn bị dữ liệu...`;
             
             try {
-                const criteria = await fetchAirdropSettings();
+                const settings = await fetchAirdropSettings();
                 const eligibleUsers = [];
                 let lastVisible = null;
 
@@ -2609,12 +2644,12 @@
                     snapshot.forEach(doc => {
                         const user = doc.data();
                         
-                        const isEligible = (user.referralCount || 0) >= criteria.minReferrals &&
-                                           (user.checkinCount || 0) >= criteria.minCheckins &&
-                                           (user.points || 0) >= criteria.minExp;
+                        const isEligible = (user.referralCount || 0) >= settings.minReferrals &&
+                                           (user.checkinCount || 0) >= settings.minCheckins &&
+                                           (user.points || 0) >= settings.minExp;
                         
                         if (isEligible) {
-                            const reward = calculateViecReward(user);
+                            const reward = calculateViecReward(user, settings);
                             eligibleUsers.push({ address: user.address, reward: reward });
                         }
                     });
