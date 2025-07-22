@@ -306,7 +306,7 @@
              color: var(--accent-secondary);
         }
 
-        /* --- NEW: Admin Table Styles --- */
+        /* Admin Table Styles */
         #admin-section .table {
             --bs-table-bg: transparent;
             --bs-table-border-color: var(--border-color);
@@ -353,7 +353,39 @@
             background-color: var(--accent-secondary);
             color: white;
         }
-        /* --- End of Admin Table Styles --- */
+
+        /* Airdrop Page Styles */
+        .airdrop-stat-card {
+            background: linear-gradient(135deg, rgba(145, 94, 255, 0.1), rgba(43, 203, 196, 0.1));
+            padding: 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+        }
+        .airdrop-stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent-secondary);
+        }
+        .airdrop-stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        .airdrop-stat-label {
+            color: var(--text-secondary);
+        }
+        #airdrop-reward-card {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            padding: 2rem;
+        }
+        #airdrop-reward-logo {
+            width: 32px;
+            height: 32px;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        #airdrop-eligibility-status.eligible { color: var(--color-verified); }
+        #airdrop-eligibility-status.ineligible { color: var(--color-out); }
 
 
         /* Responsive Adjustments */
@@ -372,6 +404,7 @@
             <a href="#apps" class="sidebar-link" id="nav-apps">Apps</a>
             <a href="#task" class="sidebar-link" id="nav-task">Task</a>
             <a href="#referral" class="sidebar-link" id="nav-referral">Giới thiệu</a>
+            <a href="#airdrop" class="sidebar-link" id="nav-airdrop">Airdrop</a>
             <a href="#leaderboard" class="sidebar-link" id="nav-leaderboard">Leaderboard</a>
             <a href="#account" class="sidebar-link" id="nav-account">Account</a>
             <a href="#admin" class="sidebar-link" id="nav-admin" style="display: none;">Admin</a>
@@ -621,6 +654,97 @@
                 </div>
             </div>
         </main>
+
+        <main id="airdrop-section" style="display: none;">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h1 class="mb-2" style="font-weight: 700;">Airdrop Token VIEC</h1>
+                    <p class="lead text-secondary col-md-8 mx-auto">Phần thưởng token VIEC sẽ được phân bổ dựa trên mức độ hoạt động tích cực của bạn. Tích lũy càng nhiều, phần thưởng càng lớn!</p>
+                </div>
+                
+                <div id="airdrop-content-loading" class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+
+                <div id="airdrop-content-logged-in" style="display: none;">
+                    <div class="row justify-content-center g-4">
+                         <!-- Allocation Rules Card -->
+                        <div class="col-12 col-md-10 col-lg-8">
+                            <div class="card-glass p-4">
+                               <h5 class="card-title text-center">Tỷ Lệ Tính Điểm</h5>
+                               <p class="text-center text-secondary">Điểm Airdrop cuối cùng của bạn được tính dựa trên công thức và các hoạt động sau.</p>
+                               <div class="row text-center mt-4">
+                                   <div class="col-4">
+                                       <h3 class="fw-bold" style="color: var(--accent-primary);">50%</h3>
+                                       <p class="text-secondary mb-0">từ<br/><strong>Lượt Mời (Ref)</strong></p>
+                                   </div>
+                                   <div class="col-4">
+                                       <h3 class="fw-bold" style="color: var(--accent-secondary);">30%</h3>
+                                       <p class="text-secondary mb-0">từ<br/><strong>Lượt Check-in</strong></p>
+                                   </div>
+                                   <div class="col-4">
+                                        <h3 class="fw-bold" style="color: var(--gold);">20%</h3>
+                                       <p class="text-secondary mb-0">từ<br/><strong>Điểm EXP</strong></p>
+                                   </div>
+                               </div>
+                            </div>
+                        </div>
+
+                        <!-- User Stats -->
+                        <div class="col-12 col-md-10 col-lg-8">
+                             <h5 class="card-title text-center mt-4">Thống Kê Của Bạn</h5>
+                        </div>
+                        <div class="col-12 col-md-10 col-lg-8">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="airdrop-stat-card">
+                                        <i class="fas fa-users airdrop-stat-icon"></i>
+                                        <div id="airdrop-ref-count" class="airdrop-stat-value">0</div>
+                                        <div class="airdrop-stat-label">Lượt mời</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="airdrop-stat-card">
+                                        <i class="fas fa-calendar-check airdrop-stat-icon"></i>
+                                        <div id="airdrop-checkin-count" class="airdrop-stat-value">0</div>
+                                        <div class="airdrop-stat-label">Lần Check-in</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="airdrop-stat-card">
+                                        <i class="fas fa-star airdrop-stat-icon" style="color: var(--gold)"></i>
+                                        <div id="airdrop-exp-count" class="airdrop-stat-value">0</div>
+                                        <div class="airdrop-stat-label">Điểm EXP</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Total Reward & Eligibility -->
+                        <div class="col-12 col-md-10 col-lg-8 mt-4">
+                             <div id="airdrop-reward-card" class="card-glass text-center">
+                                 <h6 class="text-white-50">PHẦN THƯỞNG VIEC CỦA BẠN</h6>
+                                 <div class="d-flex justify-content-center align-items-center">
+                                    <h2 id="airdrop-reward-value" class="fw-bold display-4 mb-0">0</h2>
+                                    <img src="https://duccodedao.github.io/VIEC/img/logo.png" id="airdrop-reward-logo" alt="VIEC Token">
+                                 </div>
+                                 <p id="airdrop-eligibility-status" class="fw-bold mt-2 mb-0 fs-5"></p>
+                             </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div id="airdrop-content-logged-out" class="text-center p-5 card-glass col-md-8 mx-auto" style="display: none;">
+                    <i class="fas fa-wallet fa-3x text-secondary mb-3"></i>
+                    <h4 class="text-secondary">Vui lòng kết nối ví</h4>
+                    <p class="text-secondary">Kết nối ví của bạn để xem thống kê và tính toán phần thưởng airdrop tiềm năng.</p>
+                </div>
+
+            </div>
+        </main>
         
         <main id="leaderboard-section" style="display: none;">
             <div class="container">
@@ -636,7 +760,7 @@
             <div class="container">
                 <div class="text-center mb-5">
                     <h1 class="mb-2" style="font-weight: 700;">Admin Panel</h1>
-                    <p class="lead text-secondary col-md-8 mx-auto">Công cụ quản lý EXP và người dùng.</p>
+                    <p class="lead text-secondary col-md-8 mx-auto">Công cụ quản lý người dùng và sự kiện.</p>
                 </div>
                 <div class="row justify-content-center g-4">
                     <div class="col-12 col-lg-10 col-xl-8">
@@ -663,7 +787,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="admin-exp-amount" class="form-label">Số lượng EXP</label>
-                                    <input type="number" class="form-control" id="admin-exp-amount" placeholder="e.g., 100" required min="0">
+                                    <input type="number" class="form-control" id="admin-exp-amount" placeholder="e.g., 100" required min="1">
                                 </div>
                                 <div class="mb-3">
                                     <label for="admin-task-name" class="form-label">Lý do (Task Name)</label>
@@ -675,6 +799,34 @@
                             </form>
                         </div>
                     </div>
+
+                    <div class="col-12 col-lg-10 col-xl-8">
+                        <div class="card-glass">
+                            <h5 class="card-title">Cấu hình Airdrop & Xuất dữ liệu</h5>
+                            <form id="admin-airdrop-settings-form">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label for="min-checkins-input" class="form-label">Tối thiểu Check-in</label>
+                                        <input type="number" class="form-control" id="min-checkins-input" value="0" min="0">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="min-referrals-input" class="form-label">Tối thiểu Lượt mời</label>
+                                        <input type="number" class="form-control" id="min-referrals-input" value="0" min="0">
+                                    </div>
+                                     <div class="col-md-4">
+                                        <label for="min-exp-input" class="form-label">Tối thiểu EXP</label>
+                                        <input type="number" class="form-control" id="min-exp-input" value="0" min="0">
+                                    </div>
+                                </div>
+                                <div id="admin-settings-status" class="mt-3"></div>
+                                <div class="d-flex gap-3 mt-3">
+                                    <button type="button" id="save-settings-btn" class="btn w-100" style="background-color: var(--accent-secondary); color: white;">Lưu Cài Đặt</button>
+                                    <button type="button" id="export-csv-btn" class="btn btn-outline-light w-100">Xuất File Excel (CSV)</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
                     <div class="col-12">
                         <div class="card-glass">
                             <h5 class="card-title">Danh sách Người dùng</h5>
@@ -773,6 +925,7 @@
         const navApps = document.getElementById('nav-apps');
         const navTask = document.getElementById('nav-task');
         const navReferral = document.getElementById('nav-referral');
+        const navAirdrop = document.getElementById('nav-airdrop');
         const navLeaderboard = document.getElementById('nav-leaderboard');
         const navAccount = document.getElementById('nav-account'); 
         const navAdmin = document.getElementById('nav-admin');
@@ -793,6 +946,7 @@
         const leaderboardSectionEl = document.getElementById('leaderboard-section');
         const adminSectionEl = document.getElementById('admin-section');
         const referralSectionEl = document.getElementById('referral-section');
+        const airdropSectionEl = document.getElementById('airdrop-section');
         const appGrid = document.getElementById('app-grid');
         const appSearchInput = document.getElementById('app-search-input');
         const appSearchButton = document.getElementById('app-search-button');
@@ -821,6 +975,9 @@
         const referralInputContainerHero = document.getElementById('referral-input-container-hero');
         const referralCodeInputHero = document.getElementById('referral-code-input-hero');
         const referralCodeSubmitHero = document.getElementById('referral-code-submit-hero');
+        const saveSettingsBtn = document.getElementById('save-settings-btn');
+        const exportCsvBtn = document.getElementById('export-csv-btn');
+        const adminSettingsStatusEl = document.getElementById('admin-settings-status');
 
 
         const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo_viewc.png';
@@ -830,6 +987,7 @@
         let telegramUserData = null;
         let connectedWalletAddress = null; // Raw address from wallet
         let currentUserData = null; // Full user profile from Firestore
+        let airdropCriteria = null;
         let lastFetchedAddress = null;
         let currentActivityLogs = [];
         let activityRefreshInterval = null;
@@ -889,6 +1047,7 @@
                     address: address,
                     points: 0,
                     lastCheckin: null,
+                    checkinCount: 0,
                     referralCount: 0,
                     referredBy: null,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1092,7 +1251,8 @@
                     const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
                     transaction.update(userRef, {
                         points: newPoints,
-                        lastCheckin: newTimestamp
+                        lastCheckin: newTimestamp,
+                        checkinCount: firebase.firestore.FieldValue.increment(1) // Increment checkin count
                     });
                     
                     const historyRef = userRef.collection('task_history').doc();
@@ -1512,6 +1672,71 @@
             fetchAndRenderInvitedUsers();
         }
 
+        async function fetchAirdropSettings() {
+            if (airdropCriteria) return airdropCriteria; // Return cached if available
+            try {
+                const docRef = db.collection('admin_settings').doc('airdrop_criteria');
+                const doc = await docRef.get();
+                if (doc.exists) {
+                    airdropCriteria = doc.data();
+                } else {
+                     // Default criteria if not set by admin
+                    airdropCriteria = { minCheckins: 0, minReferrals: 0, minExp: 0 };
+                }
+                return airdropCriteria;
+            } catch (error) {
+                console.error("Error fetching airdrop settings:", error);
+                // Fallback to default on error
+                return { minCheckins: 0, minReferrals: 0, minExp: 0 };
+            }
+        }
+
+        async function renderAirdropSection() {
+            const loadingEl = document.getElementById('airdrop-content-loading');
+            const loggedInContent = document.getElementById('airdrop-content-logged-in');
+            const loggedOutContent = document.getElementById('airdrop-content-logged-out');
+
+            loadingEl.style.display = 'block';
+            loggedInContent.style.display = 'none';
+            loggedOutContent.style.display = 'none';
+
+            if (!currentUserData) {
+                loadingEl.style.display = 'none';
+                loggedOutContent.style.display = 'block';
+                return;
+            }
+
+            const criteria = await fetchAirdropSettings();
+
+            const refCount = currentUserData.referralCount || 0;
+            const checkinCount = currentUserData.checkinCount || 0;
+            const expCount = currentUserData.points || 0;
+            
+            const reward = (refCount * 50) + (checkinCount * 30) + (expCount * 20);
+
+            // Check eligibility
+            const isEligible = refCount >= criteria.minReferrals &&
+                               checkinCount >= criteria.minCheckins &&
+                               expCount >= criteria.minExp;
+
+            document.getElementById('airdrop-ref-count').textContent = refCount.toLocaleString();
+            document.getElementById('airdrop-checkin-count').textContent = checkinCount.toLocaleString();
+            document.getElementById('airdrop-exp-count').textContent = expCount.toLocaleString();
+            document.getElementById('airdrop-reward-value').textContent = reward.toLocaleString();
+
+            const eligibilityStatusEl = document.getElementById('airdrop-eligibility-status');
+            if (isEligible) {
+                eligibilityStatusEl.textContent = 'BẠN ĐỦ ĐIỀU KIỆN';
+                eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
+            } else {
+                eligibilityStatusEl.textContent = 'BẠN CHƯA ĐỦ ĐIỀU KIỆN';
+                eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
+            }
+            
+            loadingEl.style.display = 'none';
+            loggedInContent.style.display = 'block';
+        }
+
         function identifyTelegramUser() {
             try {
                  if (window.Telegram && window.Telegram.WebApp) {
@@ -1643,13 +1868,13 @@
         // --- UI & Navigation ---
         
         const switchView = (viewToShow) => {
-            [dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl, accountSectionEl, leaderboardSectionEl, adminSectionEl, referralSectionEl].forEach(section => {
+            [dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl, accountSectionEl, leaderboardSectionEl, adminSectionEl, referralSectionEl, airdropSectionEl].forEach(section => {
                 if(section) section.style.display = 'none';
             });
-            [navDashboard, navApps, navTask, navLeaderboard, navAccount, navAdmin, navReferral].forEach(nav => nav.classList.remove('active'));
+            [navDashboard, navApps, navTask, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(nav => nav.classList.remove('active'));
 
             const isLoggedIn = !!connectedWalletAddress;
-            [navTask, navAccount, navReferral].forEach(nav => nav.style.display = isLoggedIn ? 'block' : 'none');
+            [navTask, navAccount, navReferral, navAirdrop].forEach(nav => nav.style.display = isLoggedIn ? 'block' : 'none');
 
             if (viewToShow === 'account' && isLoggedIn) {
                 accountSectionEl.style.display = 'block';
@@ -1663,6 +1888,10 @@
             } else if (viewToShow === 'referral' && isLoggedIn) {
                 referralSectionEl.style.display = 'block';
                 navReferral.classList.add('active');
+            } else if (viewToShow === 'airdrop') { // Handles both logged in and out states
+                airdropSectionEl.style.display = 'block';
+                navAirdrop.classList.add('active');
+                renderAirdropSection(); // Will handle logged in/out display internally
             } else if (viewToShow === 'leaderboard') {
                 leaderboardSectionEl.style.display = 'block';
                 navLeaderboard.classList.add('active');
@@ -1671,6 +1900,11 @@
                 adminSectionEl.style.display = 'block';
                 navAdmin.classList.add('active');
                 fetchAndRenderAdminUserList(true); // Initial load
+                fetchAirdropSettings().then(criteria => { // Fetch and display admin settings
+                     document.getElementById('min-checkins-input').value = criteria.minCheckins || 0;
+                     document.getElementById('min-referrals-input').value = criteria.minReferrals || 0;
+                     document.getElementById('min-exp-input').value = criteria.minExp || 0;
+                });
             } else { 
                 if (isLoggedIn) {
                     dashboardEl.style.display = 'block';
@@ -1688,9 +1922,9 @@
             const [path, queryString] = hash.split('?');
             
             if (!connectedWalletAddress && ['task', 'account', 'admin', 'referral'].includes(path)) {
-                showAppToast('Yêu cầu kết nối ví', 'Tính năng này yêu cầu kết nối ví.', 'warning');
-                window.location.hash = '#dashboard';
-                hash = 'dashboard'; 
+                 showAppToast('Yêu cầu kết nối ví', 'Tính năng này yêu cầu kết nối ví.', 'warning');
+                 window.location.hash = '#dashboard';
+                 hash = 'dashboard';
             }
             
             if (path === 'admin' && !isCurrentUserAdmin()){
@@ -2203,6 +2437,111 @@
             sidebarOverlay.classList.toggle('open');
         };
 
+        async function saveAirdropSettings() {
+            const minCheckins = parseInt(document.getElementById('min-checkins-input').value, 10);
+            const minReferrals = parseInt(document.getElementById('min-referrals-input').value, 10);
+            const minExp = parseInt(document.getElementById('min-exp-input').value, 10);
+
+            if (isNaN(minCheckins) || isNaN(minReferrals) || isNaN(minExp)) {
+                showAppToast('Lỗi', 'Vui lòng nhập giá trị số hợp lệ.', 'error');
+                return;
+            }
+            
+            saveSettingsBtn.disabled = true;
+            adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
+
+            try {
+                const settingsRef = db.collection('admin_settings').doc('airdrop_criteria');
+                await settingsRef.set({ minCheckins, minReferrals, minExp });
+                airdropCriteria = { minCheckins, minReferrals, minExp }; // Update cache
+                adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
+                showAppToast('Thành công', 'Đã lưu cài đặt Airdrop.', 'success');
+            } catch (error) {
+                console.error("Error saving airdrop settings:", error);
+                adminSettingsStatusEl.innerHTML = `<span class="text-danger">Lưu thất bại.</span>`;
+                showAppToast('Lỗi', 'Không thể lưu cài đặt.', 'error');
+            } finally {
+                saveSettingsBtn.disabled = false;
+                 setTimeout(() => { adminSettingsStatusEl.innerHTML = ''; }, 3000);
+            }
+        }
+
+        async function exportAirdropData() {
+            exportCsvBtn.disabled = true;
+            adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang chuẩn bị dữ liệu...`;
+            
+            try {
+                const criteria = await fetchAirdropSettings();
+                const eligibleUsers = [];
+                let lastVisible = null;
+
+                while (true) {
+                    let query = db.collection('users').orderBy('createdAt').limit(500);
+                    if(lastVisible) {
+                        query = query.startAfter(lastVisible);
+                    }
+                    const snapshot = await query.get();
+                    
+                    if (snapshot.empty) {
+                        break;
+                    }
+
+                    snapshot.forEach(doc => {
+                        const user = doc.data();
+                        const refCount = user.referralCount || 0;
+                        const checkinCount = user.checkinCount || 0;
+                        const expCount = user.points || 0;
+                        
+                        const isEligible = refCount >= criteria.minReferrals &&
+                                           checkinCount >= criteria.minCheckins &&
+                                           expCount >= criteria.minExp;
+                        
+                        if (isEligible) {
+                            const reward = (refCount * 50) + (checkinCount * 30) + (expCount * 20);
+                            eligibleUsers.push({ address: user.address, reward: reward });
+                        }
+                    });
+                    
+                    lastVisible = snapshot.docs[snapshot.docs.length - 1];
+                }
+                
+                adminSettingsStatusEl.innerHTML = `<i class="fas fa-file-csv me-2"></i>Đang tạo file...`;
+                
+                if (eligibleUsers.length === 0) {
+                    showAppToast('Thông báo', 'Không có người dùng nào đủ điều kiện.', 'info');
+                    adminSettingsStatusEl.innerHTML = `<span class="text-warning">Không có ai đủ điều kiện.</span>`;
+                    return;
+                }
+
+                let csvContent = "Address,VIEC_Reward\n";
+                eligibleUsers.forEach(item => {
+                    csvContent += `${item.address},${item.reward}\n`;
+                });
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                const airdropDate = new Date().toISOString().slice(0, 10);
+                link.setAttribute("download", `airdrop-viec-${airdropDate}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                showAppToast('Thành công', `Đã xuất ${eligibleUsers.length} người dùng đủ điều kiện.`, 'success');
+                adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã xuất file thành công!</span>`;
+
+            } catch (error) {
+                console.error("Error exporting airdrop data:", error);
+                showAppToast('Lỗi', 'Không thể xuất dữ liệu.', 'error');
+                adminSettingsStatusEl.innerHTML = `<span class="text-danger">Xuất file thất bại.</span>`;
+            } finally {
+                exportCsvBtn.disabled = false;
+                setTimeout(() => { adminSettingsStatusEl.innerHTML = ''; }, 4000);
+            }
+        }
+
         // --- Event Listeners ---
         hamburgerBtn.addEventListener('click', toggleSidebar);
         sidebarOverlay.addEventListener('click', toggleSidebar);
@@ -2215,6 +2554,8 @@
         if (adminLoadMoreBtn) adminLoadMoreBtn.addEventListener('click', () => fetchAndRenderAdminUserList(false));
         referralCodeSubmit.addEventListener('click', handleManualReferralInput);
         referralCodeSubmitHero.addEventListener('click', handleManualReferralInput);
+        if(saveSettingsBtn) saveSettingsBtn.addEventListener('click', saveAirdropSettings);
+        if(exportCsvBtn) exportCsvBtn.addEventListener('click', exportAirdropData);
 
 
         customWalletButton.addEventListener('click', () => { walletDropdown.style.display = walletDropdown.style.display === 'block' ? 'none' : 'block'; });
@@ -2240,7 +2581,7 @@
             if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none'; 
         });
         
-        [navDashboard, navApps, navTask, navLeaderboard, navAccount, navAdmin, navReferral].forEach(link => link.addEventListener('click', (e) => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
+        [navDashboard, navApps, navTask, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(link => link.addEventListener('click', (e) => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
         appSearchInput.addEventListener('input', () => { renderApps(); const searchTerm = appSearchInput.value.trim(); const newUrl = searchTerm ? `#apps?search=${encodeURIComponent(searchTerm)}` : '#apps'; history.replaceState(null, '', newUrl); });
         appSearchButton.addEventListener('click', renderApps);
         appSearchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') renderApps(); });
