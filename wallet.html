@@ -24,7 +24,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-
     <style>
         :root {
             --bg-color: #050816;
@@ -74,7 +73,7 @@
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         .skeleton-line { height: 20px; margin-bottom: 10px; }
         
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
@@ -306,6 +305,56 @@
              border-color: var(--border-color);
              color: var(--accent-secondary);
         }
+
+        /* --- NEW: Admin Table Styles --- */
+        #admin-section .table {
+            --bs-table-bg: transparent;
+            --bs-table-border-color: var(--border-color);
+            --bs-table-color: var(--text-primary);
+            --bs-table-hover-bg: rgba(145, 94, 255, 0.1);
+            white-space: nowrap;
+        }
+        #admin-section thead th {
+            color: var(--text-secondary);
+            background-color: rgba(145, 94, 255, 0.05);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+        #admin-section tbody tr {
+            transition: background-color 0.2s ease;
+        }
+        #admin-section tbody td {
+            padding: 0.75rem;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border-color);
+        }
+        #admin-section tbody tr:last-child td {
+            border-bottom: none;
+        }
+        #admin-section tbody img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+        }
+        #admin-section .text-truncate {
+            max-width: 150px;
+        }
+        #admin-load-more-btn {
+            border-color: var(--accent-secondary);
+            color: var(--accent-secondary);
+            font-weight: 600;
+        }
+        #admin-load-more-btn:hover {
+            background-color: var(--accent-secondary);
+            color: white;
+        }
+        /* --- End of Admin Table Styles --- */
+
 
         /* Responsive Adjustments */
         @media (min-width: 768px) {
