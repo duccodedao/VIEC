@@ -37,6 +37,9 @@
             --color-out: #ff6b6b;
             --color-failed: #ffcc00;
             --color-verified: #2ecc71;
+            --gold: #FFD700;
+            --silver: #C0C0C0;
+            --bronze: #CD7F32;
         }
 
         body {
@@ -48,46 +51,10 @@
             animation: gradientBG 15s ease infinite;
             overflow-x: hidden;
             font-size: 16px;
-            /* Add padding to top to avoid content hidden behind the new prompt */
-            padding-top: 60px;
         }
 
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
-        /* NEW: Styles for the Mini App prompt bar */
-        #mini-app-prompt {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background-color: rgba(15, 18, 41, 0.9);
-            backdrop-filter: blur(10px);
-            padding: 10px 15px;
-            z-index: 1200;
-            display: none; /* Hidden by default */
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        #mini-app-prompt p {
-            margin: 0;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-        #mini-app-prompt .btn-open-tg {
-            background-color: #2AABEE;
-            color: white;
-            border: none;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: 500;
-            text-decoration: none;
-            font-size: 0.9rem;
-            flex-shrink: 0;
-        }
-
-
         .main-container { max-width: 1400px; padding: 2rem 1rem; margin: auto; }
         .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 2rem; }
         .header-logo { display: flex; align-items: center; text-decoration: none; color: var(--text-primary); gap: 10px; z-index: 1100; }
@@ -257,33 +224,91 @@
             color: var(--accent-secondary);
         }
 
+        /* NEW: Leaderboard Styles */
+        .leaderboard-container {
+            max-width: 800px;
+            margin: auto;
+        }
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            background: var(--card-color);
+            border: 1px solid var(--border-color);
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            transition: all 0.2s ease;
+        }
+        .leaderboard-item:hover {
+            transform: scale(1.02);
+            border-color: var(--accent-secondary);
+        }
+        .leaderboard-rank {
+            font-size: 1.2rem;
+            font-weight: 700;
+            width: 50px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+        .leaderboard-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+            border: 2px solid var(--border-color);
+        }
+        .leaderboard-name {
+            font-weight: 600;
+            flex-grow: 1;
+        }
+        .leaderboard-exp {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-secondary);
+        }
+        .rank-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+        .rank-1 .rank-icon { color: var(--gold); }
+        .rank-2 .rank-icon { color: var(--silver); }
+        .rank-3 .rank-icon { color: var(--bronze); }
+
+        .leaderboard-item.current-user {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 20px rgba(145, 94, 255, 0.4);
+            transform: scale(1.03);
+        }
+        .top-rank-card {
+            padding-top: 2rem;
+            position: relative;
+        }
+        .top-rank-card .leaderboard-avatar {
+            width: 80px;
+            height: 80px;
+            border-width: 3px;
+        }
+        .top-rank-card.rank-1 { border-color: var(--gold); }
+        .top-rank-card.rank-2 { border-color: var(--silver); }
+        .top-rank-card.rank-3 { border-color: var(--bronze); }
+
+
         @media (min-width: 768px) {
             .hero-section h1, .login-section h1 { font-size: 3.5rem; }
             .card-glass { padding: 2rem; }
         }
         
-        @media (max-width: 576px) {
-            body { padding-top: 80px; } /* More space on small screens for prompt */
-            #mini-app-prompt { flex-direction: column; text-align: center; }
-        }
-
     </style>
 </head>
 <body>
-    <!-- NEW: Mini App Prompt Bar -->
-    <div id="mini-app-prompt">
-        <p>Để có trải nghiệm đầy đủ và nhận thưởng, hãy mở trong Mini App!</p>
-        <a href="https://t.me/bmassk3_bot/BmassK3" target="_blank" rel="noopener noreferrer" class="btn-open-tg">
-            <i class="fab fa-telegram-plane me-1"></i> Mở Ngay
-        </a>
-    </div>
-
     <div id="sidebar-overlay"></div>
     <nav id="sidebar-menu" class="sidebar">
         <div class="sidebar-nav">
             <a href="#dashboard" class="sidebar-link active" id="nav-dashboard">Dashboard</a>
             <a href="#apps" class="sidebar-link" id="nav-apps">Apps</a>
             <a href="#task" class="sidebar-link" id="nav-task">Task</a>
+            <a href="#leaderboard" class="sidebar-link" id="nav-leaderboard">Leaderboard</a> <!-- NEW -->
             <a href="#account" class="sidebar-link" id="nav-account">Account</a>
         </div>
         
@@ -320,23 +345,6 @@
                 </button>
             </div>
         </header>
-
-        <!-- Login Section is no longer used for routing but kept in HTML for the TG link -->
-        <main id="login-section" class="login-section" style="display: none;">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-7 col-md-9">
-                        <div class="card-glass p-4 p-md-5">
-                            <h1 class="mb-3">Join <span class="highlight">Neuralis</span></h1>
-                            <p class="lead text-secondary mb-4">Để tiếp tục, vui lòng mở ứng dụng trực tiếp trong Telegram.</p>
-                            <a href="https://t.me/bmassk3_bot/BmassK3" target="_blank" rel="noopener noreferrer" class="btn btn-lg w-100" style="background-color: #2AABEE; color: white;">
-                                <i class="fab fa-telegram-plane me-2"></i> Mở trong Telegram
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
         
         <main id="account-section" style="display: none;">
             <div class="container">
@@ -487,6 +495,26 @@
                 </div>
             </div>
         </main>
+        
+        <!-- NEW: Leaderboard Section -->
+        <main id="leaderboard-section" style="display: none;">
+            <div class="leaderboard-container">
+                <div class="text-center mb-5">
+                    <h1 class="mb-2" style="font-weight: 700;">Bảng Xếp Hạng</h1>
+                    <p class="lead text-secondary col-md-8 mx-auto">Vinh danh những người dùng tích cực nhất. Hãy tích lũy EXP để leo hạng!</p>
+                </div>
+                
+                <!-- Top 3 Users -->
+                <div id="leaderboard-top-3" class="row justify-content-center g-4 mb-5">
+                    <!-- Top 3 will be dynamically inserted here -->
+                </div>
+                
+                <!-- Rest of the list -->
+                <div id="leaderboard-list">
+                    <!-- Ranks 4+ will be dynamically inserted here -->
+                </div>
+            </div>
+        </main>
     </div>
 
     <div class="modal fade" id="jettonDetailModal" tabindex="-1" aria-labelledby="jettonDetailModalLabel" aria-hidden="true">
@@ -540,7 +568,6 @@
         const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
         const USER_SESSION_KEY = 'neuralisUserSession';
 
-        const loginSectionEl = document.getElementById('login-section');
         const accountSectionEl = document.getElementById('account-section');
         const dashboardEl = document.getElementById('dashboard');
         const heroEl = document.getElementById('hero-section');
@@ -560,7 +587,8 @@
         const navDashboard = document.getElementById('nav-dashboard');
         const navApps = document.getElementById('nav-apps');
         const navTask = document.getElementById('nav-task');
-        const navAccount = document.getElementById('nav-account'); // Changed from navLogin
+        const navLeaderboard = document.getElementById('nav-leaderboard'); // NEW
+        const navAccount = document.getElementById('nav-account'); 
         const tonConnectButtonRoot = document.getElementById('ton-connect-button-root');
         const connectWalletHeroBtnContainer = document.getElementById('connect-wallet-hero-btn-container');
         const customWalletContainer = document.getElementById('custom-wallet-button-container');
@@ -576,6 +604,7 @@
         const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo_viewc.png';
         const appStoreSection = document.getElementById('app-store-section');
         const taskSectionEl = document.getElementById('task-section');
+        const leaderboardSectionEl = document.getElementById('leaderboard-section'); // NEW
         const appGrid = document.getElementById('app-grid');
         const appSearchInput = document.getElementById('app-search-input');
         const appSearchButton = document.getElementById('app-search-button');
@@ -586,7 +615,6 @@
         const portfolioSkeleton = document.getElementById('portfolio-overview-skeleton');
         const totalValueUsdEl = document.getElementById('total-value-usd');
         const totalValueVndEl = document.getElementById('total-value-vnd');
-        const miniAppPrompt = document.getElementById('mini-app-prompt'); // NEW
 
         let telegramUserData = null;
         let connectedWalletAddress = null;
@@ -635,7 +663,7 @@
             }
             db = firebase.firestore();
 
-            const userData = await getOrCreateUser(user.id);
+            const userData = await getOrCreateUser(user.id, user);
             headerExpDisplay.classList.remove('d-none');
             
             updateCheckinUI(userData);
@@ -644,25 +672,42 @@
             checkinButton.addEventListener('click', handleCheckin);
             popupCheckinButton.addEventListener('click', handleCheckin);
         }
-
-        async function getOrCreateUser(userId) {
+        
+        // **UPDATED**: Function now accepts the full user object to save profile info
+        async function getOrCreateUser(userId, user) {
             const userRef = db.collection('users').doc(String(userId));
             const doc = await userRef.get();
+            const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+            const photoUrl = user.photo_url || DEFAULT_LOGO_SRC;
 
             if (!doc.exists) {
+                console.log(`Creating new user profile in Firestore for ID: ${userId}`);
                 const newUser = {
                     id: userId,
-                    username: telegramUserData?.username || 'N/A',
+                    username: user.username || 'N/A',
                     points: 0,
                     lastCheckin: null,
+                    fullName: fullName,
+                    photoUrl: photoUrl,
                 };
                 await userRef.set(newUser);
                 return newUser;
             } else {
-                return doc.data();
+                const data = doc.data();
+                // Update profile info if it's missing or has changed
+                if (data.fullName !== fullName || data.photoUrl !== photoUrl) {
+                    console.log(`Updating profile for ID: ${userId}`);
+                    await userRef.update({
+                        fullName: fullName,
+                        photoUrl: photoUrl
+                    });
+                    // Return updated data
+                    return { ...data, fullName, photoUrl };
+                }
+                return data;
             }
         }
-        
+
         function updateExpBalances(newExp) {
             taskExpBalanceEl.textContent = newExp;
             headerExpBalanceEl.textContent = newExp;
@@ -757,7 +802,7 @@
                 console.error("Check-in failed: ", error);
                 showAppToast('Thất bại', 'Đã có lỗi xảy ra. Vui lòng thử lại.', 'error');
             } finally {
-                const updatedUserData = await getOrCreateUser(userId);
+                const updatedUserData = await getOrCreateUser(userId, telegramUserData);
                 updateCheckinUI(updatedUserData);
                 await fetchTaskHistory();
                 popupCheckinButton.disabled = false;
@@ -801,6 +846,70 @@
             }
         }
 
+        // NEW: Function to fetch and render the leaderboard
+        async function fetchAndRenderLeaderboard() {
+            const top3Container = document.getElementById('leaderboard-top-3');
+            const listContainer = document.getElementById('leaderboard-list');
+            const skeletonItem = `<div class="leaderboard-item"><div class="skeleton-loader leaderboard-rank" style="height: 24px; width: 40px; border-radius: 8px;"></div><img class="skeleton-loader leaderboard-avatar"><div class="flex-grow-1"><div class="skeleton-loader skeleton-line w-50"></div></div><div class="skeleton-loader skeleton-line" style="width: 80px;"></div></div>`;
+            top3Container.innerHTML = '';
+            listContainer.innerHTML = skeletonItem.repeat(5);
+
+            if (!db) {
+                // Initialize Firebase if it hasn't been already (for guests)
+                const firebaseConfig = { apiKey: "AIzaSyCHjgJkqVmgpZ6s5HRobpqB6XT--Sa2_zY", authDomain: "tgapp-30a28.firebaseapp.com", projectId: "tgapp-30a28", storageBucket: "tgapp-30a28.firebasestorage.app", messagingSenderId: "329047273664", appId: "1:329047273664:web:c9e1bfe367afb54953fd25", measurementId: "G-68P4PT49B0" };
+                if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+            }
+
+            try {
+                const snapshot = await db.collection('users').orderBy('points', 'desc').limit(50).get();
+                top3Container.innerHTML = '';
+                listContainer.innerHTML = '';
+
+                if (snapshot.empty) {
+                    listContainer.innerHTML = `<p class="text-secondary text-center p-3">Chưa có ai trên bảng xếp hạng. Hãy là người đầu tiên!</p>`;
+                    return;
+                }
+                
+                let rank = 1;
+                snapshot.forEach(doc => {
+                    const user = doc.data();
+                    const isCurrentUser = telegramUserData && user.id === telegramUserData.id;
+                    const medals = ['fa-medal', 'fa-medal', 'fa-medal'];
+                    
+                    if (rank <= 3) {
+                        const col = document.createElement('div');
+                        col.className = 'col-lg-4 col-md-6';
+                        col.innerHTML = `
+                            <div class="card-glass text-center top-rank-card rank-${rank}">
+                                <i class="fas ${medals[rank-1]} rank-icon" style="font-size: 2.5rem; position: absolute; top: -20px; left: 50%; transform: translateX(-50%);"></i>
+                                <img src="${user.photoUrl || DEFAULT_LOGO_SRC}" class="leaderboard-avatar mx-auto mb-3">
+                                <h5 class="leaderboard-name text-truncate">${user.fullName || 'Anonymous User'}</h5>
+                                <p class="leaderboard-exp">${(user.points || 0).toLocaleString()} EXP</p>
+                            </div>
+                        `;
+                        top3Container.appendChild(col);
+                    } else {
+                        const item = document.createElement('div');
+                        item.className = `leaderboard-item ${isCurrentUser ? 'current-user' : ''}`;
+                        item.innerHTML = `
+                            <span class="leaderboard-rank">#${rank}</span>
+                            <img src="${user.photoUrl || DEFAULT_LOGO_SRC}" class="leaderboard-avatar" onerror="this.src='${DEFAULT_LOGO_SRC}'">
+                            <span class="leaderboard-name text-truncate">${user.fullName || 'Anonymous User'}</span>
+                            <span class="leaderboard-exp">${(user.points || 0).toLocaleString()} EXP</span>
+                        `;
+                        listContainer.appendChild(item);
+                    }
+                    rank++;
+                });
+
+            } catch (error) {
+                console.error("Error fetching leaderboard:", error);
+                listContainer.innerHTML = `<p class="text-danger text-center p-3">Không thể tải bảng xếp hạng. Vui lòng thử lại sau.</p>`;
+            }
+        }
+
+
         function showAppToast(header, message, type = 'info') {
             document.querySelector('.toast-notification')?.remove();
             const toast = document.createElement('div');
@@ -824,7 +933,7 @@
                 tonConnectUI.disconnect();
             }
             telegramUserData = null;
-            window.location.href = window.location.pathname; // Go to homepage
+            window.location.href = window.location.pathname;
             window.location.reload();
         }
 
@@ -876,7 +985,7 @@
 
             const session = {
                 userData: user,
-                expiresAt: Date.now() + CHECKIN_COOLDOWN 
+                expiresAt: Date.now() + (24 * 60 * 60 * 1000)
             };
             localStorage.setItem(USER_SESSION_KEY, JSON.stringify(session));
 
@@ -887,11 +996,7 @@
             renderAccountSection();
             initializeFirebaseAndCheckin(telegramUserData);
 
-            if (window.location.hash.includes('login')) {
-                window.location.hash = '#dashboard';
-            } else {
-                handleRouteChange();
-            }
+            handleRouteChange();
         };
 
         function checkUserSession() {
@@ -911,7 +1016,6 @@
             }
         }
         
-        // **UPDATED**: This is the main logic handler
         function initializeUser() {
             let isMiniApp = false;
             try {
@@ -920,7 +1024,6 @@
                     tg.ready();
                     console.log("Running in Telegram Mini App context.");
                     isMiniApp = true;
-                    // Try to restore session first, then use TG data
                     if (!checkUserSession()) {
                        window.handleUserIdentified(tg.initDataUnsafe.user);
                     }
@@ -929,15 +1032,12 @@
                 console.error("Could not initialize Telegram Web App:", e); 
             }
             
-            // If not in a Mini App, run as a public website
             if (!isMiniApp) {
                 console.log("Running in public web context (Guest Mode).");
-                miniAppPrompt.style.display = 'flex'; // Show the prompt bar
-                appLogoText.textContent = 'Neuralis'; // Default app name for guests
-                handleRouteChange(); // Load the default public view
+                appLogoText.textContent = 'Neuralis';
+                handleRouteChange();
             }
         }
-
 
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ 
             manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json',
@@ -1357,14 +1457,12 @@
             } else { holdersEl.innerHTML = `<p class="text-danger">Failed to load holders.</p>`; }
         }
 
-        // **UPDATED**: This function now handles both logged-in and guest users
         const switchView = (viewToShow) => {
-            [loginSectionEl, dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl, accountSectionEl].forEach(section => {
+            [dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl, accountSectionEl, leaderboardSectionEl].forEach(section => {
                 if(section) section.style.display = 'none';
             });
-            [navDashboard, navApps, navTask, navAccount].forEach(nav => nav.classList.remove('active'));
+            [navDashboard, navApps, navTask, navLeaderboard, navAccount].forEach(nav => nav.classList.remove('active'));
 
-            // Configure sidebar based on login state
             if (telegramUserData) {
                 navTask.style.display = 'block';
                 navAccount.style.display = 'block';
@@ -1382,7 +1480,11 @@
             } else if (viewToShow === 'task') {
                 taskSectionEl.style.display = 'block';
                 navTask.classList.add('active');
-            } else { // 'dashboard' or default view
+            } else if (viewToShow === 'leaderboard') { // NEW
+                leaderboardSectionEl.style.display = 'block';
+                navLeaderboard.classList.add('active');
+                fetchAndRenderLeaderboard(); // Fetch data when view is shown
+            } else { 
                 if (telegramUserData && tonConnectUI.connected) {
                     dashboardEl.style.display = 'block';
                 } else {
@@ -1394,25 +1496,22 @@
             if (sidebarMenu.classList.contains('open')) toggleSidebar();
         };
         
-        // **UPDATED**: This function now guards routes
         const handleRouteChange = () => {
             const hash = window.location.hash.substring(1);
             const [path, queryString] = hash.split('?');
             
-            // **NEW**: Guard private routes
             if (!telegramUserData && (path === 'task' || path === 'account')) {
                 showAppToast('Yêu cầu đăng nhập', 'Tính năng này chỉ có trong Mini App.', 'warning');
-                window.location.hash = '#dashboard'; // Redirect to a safe page
+                window.location.hash = '#dashboard';
                 return;
             }
 
-            let view = 'dashboard'; // Default view is now dashboard/hero
-            if (path === 'apps') {
-                view = 'apps';
-            } else if (path === 'task') {
-                view = 'task';
-            } else if (path === 'account') {
-                view = 'account';
+            let view = 'dashboard';
+            const publicViews = ['apps', 'leaderboard', 'dashboard'];
+            if (publicViews.includes(path)) {
+                view = path;
+            } else if (telegramUserData && (path === 'task' || path === 'account')) {
+                view = path;
             }
             
             switchView(view);
@@ -1467,7 +1566,7 @@
                 customWalletButton.textContent = shortenAddress(friendlyAddress);
                 copyAddressBtn.dataset.address = friendlyAddress;
                 myAccountBtn.href = `https://tonviewer.com/${friendlyAddress}`;
-                if (telegramUserData) { // Only fetch personal data if logged in
+                if (telegramUserData) {
                     handleRouteChange();
                     await fetchAndDisplayAccountData(connectedWalletAddress);
                     activityRefreshInterval = setInterval(() => {
@@ -1482,7 +1581,7 @@
                 currentActivityLogs = [];
                 tonConnectButtonRoot.style.display = 'block';
                 customWalletContainer.style.display = 'none';
-                handleRouteChange(); // Refresh view to show hero section
+                handleRouteChange();
             }
         });
         
@@ -1493,7 +1592,7 @@
         backToMyWalletBtn.addEventListener('click', () => { if (connectedWalletAddress) fetchAndDisplayAccountData(connectedWalletAddress); });
         otherTokensContent.addEventListener('click', (e) => { const jettonItem = e.target.closest('.jetton-item'); if (jettonItem) showJettonDetails(jettonItem.dataset.jettonAddress); });
         document.body.addEventListener('click', (e) => { const target = e.target.closest('.copyable-address'); if (target?.dataset?.address) { navigator.clipboard.writeText(target.dataset.address).then(() => { const originalText = target.textContent; target.textContent = 'Copied!'; target.classList.add('copied'); setTimeout(() => { target.textContent = originalText; target.classList.remove('copied'); }, 1500); }); } if (!customWalletContainer?.contains(e.target)) walletDropdown.style.display = 'none'; if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none'; });
-        [navDashboard, navApps, navTask, navAccount].forEach(link => link.addEventListener('click', () => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
+        [navDashboard, navApps, navTask, navLeaderboard, navAccount].forEach(link => link.addEventListener('click', () => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
         appSearchInput.addEventListener('input', () => { renderApps(); const searchTerm = appSearchInput.value.trim(); const newUrl = searchTerm ? `#apps?search=${encodeURIComponent(searchTerm)}` : '#apps'; history.replaceState(null, '', newUrl); });
         appSearchButton.addEventListener('click', renderApps);
         appSearchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') renderApps(); });
@@ -1508,7 +1607,6 @@
         connectWalletHeroBtnContainer.appendChild(heroConnectButton);
         fetchCryptoNews();
         
-        // **ENTRY POINT**
         initializeUser();
 
     });
