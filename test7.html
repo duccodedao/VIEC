@@ -199,7 +199,7 @@
             font-weight: 500;
         }
 
-        .task-button:disabled {
+        #checkin-button:disabled {
             background-color: #3a3f5a !important;
             cursor: not-allowed;
         }
@@ -403,7 +403,7 @@
         <main id="task-section" style="display: none;">
             <div class="container">
                 <div class="text-center mb-5">
-                    <h1 class="mb-2" style="font-weight: 700;">Nhiệm Vụ Hằng Ngày</h1>
+                    <h1 class="mb-2" style="font-weight: 700;">Nhiệm Vụ Hàng Ngày</h1>
                     <p class="lead text-secondary col-md-8 mx-auto">Hoàn thành nhiệm vụ để nhận EXP và các phần thưởng giá trị.</p>
                 </div>
                 <div class="row justify-content-center g-4">
@@ -419,7 +419,7 @@
                             <div id="daily-checkin-content">
                                  <div class="d-flex justify-content-between align-items-center">
                                     <p class="text-secondary mb-0">Nhận thưởng điểm danh mỗi ngày.</p>
-                                    <button id="checkin-button" class="btn px-4 py-2 task-button" style="background-color: var(--accent-secondary); color: white; font-weight: 600;" disabled>
+                                    <button id="checkin-button" class="btn px-4 py-2" style="background-color: var(--accent-secondary); color: white; font-weight: 600;" disabled>
                                         <i class="fas fa-spinner fa-spin me-2"></i>Kết nối...
                                     </button>
                                 </div>
@@ -428,22 +428,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card-glass mb-4">
-                            <h5 class="card-title">Giao dịch Hàng ngày</h5>
-                            <div id="daily-tx-content">
-                                 <div class="d-flex justify-content-between align-items-center">
-                                    <p class="text-secondary mb-0">Gửi 0.00001 TON để nhận thưởng.</p>
-                                    <button id="send-tx-button" class="btn px-4 py-2 task-button" style="background-color: var(--accent-secondary); color: white; font-weight: 600;" disabled>
-                                        <i class="fas fa-spinner fa-spin me-2"></i>Kết nối...
-                                    </button>
-                                </div>
-                                <div class="mt-3 text-center text-secondary" style="font-size: 0.9rem;">
-                                   Phần thưởng: <strong style="color: var(--accent-primary);">100 EXP</strong>. Làm mới sau 6 tiếng.
-                                </div>
-                            </div>
-                        </div>
                         <div class="card-glass">
-                            <h5 class="card-title">Lịch sử Hoạt động</h5>
+                            <h5 class="card-title">Lịch sử Check-in</h5>
                             <div id="task-history-content" style="max-height: 300px; overflow-y: auto;">
                                 <p class="text-secondary text-center">Chưa có hoạt động nào.</p>
                             </div>
@@ -581,27 +567,18 @@
         const popupCheckinButton = document.getElementById('popup-checkin-button');
         const checkinPopupModalEl = document.getElementById('checkinPopupModal');
         const checkinPopupModal = new bootstrap.Modal(checkinPopupModalEl);
-        const sendTxButton = document.getElementById('send-tx-button');
         const taskHistoryContent = document.getElementById('task-history-content');
         
         let db = null;
         let checkinInterval = null;
-        let txTaskInterval = null;
         let isEligibleForCheckin = false; 
         
         const CHECKIN_REWARD = 10;
         const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000;
-        
-        const TX_TASK_REWARD = 100;
-        const TX_TASK_COOLDOWN = 6 * 60 * 60 * 1000;
-        const TX_TASK_RECIPIENT_ADDRESS = 'UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD';
-        const TX_TASK_AMOUNT_TON = 0.00001;
-        const TX_TASK_AMOUNT_NANOTON = String(TX_TASK_AMOUNT_TON * 1e9);
 
         async function initializeFirebaseAndCheckin(user) {
             if (!user || !user.id) {
                 checkinButton.innerHTML = `<i class="fas fa-times-circle me-2"></i> Lỗi User`;
-                sendTxButton.innerHTML = `<i class="fas fa-times-circle me-2"></i> Lỗi User`;
                 return;
             };
             const firebaseConfig = {
@@ -623,12 +600,10 @@
             headerExpDisplay.classList.remove('d-none');
             
             updateCheckinUI(userData);
-            updateTxTaskUI(userData);
             await fetchTaskHistory();
             
             checkinButton.addEventListener('click', handleCheckin);
             popupCheckinButton.addEventListener('click', handleCheckin);
-            sendTxButton.addEventListener('click', handleSendTxTask);
         }
 
         async function getOrCreateUser(userId) {
@@ -641,7 +616,6 @@
                     username: telegramUserData?.username || 'N/A',
                     points: 0,
                     lastCheckin: null,
-                    lastTxTaskCompletion: null,
                 };
                 await userRef.set(newUser);
                 return newUser;
@@ -698,39 +672,6 @@
                 checkinInterval = setInterval(updateCountdown, 1000);
             }
         }
-        
-        function updateTxTaskUI(userData) {
-             if (!userData) return;
-             if (txTaskInterval) clearInterval(txTaskInterval);
-
-            const { lastTxTaskCompletion } = userData;
-            const isEligible = !lastTxTaskCompletion || (Date.now() - lastTxTaskCompletion.toDate().getTime() >= TX_TASK_COOLDOWN);
-
-            if (isEligible) {
-                sendTxButton.disabled = false;
-                sendTxButton.innerHTML = `<i class="fas fa-paper-plane me-2"></i> Gửi Giao dịch`;
-            } else {
-                sendTxButton.disabled = true;
-                const lastCompletionTime = lastTxTaskCompletion.toDate().getTime();
-                
-                const updateCountdown = () => {
-                    const now = Date.now();
-                    const remaining = TX_TASK_COOLDOWN - (now - lastCompletionTime);
-                     if (remaining <= 0) {
-                        clearInterval(txTaskInterval);
-                        sendTxButton.disabled = false;
-                        sendTxButton.innerHTML = `<i class="fas fa-paper-plane me-2"></i> Gửi Giao dịch`;
-                    } else {
-                        const hours = Math.floor((remaining / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
-                        const minutes = Math.floor((remaining / 1000 / 60) % 60).toString().padStart(2, '0');
-                        const seconds = Math.floor((remaining / 1000) % 60).toString().padStart(2, '0');
-                        sendTxButton.innerHTML = `<i class="fas fa-hourglass-half me-2"></i> ${hours}:${minutes}:${seconds}`;
-                    }
-                };
-                updateCountdown();
-                txTaskInterval = setInterval(updateCountdown, 1000);
-            }
-        }
 
         async function handleCheckin() {
             if (!telegramUserData || !telegramUserData.id) return;
@@ -783,121 +724,6 @@
                 popupCheckinButton.disabled = false;
             }
         }
-
-        async function handleSendTxTask() {
-            if (!tonConnectUI.connected) {
-                showAppToast('Yêu cầu', 'Vui lòng kết nối ví TON của bạn trước.', 'warning');
-                tonConnectUI.openModal();
-                return;
-            }
-
-            sendTxButton.disabled = true;
-            sendTxButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Chờ xác nhận...`;
-
-            const transaction = {
-                validUntil: Math.floor(Date.now() / 1000) + 600, // 10 minutes
-                messages: [{
-                    address: TX_TASK_RECIPIENT_ADDRESS,
-                    amount: TX_TASK_AMOUNT_NANOTON
-                }]
-            };
-
-            try {
-                const result = await tonConnectUI.sendTransaction(transaction);
-                // The transaction is sent from the wallet, now we need to verify it on-chain
-                sendTxButton.innerHTML = `<i class="fas fa-sync-alt fa-spin me-2"></i>Đang xác minh...`;
-                const success = await verifyTransaction(result.boc);
-                
-                if (success) {
-                    await awardTxTaskExp();
-                } else {
-                     showAppToast('Thất bại', 'Không thể xác minh giao dịch. Vui lòng thử lại sau.', 'error');
-                     const userData = await getOrCreateUser(String(telegramUserData.id));
-                     updateTxTaskUI(userData); // Re-enable button if still eligible
-                }
-            } catch (error) {
-                console.error('Transaction error:', error);
-                showAppToast('Giao dịch bị hủy', 'Bạn đã hủy giao dịch hoặc có lỗi xảy ra.', 'error');
-                const userData = await getOrCreateUser(String(telegramUserData.id));
-                updateTxTaskUI(userData); // Re-enable button
-            }
-        }
-        
-        // This function polls the blockchain to see if the transaction was successful
-        async function verifyTransaction(boc) {
-            // It's complex to parse the BOC on the client-side to get the hash.
-            // A simpler, though less foolproof, method is to check the sender's recent transactions.
-            const senderAddress = connectedWalletAddress;
-            const maxAttempts = 15; // Try for 2.5 minutes (15 * 10s)
-            const delay = 10000; // 10 seconds
-
-            for (let i = 0; i < maxAttempts; i++) {
-                try {
-                    const response = await fetch(`${TON_API_BASE}/accounts/${senderAddress}/events?limit=5`);
-                    if (!response.ok) continue;
-
-                    const data = await response.json();
-                    const events = data.events || [];
-
-                    for (const event of events) {
-                        // Check if the event is recent (within last 5 minutes)
-                        if (Date.now() - event.timestamp * 1000 > 5 * 60 * 1000) continue;
-                        
-                        for (const action of event.actions) {
-                             if (action.type === 'TonTransfer' && action.TonTransfer) {
-                                const t = action.TonTransfer;
-                                // Check if the recipient and amount match
-                                if (t.recipient?.address === TX_TASK_RECIPIENT_ADDRESS && t.amount == TX_TASK_AMOUNT_NANOTON) {
-                                    console.log('Transaction verified!', event);
-                                    return true; // Success!
-                                }
-                            }
-                        }
-                    }
-                } catch (error) {
-                    console.warn('Verification attempt failed:', error);
-                }
-                await new Promise(resolve => setTimeout(resolve, delay));
-            }
-            console.log('Transaction verification timed out.');
-            return false; // Timed out
-        }
-
-        async function awardTxTaskExp() {
-            const userId = String(telegramUserData.id);
-            const userRef = db.collection('users').doc(userId);
-
-            try {
-                await db.runTransaction(async (transaction) => {
-                    const userDoc = await transaction.get(userRef);
-                    if (!userDoc.exists) throw "User not found!";
-                    
-                    const newPoints = (userDoc.data().points || 0) + TX_TASK_REWARD;
-                    const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
-                    
-                    transaction.update(userRef, {
-                        points: newPoints,
-                        lastTxTaskCompletion: newTimestamp
-                    });
-
-                    const historyRef = userRef.collection('task_history').doc();
-                    transaction.set(historyRef, {
-                        taskName: 'Giao dịch Hàng ngày',
-                        exp: TX_TASK_REWARD,
-                        timestamp: newTimestamp
-                    });
-                });
-                showAppToast('Thành công!', `Bạn đã nhận được ${TX_TASK_REWARD} EXP!`, 'success');
-            } catch (error) {
-                console.error("Failed to award TX task EXP:", error);
-                showAppToast('Lỗi', 'Không thể trao phần thưởng. Vui lòng liên hệ hỗ trợ.', 'error');
-            } finally {
-                const updatedUserData = await getOrCreateUser(userId);
-                updateExpBalances(updatedUserData.points);
-                updateTxTaskUI(updatedUserData);
-                await fetchTaskHistory();
-            }
-        }
         
         async function fetchTaskHistory() {
             if (!telegramUserData) return;
@@ -916,7 +742,7 @@
                 snapshot.forEach(doc => {
                     const item = doc.data();
                     const date = item.timestamp ? item.timestamp.toDate().toLocaleString('vi-VN') : 'N/A';
-                    const iconClass = item.taskName.includes('Check-in') ? 'fa-calendar-check' : 'fa-paper-plane';
+                    const iconClass = 'fa-calendar-check';
                     
                     historyHtml += `
                         <div class="task-history-item">
@@ -1518,7 +1344,7 @@
             } else if (viewToShow === 'task') {
                 taskSectionEl.style.display = 'block';
                 navTask.classList.add('active');
-                 if (db) fetchTaskHistory(); // Refresh history when viewing task page
+                 if (db) fetchTaskHistory(); 
             } else { 
                 if (tonConnectUI.connected) {
                     dashboardEl.style.display = 'block';
