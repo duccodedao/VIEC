@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -385,7 +386,24 @@
         }
         #airdrop-eligibility-status.eligible { color: var(--color-verified); }
         #airdrop-eligibility-status.ineligible { color: var(--color-out); }
-
+        #claim-button {
+            background: white;
+            color: var(--accent-primary);
+            font-weight: 700;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+        #claim-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255,255,255,0.3);
+        }
+        #claim-button:disabled {
+            background: #ccc;
+            color: #666;
+            cursor: not-allowed;
+        }
 
         /* Responsive Adjustments */
         @media (min-width: 768px) {
@@ -737,6 +755,7 @@
                                         <img src="https://duccodedao.github.io/VIEC/img/logo.png" id="airdrop-reward-logo" alt="VIEC Token">
                                     </div>
                                     <p id="airdrop-eligibility-status" class="fw-bold mt-2 mb-0 fs-5"></p>
+                                    <div id="airdrop-claim-container" class="mt-3"></div>
                                 </div>
                             </div>
 
@@ -810,7 +829,17 @@
                     <div class="col-12 col-lg-10 col-xl-8">
                         <div class="card-glass">
                             <h5 class="card-title">Cấu hình Airdrop & Xuất dữ liệu</h5>
-                            <form id="admin-airdrop-settings-form">
+                            <div id="admin-airdrop-settings-form">
+                                <div class="d-flex justify-content-around mb-4">
+                                    <div class="form-check form-switch fs-5">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="airdrop-live-switch">
+                                        <label class="form-check-label" for="airdrop-live-switch">Airdrop Live</label>
+                                    </div>
+                                    <div class="form-check form-switch fs-5">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="claim-enabled-switch">
+                                        <label class="form-check-label" for="claim-enabled-switch">Cho phép Claim</label>
+                                    </div>
+                                </div>
                                 <div class="row g-3">
                                     <div class="col-md-4">
                                         <label for="min-checkins-input" class="form-label">Tối thiểu Check-in</label>
@@ -830,7 +859,7 @@
                                     <button type="button" id="save-settings-btn" class="btn w-100" style="background-color: var(--accent-secondary); color: white;">Lưu Cài Đặt</button>
                                     <button type="button" id="export-csv-btn" class="btn btn-outline-light w-100">Xuất File Excel (CSV)</button>
                                 </div>
-                            </form>
+                            </div>
                         </div>
                     </div>
 
@@ -897,8 +926,6 @@
     
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const IS_AIRDROP_LIVE = true; // <<< ĐỂ TẮT TÍNH NĂNG, ĐẶT LÀ 'false'. ĐỂ BẬT, ĐẶT LÀ 'true'
-
         const TON_API_BASE = 'https://tonapi.io/v2';
         const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
         const USER_SESSION_KEY = 'neuralisUserSession';
@@ -996,7 +1023,7 @@
         let telegramUserData = null;
         let connectedWalletAddress = null; // Raw address from wallet
         let currentUserData = null; // Full user profile from Firestore
-        let airdropCriteria = null;
+        let airdropSettings = null; // Will hold all airdrop settings from admin
         let lastFetchedAddress = null;
         let currentActivityLogs = [];
         let activityRefreshInterval = null;
@@ -1011,6 +1038,9 @@
         const CHECKIN_REWARD = 10;
         const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000;
         const ADMIN_USERS_PER_PAGE = 50;
+        const CLAIM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
+        const CLAIM_AMOUNT_NANOTONS = "10000"; // 0.00001 TON
+
         const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
         const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
 
@@ -1068,6 +1098,7 @@
                     checkinCount: 0,
                     referralCount: 0,
                     referredBy: null,
+                    hasClaimed: false, // New field
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
                 if (telegramUserData) {
@@ -1693,39 +1724,33 @@
         }
 
         async function fetchAirdropSettings() {
-            if (airdropCriteria) return airdropCriteria; // Return cached if available
+            if (airdropSettings) return airdropSettings; // Return cached if available
             try {
                 const docRef = db.collection('admin_settings').doc('airdrop_criteria');
                 const doc = await docRef.get();
                 if (doc.exists) {
-                    airdropCriteria = doc.data();
+                    airdropSettings = doc.data();
                 } else {
-                     // Default criteria if not set by admin
-                    airdropCriteria = { minCheckins: 0, minReferrals: 0, minExp: 0 };
+                     // Default settings if not set by admin
+                    airdropSettings = { 
+                        isAirdropLive: false,
+                        isClaimingEnabled: false,
+                        minCheckins: 0, 
+                        minReferrals: 0, 
+                        minExp: 0 
+                    };
                 }
-                return airdropCriteria;
+                return airdropSettings;
             } catch (error) {
                 console.error("Error fetching airdrop settings:", error);
                 // Fallback to default on error
-                return { minCheckins: 0, minReferrals: 0, minExp: 0 };
+                return { isAirdropLive: false, isClaimingEnabled: false, minCheckins: 0, minReferrals: 0, minExp: 0 };
             }
         }
 
         async function renderAirdropSection() {
             const airdropWrapper = document.getElementById('airdrop-content-wrapper');
             const comingSoonEl = document.getElementById('airdrop-coming-soon');
-
-            // The main switch
-            if (!IS_AIRDROP_LIVE) {
-                airdropWrapper.style.display = 'none';
-                comingSoonEl.style.display = 'block';
-                return;
-            }
-            
-            // If live, proceed as normal
-            airdropWrapper.style.display = 'block';
-            comingSoonEl.style.display = 'none';
-
             const loadingEl = document.getElementById('airdrop-content-loading');
             const loggedInContent = document.getElementById('airdrop-content-logged-in');
             const loggedOutContent = document.getElementById('airdrop-content-logged-out');
@@ -1733,6 +1758,20 @@
             loadingEl.style.display = 'block';
             loggedInContent.style.display = 'none';
             loggedOutContent.style.display = 'none';
+            airdropWrapper.style.display = 'none';
+            comingSoonEl.style.display = 'none';
+
+            const settings = await fetchAirdropSettings();
+
+            // The main switch
+            if (!settings.isAirdropLive) {
+                loadingEl.style.display = 'none';
+                airdropWrapper.style.display = 'none';
+                comingSoonEl.style.display = 'block';
+                return;
+            }
+            
+            airdropWrapper.style.display = 'block';
 
             if (!currentUserData) {
                 loadingEl.style.display = 'none';
@@ -1740,14 +1779,10 @@
                 return;
             }
 
-            const criteria = await fetchAirdropSettings();
-
             const reward = calculateViecReward(currentUserData);
-
-            // Check eligibility
-            const isEligible = (currentUserData.referralCount || 0) >= criteria.minReferrals &&
-                               (currentUserData.checkinCount || 0) >= criteria.minCheckins &&
-                               (currentUserData.points || 0) >= criteria.minExp;
+            const isEligible = (currentUserData.referralCount || 0) >= settings.minReferrals &&
+                               (currentUserData.checkinCount || 0) >= settings.minCheckins &&
+                               (currentUserData.points || 0) >= settings.minExp;
 
             document.getElementById('airdrop-ref-count').textContent = (currentUserData.referralCount || 0).toLocaleString();
             document.getElementById('airdrop-checkin-count').textContent = (currentUserData.checkinCount || 0).toLocaleString();
@@ -1755,9 +1790,22 @@
             document.getElementById('airdrop-reward-value').textContent = reward.toLocaleString();
 
             const eligibilityStatusEl = document.getElementById('airdrop-eligibility-status');
+            const claimContainer = document.getElementById('airdrop-claim-container');
+            claimContainer.innerHTML = ''; // Clear previous state
+
             if (isEligible) {
                 eligibilityStatusEl.textContent = 'BẠN ĐỦ ĐIỀU KIỆN';
                 eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
+
+                if (currentUserData.hasClaimed) {
+                     claimContainer.innerHTML = `<p class="mt-3 fw-bold" style="color: var(--color-verified);"><i class="fas fa-check-circle me-2"></i>Đã Claim Thành Công</p>`;
+                } else if (settings.isClaimingEnabled) {
+                     claimContainer.innerHTML = `<button id="claim-button" class="btn mt-2">Xác Nhận Claim</button>`;
+                     document.getElementById('claim-button').addEventListener('click', handleClaimRequest);
+                } else {
+                    claimContainer.innerHTML = `<p class="text-white-50 mt-3 fst-italic">Việc Claim sẽ sớm được mở. Vui lòng quay lại sau!</p>`;
+                }
+
             } else {
                 eligibilityStatusEl.textContent = 'BẠN CHƯA ĐỦ ĐIỀU KIỆN';
                 eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
@@ -1765,6 +1813,41 @@
             
             loadingEl.style.display = 'none';
             loggedInContent.style.display = 'block';
+        }
+
+        async function handleClaimRequest() {
+            const claimButton = document.getElementById('claim-button');
+            if (!claimButton) return;
+
+            claimButton.disabled = true;
+            claimButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...`;
+            
+            const transaction = {
+                validUntil: Math.floor(Date.now() / 1000) + 60, // 60 seconds
+                messages: [{
+                    address: CLAIM_WALLET_ADDRESS,
+                    amount: CLAIM_AMOUNT_NANOTONS
+                }]
+            };
+
+            try {
+                await tonConnectUI.sendTransaction(transaction);
+                
+                // Important: Update Firestore to mark as claimed
+                const userRef = db.collection('users').doc(currentUserData.address);
+                await userRef.update({ hasClaimed: true });
+
+                // Update local state and UI immediately
+                currentUserData.hasClaimed = true;
+                showAppToast('Thành công', 'Giao dịch xác nhận đã được gửi!', 'success');
+                renderAirdropSection(); // Re-render to show "Claimed" status
+
+            } catch (error) {
+                console.error("Claim transaction failed:", error);
+                showAppToast('Giao dịch thất bại', 'Vui lòng thử lại.', 'error');
+                claimButton.disabled = false;
+                claimButton.textContent = 'Xác Nhận Claim';
+            }
         }
 
         function identifyTelegramUser() {
@@ -1930,10 +2013,12 @@
                 adminSectionEl.style.display = 'block';
                 navAdmin.classList.add('active');
                 fetchAndRenderAdminUserList(true); 
-                fetchAirdropSettings().then(criteria => {
-                     document.getElementById('min-checkins-input').value = criteria.minCheckins || 0;
-                     document.getElementById('min-referrals-input').value = criteria.minReferrals || 0;
-                     document.getElementById('min-exp-input').value = criteria.minExp || 0;
+                fetchAirdropSettings().then(settings => {
+                     document.getElementById('airdrop-live-switch').checked = settings.isAirdropLive || false;
+                     document.getElementById('claim-enabled-switch').checked = settings.isClaimingEnabled || false;
+                     document.getElementById('min-checkins-input').value = settings.minCheckins || 0;
+                     document.getElementById('min-referrals-input').value = settings.minReferrals || 0;
+                     document.getElementById('min-exp-input').value = settings.minExp || 0;
                 });
             } else { 
                 if (isLoggedIn) {
@@ -2470,6 +2555,8 @@
         };
 
         async function saveAirdropSettings() {
+            const isAirdropLive = document.getElementById('airdrop-live-switch').checked;
+            const isClaimingEnabled = document.getElementById('claim-enabled-switch').checked;
             const minCheckins = parseInt(document.getElementById('min-checkins-input').value, 10);
             const minReferrals = parseInt(document.getElementById('min-referrals-input').value, 10);
             const minExp = parseInt(document.getElementById('min-exp-input').value, 10);
@@ -2484,8 +2571,9 @@
 
             try {
                 const settingsRef = db.collection('admin_settings').doc('airdrop_criteria');
-                await settingsRef.set({ minCheckins, minReferrals, minExp });
-                airdropCriteria = { minCheckins, minReferrals, minExp }; // Update cache
+                const newSettings = { isAirdropLive, isClaimingEnabled, minCheckins, minReferrals, minExp };
+                await settingsRef.set(newSettings);
+                airdropSettings = newSettings; // Update local cache
                 adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
                 showAppToast('Thành công', 'Đã lưu cài đặt Airdrop.', 'success');
             } catch (error) {
