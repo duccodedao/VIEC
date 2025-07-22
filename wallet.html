@@ -477,7 +477,7 @@
                             <div id="profile-details" class="text-start p-2">
                             </div>
                              <button id="full-logout-btn" class="btn mt-4 w-100" style="background-color: var(--color-out); color: white;">
-                                <i class="fas fa-sign-out-alt me-2"></i>Đăng Xuất Hoàn Toàn
+                                <i class="fas fa-sign-out-alt me-2"></i>Đăng Xuất
                             </button>
                         </div>
                     </div>
@@ -518,7 +518,7 @@
                                 <h5 class="card-title d-flex justify-content-between align-items-center">
                                     <span>Core Assets</span>
                                     <button id="back-to-my-wallet-btn" class="btn btn-sm" style="display: none; background-color: var(--accent-secondary); color: white;">
-                                        <i class="fas fa-arrow-left me-1"></i> Back to My Wallet
+                                        <i class="fas fa-arrow-left me-1"></i> Quay lại
                                     </button>
                                 </h5>
                                 <div id="main-assets-content"></div>
@@ -706,7 +706,7 @@
                                    </div>
                                    <div class="col-4">
                                        <i class="fas fa-calendar-check airdrop-stat-icon"></i>
-                                       <p class="text-secondary mb-0"><strong>Lượt Check-in</strong></p>
+                                       <p class="text-secondary mb-0"><strong>Check-in</strong></p>
                                    </div>
                                    <div class="col-4">
                                         <i class="fas fa-star airdrop-stat-icon" style="color:var(--gold)"></i>
@@ -833,11 +833,15 @@
                                 <div class="d-flex justify-content-around mb-4">
                                     <div class="form-check form-switch fs-5">
                                         <input class="form-check-input" type="checkbox" role="switch" id="airdrop-live-switch">
-                                        <label class="form-check-label" for="airdrop-live-switch">Airdrop Live</label>
+                                        <label class="form-check-label" for="airdrop-live-switch">Live</label>
                                     </div>
                                     <div class="form-check form-switch fs-5">
                                         <input class="form-check-input" type="checkbox" role="switch" id="claim-enabled-switch">
-                                        <label class="form-check-label" for="claim-enabled-switch">Cho phép Claim</label>
+                                        <label class="form-check-label" for="claim-enabled-switch">Claim</label>
+                                    </div>
+                                    <div class="form-check form-switch fs-5">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="snapshot-active-switch">
+                                        <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snap</label>
                                     </div>
                                 </div>
 
@@ -1162,6 +1166,10 @@
         }
         
          async function applyReferral(referrerCode, newAddress) {
+            if (airdropSettings?.isSnapshotActive) {
+                showAppToast('Đã dừng', 'Hoạt động kiếm điểm đã dừng do Snapshot.', 'warning');
+                return;
+            }
             if (!referrerCode || !newAddress) return;
             console.log(`Attempting to apply referral code "${referrerCode}" for new user ${newAddress}`);
 
@@ -1245,8 +1253,8 @@
                 navAdmin.style.display = 'none';
             }
             
-            // Hide referral input for users who have already been referred
-            if(currentUserData.referredBy) {
+            // Hide referral input for users who have already been referred OR if snapshot is active
+            if(currentUserData.referredBy || airdropSettings?.isSnapshotActive) {
                 referralInputContainer.style.display = 'none';
                 referralInputContainerHero.style.display = 'none';
             } else if (!connectedWalletAddress) {
@@ -1263,6 +1271,13 @@
 
         function updateCheckinUI(userData) {
             if (!userData) return;
+
+            if (airdropSettings?.isSnapshotActive) {
+                checkinButton.disabled = true;
+                checkinButton.innerHTML = `<i class="fas fa-pause-circle me-2"></i>Đã Snapshot`;
+                if (checkinInterval) clearInterval(checkinInterval);
+                return;
+            }
 
             if (checkinInterval) clearInterval(checkinInterval);
             
@@ -1296,6 +1311,10 @@
         }
 
         async function handleCheckin() {
+            if (airdropSettings?.isSnapshotActive) {
+                showAppToast('Đã dừng', 'Hoạt động kiếm điểm đã dừng do Snapshot.', 'warning');
+                return;
+            }
             if (!connectedWalletAddress || !db) {
                 showAppToast('Lỗi', 'Vui lòng kết nối ví để check-in.', 'error');
                 return;
@@ -1535,6 +1554,10 @@
 
         async function handleAdminExpUpdate(e) {
             e.preventDefault();
+            if (airdropSettings?.isSnapshotActive) {
+                showAppToast('Đã dừng', 'Không thể chỉnh sửa EXP sau khi Snapshot.', 'error');
+                return;
+            }
             if (!db) {
                 showAppToast('Lỗi', 'Chưa kết nối cơ sở dữ liệu.', 'error');
                 return;
@@ -1761,6 +1784,7 @@
                     airdropSettings = { 
                         isAirdropLive: false,
                         isClaimingEnabled: false,
+                        isSnapshotActive: false,
                         minCheckins: 0, 
                         minReferrals: 0, 
                         minExp: 0,
@@ -1773,7 +1797,7 @@
             } catch (error) {
                 console.error("Error fetching airdrop settings:", error);
                 // Fallback to default on error
-                return { isAirdropLive: false, isClaimingEnabled: false, minCheckins: 0, minReferrals: 0, minExp: 0, refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 20 };
+                return { isAirdropLive: false, isClaimingEnabled: false, isSnapshotActive: false, minCheckins: 0, minReferrals: 0, minExp: 0, refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 20 };
             }
         }
 
@@ -1945,7 +1969,7 @@
             }
         }
 
-        function initializeApp() {
+        async function initializeApp() {
             checkUserSession();
             captureWebReferral();
             identifyTelegramUser(); 
@@ -1956,6 +1980,7 @@
             }
             
             initializeFirebase();
+            await fetchAirdropSettings(); // Fetch settings on init
             handleRouteChange(); 
         }
 
@@ -2045,6 +2070,7 @@
                 fetchAirdropSettings().then(settings => {
                      document.getElementById('airdrop-live-switch').checked = settings.isAirdropLive || false;
                      document.getElementById('claim-enabled-switch').checked = settings.isClaimingEnabled || false;
+                     document.getElementById('snapshot-active-switch').checked = settings.isSnapshotActive || false;
                      document.getElementById('min-checkins-input').value = settings.minCheckins || 0;
                      document.getElementById('min-referrals-input').value = settings.minReferrals || 0;
                      document.getElementById('min-exp-input').value = settings.minExp || 0;
@@ -2589,6 +2615,15 @@
         async function saveAirdropSettings() {
             const isAirdropLive = document.getElementById('airdrop-live-switch').checked;
             const isClaimingEnabled = document.getElementById('claim-enabled-switch').checked;
+            const isSnapshotActive = document.getElementById('snapshot-active-switch').checked;
+
+            if (isSnapshotActive && !airdropSettings.isSnapshotActive) {
+                if (!confirm("CẢNH BÁO: Bạn sắp kích hoạt Snapshot. Hành động này sẽ DỪNG tất cả các hoạt động kiếm điểm (check-in, giới thiệu) trên toàn hệ thống. Bạn có chắc chắn muốn tiếp tục không?")) {
+                    document.getElementById('snapshot-active-switch').checked = false;
+                    return;
+                }
+            }
+
             const minCheckins = parseInt(document.getElementById('min-checkins-input').value, 10);
             const minReferrals = parseInt(document.getElementById('min-referrals-input').value, 10);
             const minExp = parseInt(document.getElementById('min-exp-input').value, 10);
@@ -2606,11 +2641,13 @@
 
             try {
                 const settingsRef = db.collection('admin_settings').doc('airdrop_criteria');
-                const newSettings = { isAirdropLive, isClaimingEnabled, minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier };
+                const newSettings = { isAirdropLive, isClaimingEnabled, isSnapshotActive, minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier };
                 await settingsRef.set(newSettings);
                 airdropSettings = newSettings; // Update local cache
                 adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
                 showAppToast('Thành công', 'Đã lưu cài đặt Airdrop.', 'success');
+                // Re-render UI elements that depend on the new settings
+                updateUIAfterLogin();
             } catch (error) {
                 console.error("Error saving airdrop settings:", error);
                 adminSettingsStatusEl.innerHTML = `<span class="text-danger">Lưu thất bại.</span>`;
