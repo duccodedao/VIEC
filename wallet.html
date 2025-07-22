@@ -582,10 +582,10 @@
             <div class="container">
                 <div class="text-center mb-5">
                     <h1 class="mb-2" style="font-weight: 700;">Admin Panel</h1>
-                    <p class="lead text-secondary col-md-8 mx-auto">Công cụ quản lý EXP của người dùng.</p>
+                    <p class="lead text-secondary col-md-8 mx-auto">Công cụ quản lý EXP và người dùng.</p>
                 </div>
-                <div class="row justify-content-center">
-                    <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+                <div class="row justify-content-center g-4">
+                    <div class="col-12 col-lg-10 col-xl-8">
                         <div class="card-glass">
                             <h5 class="card-title">Chỉnh sửa EXP</h5>
                             <form id="admin-exp-form">
@@ -619,6 +619,14 @@
                                     <i class="fas fa-check me-2"></i>Xác nhận
                                 </button>
                             </form>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="card-glass">
+                            <h5 class="card-title">Danh sách Người dùng</h5>
+                            <div id="admin-user-list-container">
+                                <!-- JS renders table here -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -748,6 +756,7 @@
         const taskHistoryContent = document.getElementById('task-history-content');
         const adminExpForm = document.getElementById('admin-exp-form');
         const adminSubmitBtn = document.getElementById('admin-submit-btn');
+        const adminUserListContainer = document.getElementById('admin-user-list-container');
         const referralInputContainer = document.getElementById('referral-input-container');
         const referralCodeInput = document.getElementById('referral-code-input');
         const referralCodeSubmit = document.getElementById('referral-code-submit');
@@ -822,6 +831,7 @@
                     lastCheckin: null,
                     referralCount: 0,
                     referredBy: null,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
                 if (telegramUserData) {
                     newUser.telegramId = telegramUserData.id;
@@ -1157,6 +1167,72 @@
             }
         }
         
+        async function fetchAndRenderAdminUserList() {
+            if (!adminUserListContainer || !db) return;
+
+            // Skeleton loader for the table
+            adminUserListContainer.innerHTML = `<div class="table-responsive"><table class="table"><thead><tr><th>User</th><th>Address</th><th>EXP</th><th>Joined</th></tr></thead><tbody>` +
+                `<tr><td><div class="d-flex align-items-center"><div class="skeleton-loader me-3" style="width:40px;height:40px;border-radius:50%;"></div><div><div class="skeleton-loader skeleton-line w-100"></div><div class="skeleton-loader skeleton-line w-75"></div></div></div></td><td><div class="skeleton-loader skeleton-line"></div></td><td><div class="skeleton-loader skeleton-line w-50"></div></td><td><div class="skeleton-loader skeleton-line w-75"></div></td></tr>`.repeat(5) +
+                `</tbody></table></div>`;
+
+            try {
+                const snapshot = await db.collection('users').orderBy('createdAt', 'desc').limit(200).get();
+                if (snapshot.empty) {
+                    adminUserListContainer.innerHTML = `<p class="text-secondary text-center p-3">No users found in the database.</p>`;
+                    return;
+                }
+
+                let tableHtml = `<div class="table-responsive">
+                    <table class="table table-hover align-middle" style="font-size: 0.9rem;">
+                        <thead>
+                            <tr>
+                                <th scope="col">User</th>
+                                <th scope="col">Wallet Address</th>
+                                <th scope="col">UID</th>
+                                <th scope="col">EXP</th>
+                                <th scope="col">Referred</th>
+                                <th scope="col">Referred By</th>
+                                <th scope="col">Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+                
+                for (const doc of snapshot.docs) {
+                    const user = doc.data();
+                    const displayName = user.fullName || (user.username ? `@${user.username}` : 'N/A');
+                    const avatarUrl = user.photoUrl || GENERIC_WALLET_ICON;
+                    const joinDate = user.createdAt ? user.createdAt.toDate().toLocaleDateString('vi-VN') : 'N/A';
+                    const friendlyAddress = await getFriendlyAddress(user.address);
+
+                    tableHtml += `
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="${avatarUrl}" class="me-3 flex-shrink-0" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" onerror="this.src='${GENERIC_WALLET_ICON}'">
+                                    <div class="text-truncate" style="min-width: 120px;">
+                                        <strong class="d-block text-truncate">${displayName}</strong>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><code class="copyable-address" data-address="${user.address}" title="Click to copy Raw Address">${shortenAddress(friendlyAddress, 6, 6)}</code></td>
+                            <td>${user.telegramId || 'N/A'}</td>
+                            <td class="fw-bold" style="color: var(--accent-secondary);">${(user.points || 0).toLocaleString()}</td>
+                            <td>${user.referralCount || 0}</td>
+                            <td><div style="max-width: 100px; overflow: hidden; text-overflow: ellipsis;">${user.referredBy || 'N/A'}</div></td>
+                            <td>${joinDate}</td>
+                        </tr>
+                    `;
+                }
+
+                tableHtml += `</tbody></table></div>`;
+                adminUserListContainer.innerHTML = tableHtml;
+
+            } catch (error) {
+                console.error("Error fetching user list for admin:", error);
+                adminUserListContainer.innerHTML = `<p class="text-danger text-center p-3">Failed to load user list. Check console for details.</p>`;
+            }
+        }
+
         async function handleAdminExpUpdate(e) {
             e.preventDefault();
             if (!db) {
@@ -1484,6 +1560,7 @@
             } else if (viewToShow === 'admin' && isLoggedIn && isCurrentUserAdmin()){
                 adminSectionEl.style.display = 'block';
                 navAdmin.classList.add('active');
+                fetchAndRenderAdminUserList();
             } else { 
                 if (isLoggedIn) {
                     dashboardEl.style.display = 'block';
