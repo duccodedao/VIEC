@@ -221,8 +221,6 @@
             color: var(--accent-secondary);
         }
 
-        /* Styling for check-in content removed from here to use Bootstrap classes directly */
-
         @media (min-width: 768px) {
             .hero-section h1, .login-section h1 { font-size: 3.5rem; }
             .card-glass { padding: 2rem; }
@@ -272,36 +270,23 @@
                 </button>
             </div>
         </header>
-<main id="login-section" class="login-section" style="display: none;">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-7 col-md-9">
-                <div class="card-glass p-4 p-md-5">
-                    <h1 class="mb-3">Join <span class="highlight">Neuralis</span></h1>
-                    <p class="lead text-secondary mb-4">Please log in with your Telegram account to continue.</p>
 
-                    <!-- Nút đăng nhập bằng Widget (đã có) -->
-                    <div id="telegram-login-widget">
-                        <script async src="https://telegram.org/js/telegram-widget.js?22" 
-                                data-telegram-login="bmassk3_bot" 
-                                data-size="large"
-                                data-onauth="onTelegramAuth(user)"
-                                data-request-access="write"></script>
+        <main id="login-section" class="login-section" style="display: none;">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-7 col-md-9">
+                        <div class="card-glass p-4 p-md-5">
+                            <h1 class="mb-3">Join <span class="highlight">Neuralis</span></h1>
+                            <p class="lead text-secondary mb-4">Để tiếp tục, vui lòng mở ứng dụng trực tiếp trong Telegram.</p>
+                            
+                            <a href="https://t.me/bmassk3_bot/BmassK3" target="_blank" rel="noopener noreferrer" class="btn btn-lg w-100" style="background-color: #2AABEE; color: white;">
+                                <i class="fab fa-telegram-plane me-2"></i> Mở trong Telegram
+                            </a>
+                        </div>
                     </div>
-
-                    <!-- THÊM MỚI: Nút chuyển hướng đến Mini App -->
-                    <div class="text-center my-3">
-                        <span class="text-secondary">hoặc</span>
-                    </div>
-                    <a href="https://t.me/bmassk3_bot/BmassK3" target="_blank" rel="noopener noreferrer" class="btn btn-lg w-100" style="background-color: #2AABEE; color: white;">
-                        <i class="fab fa-telegram-plane me-2"></i> Mở trong Telegram
-                    </a>
-                    
                 </div>
             </div>
-        </div>
-    </div>
-</main>
+        </main>
         
         <main id="account-section" style="display: none;">
             <div class="container">
@@ -500,16 +485,7 @@
     <script src="apps-data.js"></script>
     
     <script>
-    function onTelegramAuth(user) {
-        console.log('Logged in via Telegram Widget:', user);
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                window.handleUserIdentified(user);
-            });
-        } else {
-            window.handleUserIdentified(user);
-        }
-    }
+    // The onTelegramAuth function is no longer needed and has been removed.
 
     document.addEventListener('DOMContentLoaded', () => {
         const TON_API_BASE = 'https://tonapi.io/v2';
