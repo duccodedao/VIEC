@@ -657,90 +657,98 @@
 
         <main id="airdrop-section" style="display: none;">
             <div class="container">
-                <div class="text-center mb-5">
-                    <h1 class="mb-2" style="font-weight: 700;">Airdrop Token VIEC</h1>
-                    <p class="lead text-secondary col-md-8 mx-auto">Phần thưởng token VIEC sẽ được phân bổ dựa trên mức độ hoạt động tích cực của bạn. Tích lũy càng nhiều, phần thưởng càng lớn!</p>
+                 <div id="airdrop-coming-soon" style="display: none;" class="text-center p-5 card-glass col-md-8 mx-auto">
+                    <i class="fas fa-rocket fa-3x text-secondary mb-3"></i>
+                    <h2 class="mb-2" style="font-weight: 700;">Tính năng Airdrop Sắp Ra Mắt!</h2>
+                    <p class="lead text-secondary">Hãy theo dõi để không bỏ lỡ những thông báo mới nhất. Chúng tôi đang làm việc chăm chỉ để mang đến cho bạn những phần thưởng hấp dẫn.</p>
                 </div>
-                
-                <div id="airdrop-content-loading" class="text-center">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
+
+                <div id="airdrop-content-wrapper">
+                    <div class="text-center mb-5">
+                        <h1 class="mb-2" style="font-weight: 700;">Airdrop Token VIEC</h1>
+                        <p class="lead text-secondary col-md-8 mx-auto">Phần thưởng token VIEC sẽ được phân bổ dựa trên mức độ hoạt động tích cực của bạn. Tích lũy càng nhiều, phần thưởng càng lớn!</p>
                     </div>
-                </div>
-
-                <div id="airdrop-content-logged-in" style="display: none;">
-                    <div class="row justify-content-center g-4">
-                         <!-- Allocation Rules Card -->
-                        <div class="col-12 col-md-10 col-lg-8">
-                            <div class="card-glass p-4">
-                               <h5 class="card-title text-center">Tỷ Lệ Tính Điểm</h5>
-                               <p class="text-center text-secondary">Điểm Airdrop cuối cùng của bạn được tính dựa trên công thức và các hoạt động sau.</p>
-                               <div class="row text-center mt-4">
-                                   <div class="col-4">
-                                       <h3 class="fw-bold" style="color: var(--accent-primary);">50%</h3>
-                                       <p class="text-secondary mb-0">từ<br/><strong>Lượt Mời (Ref)</strong></p>
-                                   </div>
-                                   <div class="col-4">
-                                       <h3 class="fw-bold" style="color: var(--accent-secondary);">30%</h3>
-                                       <p class="text-secondary mb-0">từ<br/><strong>Lượt Check-in</strong></p>
-                                   </div>
-                                   <div class="col-4">
-                                        <h3 class="fw-bold" style="color: var(--gold);">20%</h3>
-                                       <p class="text-secondary mb-0">từ<br/><strong>Điểm EXP</strong></p>
-                                   </div>
-                               </div>
-                            </div>
+                    
+                    <div id="airdrop-content-loading" class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
                         </div>
+                    </div>
 
-                        <!-- User Stats -->
-                        <div class="col-12 col-md-10 col-lg-8">
-                             <h5 class="card-title text-center mt-4">Thống Kê Của Bạn</h5>
-                        </div>
-                        <div class="col-12 col-md-10 col-lg-8">
-                            <div class="row g-3">
-                                <div class="col-md-4">
-                                    <div class="airdrop-stat-card">
-                                        <i class="fas fa-users airdrop-stat-icon"></i>
-                                        <div id="airdrop-ref-count" class="airdrop-stat-value">0</div>
-                                        <div class="airdrop-stat-label">Lượt mời</div>
+                    <div id="airdrop-content-logged-in" style="display: none;">
+                        <div class="row justify-content-center g-4">
+                            <!-- Allocation Rules Card -->
+                            <div class="col-12 col-md-10 col-lg-8">
+                                <div class="card-glass p-4">
+                                <h5 class="card-title text-center">Tỷ Lệ Tính Điểm</h5>
+                                <p class="text-center text-secondary">Điểm Airdrop cuối cùng của bạn được tính dựa trên công thức và các hoạt động sau.</p>
+                                <div class="row text-center mt-4">
+                                    <div class="col-4">
+                                        <h3 class="fw-bold" style="color: var(--accent-primary);">50%</h3>
+                                        <p class="text-secondary mb-0">từ<br/><strong>Lượt Mời (Ref)</strong></p>
+                                    </div>
+                                    <div class="col-4">
+                                        <h3 class="fw-bold" style="color: var(--accent-secondary);">30%</h3>
+                                        <p class="text-secondary mb-0">từ<br/><strong>Lượt Check-in</strong></p>
+                                    </div>
+                                    <div class="col-4">
+                                            <h3 class="fw-bold" style="color: var(--gold);">20%</h3>
+                                        <p class="text-secondary mb-0">từ<br/><strong>Điểm EXP</strong></p>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="airdrop-stat-card">
-                                        <i class="fas fa-calendar-check airdrop-stat-icon"></i>
-                                        <div id="airdrop-checkin-count" class="airdrop-stat-value">0</div>
-                                        <div class="airdrop-stat-label">Lần Check-in</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="airdrop-stat-card">
-                                        <i class="fas fa-star airdrop-stat-icon" style="color: var(--gold)"></i>
-                                        <div id="airdrop-exp-count" class="airdrop-stat-value">0</div>
-                                        <div class="airdrop-stat-label">Điểm EXP</div>
-                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <!-- Total Reward & Eligibility -->
-                        <div class="col-12 col-md-10 col-lg-8 mt-4">
-                             <div id="airdrop-reward-card" class="card-glass text-center">
-                                 <h6 class="text-white-50">PHẦN THƯỞNG VIEC CỦA BẠN</h6>
-                                 <div class="d-flex justify-content-center align-items-center">
-                                    <h2 id="airdrop-reward-value" class="fw-bold display-4 mb-0">0</h2>
-                                    <img src="https://duccodedao.github.io/VIEC/img/logo.png" id="airdrop-reward-logo" alt="VIEC Token">
-                                 </div>
-                                 <p id="airdrop-eligibility-status" class="fw-bold mt-2 mb-0 fs-5"></p>
-                             </div>
-                        </div>
 
+                            <!-- User Stats -->
+                            <div class="col-12 col-md-10 col-lg-8">
+                                <h5 class="card-title text-center mt-4">Thống Kê Của Bạn</h5>
+                            </div>
+                            <div class="col-12 col-md-10 col-lg-8">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="airdrop-stat-card">
+                                            <i class="fas fa-users airdrop-stat-icon"></i>
+                                            <div id="airdrop-ref-count" class="airdrop-stat-value">0</div>
+                                            <div class="airdrop-stat-label">Lượt mời</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="airdrop-stat-card">
+                                            <i class="fas fa-calendar-check airdrop-stat-icon"></i>
+                                            <div id="airdrop-checkin-count" class="airdrop-stat-value">0</div>
+                                            <div class="airdrop-stat-label">Lần Check-in</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="airdrop-stat-card">
+                                            <i class="fas fa-star airdrop-stat-icon" style="color: var(--gold)"></i>
+                                            <div id="airdrop-exp-count" class="airdrop-stat-value">0</div>
+                                            <div class="airdrop-stat-label">Điểm EXP</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Total Reward & Eligibility -->
+                            <div class="col-12 col-md-10 col-lg-8 mt-4">
+                                <div id="airdrop-reward-card" class="card-glass text-center">
+                                    <h6 class="text-white-50">PHẦN THƯỞNG VIEC CỦA BẠN</h6>
+                                    <div class="d-flex justify-content-center align-items-center">
+                                        <h2 id="airdrop-reward-value" class="fw-bold display-4 mb-0">0</h2>
+                                        <img src="https://duccodedao.github.io/VIEC/img/logo.png" id="airdrop-reward-logo" alt="VIEC Token">
+                                    </div>
+                                    <p id="airdrop-eligibility-status" class="fw-bold mt-2 mb-0 fs-5"></p>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
-                </div>
 
-                <div id="airdrop-content-logged-out" class="text-center p-5 card-glass col-md-8 mx-auto" style="display: none;">
-                    <i class="fas fa-wallet fa-3x text-secondary mb-3"></i>
-                    <h4 class="text-secondary">Vui lòng kết nối ví</h4>
-                    <p class="text-secondary">Kết nối ví của bạn để xem thống kê và tính toán phần thưởng airdrop tiềm năng.</p>
+                    <div id="airdrop-content-logged-out" class="text-center p-5 card-glass col-md-8 mx-auto" style="display: none;">
+                        <i class="fas fa-wallet fa-3x text-secondary mb-3"></i>
+                        <h4 class="text-secondary">Vui lòng kết nối ví</h4>
+                        <p class="text-secondary">Kết nối ví của bạn để xem thống kê và tính toán phần thưởng airdrop tiềm năng.</p>
+                    </div>
                 </div>
 
             </div>
@@ -890,6 +898,8 @@
     
     <script>
     document.addEventListener('DOMContentLoaded', () => {
+        const IS_AIRDROP_LIVE = false; // <<< ĐỂ TẮT TÍNH NĂNG, ĐẶT LÀ 'false'. ĐỂ BẬT, ĐẶT LÀ 'true'
+
         const TON_API_BASE = 'https://tonapi.io/v2';
         const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
         const USER_SESSION_KEY = 'neuralisUserSession';
@@ -1692,6 +1702,20 @@
         }
 
         async function renderAirdropSection() {
+            const airdropWrapper = document.getElementById('airdrop-content-wrapper');
+            const comingSoonEl = document.getElementById('airdrop-coming-soon');
+
+            // The main switch
+            if (!IS_AIRDROP_LIVE) {
+                airdropWrapper.style.display = 'none';
+                comingSoonEl.style.display = 'block';
+                return;
+            }
+            
+            // If live, proceed as normal
+            airdropWrapper.style.display = 'block';
+            comingSoonEl.style.display = 'none';
+
             const loadingEl = document.getElementById('airdrop-content-loading');
             const loggedInContent = document.getElementById('airdrop-content-logged-in');
             const loggedOutContent = document.getElementById('airdrop-content-logged-out');
@@ -1888,10 +1912,10 @@
             } else if (viewToShow === 'referral' && isLoggedIn) {
                 referralSectionEl.style.display = 'block';
                 navReferral.classList.add('active');
-            } else if (viewToShow === 'airdrop') { // Handles both logged in and out states
+            } else if (viewToShow === 'airdrop') {
                 airdropSectionEl.style.display = 'block';
                 navAirdrop.classList.add('active');
-                renderAirdropSection(); // Will handle logged in/out display internally
+                renderAirdropSection();
             } else if (viewToShow === 'leaderboard') {
                 leaderboardSectionEl.style.display = 'block';
                 navLeaderboard.classList.add('active');
@@ -1899,8 +1923,8 @@
             } else if (viewToShow === 'admin' && isLoggedIn && isCurrentUserAdmin()){
                 adminSectionEl.style.display = 'block';
                 navAdmin.classList.add('active');
-                fetchAndRenderAdminUserList(true); // Initial load
-                fetchAirdropSettings().then(criteria => { // Fetch and display admin settings
+                fetchAndRenderAdminUserList(true); 
+                fetchAirdropSettings().then(criteria => {
                      document.getElementById('min-checkins-input').value = criteria.minCheckins || 0;
                      document.getElementById('min-referrals-input').value = criteria.minReferrals || 0;
                      document.getElementById('min-exp-input').value = criteria.minExp || 0;
@@ -1921,7 +1945,9 @@
             let hash = window.location.hash.substring(1) || 'dashboard';
             const [path, queryString] = hash.split('?');
             
-            if (!connectedWalletAddress && ['task', 'account', 'admin', 'referral'].includes(path)) {
+            // Allow airdrop page even if logged out, to show connect message or coming soon
+            const protectedRoutes = ['task', 'account', 'admin', 'referral'];
+            if (!connectedWalletAddress && protectedRoutes.includes(path)) {
                  showAppToast('Yêu cầu kết nối ví', 'Tính năng này yêu cầu kết nối ví.', 'warning');
                  window.location.hash = '#dashboard';
                  hash = 'dashboard';
@@ -2513,7 +2539,7 @@
                     return;
                 }
 
-                let csvContent = "Address,VIEC_Reward\n";
+                let csvContent = "address,quantity\n";
                 eligibleUsers.forEach(item => {
                     csvContent += `${item.address},${item.reward}\n`;
                 });
