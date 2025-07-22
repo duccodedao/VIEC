@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NEURALIS - The VIEC Experience</title>
+
+    <!-- Meta SEO -->
+    <meta name="description" content="NEURALIS: Trải nghiệm Web3 đỉnh cao. Khám phá các Mini App hàng đầu và quản lý tài sản TON của bạn một cách trực quan.">
+    <link rel="icon" href="https://duccodedao.github.io/VIEC/img/logo.png" type="image/png">
+
+    <!-- Libraries -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #050816;
+            --card-color: rgba(23, 27, 48, 0.5);
+            --border-color: rgba(145, 94, 255, 0.2);
+            --accent-primary: #915EFF;
+            --accent-secondary: #2BCBC4;
+            --text-primary: #f1f2f6;
+            --text-secondary: #aaa6c3;
+            --color-in: #2BCBC4;
+            --color-out: #ff6b6b;
+            --color-failed: #ffcc00;
+            --color-verified: #2ecc71;
+            --color-danger: #ff4757;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            background: linear-gradient(-45deg, #050816, #120e2a, #1a163c, #0d0b1f);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            overflow-x: hidden;
+            font-size: 16px;
+        }
+
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        
+        .main-container { max-width: 1400px; padding: 2rem 1rem; margin: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 2rem; }
+        .header-logo { display: flex; align-items: center; text-decoration: none; color: var(--text-primary); gap: 10px; z-index: 1100; }
+        .header-logo img { height: 40px; width: 40px; object-fit: cover; transition: all 0.3s ease; border-radius: 8px; }
+        .header-logo span { font-size: 1.1rem; font-weight: 600; }
+        
+        .card-glass { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 1.5rem; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: all 0.3s ease; height: 100%; }
+        .card-glass:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
+        .card-title { font-weight: 600; margin-bottom: 1.5rem; font-size: 1.25rem; }
+        
+        .hero-section, .login-section { text-align: center; padding: 4rem 0; min-height: 70vh; display: flex; align-items: center; justify-content: center;}
+        .hero-section h1, .login-section h1 { font-size: 2.5rem; font-weight: 700; }
+        .hero-section .highlight, .login-section .highlight { color: var(--accent-primary); }
+
+        .skeleton-loader { background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); background-size: 200% 100%; border-radius: 8px; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .skeleton-line { height: 20px; margin-bottom: 10px; }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
+
+        .activity-item-icon, .jetton-item-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+        .amount-in { color: var(--color-in); }
+        .amount-out { color: var(--color-out); }
+        .status-icon { font-size: 0.7rem; margin-right: 6px; }
+        .status-ok { color: var(--color-in); }
+        .status-failed { color: var(--color-failed); }
+        .verified-tick { color: var(--color-verified); margin-left: 5px; font-size: 0.9em; }
+
+        .jetton-item { cursor: pointer; transition: background-color: 0.2s; border-radius: 8px; }
+        .jetton-item:hover { background-color: rgba(145, 94, 255, 0.1); }
+        
+        #search-results-container { max-height: 40vh; overflow-y: auto; }
+        .search-result-item { cursor: pointer; padding: 10px; border-radius: 8px; transition: background-color: 0.2s ease; }
+        .search-result-item:hover { background-color: rgba(145, 94, 255, 0.1); }
+        .search-result-item img { width: 32px; height: 32px; border-radius: 50%; }
+        
+        .copyable-address { cursor: pointer; transition: color 0.2s; font-family: monospace; }
+        .copyable-address:hover { color: var(--accent-secondary); }
+        .copyable-address.copied { color: var(--color-verified) !important; font-weight: bold; }
+
+        .modal-content { background-color: #0c0f24; border: 1px solid var(--border-color); color: var(--text-primary); }
+        .modal-header { border-bottom: 1px solid var(--border-color); }
+        .modal-footer { border-top: 1px solid var(--border-color); }
+        .modal-backdrop.show { opacity: 0.7; backdrop-filter: blur(5px); }
+        .nav-tabs { border-bottom-color: var(--border-color); }
+        .nav-tabs .nav-link { background: transparent; border-color: transparent; color: var(--text-secondary); }
+        .nav-tabs .nav-link.active { color: var(--accent-primary); background-color: rgba(145, 94, 255, 0.1); border-color: var(--border-color); }
+        .tab-content { max-height: 50vh; overflow-y: auto; padding-top: 1rem; }
+        .metadata-key { color: var(--text-secondary); font-weight: 500; }
+        .tab-content .table {
+            --bs-table-bg: transparent;
+            --bs-table-border-color: var(--border-color);
+            --bs-table-color: var(--text-primary);
+            --bs-table-striped-color: var(--text-primary);
+        }
+        .tab-content .table-hover > tbody > tr:hover > * {
+            --bs-table-accent-bg: rgba(145, 94, 255, 0.15);
+        }
+
+        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        .news-card { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 15px; overflow: hidden; transition: all 0.3s ease; text-decoration: none; color: var(--text-primary); }
+        .news-card:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
+        .news-card-img { width: 100%; height: 180px; object-fit: cover; }
+        .news-card-body { padding: 1rem; }
+        .news-card-title { font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .news-card-source { font-size: 0.8rem; color: var(--text-secondary); }
+
+        .hamburger-btn { width: 40px; height: 40px; background: transparent; border: none; padding: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; cursor: pointer; z-index: 1100; }
+        .hamburger-btn span { display: block; width: 24px; height: 2px; background-color: var(--text-primary); border-radius: 2px; transition: all 0.3s ease-in-out; }
+        .hamburger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger-btn.open span:nth-child(2) { opacity: 0; }
+        .hamburger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background: var(--bg-color); padding: 6rem 2rem 2rem; transform: translateX(-100%); transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 1050; display: flex; flex-direction: column; }
+        .sidebar.open { transform: translateX(0); box-shadow: 10px 0px 50px -20px rgba(0,0,0,0.5); }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+        .sidebar-link { color: var(--text-secondary); text-decoration: none; font-size: 1.1rem; font-weight: 500; padding: 10px; border-radius: 8px; transition: color 0.3s, background-color 0.3s; }
+        .sidebar-link:hover, .sidebar-link.active { color: var(--text-primary); background-color: var(--border-color); }
+        
+        .sidebar-wallet-connect { margin-top: auto; }
+        #custom-wallet-button { background: var(--accent-primary); color: white; border: none; padding: 10px 16px; width: 100%; border-radius: 8px; font-weight: 500; cursor: pointer; text-align: center; }
+        #wallet-dropdown { display: none; position: absolute; right: 0; bottom: calc(100% + 10px); background-color: #171b30; border: 1px solid var(--border-color); border-radius: 8px; z-index: 1056; min-width: 100%; box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
+        #wallet-dropdown a { color: var(--text-primary); padding: 12px 16px; text-decoration: none; display: block; font-size: 0.9rem; }
+        #wallet-dropdown a:hover { background-color: rgba(145, 94, 255, 0.2); }
+        #wallet-dropdown a.logout-btn:hover { color: var(--color-danger) !important; background-color: rgba(255, 71, 87, 0.15); }
+        #wallet-dropdown a i { margin-right: 10px; width: 15px; text-align: center; }
+
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); z-index: 1040; opacity: 0; visibility: hidden; transition: opacity 0.4s, visibility 0.4s; }
+        .sidebar-overlay.open { opacity: 1; visibility: visible; }
+
+        .app-menu-container { padding: 1rem 0; }
+        .app-filter-bar { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 2.5rem; }
+        .app-filter-btn { background-color: var(--card-color); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 20px; border-radius: 50px; cursor: pointer; font-weight: 500; transition: all 0.3s ease; }
+        .app-filter-btn:hover { color: var(--text-primary); border-color: var(--accent-secondary); }
+        .app-filter-btn.active { background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white; border-color: transparent; box-shadow: 0 0 15px rgba(145, 94, 255, 0.5); }
+        
+        .app-item { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; background: var(--card-color); border: 1px solid var(--border-color); border-radius: 14px; padding: 1rem; transition: all 0.3s ease; height: 100%; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        .app-item:hover { transform: translateY(-8px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
+        .app-item-img-wrapper { width: 64px; height: 64px; border-radius: 16px; overflow: hidden; flex-shrink: 0; }
+        .app-item-img { width: 100%; height: 100%; object-fit: cover; }
+        .app-item-name { display: block; font-weight: 500; font-size: 0.9rem; color: var(--text-primary); line-height: 1.3; margin-top: 0.75rem; text-align: center; }
+        
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #171b30;
+            color: var(--text-primary);
+            border: 1px solid var(--accent-primary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            z-index: 9999;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            max-width: 400px;
+            cursor: pointer;
+        }
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        .toast-notification-header {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            color: var(--accent-secondary);
+        }
+        .toast-notification p { font-size: 0.95rem; }
+
+        #total-value-usd {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+        #total-value-vnd {
+            font-size: 1.2rem;
+            color: var(--accent-secondary);
+            font-weight: 500;
+        }
+
+        #checkin-button:disabled {
+            background-color: #3a3f5a !important;
+            cursor: not-allowed;
+        }
+
+        @media (min-width: 768px) {
+            .hero-section h1, .login-section h1 { font-size: 3.5rem; }
+            .card-glass { padding: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar-overlay"></div>
+    <nav id="sidebar-menu" class="sidebar">
+        <div class="sidebar-nav">
+            <a href="#dashboard" class="sidebar-link active" id="nav-dashboard">Dashboard</a>
+            <a href="#apps" class="sidebar-link" id="nav-apps">Apps</a>
+            <a href="#task" class="sidebar-link" id="nav-task">Task</a>
+            <a href="#login" class="sidebar-link" id="nav-login">Login</a>
+        </div>
+        
+        <div class="sidebar-wallet-connect">
+            <div class="position-relative">
+                <div id="ton-connect-button-root"></div>
+                <div id="custom-wallet-button-container" style="display: none;">
+                    <button id="custom-wallet-button"></button>
+                    <div id="wallet-dropdown">
+                        <a href="#" id="my-account-btn" target="_blank" rel="noopener noreferrer"><i class="fas fa-user-circle"></i><span>My Account</span></a>
+                        <a href="#" id="copy-address-btn"><i class="fas fa-copy"></i><span>Copy Address</span></a>
+                        <a href="#" id="disconnect-btn"><i class="fas fa-unlink"></i><span>Disconnect Wallet</span></a>
+                        <a href="#" id="logout-btn" class="logout-btn" style="color: var(--color-danger);"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="main-container">
+        <header class="header">
+            <a href="#" class="header-logo" id="app-logo-container">
+                <img id="app-logo-img" src="https://duccodedao.github.io/VIEC/img/logo.png" alt="App Logo">
+                <span id="app-logo-text"></span>
+            </a>
+            <div class="d-flex align-items-center gap-3">
+                <div id="header-exp-display" class="d-none" style="color: var(--accent-secondary); font-weight: 600;">
+                    EXP: <span id="header-exp-balance">0</span>
+                </div>
+                <button id="hamburger-menu-btn" class="hamburger-btn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </header>
+
+        <main id="login-section" class="login-section" style="display: none;">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-7 col-md-9">
+                        <div class="card-glass p-4 p-md-5">
+                            <h1 class="mb-3">Join <span class="highlight">Neuralis</span></h1>
+                            <p class="lead text-secondary mb-4">Please log in with your Telegram account to continue.</p>
+                            <div id="telegram-login-widget">
+                                <script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-login="BmassK3_bot" data-size="large" data-onauth="onTelegramAuth(user)" data-request-access="write"></script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <main id="dashboard" style="display: none;">
+            <div class="row g-4 mb-4">
+                <div class="col-lg-12">
+                    <div id="portfolio-overview-card" class="card-glass">
+                        <h5 class="card-title">Tổng Quan Tài Sản</h5>
+                        <div id="portfolio-overview-content">
+                            <h2 id="total-value-usd">$0.00</h2>
+                            <h4 id="total-value-vnd">0 VNĐ</h4>
+                        </div>
+                         <div id="portfolio-overview-skeleton" style="display: none;">
+                            <div class="skeleton-loader skeleton-line w-75" style="height: 35px; margin-bottom: 15px;"></div>
+                            <div class="skeleton-loader skeleton-line w-50" style="height: 20px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="account-search-section" class="mb-4">
+                <div class="input-group">
+                    <input type="text" id="account-search-input" class="form-control" placeholder="Search by name or paste an address" style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--text-primary); border-right: 0;">
+                    <button id="account-search-button" class="btn" style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--accent-primary);"><i class="fas fa-search"></i></button>
+                </div>
+                <div id="search-results-container" class="mt-2 card-glass" style="padding: 1rem; display: none;"></div>
+            </div>
+
+             <div class="row g-4">
+                <div class="col-lg-7">
+                    <div class="row g-4">
+                        <div class="col-md-12">
+                            <div class="card-glass">
+                                <h5 class="card-title d-flex justify-content-between align-items-center">
+                                    <span>Core Assets</span>
+                                    <button id="back-to-my-wallet-btn" class="btn btn-sm" style="display: none; background-color: var(--accent-secondary); color: white;">
+                                        <i class="fas fa-arrow-left me-1"></i> Back to My Wallet
+                                    </button>
+                                </h5>
+                                <div id="main-assets-content"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-12"><div class="card-glass"><h5 class="card-title">NFT Gallery</h5><div id="nft-gallery-content" style="max-height: 420px; overflow-y: auto;"></div></div></div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                     <div class="row g-4">
+                         <div class="col-12"><div class="card-glass"><h5 class="card-title">Token Portfolio</h5><div id="other-tokens-content" style="max-height: 250px; overflow-y: auto; padding-right: 10px;"></div></div></div>
+                        <div class="col-12"><div class="card-glass"><h5 class="card-title">Activity Feed</h5><div id="activity-feed-content" style="max-height: 525px; overflow-y: auto; padding-right: 10px;"></div></div></div>
+                     </div>
+                </div>
+            </div>
+        </main>
+        
+        <section id="hero-section" class="hero-section" style="display: none;">
+            <div class="container">
+                <h1 class="mb-4">Welcome to the <span class="highlight">Neuralis</span><br/>Web3 Experience</h1>
+                <p class="lead text-secondary col-md-8 mx-auto mb-4">Connect your wallet to visualize your assets and interact with the VIEC ecosystem in a stunning, next-generation interface.</p>
+                <div id="connect-wallet-hero-btn-container"></div>
+            </div>
+        </section>
+
+        <section id="crypto-news-feed" class="mt-5" style="display:none;">
+            <h2 class="card-title" style="font-size: 1.75rem; text-align: center; margin-bottom: 2rem;">Latest Crypto News</h2>
+            <div id="news-content-area"></div>
+        </section>
+
+        <main id="app-store-section" style="display: none;">
+            <div class="app-menu-container">
+                <div class="text-center mb-5">
+                    <h1 class="mb-2" style="font-weight: 700;">Khám Phá Mini Apps</h1>
+                    <p class="lead text-secondary col-md-8 mx-auto">Các ứng dụng, game và công cụ mạnh mẽ nhất trong hệ sinh thái.</p>
+                </div>
+                <div id="app-search-section" class="mb-4">
+                    <div class="input-group">
+                        <input type="text" id="app-search-input" class="form-control" placeholder="Tìm kiếm theo tên..." style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--text-primary); border-right: 0;">
+                        <button class="btn" id="app-search-button" style="background-color: rgba(23, 27, 48, 0.8); border-color: var(--border-color); color: var(--accent-primary);"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+                <div id="app-filter-controls" class="app-filter-bar">
+                    <button class="app-filter-btn active" data-filter="all">Tất cả</button>
+                    <button class="app-filter-btn" data-filter="Airdrop">Airdrop</button>
+                    <button class="app-filter-btn" data-filter="DePIN">DePIN</button>
+                    <button class="app-filter-btn" data-filter="DEX">DEX</button>
+                    <button class="app-filter-btn" data-filter="CEX">CEX</button>
+                    <button class="app-filter-btn" data-filter="Tiện ích">Tiện ích</button>
+                </div>
+                <div id="app-grid" class="row g-3">
+                </div>
+            </div>
+        </main>
+
+        <main id="task-section" style="display: none;">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h1 class="mb-2" style="font-weight: 700;">Nhiệm Vụ Hàng Ngày</h1>
+                    <p class="lead text-secondary col-md-8 mx-auto">Hoàn thành nhiệm vụ để nhận EXP và các phần thưởng giá trị.</p>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-lg-6 col-md-8">
+                        <div class="card-glass">
+                            <h5 class="card-title">Check-in Hàng Ngày</h5>
+                            <div id="daily-checkin-content">
+                                 <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <p class="text-secondary mb-0">Số dư EXP của bạn</p>
+                                        <h3 id="task-exp-balance" class="fw-bold mb-0">0</h3>
+                                    </div>
+                                    <button id="checkin-button" class="btn px-4 py-2" style="background-color: var(--accent-secondary); color: white; font-weight: 600;" disabled>
+                                        <i class="fas fa-spinner fa-spin me-2"></i>Loading...
+                                    </button>
+                                </div>
+                                <div class="mt-3 text-center text-secondary" style="font-size: 0.9rem;">
+                                    Check-in mỗi ngày để nhận <strong style="color: var(--accent-primary);">10 EXP</strong>.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal fade" id="jettonDetailModal" tabindex="-1" aria-labelledby="jettonDetailModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div id="jetton-modal-header-content" class="d-flex align-items-center"></div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <ul class="nav nav-tabs" id="jettonDetailTab" role="tablist">
+              <li class="nav-item" role="presentation"><button class="nav-link active" id="metadata-tab" data-bs-toggle="tab" data-bs-target="#metadata-tab-pane" type="button">Metadata</button></li>
+              <li class="nav-item" role="presentation"><button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-tab-pane" type="button">History</button></li>
+              <li class="nav-item" role="presentation"><button class="nav-link" id="holders-tab" data-bs-toggle="tab" data-bs-target="#holders-tab-pane" type="button">Holders</button></li>
+            </ul>
+            <div class="tab-content" id="jettonDetailTabContent">
+              <div class="tab-pane fade show active" id="metadata-tab-pane" role="tabpanel"></div>
+              <div class="tab-pane fade" id="history-tab-pane" role="tabpanel"></div>
+              <div class="tab-pane fade" id="holders-tab-pane" role="tabpanel"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal fade" id="checkinPopupModal" tabindex="-1" aria-labelledby="checkinPopupModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="checkinPopupModalLabel"><i class="fas fa-calendar-check me-2" style="color: var(--accent-secondary);"></i>Đã đến giờ Check-in!</h5>
+          </div>
+          <div class="modal-body text-center">
+            <p>Chúc mừng! Bạn đã đủ điều kiện để Check-in và nhận phần thưởng.</p>
+            <p class="display-4 fw-bold" style="color: var(--accent-primary);">+10 EXP</p>
+            <p>Nhấn nút bên dưới để nhận ngay!</p>
+          </div>
+          <div class="modal-footer justify-content-center border-0">
+            <button type="button" id="popup-checkin-button" class="btn btn-lg" style="background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white; font-weight: 600;">Check-in và Nhận Thưởng</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Để sau</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Placeholder for apps-data.js if the file doesn't exist
+        if (typeof appsData === 'undefined') {
+            const appsData = [
+                // Add some sample app data here if needed
+                { name: "Sample App 1", link: "#", image: "https://via.placeholder.com/90?text=App1", category: "Tiện ích" },
+                { name: "Sample App 2", link: "#", image: "https://via.placeholder.com/90?text=App2", category: "DEX" },
+            ];
+        }
+    </script>
+    
+    <script>
+    function onTelegramAuth(user) {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => window.handleUserIdentified(user));
+        } else {
+            window.handleUserIdentified(user);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // === KHAI BÁO BIẾN & HẰNG SỐ ===
+        const TON_API_BASE = 'https://tonapi.io/v2';
+        const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
+        const USER_SESSION_KEY = 'neuralisUserSession';
+        const CHECKIN_REWARD = 10;
+        const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000; // 24 giờ
+        const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo.png';
+
+        // === LẤY CÁC ELEMENT DOM ===
+        const elements = {
+            loginSection: document.getElementById('login-section'),
+            dashboard: document.getElementById('dashboard'),
+            hero: document.getElementById('hero-section'),
+            mainAssets: document.getElementById('main-assets-content'),
+            activityFeed: document.getElementById('activity-feed-content'),
+            otherTokens: document.getElementById('other-tokens-content'),
+            nftGallery: document.getElementById('nft-gallery-content'),
+            searchInput: document.getElementById('account-search-input'),
+            searchButton: document.getElementById('account-search-button'),
+            searchResults: document.getElementById('search-results-container'),
+            backToWalletBtn: document.getElementById('back-to-my-wallet-btn'),
+            newsSection: document.getElementById('crypto-news-feed'),
+            newsArea: document.getElementById('news-content-area'),
+            hamburgerBtn: document.getElementById('hamburger-menu-btn'),
+            sidebar: document.getElementById('sidebar-menu'),
+            sidebarOverlay: document.getElementById('sidebar-overlay'),
+            navDashboard: document.getElementById('nav-dashboard'),
+            navApps: document.getElementById('nav-apps'),
+            navTask: document.getElementById('nav-task'),
+            navLogin: document.getElementById('nav-login'),
+            tonConnectRoot: document.getElementById('ton-connect-button-root'),
+            connectWalletHeroBtn: document.getElementById('connect-wallet-hero-btn-container'),
+            customWalletContainer: document.getElementById('custom-wallet-button-container'),
+            customWalletButton: document.getElementById('custom-wallet-button'),
+            walletDropdown: document.getElementById('wallet-dropdown'),
+            copyAddressBtn: document.getElementById('copy-address-btn'),
+            disconnectBtn: document.getElementById('disconnect-btn'),
+            logoutBtn: document.getElementById('logout-btn'),
+            myAccountBtn: document.getElementById('my-account-btn'),
+            appLogoImg: document.getElementById('app-logo-img'),
+            appLogoText: document.getElementById('app-logo-text'),
+            appStore: document.getElementById('app-store-section'),
+            taskSection: document.getElementById('task-section'),
+            appGrid: document.getElementById('app-grid'),
+            appSearchInput: document.getElementById('app-search-input'),
+            appSearchButton: document.getElementById('app-search-button'),
+            appFilterControls: document.getElementById('app-filter-controls'),
+            portfolioContent: document.getElementById('portfolio-overview-content'),
+            portfolioSkeleton: document.getElementById('portfolio-overview-skeleton'),
+            totalValueUsd: document.getElementById('total-value-usd'),
+            totalValueVnd: document.getElementById('total-value-vnd'),
+            taskExpBalance: document.getElementById('task-exp-balance'),
+            headerExpDisplay: document.getElementById('header-exp-display'),
+            headerExpBalance: document.getElementById('header-exp-balance'),
+            checkinButton: document.getElementById('checkin-button'),
+            popupCheckinButton: document.getElementById('popup-checkin-button')
+        };
+        
+        const jettonDetailModal = new bootstrap.Modal(document.getElementById('jettonDetailModal'));
+        let checkinPopupModal = new bootstrap.Modal(document.getElementById('checkinPopupModal'));
+
+        let state = {
+            telegramUserData: null,
+            connectedWalletAddress: null,
+            lastFetchedAddress: null,
+            currentActivityLogs: [],
+            activityRefreshInterval: null,
+            addressCache: {},
+            searchTimeout: null,
+            db: null,
+            checkinInterval: null,
+            isEligibleForCheckin: false
+        };
+
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ 
+            manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json',
+            buttonRootId: 'ton-connect-button-root' 
+        });
+
+        // === LOGIC XÁC THỰC VÀ SESSION ===
+        function handleDisconnect(e) {
+            e?.preventDefault();
+            console.log("Disconnecting wallet only...");
+            if (tonConnectUI.connected) {
+                tonConnectUI.disconnect();
+            }
+            elements.walletDropdown.style.display = 'none';
+        }
+
+        function handleLogout(e) {
+            e?.preventDefault();
+            console.log("Logging out...");
+            localStorage.removeItem(USER_SESSION_KEY);
+            if (tonConnectUI.connected) {
+                tonConnectUI.disconnect();
+            }
+            state.telegramUserData = null;
+            window.location.href = window.location.pathname; 
+        }
+
+        window.handleUserIdentified = (user) => {
+            if (state.telegramUserData) return; 
+            state.telegramUserData = user;
+            
+            const session = { userData: user, expiresAt: Date.now() + CHECKIN_COOLDOWN };
+            localStorage.setItem(USER_SESSION_KEY, JSON.stringify(session));
+
+            elements.appLogoImg.src = state.telegramUserData.photo_url || DEFAULT_LOGO_SRC;
+            elements.appLogoImg.style.borderRadius = '50%';
+            elements.appLogoText.textContent = `@${state.telegramUserData.username}` || state.telegramUserData.first_name || 'Telegram User';
+            
+            initializeFirebaseAndCheckin(state.telegramUserData);
+
+            if (window.location.hash.includes('login')) {
+                window.location.hash = '#dashboard';
+            } else {
+                handleRouteChange();
+            }
+        };
+
+        function checkUserSession() {
+            const sessionJSON = localStorage.getItem(USER_SESSION_KEY);
+            if (!sessionJSON) return false;
+            try {
+                const session = JSON.parse(sessionJSON);
+                if (Date.now() > session.expiresAt) {
+                    localStorage.removeItem(USER_SESSION_KEY);
+                    return false;
+                }
+                window.handleUserIdentified(session.userData);
+                return true;
+            } catch (error) {
+                localStorage.removeItem(USER_SESSION_KEY);
+                return false;
+            }
+        }
+
+        function initializeUser() {
+            try {
+                if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+                    window.Telegram.WebApp.ready();
+                    window.handleUserIdentified(window.Telegram.WebApp.initDataUnsafe.user);
+                    return;
+                }
+            } catch (e) { console.error("Could not init TG Web App:", e); }
+            handleRouteChange();
+        }
+
+        // === LOGIC FIREBASE & CHECK-IN ===
+        async function initializeFirebaseAndCheckin(user) {
+            if (!user?.id) return;
+            const firebaseConfig = {
+                apiKey: "YOUR_API_KEY",
+                authDomain: "YOUR_AUTH_DOMAIN",
+                projectId: "YOUR_PROJECT_ID",
+                storageBucket: "YOUR_STORAGE_BUCKET",
+                messagingSenderId: "YOUR_SENDER_ID",
+                appId: "YOUR_APP_ID",
+                measurementId: "YOUR_MEASUREMENT_ID"
+            };
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            state.db = firebase.firestore();
+            const userData = await getOrCreateUser(user.id);
+            elements.headerExpDisplay.classList.remove('d-none');
+            updateCheckinUI(userData);
+        }
+
+        async function getOrCreateUser(userId) {
+            const userRef = state.db.collection('users').doc(String(userId));
+            const doc = await userRef.get();
+            if (!doc.exists) {
+                const newUser = { id: userId, username: state.telegramUserData?.username || 'N/A', points: 0, lastCheckin: null };
+                await userRef.set(newUser);
+                return newUser;
+            }
+            return doc.data();
+        }
+
+        function updateCheckinUI(userData) {
+            if (!userData) return;
+            const currentExp = userData.points || 0;
+            elements.taskExpBalance.textContent = currentExp;
+            elements.headerExpBalance.textContent = currentExp;
+            if (state.checkinInterval) clearInterval(state.checkinInterval);
+            const { lastCheckin } = userData;
+            state.isEligibleForCheckin = !lastCheckin || (Date.now() - lastCheckin.toDate().getTime() >= CHECKIN_COOLDOWN);
+            if (state.isEligibleForCheckin) {
+                elements.checkinButton.disabled = false;
+                elements.checkinButton.innerHTML = `<i class="fas fa-calendar-check me-2"></i> Check-in Ngay!`;
+                if (window.location.hash.includes('task')) checkinPopupModal.show();
+            } else {
+                elements.checkinButton.disabled = true;
+                const lastCheckinTime = lastCheckin.toDate().getTime();
+                const updateCountdown = () => {
+                    const remaining = CHECKIN_COOLDOWN - (Date.now() - lastCheckinTime);
+                    if (remaining <= 0) {
+                        clearInterval(state.checkinInterval);
+                        state.isEligibleForCheckin = true;
+                        elements.checkinButton.disabled = false;
+                        elements.checkinButton.innerHTML = `<i class="fas fa-calendar-check me-2"></i> Check-in Ngay!`;
+                    } else {
+                        const h = Math.floor((remaining / 36e5) % 24).toString().padStart(2, '0');
+                        const m = Math.floor((remaining / 60000) % 60).toString().padStart(2, '0');
+                        const s = Math.floor((remaining / 1000) % 60).toString().padStart(2, '0');
+                        elements.checkinButton.innerHTML = `<i class="fas fa-hourglass-half me-2"></i> ${h}:${m}:${s}`;
+                    }
+                };
+                updateCountdown();
+                state.checkinInterval = setInterval(updateCountdown, 1000);
+            }
+        }
+
+        async function handleCheckin() {
+            if (!state.telegramUserData?.id) return;
+            checkinPopupModal.hide();
+            elements.checkinButton.disabled = true;
+            elements.popupCheckinButton.disabled = true;
+            elements.checkinButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...`;
+            const userId = String(state.telegramUserData.id);
+            const userRef = state.db.collection('users').doc(userId);
+            try {
+                await state.db.runTransaction(async (transaction) => {
+                    const userDoc = await transaction.get(userRef);
+                    if (!userDoc.exists) throw "User not found!";
+                    const { lastCheckin, points } = userDoc.data();
+                    if (lastCheckin && (Date.now() - lastCheckin.toDate().getTime() < CHECKIN_COOLDOWN)) {
+                        showAppToast('Thông báo', 'Bạn đã điểm danh rồi. Vui lòng quay lại sau.', 'warning');
+                        return;
+                    }
+                    transaction.update(userRef, { points: (points || 0) + CHECKIN_REWARD, lastCheckin: firebase.firestore.FieldValue.serverTimestamp() });
+                });
+                showAppToast('Thành công!', `Bạn đã nhận được ${CHECKIN_REWARD} EXP.`, 'success');
+            } catch (error) {
+                showAppToast('Thất bại', 'Đã có lỗi xảy ra. Vui lòng thử lại.', 'error');
+            } finally {
+                const updatedUserData = await getOrCreateUser(userId);
+                updateCheckinUI(updatedUserData);
+            }
+        }
+
+        // === CÁC HÀM TIỆN ÍCH & RENDER ===
+        const shortenAddress = (addr, s=6, e=6) => addr ? (addr.includes('.') ? addr : `${addr.slice(0,s)}...${addr.slice(-e)}`) : 'Unknown';
+        const showAppToast = (header, msg, type = 'info') => {
+            document.querySelector('.toast-notification')?.remove();
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            let icon = 'fas fa-info-circle';
+            if (type === 'success') icon = 'fas fa-check-circle';
+            if (type === 'error') icon = 'fas fa-times-circle';
+            if (type === 'warning') icon = 'fas fa-exclamation-triangle';
+            toast.innerHTML = `<div class="toast-notification-header"><i class="${icon} me-2"></i> ${header}</div><p class="m-0">${msg}</p>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 100);
+            const hideTimeout = setTimeout(() => { toast.classList.remove('show'); toast.addEventListener('transitionend', () => toast.remove(), { once: true }); }, 5000);
+            toast.addEventListener('click', () => { clearTimeout(hideTimeout); toast.classList.remove('show'); toast.addEventListener('transitionend', () => toast.remove(), { once: true }); }, { once: true });
+        };
+        const formatBalance = (val, dec, sym = '') => { try { return `${(parseFloat(BigInt(val))/(10**((typeof dec==='number'&&!isNaN(dec))?dec:9))).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:6})} ${sym}`; } catch(e){ return `0 ${sym}`; } };
+        async function getFriendlyAddress(addr) { if(!addr||typeof addr!=='string'||addr.includes('.')||!addr.includes(':')||state.addressCache[addr])return state.addressCache[addr]||addr; try { const res=await fetch(`https://toncenter.com/api/v2/detectAddress?address=${encodeURIComponent(addr)}`); if(!res.ok)throw new Error('API not OK'); const data=await res.json(); const friendly=data?.result?.non_bounceable?.b64url||addr; state.addressCache[addr]=friendly; return friendly; } catch(e){ console.warn(`Could not convert ${addr}:`,e); return addr; } }
+        const getRaw = o => o?.raw_form || (typeof o?.address==='string' ? o.address : null);
+        const setSkeletonLoaders = (init=true) => { elements.portfolioSkeleton.style.display='block'; elements.portfolioContent.style.display='none'; elements.mainAssets.innerHTML=skeletonAsset; elements.otherTokens.innerHTML=skeletonTx.repeat(3); elements.nftGallery.innerHTML=`<div class="row g-2">${Array(4).fill('<div class="col-3"><div class="skeleton-loader" style="width:100%;aspect-ratio:1/1;border-radius:12px;"></div></div>').join('')}</div>`; if(init)elements.activityFeed.innerHTML=skeletonTx.repeat(5); };
+        async function renderMainAssets(info,usd,valUsd,valVnd){ if(!info){elements.mainAssets.innerHTML=`<p class="text-danger">Could not load account data.</p>`;return} const friendly=await getFriendlyAddress(info.address); const bal=(info.balance/1e9).toLocaleString('en-US',{maximumFractionDigits:6}); const pUsd=usd?`$${usd.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:4})}`:'N/A'; const vUsd=valUsd?`$${valUsd.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}`:'N/A'; const vVnd=valVnd?`${valVnd.toLocaleString('vi-VN')} VNĐ`:'N/A'; elements.mainAssets.innerHTML=`<div class="d-flex align-items-center mb-3"><img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width:48px;"><div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div></div><div class="d-flex justify-content-between align-items-center mb-3"><span class="text-secondary">Balance</span><strong style="font-size:1.1rem;">${bal}</strong></div><div class="d-flex justify-content-between align-items-center mb-3"><span class="text-secondary">Price</span><strong>${pUsd}</strong></div><div class="d-flex justify-content-between align-items-center"><span class="text-secondary">Value</span><div class="text-end"><strong style="font-size:1.1rem;">${vUsd}</strong><br><small class="text-secondary">${vVnd}</small></div></div><hr style="border-color:var(--border-color);opacity:0.5;"><div class="d-flex align-items-center justify-content-between mt-3"><div class="d-flex align-items-center"><i class="fas fa-wallet me-3" style="width:48px;font-size:24px;text-align:center;color:var(--accent-secondary);"></i><div><h5 class="m-0">Address</h5><p class="m-0 text-secondary">Wallet</p></div></div><h6><code class="copyable-address" data-address="${friendly}" title="Click to copy">${shortenAddress(friendly)}</code></h6></div>`; }
+        function renderOtherTokens(jettons){ elements.otherTokens.innerHTML=''; if(jettons?.length>0){jettons.forEach(j=>{ const bal=Number(BigInt(j.balance))/(10**(j.jetton.decimals||9)); const tick=j.jetton.verification==='whitelist'?`<i class="fas fa-check-circle verified-tick" title="Verified"></i>`:''; let valHtml; const pUsdt=j.price?.prices?.USDT; if(pUsdt){const vUsd=bal*pUsdt; valHtml=`<div class="text-end"><h6 class="m-0">$${vUsd.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</h6><small class="text-secondary">${bal.toLocaleString('en-US',{maximumFractionDigits:4})} ${j.jetton.symbol}</small></div>`}else{valHtml=`<h6 class="m-0">${bal.toLocaleString('en-US',{maximumFractionDigits:4})}</h6>`} elements.otherTokens.innerHTML+=`<div class="d-flex align-items-center justify-content-between mb-3 p-2 jetton-item" data-jetton-address="${j.jetton.address}"><div class="d-flex align-items-center"><img src="${j.jetton.image}" class="me-3 jetton-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png'"><div><h6 class="m-0">${j.jetton.symbol}${tick}</h6></div></div>${valHtml}</div>`})}else{elements.otherTokens.innerHTML=`<p class="text-secondary">No tokens found.</p>`}}
+        function renderNFTs(nfts){ elements.nftGallery.innerHTML=''; if(nfts?.length>0){let html='<div class="row g-2">'; nfts.slice(0,18).forEach(n=>{const url=n.previews?.[n.previews.length-1]?.url||n.metadata?.image||'https://via.placeholder.com/100'; html+=`<div class="col-3"><div title="${n.metadata?.name||'NFT'}" style="cursor:pointer;"><img src="${url}" style="width:100%;border-radius:12px;aspect-ratio:1/1;object-fit:cover;" onerror="this.src='https://via.placeholder.com/100'"></div></div>`}); elements.nftGallery.innerHTML=html+'</div>'}else{elements.nftGallery.innerHTML=`<p class="text-secondary">No NFTs found.</p>`}}
+        async function fetchAndDisplayAccountData(addr){ const isNew=addr!==state.lastFetchedAddress; if(isNew){state.currentActivityLogs=[];elements.activityFeed.innerHTML='';state.lastFetchedAddress=addr;setSkeletonLoaders(true)}else{setSkeletonLoaders(false)} elements.searchResults.style.display='none'; elements.searchInput.value=''; const isMine=state.connectedWalletAddress&&addr===state.connectedWalletAddress; elements.backToWalletBtn.style.display=isMine?'none':'block'; if(!isMine)clearInterval(state.activityRefreshInterval); try{const [tonapi,coingecko]=await Promise.allSettled([Promise.allSettled([fetch(`${TON_API_BASE}/accounts/${addr}`),fetch(`${TON_API_BASE}/accounts/${addr}/jettons?currencies=usdt`),fetch(`${TON_API_BASE}/accounts/${addr}/nfts?limit=100&indirect_ownership=false`),fetch(`${TON_API_BASE}/accounts/${addr}/events?limit=100`)]),fetch(`${COINGECKO_API_BASE}/simple/price?ids=the-open-network&vs_currencies=usd,vnd`)]); const [accRes,jetRes,nftRes,evtRes]=tonapi.value; if(accRes.status==='rejected'||!accRes.value.ok)throw new Error(`Could not fetch account info.`); const accInfo=await accRes.value.json(); const jetInfo=(jetRes.status==='fulfilled'&&jetRes.value.ok)?await jetRes.value.json():{balances:[]}; const nftInfo=(nftRes.status==='fulfilled'&&nftRes.value.ok)?await nftRes.value.json():{nft_items:[]}; const evtInfo=(evtRes.status==='fulfilled'&&evtRes.value.ok)?await evtRes.value.json():{events:[]}; const priceData=(coingecko.status==='fulfilled'&&coingecko.value.ok)?await coingecko.value.json():{}; let totalUsd=0,totalVnd=0,tonUsd=0,tonVnd=0; const tonPrice=priceData['the-open-network']; if(tonPrice&&tonPrice.usd&&tonPrice.vnd){const bal=accInfo.balance/1e9; tonUsd=bal*tonPrice.usd; tonVnd=bal*tonPrice.vnd; totalUsd+=tonUsd; totalVnd+=tonVnd} const vndRate=(tonPrice?.vnd&&tonPrice?.usd)?tonPrice.vnd/tonPrice.usd:25450; if(jetInfo.balances.length>0){jetInfo.balances.forEach(j=>{const p=j.price?.prices?.USDT; if(p){const bal=Number(BigInt(j.balance))/(10**(j.jetton.decimals||9)); const val=bal*p; totalUsd+=val; totalVnd+=val*vndRate}})} elements.totalValueUsd.textContent=`$${totalUsd.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}`; elements.totalValueVnd.textContent=`${totalVnd.toLocaleString('vi-VN')} VNĐ`; elements.portfolioSkeleton.style.display='none'; elements.portfolioContent.style.display='block'; const newLogs=(evtInfo.events??[]).flatMap(e=>parseEvent(e,accInfo.address)); processNewActivity(newLogs); await renderMainAssets(accInfo,tonPrice?.usd,tonUsd,tonVnd); renderOtherTokens(jetInfo.balances); renderNFTs(nftInfo.nft_items??[]); if(nftRes.status==='rejected')elements.nftGallery.innerHTML=`<p class="text-warning">Could not load NFTs.</p>`}catch(e){console.error("Error fetching account data:",e);elements.mainAssets.innerHTML=`<p class="text-danger"><strong>Error:</strong> ${e.message}</p>`;[elements.otherTokens,elements.nftGallery,elements.activityFeed].forEach(el=>el.innerHTML=`<p class="text-secondary">Data unavailable.</p>`);elements.portfolioSkeleton.style.display='none';elements.portfolioContent.style.display='block';elements.totalValueUsd.textContent='$-';elements.totalValueVnd.textContent='- VNĐ'}}
+        function processNewActivity(newLogs){ const hashes=new Set(state.currentActivityLogs.map(l=>l.hash)); const fresh=newLogs.filter(l=>!hashes.has(l.hash)); if(fresh.length>0){const html=fresh.map(l=>renderSingleActivityItem(l)).join(''); elements.activityFeed.insertAdjacentHTML('afterbegin',html); state.currentActivityLogs=[...fresh,...state.currentActivityLogs]; showTransactionPopup(fresh[0])}else if(state.currentActivityLogs.length===0){const html=newLogs.slice(0,50).map(l=>renderSingleActivityItem(l)).join(''); elements.activityFeed.innerHTML=html; state.currentActivityLogs=newLogs.slice(0,50); if(state.currentActivityLogs.length===0)elements.activityFeed.innerHTML=`<p class="text-secondary">No recent activity.</p>`}}
+        
+        // ... (Dán các hàm còn lại: parseEvent, fetchCryptoNews, handleFastSearch, showJettonDetails) ...
+
+        // === ROUTING VÀ QUẢN LÝ VIEW ===
+        const switchView = (view) => {
+            [elements.loginSection, elements.dashboard, elements.hero, elements.newsSection, elements.appStore, elements.taskSection].forEach(s=>s.style.display='none');
+            [elements.navDashboard, elements.navApps, elements.navTask, elements.navLogin].forEach(n=>n.classList.remove('active'));
+            if (!state.telegramUserData) {
+                elements.loginSection.style.display = 'flex';
+                elements.navLogin.classList.add('active');
+                [elements.navDashboard, elements.navApps, elements.navTask].forEach(n=>n.style.display='none');
+                elements.navLogin.style.display = 'block';
+            } else {
+                [elements.navDashboard, elements.navApps, elements.navTask].forEach(n=>n.style.display='block');
+                elements.navLogin.style.display = 'none';
+                if (view === 'apps') {
+                    elements.appStore.style.display = 'block';
+                    elements.navApps.classList.add('active');
+                } else if (view === 'task') {
+                    elements.taskSection.style.display = 'block';
+                    elements.navTask.classList.add('active');
+                    if (state.isEligibleForCheckin) checkinPopupModal.show();
+                } else { 
+                    if (tonConnectUI.connected) elements.dashboard.style.display = 'block';
+                    else elements.hero.style.display = 'flex';
+                    if(elements.newsSection) elements.newsSection.style.display = 'block';
+                    elements.navDashboard.classList.add('active');
+                }
+            }
+            if(elements.sidebar.classList.contains('open')) toggleSidebar();
+        };
+
+        const handleRouteChange = () => {
+            const path = window.location.hash.substring(1).split('?')[0];
+            let view = !state.telegramUserData || path === 'login' ? 'login' : (['apps', 'task'].includes(path) ? path : 'dashboard');
+            switchView(view);
+            if (view === 'apps') {
+                const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
+                elements.appSearchInput.value = decodeURIComponent(params.get('search')||'');
+                renderApps();
+            }
+        };
+
+        const renderApps = () => {
+            if (!elements.appGrid || typeof appsData === 'undefined') return;
+            const term = elements.appSearchInput.value.toLowerCase();
+            const filter = elements.appFilterControls.querySelector('.active').dataset.filter;
+            const filtered = appsData.filter(app => (filter === 'all' || app.category.includes(filter)) && (!term || app.name.toLowerCase().includes(term)));
+            elements.appGrid.innerHTML = '';
+            if (filtered.length === 0) {
+                elements.appGrid.innerHTML = `<div class="col-12 text-center mt-4"><p class="text-secondary fs-5">Không tìm thấy.</p></div>`;
+                return;
+            }
+            filtered.forEach(app => {
+                const card = document.createElement('div');
+                card.className = 'col-3 col-md-3';
+                card.innerHTML = `<a href="${app.link}" target="_blank" rel="noopener noreferrer" class="app-item"><div class="app-item-img-wrapper"><img src="${app.image}" alt="${app.name} logo" class="app-item-img" onerror="this.src='https://via.placeholder.com/90?text=App';"></div><span class="app-item-name">${app.name}</span></a>`;
+                elements.appGrid.appendChild(card);
+            });
+        };
+        
+        // === KHỞI TẠO VÀ GẮN SỰ KIỆN ===
+        const toggleSidebar = () => { elements.hamburgerBtn.classList.toggle('open'); elements.sidebar.classList.toggle('open'); elements.sidebarOverlay.classList.toggle('open'); };
+        
+        elements.hamburgerBtn.addEventListener('click', toggleSidebar);
+        elements.sidebarOverlay.addEventListener('click', toggleSidebar);
+        elements.logoutBtn.addEventListener('click', handleLogout);
+        elements.disconnectBtn.addEventListener('click', handleDisconnect);
+        elements.customWalletButton.addEventListener('click', () => { elements.walletDropdown.style.display = elements.walletDropdown.style.display === 'block' ? 'none' : 'block'; });
+        elements.copyAddressBtn.addEventListener('click', (e) => { e.preventDefault(); const addr = e.currentTarget.dataset.address; const span = e.currentTarget.querySelector('span'); if(addr) navigator.clipboard.writeText(addr).then(() => { span.textContent = 'Copied!'; setTimeout(() => { span.textContent = 'Copy Address'; }, 2000); }); });
+        
+        tonConnectUI.onStatusChange(async (wallet) => {
+            clearInterval(state.activityRefreshInterval);
+            if (wallet) {
+                state.connectedWalletAddress = wallet.account.address;
+                const friendlyAddress = await getFriendlyAddress(state.connectedWalletAddress);
+                elements.tonConnectRoot.style.display = 'none';
+                elements.customWalletContainer.style.display = 'block';
+                elements.customWalletButton.textContent = shortenAddress(friendlyAddress);
+                elements.copyAddressBtn.dataset.address = friendlyAddress;
+                elements.myAccountBtn.href = `https://tonviewer.com/${friendlyAddress}`;
+                await fetchAndDisplayAccountData(state.connectedWalletAddress);
+                state.activityRefreshInterval = setInterval(() => { if(state.lastFetchedAddress === state.connectedWalletAddress) fetchAndDisplayAccountData(state.connectedWalletAddress) }, 30000);
+            } else {
+                state.connectedWalletAddress = null; state.lastFetchedAddress = null; state.currentActivityLogs = [];
+                elements.tonConnectRoot.style.display = 'block';
+                elements.customWalletContainer.style.display = 'none';
+            }
+            handleRouteChange();
+        });
+        
+        window.addEventListener('hashchange', handleRouteChange);
+        
+        // --- ĐIỂM KHỞI ĐẦU CỦA ỨNG DỤNG ---
+        const heroConnectButton = document.createElement('button');
+        heroConnectButton.className = 'btn px-5 py-3';
+        heroConnectButton.style = 'background-color: var(--accent-primary); color: white; font-weight: 600;';
+        heroConnectButton.textContent = 'Connect Wallet';
+        heroConnectButton.addEventListener('click', () => tonConnectUI.openModal());
+        elements.connectWalletHeroBtn.appendChild(heroConnectButton);
+        
+        fetchCryptoNews();
+
+        if (!checkUserSession()) {
+            initializeUser();
+        }
+    });
+    </script>
+</body>
+</html>
