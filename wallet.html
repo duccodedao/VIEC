@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -898,7 +897,7 @@
     
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const IS_AIRDROP_LIVE = false; // <<< ĐỂ TẮT TÍNH NĂNG, ĐẶT LÀ 'false'. ĐỂ BẬT, ĐẶT LÀ 'true'
+        const IS_AIRDROP_LIVE = true; // <<< ĐỂ TẮT TÍNH NĂNG, ĐẶT LÀ 'false'. ĐỂ BẬT, ĐẶT LÀ 'true'
 
         const TON_API_BASE = 'https://tonapi.io/v2';
         const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
@@ -1040,6 +1039,15 @@
             const isAdminByAddress = currentUserData.address === ADMIN_ADDRESS;
             const isAdminByUID = currentUserData.telegramId === ADMIN_UID;
             return isAdminByAddress || isAdminByUID;
+        }
+
+        // --- Unified Airdrop Calculation Function ---
+        function calculateViecReward(user) {
+            if (!user) return 0;
+            const refCount = user.referralCount || 0;
+            const checkinCount = user.checkinCount || 0;
+            const expCount = user.points || 0;
+            return (refCount * 50) + (checkinCount * 30) + (expCount * 20);
         }
 
         async function loadOrCreateUserByAddress(address) {
@@ -1405,7 +1413,7 @@
 
             if (isInitialLoad) {
                 lastVisibleAdminUser = null;
-                adminUserListContainer.innerHTML = `<div class="table-responsive"><table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">EXP</th><th scope="col">Referred</th><th scope="col">Referred By</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table></div>`;
+                adminUserListContainer.innerHTML = `<div class="table-responsive"><table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">EXP</th><th scope="col">VIEC Reward</th><th scope="col">Referred</th><th scope="col">Referred By</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table></div>`;
             }
             
             try {
@@ -1431,6 +1439,7 @@
                     const displayName = user.fullName || (user.username ? `@${user.username}` : 'N/A');
                     const avatarUrl = user.photoUrl || GENERIC_WALLET_ICON;
                     const joinDate = user.createdAt ? user.createdAt.toDate().toLocaleDateString('vi-VN') : 'N/A';
+                    const viecReward = calculateViecReward(user);
                     
                     const row = tableBody.insertRow();
                     row.innerHTML = `
@@ -1445,6 +1454,7 @@
                         <td><code class="copyable-address" data-address="${user.address}" title="Click to copy Raw Address">${shortenAddress(user.address, 6, 6)}</code></td>
                         <td>${user.telegramId || 'N/A'}</td>
                         <td class="fw-bold" style="color: var(--accent-secondary);">${(user.points || 0).toLocaleString()}</td>
+                        <td class="fw-bold" style="color: var(--accent-primary);">${viecReward.toLocaleString()}</td>
                         <td>${user.referralCount || 0}</td>
                         <td><div style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${user.referredBy || 'N/A'}</div></td>
                         <td>${joinDate}</td>
@@ -1732,20 +1742,16 @@
 
             const criteria = await fetchAirdropSettings();
 
-            const refCount = currentUserData.referralCount || 0;
-            const checkinCount = currentUserData.checkinCount || 0;
-            const expCount = currentUserData.points || 0;
-            
-            const reward = (refCount * 50) + (checkinCount * 30) + (expCount * 20);
+            const reward = calculateViecReward(currentUserData);
 
             // Check eligibility
-            const isEligible = refCount >= criteria.minReferrals &&
-                               checkinCount >= criteria.minCheckins &&
-                               expCount >= criteria.minExp;
+            const isEligible = (currentUserData.referralCount || 0) >= criteria.minReferrals &&
+                               (currentUserData.checkinCount || 0) >= criteria.minCheckins &&
+                               (currentUserData.points || 0) >= criteria.minExp;
 
-            document.getElementById('airdrop-ref-count').textContent = refCount.toLocaleString();
-            document.getElementById('airdrop-checkin-count').textContent = checkinCount.toLocaleString();
-            document.getElementById('airdrop-exp-count').textContent = expCount.toLocaleString();
+            document.getElementById('airdrop-ref-count').textContent = (currentUserData.referralCount || 0).toLocaleString();
+            document.getElementById('airdrop-checkin-count').textContent = (currentUserData.checkinCount || 0).toLocaleString();
+            document.getElementById('airdrop-exp-count').textContent = (currentUserData.points || 0).toLocaleString();
             document.getElementById('airdrop-reward-value').textContent = reward.toLocaleString();
 
             const eligibilityStatusEl = document.getElementById('airdrop-eligibility-status');
@@ -2514,20 +2520,20 @@
 
                     snapshot.forEach(doc => {
                         const user = doc.data();
-                        const refCount = user.referralCount || 0;
-                        const checkinCount = user.checkinCount || 0;
-                        const expCount = user.points || 0;
                         
-                        const isEligible = refCount >= criteria.minReferrals &&
-                                           checkinCount >= criteria.minCheckins &&
-                                           expCount >= criteria.minExp;
+                        const isEligible = (user.referralCount || 0) >= criteria.minReferrals &&
+                                           (user.checkinCount || 0) >= criteria.minCheckins &&
+                                           (user.points || 0) >= criteria.minExp;
                         
                         if (isEligible) {
-                            const reward = (refCount * 50) + (checkinCount * 30) + (expCount * 20);
+                            const reward = calculateViecReward(user);
                             eligibleUsers.push({ address: user.address, reward: reward });
                         }
                     });
                     
+                    if (snapshot.docs.length < 500) {
+                        break; // Reached the end
+                    }
                     lastVisible = snapshot.docs[snapshot.docs.length - 1];
                 }
                 
