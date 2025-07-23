@@ -1031,6 +1031,24 @@
         </main>
     </div>
 
+        <!-- Inactivity Warning Modal -->
+    <div class="modal fade" id="inactivityWarningModal" tabindex="-1" aria-labelledby="inactivityWarningModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="inactivityWarningModalLabel"><i class="fas fa-hourglass-half me-2 text-warning"></i>Bạn vẫn ở đó chứ?</h5>
+          </div>
+          <div class="modal-body text-center">
+            <p>Phiên làm việc của bạn sẽ sớm bị khóa do không có hoạt động.</p>
+            <p class="text-secondary">Tự động đăng xuất sau <strong id="session-countdown-timer" class="text-primary fs-4">30</strong> giây...</p>
+          </div>
+          <div class="modal-footer justify-content-between border-0">
+            <button type="button" id="logout-now-btn" class="btn btn-outline-danger">Đăng xuất ngay</button>
+            <button type="button" id="stay-logged-in-btn" class="btn" style="background-color: var(--accent-primary); color: white;">Vẫn ở lại</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- Jetton Detail Modal -->
     <div class="modal fade" id="jettonDetailModal" tabindex="-1" aria-labelledby="jettonDetailModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -1199,7 +1217,7 @@
         const adminDisableBtn = document.getElementById('admin-disable-btn');
         const adminEnableBtn = document.getElementById('admin-enable-btn');
         const adminUserListContainer = document.getElementById('admin-user-list-container');
-        const adminUserSearchInput = document.getElementById('admin-user-search-input'); // New selector
+        const adminUserSearchInput = document.getElementById('admin-user-search-input');
         const adminLoadMoreBtn = document.getElementById('admin-load-more-btn');
         const referralInputContainer = document.getElementById('referral-input-container');
         const referralCodeInput = document.getElementById('referral-code-input');
@@ -1222,6 +1240,14 @@
         const changePasswordBtn = document.getElementById('change-password-btn');
         const contactAdminBtn = document.getElementById('contact-admin-btn');
         const contactAdminModal = new bootstrap.Modal(document.getElementById('contactAdminModal'));
+        
+        // NEW: Inactivity Warning Modal Elements
+        const inactivityWarningModalEl = document.getElementById('inactivityWarningModal');
+        const inactivityWarningModal = new bootstrap.Modal(inactivityWarningModalEl, { backdrop: 'static', keyboard: false });
+        const countdownTimerEl = document.getElementById('session-countdown-timer');
+        const stayLoggedInBtn = document.getElementById('stay-logged-in-btn');
+        const logoutNowBtn = document.getElementById('logout-now-btn');
+
 
         const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo_viewc.png';
         const GENERIC_WALLET_ICON = 'https://ton.org/download/ton_symbol.png';
@@ -1240,7 +1266,8 @@
         let checkinInterval = null;
         let lastVisibleAdminUser = null; // For admin pagination
         let isPasswordVerified = false; 
-        let sessionTimeoutId = null; // Session timer ID
+        let sessionTimeoutId = null; 
+        let inactivityWarningInterval = null; // NEW: Holds the countdown interval
 
         // Constants
         const REFERRAL_REWARD = 200;
@@ -1249,7 +1276,8 @@
         const ADMIN_USERS_PER_PAGE = 50;
         const CLAIM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
         const CLAIM_AMOUNT_NANOTONS = "10000"; // 0.00001 TON
-        const SESSION_DURATION = 10 * 60 * 1000; // 10 minutes session
+        const INACTIVITY_DURATION = 1 * 60 * 1000; // NEW: 1 minute
+        const WARNING_COUNTDOWN_SECONDS = 30; // NEW: 30 second warning
 
         const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
         const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
@@ -1294,8 +1322,11 @@
             passwordOverlay.classList.remove('visible');
         }
 
+        // MODIFIED: lockApp function
         function lockApp() {
-            if (!isPasswordVerified) return; // Already locked
+            hideInactivityWarning(); // Ensure warning modal is hidden
+            if (!isPasswordVerified) return; 
+
             clearTimeout(sessionTimeoutId);
             sessionTimeoutId = null;
             isPasswordVerified = false;
@@ -1305,22 +1336,49 @@
             showPasswordModal('login');
         }
 
+        // NEW: Function to hide the inactivity warning modal and clear its timer
+        function hideInactivityWarning() {
+            if (inactivityWarningInterval) {
+                clearInterval(inactivityWarningInterval);
+                inactivityWarningInterval = null;
+            }
+            inactivityWarningModal.hide();
+        }
+
+        // NEW: Function to show the inactivity warning and start the countdown
+        function showInactivityWarning() {
+            if (!isPasswordVerified) return; // Don't show if already locked
+            
+            inactivityWarningModal.show();
+            let secondsLeft = WARNING_COUNTDOWN_SECONDS;
+            countdownTimerEl.textContent = secondsLeft;
+
+            inactivityWarningInterval = setInterval(() => {
+                secondsLeft--;
+                countdownTimerEl.textContent = secondsLeft;
+                if (secondsLeft <= 0) {
+                    lockApp(); // Lock the app when countdown finishes
+                }
+            }, 1000);
+        }
+
+        // MODIFIED: resetSessionTimer function
         function resetSessionTimer() {
+            hideInactivityWarning(); // Any activity dismisses the warning
             clearTimeout(sessionTimeoutId);
-            sessionTimeoutId = setTimeout(lockApp, SESSION_DURATION);
+            // Set a new timer to show the warning modal after the inactivity period
+            sessionTimeoutId = setTimeout(showInactivityWarning, INACTIVITY_DURATION);
         }
 
         function setupPasswordInputs() {
             const inputs = document.querySelectorAll('.password-input');
             inputs.forEach((input, index) => {
                 input.addEventListener('keyup', (e) => {
-                    // Move to next input on number entry
                     if (e.key >= 0 && e.key <= 9) {
                         if (index < inputs.length - 1 && input.value) {
                             inputs[index + 1].focus();
                         }
                     } else if (e.key === 'Backspace') {
-                        // Move to previous input on backspace
                         if (index > 0 && !input.value) {
                             inputs[index - 1].focus();
                         }
@@ -1962,7 +2020,6 @@
             } catch (error) {
                 console.error("Failed to update user transaction status:", error);
                 showAppToast('Lỗi', 'Cập nhật thất bại. Vui lòng thử lại.', 'error');
-                // Revert switch on failure
                 switchEl.checked = !newStatus;
             } finally {
                 switchEl.disabled = false;
@@ -2088,7 +2145,7 @@
                 await userRef.update(updateData);
                 showAppToast('Thành công', successMessage, 'success');
                 adminDisableForm.reset();
-                fetchAndRenderAdminUserList(true); // Refresh list
+                fetchAndRenderAdminUserList(true);
 
             } catch (error) {
                 console.error("Admin user status update failed:", error);
@@ -2098,15 +2155,22 @@
                 adminEnableBtn.disabled = false;
             }
         }
-
+        
+        // MODIFIED: handleFullLogout function
         function handleFullLogout(e) {
             if (e) e.preventDefault();
             console.log("Logging out completely...");
+            
+            // Clear all timers and session data
+            clearTimeout(sessionTimeoutId);
+            clearInterval(inactivityWarningInterval);
+            sessionTimeoutId = null;
+            inactivityWarningInterval = null;
+            isPasswordVerified = false; 
+
             localStorage.removeItem(USER_SESSION_KEY);
             sessionStorage.removeItem(REFERRAL_SESSION_KEY);
-            isPasswordVerified = false; 
-            clearTimeout(sessionTimeoutId);
-            sessionTimeoutId = null;
+
             if (tonConnectUI.connected) {
                 tonConnectUI.disconnect();
             } else {
@@ -2455,11 +2519,16 @@
             manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json',
             buttonRootId: 'ton-connect-button-root' 
         });
-
+        
+        // MODIFIED: onStatusChange to clear all timers on disconnect
         tonConnectUI.onStatusChange(async (wallet) => {
             clearInterval(activityRefreshInterval);
-            isPasswordVerified = false;
             clearTimeout(sessionTimeoutId);
+            clearInterval(inactivityWarningInterval);
+            isPasswordVerified = false;
+            sessionTimeoutId = null;
+            inactivityWarningInterval = null;
+
 
             if (wallet) {
                 showPasswordBlocker('Đang kết nối ví...');
@@ -3213,13 +3282,12 @@
         referralCodeSubmitHero.addEventListener('click', handleManualReferralInput);
         if(saveSettingsBtn) saveSettingsBtn.addEventListener('click', saveAirdropSettings);
         if(exportCsvBtn) exportCsvBtn.addEventListener('click', exportAirdropData);
-        // MODIFIED: Added event listener for admin user search with debounce
         if (adminUserSearchInput) {
             adminUserSearchInput.addEventListener('input', () => {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
-                    fetchAndRenderAdminUserList(true); // Always do an initial load for search
-                }, 500); // 500ms debounce
+                    fetchAndRenderAdminUserList(true);
+                }, 500); 
             });
         }
 
@@ -3231,10 +3299,10 @@
         backToMyWalletBtn.addEventListener('click', () => { if (connectedWalletAddress) fetchAndDisplayAccountData(connectedWalletAddress); });
         otherTokensContent.addEventListener('click', (e) => { const jettonItem = e.target.closest('.jetton-item'); if (jettonItem) showJettonDetails(jettonItem.dataset.jettonAddress); });
         
-        // Main event listener for clicks and session reset
+        // Main event listener for clicks
         document.body.addEventListener('click', async (e) => { 
-            if (isPasswordVerified) resetSessionTimer();
-
+            // NOTE: The session timer reset is now handled by dedicated activity listeners below
+            
             const copyAddressTarget = e.target.closest('.copyable-address');
             const copyCodeTarget = e.target.closest('.copyable-code');
 
@@ -3251,7 +3319,7 @@
             
             // Password Modal Event Delegation
             const targetId = e.target.id;
-            passwordModalError.textContent = ''; // Clear previous errors
+            passwordModalError.textContent = ''; 
 
             switch (targetId) {
                 case 'create-password-submit':
@@ -3374,9 +3442,14 @@
             }
         });
         
-        ['keypress', 'scroll'].forEach(evt => document.addEventListener(evt, () => {
+        // NEW: Dedicated event listeners for user activity to reset the session timer
+        ['click', 'keypress', 'scroll', 'mousemove'].forEach(evt => document.addEventListener(evt, () => {
              if (isPasswordVerified) resetSessionTimer();
         }));
+        
+        // NEW: Event listeners for the inactivity modal buttons
+        stayLoggedInBtn.addEventListener('click', resetSessionTimer);
+        logoutNowBtn.addEventListener('click', handleFullLogout);
 
         [navDashboard, navApps, navTask, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(link => link.addEventListener('click', (e) => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
         appSearchInput.addEventListener('input', () => { renderApps(); const searchTerm = appSearchInput.value.trim(); const newUrl = searchTerm ? `#apps?search=${encodeURIComponent(searchTerm)}` : '#apps'; history.replaceState(null, '', newUrl); });
