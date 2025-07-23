@@ -642,10 +642,10 @@
                         <div class="card-glass">
                             <ul class="nav nav-tabs" id="referralTab" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab"><i class="fas fa-link me-2"></i>Mã của bạn</button>
+                                    <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab"><i class="fas fa-link me-2"></i>Link</button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="invited-list-tab" data-bs-toggle="tab" data-bs-target="#invited-list-pane" type="button" role="tab"><i class="fas fa-users me-2"></i>Người đã mời (<span id="referral-count">0</span>)</button>
+                                    <button class="nav-link" id="invited-list-tab" data-bs-toggle="tab" data-bs-target="#invited-list-pane" type="button" role="tab"><i class="fas fa-users me-2"></i>Đã mời (<span id="referral-count">0</span>)</button>
                                 </li>
                             </ul>
                             
@@ -789,44 +789,7 @@
                     <p class="lead text-secondary col-md-8 mx-auto">Công cụ quản lý người dùng và sự kiện.</p>
                 </div>
                 <div class="row justify-content-center g-4">
-                    <div class="col-12 col-lg-10 col-xl-8">
-                        <div class="card-glass">
-                            <h5 class="card-title">Chỉnh sửa EXP</h5>
-                            <form id="admin-exp-form">
-                                <div class="mb-3">
-                                    <label for="admin-target-type" class="form-label">Loại định danh</label>
-                                    <select class="form-select" id="admin-target-type">
-                                        <option value="uid" selected>UID (Telegram ID)</option>
-                                        <option value="address">Address (Raw)</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-target-value" class="form-label">Giá trị định danh</label>
-                                    <input type="text" class="form-control" id="admin-target-value" placeholder="Nhập UID hoặc địa chỉ ví..." required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-action-type" class="form-label">Hành động</label>
-                                    <select class="form-select" id="admin-action-type">
-                                        <option value="add" selected>Cộng EXP</option>
-                                        <option value="subtract">Trừ EXP</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-exp-amount" class="form-label">Số lượng EXP</label>
-                                    <input type="number" class="form-control" id="admin-exp-amount" placeholder="e.g., 100" required min="1">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-task-name" class="form-label">Lý do (Task Name)</label>
-                                    <input type="text" class="form-control" id="admin-task-name" placeholder="e.g., Thưởng event" required>
-                                </div>
-                                <button type="submit" id="admin-submit-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;">
-                                    <i class="fas fa-check me-2"></i>Xác nhận
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-lg-10 col-xl-8">
+                     <div class="col-12 col-lg-10 col-xl-8">
                         <div class="card-glass">
                             <h5 class="card-title">Cấu hình Airdrop & Xuất dữ liệu</h5>
                             <div id="admin-airdrop-settings-form">
@@ -887,10 +850,80 @@
                         </div>
                     </div>
 
+                    <div class="col-12 col-lg-10 col-xl-8">
+                        <div class="card-glass">
+                            <h5 class="card-title">Chỉnh sửa EXP</h5>
+                            <form id="admin-exp-form">
+                                <div class="mb-3">
+                                    <label for="admin-target-type" class="form-label">Loại định danh</label>
+                                    <select class="form-select" id="admin-target-type">
+                                        <option value="uid" selected>UID (Telegram ID)</option>
+                                        <option value="address">Address (Raw)</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="admin-target-value" class="form-label">Giá trị định danh</label>
+                                    <input type="text" class="form-control" id="admin-target-value" placeholder="Nhập UID hoặc địa chỉ ví..." required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="admin-action-type" class="form-label">Hành động</label>
+                                    <select class="form-select" id="admin-action-type">
+                                        <option value="add" selected>Cộng EXP</option>
+                                        <option value="subtract">Trừ EXP</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="admin-exp-amount" class="form-label">Số lượng EXP</label>
+                                    <input type="number" class="form-control" id="admin-exp-amount" placeholder="e.g., 100" required min="1">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="admin-task-name" class="form-label">Lý do (Task Name)</label>
+                                    <input type="text" class="form-control" id="admin-task-name" placeholder="e.g., Thưởng event" required>
+                                </div>
+                                <button type="submit" id="admin-submit-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;">
+                                    <i class="fas fa-check me-2"></i>Xác nhận
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- MODIFIED: User Status Control Form -->
+                    <div class="col-12 col-lg-10 col-xl-8">
+                        <div class="card-glass">
+                            <h5 class="card-title">Quản lý Trạng thái Tài khoản</h5>
+                             <form id="admin-disable-form">
+                                <div class="mb-3">
+                                    <label for="admin-disable-target-type" class="form-label">Loại định danh</label>
+                                    <select class="form-select" id="admin-disable-target-type">
+                                        <option value="uid" selected>UID (Telegram ID)</option>
+                                        <option value="address">Address (Raw)</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="admin-disable-target-value" class="form-label">Giá trị định danh</label>
+                                    <input type="text" class="form-control" id="admin-disable-target-value" placeholder="Nhập UID hoặc địa chỉ ví..." required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="admin-disable-duration" class="form-label">Thời gian vô hiệu hoá (ngày)</label>
+                                    <input type="number" class="form-control" id="admin-disable-duration" placeholder="e.g., 7 (để trống nếu muốn mở khoá)" min="0">
+                                </div>
+                                <div class="d-flex gap-3">
+                                    <button type="button" id="admin-disable-btn" class="btn w-100" style="background-color: var(--color-out); color: white;">
+                                        <i class="fas fa-user-lock me-2"></i>Vô hiệu hoá
+                                    </button>
+                                     <button type="button" id="admin-enable-btn" class="btn w-100" style="background-color: var(--color-verified); color: white;">
+                                        <i class="fas fa-user-check me-2"></i>Mở khoá
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+
                     <div class="col-12">
                         <div class="card-glass">
                             <h5 class="card-title">Danh sách Người dùng</h5>
-                            <div id="admin-user-list-container">
+                            <div id="admin-user-list-container" class="table-responsive">
                                 <!-- JS renders table here -->
                             </div>
                             <div class="text-center mt-3">
@@ -946,7 +979,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="apps-data.js"></script>
+    <script src="/apps-data.js"></script>
+
     
     <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -1027,6 +1061,9 @@
         const taskHistoryContent = document.getElementById('task-history-content');
         const adminExpForm = document.getElementById('admin-exp-form');
         const adminSubmitBtn = document.getElementById('admin-submit-btn');
+        const adminDisableForm = document.getElementById('admin-disable-form');
+        const adminDisableBtn = document.getElementById('admin-disable-btn');
+        const adminEnableBtn = document.getElementById('admin-enable-btn');
         const adminUserListContainer = document.getElementById('admin-user-list-container');
         const adminLoadMoreBtn = document.getElementById('admin-load-more-btn');
         const referralInputContainer = document.getElementById('referral-input-container');
@@ -1106,7 +1143,14 @@
             const checkinMultiplier = settings.checkinMultiplier ?? 30;
             const expMultiplier = settings.expMultiplier ?? 20;
 
-            return (refCount * refMultiplier) + (checkinCount * checkinMultiplier) + (expCount * expMultiplier);
+            const baseReward = (refCount * refMultiplier) + (checkinCount * checkinMultiplier) + (expCount * expMultiplier);
+
+            // If snapshot is active, apply 50% penalty if tx not sent
+            if (settings.isSnapshotActive) {
+                return user.hasSentConfirmationTx ? baseReward : Math.floor(baseReward * 0.5);
+            }
+            
+            return baseReward;
         }
 
         async function loadOrCreateUserByAddress(address) {
@@ -1127,7 +1171,8 @@
                     checkinCount: 0,
                     referralCount: 0,
                     referredBy: null,
-                    hasClaimed: false, // New field
+                    hasSentConfirmationTx: false, 
+                    disabledUntil: null,       
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
                 if (telegramUserData) {
@@ -1140,6 +1185,13 @@
                 userData = newUser;
             } else {
                 userData = doc.data();
+                // Check if user is disabled
+                if (userData.disabledUntil && userData.disabledUntil.toDate() > new Date()) {
+                    showAppToast('Tài khoản bị khoá', `Tài khoản của bạn tạm thời không thể sử dụng các tính năng cho đến ${userData.disabledUntil.toDate().toLocaleString('vi-VN')}.`, 'error');
+                    handleFullLogout();
+                    return; // Stop execution for this user
+                }
+                
                 if (telegramUserData && !userData.telegramId) {
                     console.log(`Linking Telegram data to existing address: ${address}`);
                     const updates = {
@@ -1174,7 +1226,6 @@
             console.log(`Attempting to apply referral code "${referrerCode}" for new user ${newAddress}`);
 
             let referrerQuery;
-            // Check if referrerCode is numeric (UID) or a string (address)
             if (!isNaN(referrerCode)) {
                 referrerQuery = db.collection('users').where('telegramId', '==', parseInt(referrerCode, 10));
             } else {
@@ -1192,7 +1243,6 @@
                 const referrerRef = referrerDoc.ref;
                 const referrerData = referrerDoc.data();
                 
-                // Prevent self-referral
                 if (referrerData.address === newAddress) {
                     showAppToast('Lỗi', 'Bạn không thể tự giới thiệu chính mình.', 'warning');
                     return;
@@ -1200,20 +1250,17 @@
 
                 const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
                 
-                // Use a transaction to ensure atomicity
                 await db.runTransaction(async (transaction) => {
                     const freshReferrerDoc = await transaction.get(referrerRef);
                     if (!freshReferrerDoc.exists) throw "Referrer not found in transaction";
-
-                    // 1. Update referrer's points and referral count
+                    
                     const currentPoints = freshReferrerDoc.data().points || 0;
                     const currentRefCount = freshReferrerDoc.data().referralCount || 0;
                     transaction.update(referrerRef, {
                         points: currentPoints + REFERRAL_REWARD,
                         referralCount: currentRefCount + 1
                     });
-
-                    // 2. Add history log to referrer
+                    
                     const referrerHistoryRef = referrerRef.collection('task_history').doc();
                     transaction.set(referrerHistoryRef, {
                         taskName: 'Mời bạn bè thành công',
@@ -1222,9 +1269,8 @@
                         referredUser: newAddress 
                     });
                     
-                    // 3. Update the new user's document to mark them as referred
                     const newUserRef = db.collection('users').doc(newAddress);
-                    transaction.update(newUserRef, { referredBy: String(referrerCode) }); // Always store as string
+                    transaction.update(newUserRef, { referredBy: String(referrerCode) });
                 });
 
                 showAppToast('Thành công!', `Bạn đã được giới thiệu bởi ${referrerData.fullName || shortenAddress(referrerData.address)}!`, 'success');
@@ -1253,7 +1299,6 @@
                 navAdmin.style.display = 'none';
             }
             
-            // Hide referral input for users who have already been referred OR if snapshot is active
             if(currentUserData.referredBy || airdropSettings?.isSnapshotActive) {
                 referralInputContainer.style.display = 'none';
                 referralInputContainerHero.style.display = 'none';
@@ -1345,7 +1390,7 @@
                     transaction.update(userRef, {
                         points: newPoints,
                         lastCheckin: newTimestamp,
-                        checkinCount: firebase.firestore.FieldValue.increment(1) // Increment checkin count
+                        checkinCount: firebase.firestore.FieldValue.increment(1)
                     });
                     
                     const historyRef = userRef.collection('task_history').doc();
@@ -1388,14 +1433,9 @@
                     
                     let iconClass;
                     switch (item.taskName) {
-                        case 'Check-in Hàng ngày':
-                            iconClass = 'fa-calendar-check';
-                            break;
-                        case 'Mời bạn bè thành công':
-                            iconClass = 'fa-user-group';
-                            break;
-                        default:
-                            iconClass = item.exp >= 0 ? 'fa-user-plus' : 'fa-user-minus';
+                        case 'Check-in Hàng ngày': iconClass = 'fa-calendar-check'; break;
+                        case 'Mời bạn bè thành công': iconClass = 'fa-user-group'; break;
+                        default: iconClass = item.exp >= 0 ? 'fa-user-plus' : 'fa-user-minus';
                     }
 
                     const expAmount = item.exp;
@@ -1444,21 +1484,11 @@
                     const avatarUrl = user.photoUrl || GENERIC_WALLET_ICON;
                     const isCurrentUser = connectedWalletAddress && user.address === connectedWalletAddress;
 
-                    let rankDisplay;
-                    let rankClass = ''; 
-
-                    if (rank === 1) {
-                        rankClass = 'rank-1';
-                        rankDisplay = `<i class="fas fa-medal rank-icon"></i>`;
-                    } else if (rank === 2) {
-                        rankClass = 'rank-2';
-                        rankDisplay = `<i class="fas fa-medal rank-icon"></i>`;
-                    } else if (rank === 3) {
-                        rankClass = 'rank-3';
-                        rankDisplay = `<i class="fas fa-medal rank-icon"></i>`;
-                    } else {
-                        rankDisplay = `#${rank}`;
-                    }
+                    let rankDisplay, rankClass = ''; 
+                    if (rank === 1) { rankClass = 'rank-1'; rankDisplay = `<i class="fas fa-medal rank-icon"></i>`; } 
+                    else if (rank === 2) { rankClass = 'rank-2'; rankDisplay = `<i class="fas fa-medal rank-icon"></i>`; } 
+                    else if (rank === 3) { rankClass = 'rank-3'; rankDisplay = `<i class="fas fa-medal rank-icon"></i>`; } 
+                    else { rankDisplay = `#${rank}`; }
 
                     const item = document.createElement('div');
                     item.className = `leaderboard-item ${isCurrentUser ? 'current-user' : ''} ${rankClass}`;
@@ -1488,11 +1518,11 @@
 
             if (isInitialLoad) {
                 lastVisibleAdminUser = null;
-                adminUserListContainer.innerHTML = `<div class="table-responsive"><table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">EXP</th><th scope="col">VIEC Reward</th><th scope="col">Referred</th><th scope="col">Referred By</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table></div>`;
+                adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">EXP</th><th scope="col">Final Reward</th><th scope="col">Sent TX</th><th scope="col">Status</th><th scope="col">Referred</th><th scope="col">Referred By</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
             }
             
             try {
-                const settings = await fetchAirdropSettings(); // Fetch settings once
+                const settings = await fetchAirdropSettings(); 
                 let query = db.collection('users').orderBy('createdAt', 'desc').limit(ADMIN_USERS_PER_PAGE);
 
                 if (!isInitialLoad && lastVisibleAdminUser) {
@@ -1515,7 +1545,16 @@
                     const displayName = user.fullName || (user.username ? `@${user.username}` : 'N/A');
                     const avatarUrl = user.photoUrl || GENERIC_WALLET_ICON;
                     const joinDate = user.createdAt ? user.createdAt.toDate().toLocaleDateString('vi-VN') : 'N/A';
-                    const viecReward = calculateViecReward(user, settings); // Use the unified function
+                    
+                    const finalReward = calculateViecReward(user, settings); // This function now handles snapshot logic
+                    
+                    const sentTxHtml = user.hasSentConfirmationTx ? `<span class="text-success fw-bold">Yes</span>` : `<span class="text-secondary">No</span>`;
+                    let statusHtml;
+                    if (user.disabledUntil && user.disabledUntil.toDate() > new Date()) {
+                        statusHtml = `<span class="text-danger" title="Disabled until ${user.disabledUntil.toDate().toLocaleString('vi-VN')}">Disabled</span>`;
+                    } else {
+                        statusHtml = `<span class="text-success">Active</span>`;
+                    }
                     
                     const row = tableBody.insertRow();
                     row.innerHTML = `
@@ -1530,7 +1569,9 @@
                         <td><code class="copyable-address" data-address="${user.address}" title="Click to copy Raw Address">${shortenAddress(user.address, 6, 6)}</code></td>
                         <td>${user.telegramId || 'N/A'}</td>
                         <td class="fw-bold" style="color: var(--accent-secondary);">${(user.points || 0).toLocaleString()}</td>
-                        <td class="fw-bold" style="color: var(--accent-primary);">${viecReward.toLocaleString()}</td>
+                        <td class="fw-bold" style="color: var(--accent-primary);">${finalReward.toLocaleString()}</td>
+                        <td>${sentTxHtml}</td>
+                        <td>${statusHtml}</td>
                         <td>${user.referralCount || 0}</td>
                         <td><div style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${user.referredBy || 'N/A'}</div></td>
                         <td>${joinDate}</td>
@@ -1558,10 +1599,7 @@
                 showAppToast('Đã dừng', 'Không thể chỉnh sửa EXP sau khi Snapshot.', 'error');
                 return;
             }
-            if (!db) {
-                showAppToast('Lỗi', 'Chưa kết nối cơ sở dữ liệu.', 'error');
-                return;
-            }
+            if (!db) { showAppToast('Lỗi', 'Chưa kết nối cơ sở dữ liệu.', 'error'); return; }
             
             const targetType = document.getElementById('admin-target-type').value;
             const targetValue = document.getElementById('admin-target-value').value.trim();
@@ -1574,21 +1612,20 @@
                 return;
             }
             
-            adminSubmitBtn.disabled = true;
-            adminSubmitBtn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...`;
+            const submitBtn = document.getElementById('admin-submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...`;
             
             let userQuery;
             if (targetType === 'uid') {
                 userQuery = db.collection('users').where('telegramId', '==', parseInt(targetValue, 10)).limit(1);
-            } else { // address
+            } else {
                 userQuery = db.collection('users').where('address', '==', targetValue).limit(1);
             }
 
             try {
                 const snapshot = await userQuery.get();
-                if (snapshot.empty) {
-                    throw new Error(`Không tìm thấy người dùng với ${targetType}: ${targetValue}`);
-                }
+                if (snapshot.empty) { throw new Error(`Không tìm thấy người dùng với ${targetType}: ${targetValue}`); }
                 
                 const userDoc = snapshot.docs[0];
                 const userRef = userDoc.ref;
@@ -1614,16 +1651,78 @@
                 
                 showAppToast('Thành công', `Đã cập nhật EXP cho người dùng ${userDoc.data().fullName || targetValue}.`, 'success');
                 adminExpForm.reset();
+                fetchAndRenderAdminUserList(true); 
 
             } catch (error) {
                 console.error("Admin EXP Update Failed: ", error);
                 showAppToast('Thất bại', error.message, 'error');
             } finally {
-                adminSubmitBtn.disabled = false;
-                adminSubmitBtn.innerHTML = `<i class="fas fa-check me-2"></i>Xác nhận`;
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<i class="fas fa-check me-2"></i>Xác nhận`;
             }
         }
         
+        async function updateUserStatus(enable) {
+            if (!db) { showAppToast('Lỗi', 'Chưa kết nối cơ sở dữ liệu.', 'error'); return; }
+
+            const targetType = document.getElementById('admin-disable-target-type').value;
+            const targetValue = document.getElementById('admin-disable-target-value').value.trim();
+            const durationDaysInput = document.getElementById('admin-disable-duration');
+            const durationDays = parseInt(durationDaysInput.value, 10);
+
+            if (!targetValue) {
+                showAppToast('Lỗi', 'Vui lòng nhập giá trị định danh người dùng.', 'error');
+                return;
+            }
+            if (!enable && (isNaN(durationDays) || durationDays <= 0)) {
+                showAppToast('Lỗi', 'Vui lòng nhập số ngày vô hiệu hoá hợp lệ.', 'error');
+                return;
+            }
+
+            adminDisableBtn.disabled = true;
+            adminEnableBtn.disabled = true;
+
+            let userQuery;
+            if (targetType === 'uid') {
+                userQuery = db.collection('users').where('telegramId', '==', parseInt(targetValue, 10)).limit(1);
+            } else {
+                userQuery = db.collection('users').where('address', '==', targetValue).limit(1);
+            }
+            
+            try {
+                const snapshot = await userQuery.get();
+                if (snapshot.empty) { throw new Error(`Không tìm thấy người dùng với ${targetType}: ${targetValue}`); }
+                
+                const userDoc = snapshot.docs[0];
+                const userRef = userDoc.ref;
+                
+                let updateData;
+                let successMessage;
+                
+                if (enable) {
+                    updateData = { disabledUntil: null };
+                    successMessage = `Đã mở khoá tài khoản ${userDoc.data().fullName || targetValue}.`;
+                } else {
+                    const banEndMillis = Date.now() + (durationDays * 24 * 60 * 60 * 1000);
+                    const banEndTimestamp = firebase.firestore.Timestamp.fromMillis(banEndMillis);
+                    updateData = { disabledUntil: banEndTimestamp };
+                    successMessage = `Đã vô hiệu hoá tài khoản ${userDoc.data().fullName || targetValue} trong ${durationDays} ngày.`;
+                }
+                
+                await userRef.update(updateData);
+                showAppToast('Thành công', successMessage, 'success');
+                adminDisableForm.reset();
+                fetchAndRenderAdminUserList(true); // Refresh list
+
+            } catch (error) {
+                console.error("Admin user status update failed:", error);
+                showAppToast('Thất bại', error.message, 'error');
+            } finally {
+                adminDisableBtn.disabled = false;
+                adminEnableBtn.disabled = false;
+            }
+        }
+
         function handleFullLogout(e) {
             if (e) e.preventDefault();
             console.log("Logging out completely...");
@@ -1680,7 +1779,6 @@
             invitedListPane.innerHTML = skeletonTx.repeat(3);
             
             try {
-                // Firestore doesn't support OR queries on different fields. We run two queries and merge.
                 const queryByAddress = db.collection('users').where('referredBy', '==', currentUserData.address);
                 const queryByUID = currentUserData.telegramId ? db.collection('users').where('referredBy', '==', String(currentUserData.telegramId)) : null;
 
@@ -1689,7 +1787,7 @@
                     queryByUID ? queryByUID.get() : Promise.resolve({ docs: [] })
                 ]);
                 
-                const invitedUsers = new Map(); // Use a map to handle potential duplicates
+                const invitedUsers = new Map();
                 addressSnapshot.forEach(doc => invitedUsers.set(doc.id, doc.data()));
                 uidSnapshot.forEach(doc => invitedUsers.set(doc.id, doc.data()));
 
@@ -1773,31 +1871,26 @@
         }
 
         async function fetchAirdropSettings() {
-            if (airdropSettings) return airdropSettings; // Return cached if available
+            if (airdropSettings) return airdropSettings;
             try {
                 const docRef = db.collection('admin_settings').doc('airdrop_criteria');
                 const doc = await docRef.get();
-                if (doc.exists) {
-                    airdropSettings = doc.data();
-                } else {
-                     // Default settings if not set by admin
+                if (doc.exists) { airdropSettings = doc.data(); } 
+                else {
                     airdropSettings = { 
-                        isAirdropLive: false,
-                        isClaimingEnabled: false,
-                        isSnapshotActive: false,
-                        minCheckins: 0, 
-                        minReferrals: 0, 
-                        minExp: 0,
-                        refMultiplier: 50,
-                        checkinMultiplier: 30,
-                        expMultiplier: 20
+                        isAirdropLive: false, isClaimingEnabled: false, isSnapshotActive: false,
+                        minCheckins: 0, minReferrals: 0, minExp: 0,
+                        refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 20
                     };
                 }
                 return airdropSettings;
             } catch (error) {
                 console.error("Error fetching airdrop settings:", error);
-                // Fallback to default on error
-                return { isAirdropLive: false, isClaimingEnabled: false, isSnapshotActive: false, minCheckins: 0, minReferrals: 0, minExp: 0, refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 20 };
+                return { 
+                    isAirdropLive: false, isClaimingEnabled: false, isSnapshotActive: false,
+                    minCheckins: 0, minReferrals: 0, minExp: 0,
+                    refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 20
+                };
             }
         }
 
@@ -1809,17 +1902,12 @@
             const loggedOutContent = document.getElementById('airdrop-content-logged-out');
 
             loadingEl.style.display = 'block';
-            loggedInContent.style.display = 'none';
-            loggedOutContent.style.display = 'none';
-            airdropWrapper.style.display = 'none';
-            comingSoonEl.style.display = 'none';
+            [loggedInContent, loggedOutContent, airdropWrapper, comingSoonEl].forEach(el => el.style.display = 'none');
 
             const settings = await fetchAirdropSettings();
 
-            // The main switch
             if (!settings.isAirdropLive) {
                 loadingEl.style.display = 'none';
-                airdropWrapper.style.display = 'none';
                 comingSoonEl.style.display = 'block';
                 return;
             }
@@ -1832,7 +1920,7 @@
                 return;
             }
 
-            const reward = calculateViecReward(currentUserData, settings);
+            const finalReward = calculateViecReward(currentUserData, settings);
             const isEligible = (currentUserData.referralCount || 0) >= settings.minReferrals &&
                                (currentUserData.checkinCount || 0) >= settings.minCheckins &&
                                (currentUserData.points || 0) >= settings.minExp;
@@ -1840,28 +1928,31 @@
             document.getElementById('airdrop-ref-count').textContent = (currentUserData.referralCount || 0).toLocaleString();
             document.getElementById('airdrop-checkin-count').textContent = (currentUserData.checkinCount || 0).toLocaleString();
             document.getElementById('airdrop-exp-count').textContent = (currentUserData.points || 0).toLocaleString();
-            document.getElementById('airdrop-reward-value').textContent = reward.toLocaleString();
+            document.getElementById('airdrop-reward-value').textContent = finalReward.toLocaleString();
 
             const eligibilityStatusEl = document.getElementById('airdrop-eligibility-status');
             const claimContainer = document.getElementById('airdrop-claim-container');
-            claimContainer.innerHTML = ''; // Clear previous state
+            claimContainer.innerHTML = '';
 
             if (isEligible) {
                 eligibilityStatusEl.textContent = 'BẠN ĐỦ ĐIỀU KIỆN';
                 eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
 
-                if (currentUserData.hasClaimed) {
-                     claimContainer.innerHTML = `<p class="mt-3 fw-bold" style="color: var(--color-verified);"><i class="fas fa-check-circle me-2"></i>Đã Claim Thành Công</p>`;
+                if (settings.isSnapshotActive) {
+                    const rewardTier = currentUserData.hasSentConfirmationTx ? '100%' : '50%';
+                    claimContainer.innerHTML = `<p class="mt-3 fw-bold" style="color: var(--gold);"><i class="fas fa-flag-checkered me-2"></i>Final Snapshot!</p><p class="text-white-50">Phần thưởng cuối cùng của bạn là <strong class="text-white">${rewardTier}</strong>. Token sẽ được phân phối sớm. </p>`;
+                } else if (currentUserData.hasSentConfirmationTx) {
+                     claimContainer.innerHTML = `<p class="mt-3 fw-bold" style="color: var(--color-verified);"><i class="fas fa-check-circle me-2"></i>Đã Gửi Xác Nhận!</p><p class="text-white-50">Bạn đã đủ điều kiện nhận 100% phần thưởng. Admin sẽ sớm xử lý và trả thưởng.</p>`;
                 } else if (settings.isClaimingEnabled) {
-                     claimContainer.innerHTML = `<button id="claim-button" class="btn mt-2">Xác Nhận Claim</button>`;
+                     claimContainer.innerHTML = `<p class="text-white-50 mt-3">Gửi một giao dịch nhỏ để xác nhận ví và nhận <strong class="text-white">100%</strong> phần thưởng. Nếu không, bạn sẽ chỉ nhận được <strong class="text-white">50%</strong> sau khi Snapshot.</p><button id="claim-button" class="btn mt-2">Gửi Giao Dịch Xác Nhận</button>`;
                      document.getElementById('claim-button').addEventListener('click', handleClaimRequest);
                 } else {
-                    claimContainer.innerHTML = `<p class="text-white-50 mt-3 fst-italic">Việc Claim sẽ sớm được mở. Vui lòng quay lại sau!</p>`;
+                    claimContainer.innerHTML = `<p class="text-white-50 mt-3 fst-italic">Việc gửi giao dịch xác nhận sẽ sớm được mở.</p>`;
                 }
-
             } else {
                 eligibilityStatusEl.textContent = 'BẠN CHƯA ĐỦ ĐIỀU KIỆN';
                 eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
+                claimContainer.innerHTML = `<p class="text-white-50 mt-3">Hãy tiếp tục hoàn thành các nhiệm vụ để đủ điều kiện nhận airdrop.</p>`;
             }
             
             loadingEl.style.display = 'none';
@@ -1869,6 +1960,10 @@
         }
 
         async function handleClaimRequest() {
+            if (airdropSettings?.isSnapshotActive) {
+                showAppToast('Đã dừng', 'Không thể gửi xác nhận sau khi Snapshot.', 'error');
+                return;
+            }
             const claimButton = document.getElementById('claim-button');
             if (!claimButton) return;
 
@@ -1879,27 +1974,26 @@
                 validUntil: Math.floor(Date.now() / 1000) + 60, // 60 seconds
                 messages: [{
                     address: CLAIM_WALLET_ADDRESS,
-                    amount: CLAIM_AMOUNT_NANOTONS
+                    amount: CLAIM_AMOUNT_NANOTONS,
+                    payload: btoa(`confirm-airdrop-for-${currentUserData.address}`)
                 }]
             };
 
             try {
                 await tonConnectUI.sendTransaction(transaction);
                 
-                // Important: Update Firestore to mark as claimed
                 const userRef = db.collection('users').doc(currentUserData.address);
-                await userRef.update({ hasClaimed: true });
+                await userRef.update({ hasSentConfirmationTx: true });
 
-                // Update local state and UI immediately
-                currentUserData.hasClaimed = true;
+                currentUserData.hasSentConfirmationTx = true;
                 showAppToast('Thành công', 'Giao dịch xác nhận đã được gửi!', 'success');
-                renderAirdropSection(); // Re-render to show "Claimed" status
+                renderAirdropSection();
 
             } catch (error) {
-                console.error("Claim transaction failed:", error);
+                console.error("Claim confirmation transaction failed:", error);
                 showAppToast('Giao dịch thất bại', 'Vui lòng thử lại.', 'error');
                 claimButton.disabled = false;
-                claimButton.textContent = 'Xác Nhận Claim';
+                claimButton.textContent = 'Gửi Giao Dịch Xác Nhận';
             }
         }
 
@@ -1910,7 +2004,6 @@
                     tg.ready();
 
                     if(tg.initDataUnsafe && tg.initDataUnsafe.user){
-                        console.log("Running in Telegram Mini App context.");
                         telegramUserData = tg.initDataUnsafe.user;
                         const session = { userData: telegramUserData, expiresAt: Date.now() + (24 * 60 * 60 * 1000) };
                         localStorage.setItem(USER_SESSION_KEY, JSON.stringify(session));
@@ -1919,9 +2012,7 @@
                         appLogoImg.style.borderRadius = '50%';
                         appLogoText.textContent = `@${telegramUserData.username}` || telegramUserData.first_name || 'Telegram User';
                         
-                        // Capture referral code from start_param (startapp)
                         if (tg.initDataUnsafe.start_param) {
-                            console.log("Referral code found in start_param:", tg.initDataUnsafe.start_param);
                             sessionStorage.setItem(REFERRAL_SESSION_KEY, tg.initDataUnsafe.start_param);
                         }
                         
@@ -1930,9 +2021,7 @@
                         }
                     }
                 }
-            } catch (e) { 
-                console.error("Could not initialize Telegram Web App:", e); 
-            }
+            } catch (e) { console.error("Could not initialize Telegram Web App:", e); }
         }
         
         function checkUserSession() {
@@ -1958,15 +2047,11 @@
                  const params = new URLSearchParams(window.location.search);
                  const refCode = params.get('ref');
                  if (refCode) {
-                    console.log("Referral code found in URL:", refCode);
                     sessionStorage.setItem(REFERRAL_SESSION_KEY, refCode);
-                    // Clean the URL to remove the ref parameter after capturing it
                     const newUrl = window.location.pathname + window.location.hash;
                     history.replaceState(null, '', newUrl);
                  }
-            } catch(e) {
-                 console.error("Error capturing web referral:", e);
-            }
+            } catch(e) { console.error("Error capturing web referral:", e); }
         }
 
         async function initializeApp() {
@@ -1975,12 +2060,11 @@
             identifyTelegramUser(); 
             
             if (!telegramUserData) {
-                console.log("Running in public web context (Guest Mode).");
                 appLogoText.textContent = 'Neuralis';
             }
             
             initializeFirebase();
-            await fetchAirdropSettings(); // Fetch settings on init
+            await fetchAirdropSettings();
             handleRouteChange(); 
         }
 
@@ -2006,12 +2090,14 @@
 
                 await loadOrCreateUserByAddress(connectedWalletAddress);
                 
-                await fetchAndDisplayAccountData(connectedWalletAddress);
-                activityRefreshInterval = setInterval(() => {
-                    if(lastFetchedAddress === connectedWalletAddress) {
-                        fetchAndDisplayAccountData(connectedWalletAddress);
-                    }
-                }, 30000);
+                if (currentUserData) { // Check if user wasn't banned on load
+                    await fetchAndDisplayAccountData(connectedWalletAddress);
+                    activityRefreshInterval = setInterval(() => {
+                        if(lastFetchedAddress === connectedWalletAddress) {
+                            fetchAndDisplayAccountData(connectedWalletAddress);
+                        }
+                    }, 30000);
+                }
 
             } else {
                 connectedWalletAddress = null;
@@ -2043,27 +2129,13 @@
             const isLoggedIn = !!connectedWalletAddress;
             [navTask, navAccount, navReferral, navAirdrop].forEach(nav => nav.style.display = isLoggedIn ? 'block' : 'none');
 
-            if (viewToShow === 'account' && isLoggedIn) {
-                accountSectionEl.style.display = 'block';
-                navAccount.classList.add('active');
-            } else if (viewToShow === 'apps') {
-                appStoreSection.style.display = 'block';
-                navApps.classList.add('active');
-            } else if (viewToShow === 'task' && isLoggedIn) {
-                taskSectionEl.style.display = 'block';
-                navTask.classList.add('active');
-            } else if (viewToShow === 'referral' && isLoggedIn) {
-                referralSectionEl.style.display = 'block';
-                navReferral.classList.add('active');
-            } else if (viewToShow === 'airdrop') {
-                airdropSectionEl.style.display = 'block';
-                navAirdrop.classList.add('active');
-                renderAirdropSection();
-            } else if (viewToShow === 'leaderboard') {
-                leaderboardSectionEl.style.display = 'block';
-                navLeaderboard.classList.add('active');
-                fetchAndRenderLeaderboard(); 
-            } else if (viewToShow === 'admin' && isLoggedIn && isCurrentUserAdmin()){
+            if (viewToShow === 'account' && isLoggedIn) { accountSectionEl.style.display = 'block'; navAccount.classList.add('active'); } 
+            else if (viewToShow === 'apps') { appStoreSection.style.display = 'block'; navApps.classList.add('active'); } 
+            else if (viewToShow === 'task' && isLoggedIn) { taskSectionEl.style.display = 'block'; navTask.classList.add('active'); } 
+            else if (viewToShow === 'referral' && isLoggedIn) { referralSectionEl.style.display = 'block'; navReferral.classList.add('active'); } 
+            else if (viewToShow === 'airdrop') { airdropSectionEl.style.display = 'block'; navAirdrop.classList.add('active'); renderAirdropSection(); } 
+            else if (viewToShow === 'leaderboard') { leaderboardSectionEl.style.display = 'block'; navLeaderboard.classList.add('active'); fetchAndRenderLeaderboard(); } 
+            else if (viewToShow === 'admin' && isLoggedIn && isCurrentUserAdmin()){
                 adminSectionEl.style.display = 'block';
                 navAdmin.classList.add('active');
                 fetchAndRenderAdminUserList(true); 
@@ -2079,11 +2151,8 @@
                      document.getElementById('exp-multiplier-input').value = settings.expMultiplier ?? 20;
                 });
             } else { 
-                if (isLoggedIn) {
-                    dashboardEl.style.display = 'block';
-                } else {
-                    heroEl.style.display = 'flex';
-                }
+                if (isLoggedIn) { dashboardEl.style.display = 'block'; } 
+                else { heroEl.style.display = 'flex'; }
                 if (newsSection) newsSection.style.display = 'block';
                 navDashboard.classList.add('active');
             }
@@ -2094,7 +2163,6 @@
             let hash = window.location.hash.substring(1) || 'dashboard';
             const [path, queryString] = hash.split('?');
             
-            // Allow airdrop page even if logged out, to show connect message or coming soon
             const protectedRoutes = ['task', 'account', 'admin', 'referral'];
             if (!connectedWalletAddress && protectedRoutes.includes(path)) {
                  showAppToast('Yêu cầu kết nối ví', 'Tính năng này yêu cầu kết nối ví.', 'warning');
@@ -2123,33 +2191,28 @@
         const handleManualReferralInput = async (e) => {
             let inputEl, btnEl;
             if(e.currentTarget.id.includes('hero')) {
-                inputEl = referralCodeInputHero;
-                btnEl = referralCodeSubmitHero;
+                inputEl = referralCodeInputHero; btnEl = referralCodeSubmitHero;
             } else {
-                inputEl = referralCodeInput;
-                btnEl = referralCodeSubmit;
+                inputEl = referralCodeInput; btnEl = referralCodeSubmit;
             }
 
             const code = inputEl.value.trim();
-            if (!code) {
-                showAppToast('Lỗi', 'Vui lòng nhập mã mời.', 'warning');
-                return;
-            }
+            if (!code) { showAppToast('Lỗi', 'Vui lòng nhập mã mời.', 'warning'); return; }
 
-            if(connectedWalletAddress) { // If user is already logged in
+            if(connectedWalletAddress) { 
                  btnEl.disabled = true;
                  btnEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
                  await applyReferral(code, connectedWalletAddress);
                  const updatedDoc = await db.collection('users').doc(connectedWalletAddress).get();
                  if(updatedDoc.exists) {
                     currentUserData = updatedDoc.data();
-                    updateUIAfterLogin(); // This will hide the input if successful
+                    updateUIAfterLogin();
                  }
                  btnEl.disabled = false;
                  btnEl.textContent = 'Xác nhận';
                  inputEl.value = '';
 
-            } else { // If user is not logged in yet
+            } else {
                 sessionStorage.setItem(REFERRAL_SESSION_KEY, code);
                 showAppToast('Đã lưu mã', 'Mã giới thiệu của bạn đã được lưu. Hãy kết nối ví để hoàn tất.', 'info');
                 inputEl.value = '';
@@ -2174,8 +2237,7 @@
         };
 
         async function getFriendlyAddress(address) {
-            if (!address || typeof address !== 'string' || address.includes('.')) return address;
-            if (!address.includes(':')) return address;
+            if (!address || typeof address !== 'string' || address.includes('.') || !address.includes(':')) return address;
             if (addressCache[address]) return addressCache[address];
             try {
                 const response = await fetch(`https://toncenter.com/api/v2/detectAddress?address=${encodeURIComponent(address)}`);
@@ -2585,7 +2647,7 @@
             }
             filteredApps.forEach(app => {
                 const appCard = document.createElement('div');
-                appCard.className = 'col'; // Bootstrap grid will handle columns via parent
+                appCard.className = 'col';
                 appCard.innerHTML = `<a href="${app.link}" target="_blank" rel="noopener noreferrer" class="app-item"><div class="app-item-img-wrapper"><img src="${app.image}" alt="${app.name} logo" class="app-item-img" onerror="this.src='https://via.placeholder.com/90?text=App';"></div><span class="app-item-name">${app.name}</span></a>`;
                 appGrid.appendChild(appCard);
             });
@@ -2617,8 +2679,8 @@
             const isClaimingEnabled = document.getElementById('claim-enabled-switch').checked;
             const isSnapshotActive = document.getElementById('snapshot-active-switch').checked;
 
-            if (isSnapshotActive && !airdropSettings.isSnapshotActive) {
-                if (!confirm("CẢNH BÁO: Bạn sắp kích hoạt Snapshot. Hành động này sẽ DỪNG tất cả các hoạt động kiếm điểm (check-in, giới thiệu) trên toàn hệ thống. Bạn có chắc chắn muốn tiếp tục không?")) {
+            if (isSnapshotActive && !airdropSettings?.isSnapshotActive) {
+                if (!confirm("CẢNH BÁO: Bạn sắp kích hoạt Snapshot. Hành động này sẽ DỪNG tất cả các hoạt động kiếm điểm (check-in, giới thiệu, sửa EXP) và CHỐT phần thưởng cuối cùng (50% hoặc 100%). Hành động này không thể hoàn tác. Bạn có chắc chắn muốn tiếp tục không?")) {
                     document.getElementById('snapshot-active-switch').checked = false;
                     return;
                 }
@@ -2643,10 +2705,9 @@
                 const settingsRef = db.collection('admin_settings').doc('airdrop_criteria');
                 const newSettings = { isAirdropLive, isClaimingEnabled, isSnapshotActive, minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier };
                 await settingsRef.set(newSettings);
-                airdropSettings = newSettings; // Update local cache
+                airdropSettings = newSettings; 
                 adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
                 showAppToast('Thành công', 'Đã lưu cài đặt Airdrop.', 'success');
-                // Re-render UI elements that depend on the new settings
                 updateUIAfterLogin();
             } catch (error) {
                 console.error("Error saving airdrop settings:", error);
@@ -2664,8 +2725,15 @@
             
             try {
                 const settings = await fetchAirdropSettings();
-                const eligibleUsers = [];
+                if (!settings.isSnapshotActive) {
+                    showAppToast('Cảnh báo', 'Vui lòng kích hoạt "Snapshot" trước khi xuất file để đảm bảo dữ liệu là cuối cùng.', 'warning');
+                    adminSettingsStatusEl.innerHTML = `<span class="text-warning">Cần kích hoạt Snapshot.</span>`;
+                    return;
+                }
+
+                const finalAirdropList = [];
                 let lastVisible = null;
+                let processedCount = 0;
 
                 while (true) {
                     let query = db.collection('users').orderBy('createdAt').limit(500);
@@ -2673,10 +2741,7 @@
                         query = query.startAfter(lastVisible);
                     }
                     const snapshot = await query.get();
-                    
-                    if (snapshot.empty) {
-                        break;
-                    }
+                    if (snapshot.empty) break;
 
                     snapshot.forEach(doc => {
                         const user = doc.data();
@@ -2686,27 +2751,30 @@
                                            (user.points || 0) >= settings.minExp;
                         
                         if (isEligible) {
-                            const reward = calculateViecReward(user, settings);
-                            eligibleUsers.push({ address: user.address, reward: reward });
+                            const finalReward = calculateViecReward(user, settings);
+                            if (finalReward > 0) {
+                                finalAirdropList.push({ address: user.address, reward: finalReward });
+                            }
                         }
                     });
                     
-                    if (snapshot.docs.length < 500) {
-                        break; // Reached the end
-                    }
+                    processedCount += snapshot.docs.length;
+                    adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã xử lý ${processedCount} người dùng...`;
+
+                    if (snapshot.docs.length < 500) break; 
                     lastVisible = snapshot.docs[snapshot.docs.length - 1];
                 }
                 
                 adminSettingsStatusEl.innerHTML = `<i class="fas fa-file-csv me-2"></i>Đang tạo file...`;
                 
-                if (eligibleUsers.length === 0) {
-                    showAppToast('Thông báo', 'Không có người dùng nào đủ điều kiện.', 'info');
+                if (finalAirdropList.length === 0) {
+                    showAppToast('Thông báo', 'Không có người dùng nào đủ điều kiện nhận Airdrop.', 'info');
                     adminSettingsStatusEl.innerHTML = `<span class="text-warning">Không có ai đủ điều kiện.</span>`;
                     return;
                 }
 
                 let csvContent = "address,quantity\n";
-                eligibleUsers.forEach(item => {
+                finalAirdropList.forEach(item => {
                     csvContent += `${item.address},${item.reward}\n`;
                 });
 
@@ -2715,13 +2783,13 @@
                 const url = URL.createObjectURL(blob);
                 link.setAttribute("href", url);
                 const airdropDate = new Date().toISOString().slice(0, 10);
-                link.setAttribute("download", `airdrop-viec-${airdropDate}.csv`);
+                link.setAttribute("download", `airdrop-final-snapshot-${airdropDate}.csv`);
                 link.style.visibility = 'hidden';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
 
-                showAppToast('Thành công', `Đã xuất ${eligibleUsers.length} người dùng đủ điều kiện.`, 'success');
+                showAppToast('Thành công', `Đã xuất ${finalAirdropList.length} người dùng đủ điều kiện.`, 'success');
                 adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã xuất file thành công!</span>`;
 
             } catch (error) {
@@ -2743,6 +2811,10 @@
         checkinButton.addEventListener('click', handleCheckin);
         popupCheckinButton.addEventListener('click', handleCheckin);
         if (adminExpForm) adminExpForm.addEventListener('submit', handleAdminExpUpdate);
+        
+        if (adminDisableBtn) adminDisableBtn.addEventListener('click', () => updateUserStatus(false));
+        if (adminEnableBtn) adminEnableBtn.addEventListener('click', () => updateUserStatus(true));
+
         if (adminLoadMoreBtn) adminLoadMoreBtn.addEventListener('click', () => fetchAndRenderAdminUserList(false));
         referralCodeSubmit.addEventListener('click', handleManualReferralInput);
         referralCodeSubmitHero.addEventListener('click', handleManualReferralInput);
