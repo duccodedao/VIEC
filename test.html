@@ -370,10 +370,10 @@
             padding: 1.5rem;
             border-radius: 16px;
             text-align: center;
-            height: 100%; /* Added for equal height */
-            display: flex; /* Added for alignment */
-            flex-direction: column; /* Added for alignment */
-            justify-content: center; /* Added for alignment */
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         .airdrop-stat-icon {
             font-size: 2.5rem;
@@ -400,7 +400,7 @@
         }
         #airdrop-eligibility-status.eligible { color: var(--color-verified); }
         #airdrop-eligibility-status.ineligible { color: var(--color-out); }
-        #claim-button {
+        .airdrop-action-btn {
             background: white;
             color: var(--accent-primary);
             font-weight: 700;
@@ -408,15 +408,19 @@
             padding: 10px 30px;
             border-radius: 50px;
             transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 0.75rem;
         }
-        #claim-button:hover {
+        .airdrop-action-btn:hover {
             transform: scale(1.05);
             box-shadow: 0 0 20px rgba(255,255,255,0.3);
         }
-        #claim-button:disabled {
+        .airdrop-action-btn:disabled {
             background: #ccc;
             color: #666;
             cursor: not-allowed;
+            transform: scale(1);
+            box-shadow: none;
         }
         
         #loading-overlay {
@@ -805,13 +809,14 @@
                             <!-- Total Reward & Eligibility -->
                             <div class="col-12 col-md-10 col-lg-8 mt-4">
                                 <div id="airdrop-reward-card" class="card-glass text-center">
-                                    <h6 class="text-white-50">PHẦN THƯỞNG VIEC CỦA BẠN</h6>
+                                    <h6 class="text-white-50">PHẦN THƯỞNG VIEC DỰ KIẾN CỦA BẠN</h6>
                                     <div class="d-flex justify-content-center align-items-center">
                                         <h2 id="airdrop-reward-value" class="fw-bold display-4 mb-0">0</h2>
                                         <img src="https://duccodedao.github.io/VIEC/img/logo.png" id="airdrop-reward-logo" alt="VIEC Token">
                                     </div>
                                     <p id="airdrop-eligibility-status" class="fw-bold mt-2 mb-0 fs-5"></p>
-                                    <div id="airdrop-claim-container" class="mt-3"></div>
+                                    <div id="airdrop-final-message-container" class="mt-3"></div>
+                                    <div id="airdrop-actions-container" class="mt-3"></div>
                                 </div>
                             </div>
 
@@ -1179,8 +1184,12 @@
         const CHECKIN_REWARD = 10;
         const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000;
         const ADMIN_USERS_PER_PAGE = 50;
-        const CLAIM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
-        const CLAIM_AMOUNT_NANOTONS = "10000"; // 0.00001 TON
+        
+        // --- MODIFIED: Airdrop Transaction Constants ---
+        const CONFIRM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD"; // For 100% confirmation
+        const CONFIRM_AMOUNT_NANOTONS = "10000"; // 0.00001 TON
+        const REQUEST_WALLET_ADDRESS = "UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA-JLe-w"; // NEW: For final reward request
+        const REQUEST_AMOUNT_NANOTONS = "20000"; // NEW: 0.00002 TON
 
         const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
         const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
@@ -1245,11 +1254,13 @@
 
             const baseReward = (refCount * refMultiplier) + (checkinCount * checkinMultiplier) + (expCount * expMultiplier);
 
-            if (settings.isSnapshotActive) {
-                return user.hasSentConfirmationTx ? baseReward : Math.floor(baseReward * 0.5);
+            // The reward amount is calculated based on the 100% confirmation, even if they didn't send it.
+            // The final payout list determines who actually gets paid.
+            if (user.hasSentConfirmationTx) {
+                return baseReward;
+            } else {
+                return Math.floor(baseReward * 0.5);
             }
-            
-            return baseReward;
         }
 
         async function loadOrCreateUserByAddress(address) {
@@ -1266,7 +1277,9 @@
                 console.log(`Creating new user profile for address: ${address}`);
                 const newUser = {
                     address: address, points: 0, lastCheckin: null, checkinCount: 0,
-                    referralCount: 0, referredBy: null, hasSentConfirmationTx: false, 
+                    referralCount: 0, referredBy: null, 
+                    hasSentConfirmationTx: false, 
+                    hasRequestedAirdrop: false, // NEW: Default state
                     disabledUntil: null, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 };
                 if (telegramUserData) {
@@ -1275,7 +1288,7 @@
                     newUser.fullName = `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim();
                     newUser.photoUrl = telegramUserData.photo_url || DEFAULT_LOGO_SRC;
                 }
-                await userRef.set(newUser);
+                await userRef.set(newUser, { merge: true }); // Use merge to be safe
                 userData = newUser;
             } else {
                 userData = doc.data();
@@ -1284,16 +1297,24 @@
                     handleFullLogout();
                     return; 
                 }
+                
+                const updates = {};
                 if (telegramUserData && !userData.telegramId) {
-                    console.log(`Linking Telegram data to existing address: ${address}`);
-                    const updates = {
+                     Object.assign(updates, {
                         telegramId: telegramUserData.id,
                         username: telegramUserData.username || `user${telegramUserData.id}`,
                         fullName: `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim(),
                         photoUrl: telegramUserData.photo_url || DEFAULT_LOGO_SRC,
-                    };
-                    await userRef.update(updates);
-                    userData = { ...userData, ...updates };
+                    });
+                }
+                // NEW: Ensure all users have the new field
+                if (typeof userData.hasRequestedAirdrop === 'undefined') {
+                    updates.hasRequestedAirdrop = false;
+                }
+                if (Object.keys(updates).length > 0) {
+                     console.log(`Updating existing user profile:`, updates);
+                     await userRef.update(updates);
+                     userData = { ...userData, ...updates };
                 }
             }
             
@@ -2049,6 +2070,7 @@
             }
         }
 
+        // --- MODIFIED: Airdrop Section Rendering Logic ---
         async function renderAirdropSection() {
             const airdropWrapper = document.getElementById('airdrop-content-wrapper');
             const comingSoonEl = document.getElementById('airdrop-coming-soon');
@@ -2086,51 +2108,74 @@
             document.getElementById('airdrop-reward-value').textContent = finalReward.toLocaleString();
 
             const eligibilityStatusEl = document.getElementById('airdrop-eligibility-status');
-            const claimContainer = document.getElementById('airdrop-claim-container');
-            claimContainer.innerHTML = '';
-
-            if (isEligible) {
-                eligibilityStatusEl.textContent = 'BẠN ĐỦ ĐIỀU KIỆN';
-                eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
-
-                if (settings.isSnapshotActive) {
-                    const rewardTier = currentUserData.hasSentConfirmationTx ? '100%' : '50%';
-                    claimContainer.innerHTML = `<p class="mt-3 fw-bold" style="color: var(--gold);"><i class="fas fa-flag-checkered me-2"></i>Final Snapshot!</p><p class="text-white-50">Phần thưởng cuối cùng của bạn là <strong class="text-white">${rewardTier}</strong>. Token sẽ được phân phối sớm. </p>`;
-                } else if (currentUserData.hasSentConfirmationTx) {
-                     claimContainer.innerHTML = `<p class="mt-3 fw-bold" style="color: var(--color-verified);"><i class="fas fa-check-circle me-2"></i>Đã Gửi Xác Nhận!</p><p class="text-white-50">Bạn đã đủ điều kiện nhận 100% phần thưởng. Admin sẽ sớm xử lý và trả thưởng.</p>`;
-                } else if (settings.isClaimingEnabled) {
-                     claimContainer.innerHTML = `<p class="text-white-50 mt-3">Gửi một giao dịch nhỏ để xác nhận ví và nhận <strong class="text-white">100%</strong> phần thưởng. Nếu không, bạn sẽ chỉ nhận được <strong class="text-white">50%</strong> sau khi Snapshot.</p><button id="claim-button" class="btn mt-2">Gửi Giao Dịch Xác Nhận</button>`;
-                     document.getElementById('claim-button').addEventListener('click', handleClaimRequest);
-                } else {
-                    claimContainer.innerHTML = `<p class="text-white-50 mt-3 fst-italic">Việc gửi giao dịch xác nhận sẽ sớm được mở.</p>`;
-                }
-            } else {
+            const actionsContainer = document.getElementById('airdrop-actions-container');
+            const finalMessageContainer = document.getElementById('airdrop-final-message-container');
+            actionsContainer.innerHTML = '';
+            finalMessageContainer.innerHTML = '';
+            
+            if (!isEligible) {
                 eligibilityStatusEl.textContent = 'BẠN CHƯA ĐỦ ĐIỀU KIỆN';
                 eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
-                claimContainer.innerHTML = `<p class="text-white-50 mt-3">Hãy tiếp tục hoàn thành các nhiệm vụ để đủ điều kiện nhận airdrop.</p>`;
+                actionsContainer.innerHTML = `<p class="text-white-50 mt-3">Hãy tiếp tục hoàn thành các nhiệm vụ để đủ điều kiện nhận airdrop.</p>`;
+            } else if (currentUserData.hasRequestedAirdrop) {
+                eligibilityStatusEl.textContent = 'YÊU CẦU ĐÃ ĐƯỢC GỬI';
+                eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
+                const friendlyAddress = await getFriendlyAddress(currentUserData.address);
+                finalMessageContainer.innerHTML = `
+                    <p class="text-white-50 mt-3">Phần thưởng sẽ được phân bổ đến địa chỉ của bạn sớm nhất.</p>
+                    <code class="copyable-address fs-6" data-address="${friendlyAddress}">${shortenAddress(friendlyAddress, 10, 10)}</code>
+                `;
+            } else { // Is eligible, but has not requested yet
+                const rewardTier = currentUserData.hasSentConfirmationTx ? '100%' : '50%';
+                eligibilityStatusEl.textContent = `BẠN ĐỦ ĐIỀU KIỆN (${rewardTier})`;
+                eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
+                
+                let buttonsHtml = '';
+
+                // Button 1: Confirm for 100%
+                if (!currentUserData.hasSentConfirmationTx && !settings.isSnapshotActive && settings.isClaimingEnabled) {
+                     buttonsHtml += `<p class="text-white-50 mt-3 small">Gửi một giao dịch nhỏ để xác nhận ví và nâng mức thưởng lên <strong class="text-white">100%</strong>.</p>`;
+                     buttonsHtml += `<button id="confirm-button" class="airdrop-action-btn">Xác Nhận (Nhận 100%)</button>`;
+                } else if (currentUserData.hasSentConfirmationTx) {
+                     buttonsHtml += `<p class="text-white-50 mt-3 fw-bold" style="color: var(--color-verified)!important;"><i class="fas fa-check-circle me-2"></i>Đã xác nhận 100%</p>`;
+                }
+
+                // Button 2: Request the reward
+                if (!settings.isSnapshotActive && settings.isClaimingEnabled) {
+                    buttonsHtml += `<p class="text-white-50 mt-3 small">Gửi giao dịch để yêu cầu nhận thưởng. Yêu cầu của bạn sẽ được ghi lại để phân phối sau.</p>`;
+                    buttonsHtml += `<button id="request-reward-button" class="airdrop-action-btn" style="background: var(--accent-secondary); color: white;">Yêu Cầu Nhận Thưởng</button>`;
+                } else if (settings.isSnapshotActive) {
+                    buttonsHtml += `<p class="mt-3 fw-bold" style="color: var(--gold);"><i class="fas fa-flag-checkered me-2"></i>Final Snapshot!</p><p class="text-white-50">Việc yêu cầu nhận thưởng đã kết thúc. Token sẽ được phân phối sớm cho những người đã yêu cầu.</p>`;
+                } else {
+                     buttonsHtml += `<p class="text-white-50 mt-3 fst-italic">Việc yêu cầu nhận thưởng sẽ sớm được mở.</p>`;
+                }
+
+                actionsContainer.innerHTML = buttonsHtml;
+                
+                const confirmBtn = document.getElementById('confirm-button');
+                const requestBtn = document.getElementById('request-reward-button');
+                if (confirmBtn) confirmBtn.addEventListener('click', handleConfirmationRequest);
+                if (requestBtn) requestBtn.addEventListener('click', handleAirdropRequest);
             }
             
             loadingEl.style.display = 'none';
             loggedInContent.style.display = 'block';
         }
 
-        async function handleClaimRequest() {
-            if (airdropSettings?.isSnapshotActive) {
-                showAppToast('Đã dừng', 'Không thể gửi xác nhận sau khi Snapshot.', 'error');
-                return;
-            }
-            const claimButton = document.getElementById('claim-button');
-            if (!claimButton) return;
+        // MODIFIED: Renamed from handleClaimRequest
+        async function handleConfirmationRequest() {
+            const confirmButton = document.getElementById('confirm-button');
+            if (!confirmButton) return;
 
-            claimButton.disabled = true;
-            claimButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...`;
+            confirmButton.disabled = true;
+            confirmButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...`;
             
             const transaction = {
-                validUntil: Math.floor(Date.now() / 1000) + 60, // 60 seconds
+                validUntil: Math.floor(Date.now() / 1000) + 60,
                 messages: [{
-                    address: CLAIM_WALLET_ADDRESS,
-                    amount: CLAIM_AMOUNT_NANOTONS,
-                    payload: btoa(`confirm-airdrop-for-${currentUserData.address}`)
+                    address: CONFIRM_WALLET_ADDRESS,
+                    amount: CONFIRM_AMOUNT_NANOTONS,
+                    payload: btoa(`confirm-100-for-${currentUserData.address}`)
                 }]
             };
 
@@ -2141,16 +2186,52 @@
                 await userRef.update({ hasSentConfirmationTx: true });
 
                 currentUserData.hasSentConfirmationTx = true;
-                showAppToast('Thành công', 'Giao dịch xác nhận đã được gửi!', 'success');
-                renderAirdropSection();
+                showAppToast('Thành công', 'Giao dịch xác nhận 100% đã được gửi!', 'success');
+                renderAirdropSection(); // Re-render to update UI
 
             } catch (error) {
-                console.error("Claim confirmation transaction failed:", error);
+                console.error("Confirmation transaction failed:", error);
                 showAppToast('Giao dịch thất bại', 'Vui lòng thử lại.', 'error');
-                claimButton.disabled = false;
-                claimButton.textContent = 'Gửi Giao Dịch Xác Nhận';
+                confirmButton.disabled = false;
+                confirmButton.textContent = 'Xác Nhận (Nhận 100%)';
             }
         }
+        
+        // NEW: Function to handle the final airdrop request
+        async function handleAirdropRequest() {
+            const requestButton = document.getElementById('request-reward-button');
+            if (!requestButton) return;
+            
+            requestButton.disabled = true;
+            requestButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang yêu cầu...`;
+
+            const transaction = {
+                validUntil: Math.floor(Date.now() / 1000) + 60,
+                messages: [{
+                    address: REQUEST_WALLET_ADDRESS,
+                    amount: REQUEST_AMOUNT_NANOTONS,
+                    payload: btoa(`request-airdrop-for-${currentUserData.address}`)
+                }]
+            };
+
+            try {
+                await tonConnectUI.sendTransaction(transaction);
+                
+                const userRef = db.collection('users').doc(currentUserData.address);
+                await userRef.update({ hasRequestedAirdrop: true });
+
+                currentUserData.hasRequestedAirdrop = true;
+                showAppToast('Yêu cầu thành công!', 'Yêu cầu nhận thưởng của bạn đã được ghi lại.', 'success');
+                renderAirdropSection(); // Re-render to show the final message
+
+            } catch(error) {
+                 console.error("Airdrop request transaction failed:", error);
+                showAppToast('Yêu cầu thất bại', 'Vui lòng thử lại.', 'error');
+                requestButton.disabled = false;
+                requestButton.textContent = 'Yêu Cầu Nhận Thưởng';
+            }
+        }
+
 
         function identifyTelegramUser() {
             try {
@@ -2865,18 +2946,14 @@
             }
         }
 
+        // --- MODIFIED: Excel Export Logic ---
         async function exportAirdropData() {
             exportCsvBtn.disabled = true;
             adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang chuẩn bị dữ liệu...`;
             
             try {
                 const settings = await fetchAirdropSettings();
-                if (!settings.isSnapshotActive) {
-                    showAppToast('Cảnh báo', 'Vui lòng kích hoạt "Snapshot" trước khi xuất file để đảm bảo dữ liệu là cuối cùng.', 'warning');
-                    adminSettingsStatusEl.innerHTML = `<span class="text-warning">Cần kích hoạt Snapshot.</span>`;
-                    return;
-                }
-
+                
                 const finalAirdropList = [];
                 let lastVisible = null;
                 let processedCount = 0;
@@ -2896,7 +2973,8 @@
                                            (user.checkinCount || 0) >= settings.minCheckins &&
                                            (user.points || 0) >= settings.minExp;
                         
-                        if (isEligible) {
+                        // MODIFIED: Only include users who have sent the final request transaction
+                        if (isEligible && user.hasRequestedAirdrop) {
                             const finalReward = calculateViecReward(user, settings);
                             if (finalReward > 0) {
                                 finalAirdropList.push({ address: user.address, reward: finalReward });
@@ -2914,8 +2992,8 @@
                 adminSettingsStatusEl.innerHTML = `<i class="fas fa-file-csv me-2"></i>Đang tạo file...`;
                 
                 if (finalAirdropList.length === 0) {
-                    showAppToast('Thông báo', 'Không có người dùng nào đủ điều kiện nhận Airdrop.', 'info');
-                    adminSettingsStatusEl.innerHTML = `<span class="text-warning">Không có ai đủ điều kiện.</span>`;
+                    showAppToast('Thông báo', 'Không có người dùng nào yêu cầu nhận Airdrop.', 'info');
+                    adminSettingsStatusEl.innerHTML = `<span class="text-warning">Không có ai yêu cầu.</span>`;
                     return;
                 }
 
@@ -2929,13 +3007,13 @@
                 const url = URL.createObjectURL(blob);
                 link.setAttribute("href", url);
                 const airdropDate = new Date().toISOString().slice(0, 10);
-                link.setAttribute("download", `airdrop-final-snapshot-${airdropDate}.csv`);
+                link.setAttribute("download", `airdrop-request-list-${airdropDate}.csv`);
                 link.style.visibility = 'hidden';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
 
-                showAppToast('Thành công', `Đã xuất ${finalAirdropList.length} người dùng đủ điều kiện.`, 'success');
+                showAppToast('Thành công', `Đã xuất ${finalAirdropList.length} người dùng đã yêu cầu.`, 'success');
                 adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã xuất file thành công!</span>`;
 
             } catch (error) {
