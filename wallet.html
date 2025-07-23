@@ -597,6 +597,7 @@
             </div>
         </main>
 
+        <!-- MODIFIED TASK SECTION -->
         <main id="task-section" style="display: none;">
             <div class="container">
                 <div class="text-center mb-5">
@@ -611,20 +612,24 @@
                                 <h2 id="task-exp-balance" class="fw-bold mb-0">0</h2>
                             </div>
                         </div>
-                        <div class="card-glass mb-4">
+                        <div class="card-glass">
+                            <!-- Daily Check-in -->
                             <h5 class="card-title">Check-in Hàng Ngày</h5>
                             <div id="daily-checkin-content" class="d-flex justify-content-between align-items-center">
-                                <p class="mb-0">Điểm danh để nhận <strong style="color: var(--accent-primary);">+10 EXP</strong>. Tích lũy EXP để đổi lấy token sau này!</p>
+                                <p class="mb-0">Điểm danh để nhận <strong style="color: var(--accent-primary);">+10 EXP</strong>.</p>
                                 <button id="checkin-button" class="btn px-4 py-2" style="background-color: var(--accent-secondary); color: white; font-weight: 600; flex-shrink: 0; min-width: 130px;" disabled>
                                     <i class="fas fa-spinner fa-spin me-2"></i>Chờ...
                                 </button>
                             </div>
-                        </div>
-                        <div class="card-glass">
+
+                            <!-- Separator -->
+                            <hr style="border-color: var(--border-color); opacity: 0.5; margin: 1.5rem 0;">
+
+                            <!-- Task History -->
                             <h5 class="card-title">Lịch sử Hoạt động</h5>
-                            <div id="task-history-content" style="max-height: 300px; overflow-y: auto;">
-                                <p class="text-secondary text-center p-3">Chưa có hoạt động nào.</p>
-                            </div>
+                            <div id="task-history-content" style="max-height: 300px; overflow-y: auto; padding-right: 10px; padding-bottom: 15px;">
+    <p class="text-secondary text-center p-3">Chưa có hoạt động nào.</p>
+</div>
                         </div>
                     </div>
                 </div>
@@ -642,10 +647,10 @@
                         <div class="card-glass">
                             <ul class="nav nav-tabs" id="referralTab" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab"><i class="fas fa-link me-2"></i>Link</button>
+                                    <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab"><i class="fas fa-link me-2"></i>Mã của bạn</button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="invited-list-tab" data-bs-toggle="tab" data-bs-target="#invited-list-pane" type="button" role="tab"><i class="fas fa-users me-2"></i>Đã mời (<span id="referral-count">0</span>)</button>
+                                    <button class="nav-link" id="invited-list-tab" data-bs-toggle="tab" data-bs-target="#invited-list-pane" type="button" role="tab"><i class="fas fa-users me-2"></i>Người đã mời (<span id="referral-count">0</span>)</button>
                                 </li>
                             </ul>
                             
@@ -979,8 +984,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/apps-data.js"></script>
-
+<script src="/apps-data.js"></script>
     
     <script>
     document.addEventListener('DOMContentLoaded', () => {
