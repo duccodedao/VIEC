@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VIEC - Vietnam Coin | Kiến tạo Tương lai số cho người Việt</title>
+    <title>VIEC & Neuralis | Nền tảng Web3 cho Cộng đồng Việt</title>
 
     <!-- Meta SEO -->
-    <meta name="description" content="Khám phá VIEC, dự án tiên phong xây dựng hệ sinh thái Web3 cho cộng đồng Việt trên nền tảng The Open Network (TON). Tầm nhìn, công nghệ và lộ trình của chúng tôi.">
+    <meta name="description" content="Khám phá Neuralis, nền tảng Web3 toàn diện được xây dựng bởi VIEC trên The Open Network (TON). Quản lý tài sản, tham gia nhiệm vụ và nhận thưởng trong một hệ sinh thái duy nhất.">
     <link rel="icon" href="https://duccodedao.github.io/VIEC/img/logo.png" type="image/png">
-    <meta property="og:title" content="VIEC - Vietnam Coin | Kiến tạo Tương lai số cho người Việt" />
-    <meta property="og:description" content="VIEC là dự án tiên phong xây dựng hệ sinh thái Web3 cho cộng đồng Việt trên nền tảng The Open Network (TON)." />
-    <meta property="og:image" content="https://duccodedao.github.io/VIEC/img/og_image_professional.png" />
+    <meta property="og:title" content="VIEC & Neuralis | Nền tảng Web3 cho Cộng đồng Việt" />
+    <meta property="og:description" content="Neuralis là cửa ngõ vào thế giới Web3, được thiết kế dành riêng cho cộng đồng Việt, cung cấp ví, nền tảng nhiệm vụ và hệ thống phần thưởng hấp dẫn." />
+    <meta property="og:image" content="https://duccodedao.github.io/VIEC/img/og_image_neuralis.png" />
     <meta property="og:url" content="https://yourdomain.com/" />
     <meta name="twitter:card" content="summary_large_image" />
 
@@ -26,143 +26,172 @@
 
     <style>
         :root {
-            --primary-color: #f6b800;
-            --accent-color: #007BFF;
-            --dark-bg: #0A0C10;
-            --card-bg: rgba(255, 255, 255, 0.03);
-            --border-color: rgba(255, 255, 255, 0.1);
-            --text-color: #e6edf3;
-            --text-muted: #848d97;
+            --primary-color: #0D6EFD;
+            --secondary-color: #6f42c1;
+            --gradient: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+
+            /* Light Theme */
+            --bg-light: #F8F9FA;
+            --text-light: #212529;
+            --card-bg-light: #FFFFFF;
+            --border-light: #dee2e6;
+            --muted-light: #6c757d;
+
+            /* Dark Theme */
+            --bg-dark: #0D1117;
+            --text-dark: #e6edf3;
+            --card-bg-dark: #161b22;
+            --border-dark: #30363d;
+            --muted-dark: #848d97;
+        }
+        
+        [data-bs-theme="light"] {
+            --bs-body-bg: var(--bg-light);
+            --bs-body-color: var(--text-light);
+            --card-bg: var(--card-bg-light);
+            --border-color: var(--border-light);
+            --text-muted: var(--muted-light);
         }
 
-        html { scroll-behavior: smooth; }
+        [data-bs-theme="dark"] {
+            --bs-body-bg: var(--bg-dark);
+            --bs-body-color: var(--text-dark);
+            --card-bg: var(--card-bg-dark);
+            --border-color: var(--border-dark);
+            --text-muted: var(--muted-dark);
+        }
+
         body {
             font-family: 'Be Vietnam Pro', sans-serif;
-            background-color: var(--dark-bg);
-            color: var(--text-color);
+            background-color: var(--bs-body-bg);
+            color: var(--bs-body-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .navbar {
-            background-color: rgba(10, 12, 16, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background-color: color-mix(in srgb, var(--card-bg) 70%, transparent);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.3s ease;
         }
         .navbar-brand img { height: 40px; }
-        .nav-link { font-weight: 500; transition: color 0.3s; color: var(--text-muted); }
+        .nav-link { font-weight: 500; color: var(--text-muted); transition: color 0.3s; }
         .nav-link:hover, .nav-link.active { color: var(--primary-color); }
 
         .btn-gradient {
-            background-image: linear-gradient(90deg, var(--accent-color) 0%, var(--primary-color) 100%);
+            background-image: var(--gradient);
             color: #fff; border: none; font-weight: 600;
             transition: all 0.3s ease;
         }
         .btn-gradient:hover {
             transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(0, 123, 255, 0.3);
+            box-shadow: 0 5px 20px rgba(13, 110, 253, 0.3);
         }
-        
+
+        .theme-switch {
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            transition: color 0.3s ease;
+        }
+        .theme-switch:hover { color: var(--primary-color); }
+
         .hero {
-            padding: 160px 0;
+            padding: 120px 0;
             text-align: center;
-            background: var(--dark-bg);
-            position: relative;
-            overflow: hidden;
         }
-        .hero-background {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(ellipse at 50% -20%, rgba(0, 123, 255, 0.2), transparent 50%);
-            opacity: 0.7;
+        .hero h1 {
+            font-size: calc(2.5rem + 2.5vw);
+            font-weight: 800;
+            line-height: 1.2;
         }
-        .hero-content { position: relative; z-index: 2; }
-        .hero h1 { font-size: calc(2.8rem + 2.5vw); font-weight: 800; line-height: 1.1; }
-        .hero .highlight {
-            background: -webkit-linear-gradient(45deg, var(--primary-color), var(--accent-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .hero p { font-size: 1.25rem; max-width: 700px; margin: 2rem auto; }
+        .hero .highlight { color: var(--primary-color); }
+        .hero p { font-size: 1.25rem; max-width: 750px; margin: 1.5rem auto; color: var(--text-muted); }
 
         .section { padding: 100px 0; }
-        .section-title { text-align: center; margin-bottom: 1rem; font-size: 3rem; font-weight: 700; }
+        .section-title { text-align: center; margin-bottom: 1rem; font-size: 2.8rem; font-weight: 700; }
         .section-subtitle { max-width: 700px; margin: 0 auto 60px; color: var(--text-muted); text-align: center; }
 
-        .glass-card {
-            background: var(--card-bg);
+        .card {
+            background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            padding: 35px; border-radius: 16px;
-            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
-            height: 100%; backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            height: 100%;
         }
-        .glass-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-            border-color: var(--accent-color);
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            [data-bs-theme="dark"] & {
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            }
         }
-        .card-icon {
-            font-size: 2.5rem; color: var(--accent-color);
-            margin-bottom: 20px;
-            width: 60px; height: 60px;
+        .feature-icon {
+            font-size: 2rem;
+            width: 50px; height: 50px;
             display: inline-flex; align-items: center; justify-content: center;
-            background: linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(246, 184, 0, 0.1));
+            background-image: var(--gradient);
+            color: white;
             border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .img-fluid.shadow-lg {
+            box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+            [data-bs-theme="dark"] & {
+                box-shadow: 0 1rem 3rem rgba(0,0,0,.5) !important;
+            }
         }
         
-        .roadmap-timeline { position: relative; }
-        .roadmap-timeline::before {
-            content: ''; position: absolute; left: 50%; top: 0; bottom: 0;
-            width: 2px; background-image: linear-gradient(to bottom, transparent, var(--border-color), transparent);
-            transform: translateX(-50%);
+        .timeline { list-style: none; padding: 0; position: relative; }
+        .timeline:before {
+            content: ''; position: absolute; top: 0; bottom: 0; left: 30px;
+            width: 3px; background: var(--border-color);
         }
-        .roadmap-item { position: relative; margin-bottom: 50px; width: 50%; }
-        .roadmap-item:nth-child(odd) { left: 0; padding-right: 50px; text-align: right; }
-        .roadmap-item:nth-child(even) { left: 50%; padding-left: 50px; text-align: left; }
-        .roadmap-dot {
-            position: absolute; top: 5px; width: 20px; height: 20px;
-            border-radius: 50%; background: var(--dark-bg); border: 4px solid var(--border-color);
-            z-index: 2; transition: all 0.3s ease;
+        .timeline-item { position: relative; margin-bottom: 3rem; }
+        .timeline-icon {
+            position: absolute; left: 30px; top: 0;
+            width: 30px; height: 30px;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--primary-color); color: white;
+            border-radius: 50%;
+            transform: translateX(-50%); border: 4px solid var(--card-bg);
         }
-        .roadmap-item:nth-child(odd) .roadmap-dot { right: -10px; }
-        .roadmap-item:nth-child(even) .roadmap-dot { left: -10px; }
-        .roadmap-item:hover .roadmap-dot { border-color: var(--primary-color); transform: scale(1.2); }
-        .roadmap-phase { font-weight: 700; color: var(--primary-color); }
-        .roadmap-item .glass-card { padding: 25px; }
+        .timeline-content { padding-left: 60px; }
 
-        .cta-section {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 80px 40px;
-        }
-
-        footer { background: #000; padding: 40px 0 20px; text-align: center; border-top: 1px solid var(--border-color); }
-        footer .social-icons a { color: var(--text-muted); font-size: 1.5rem; margin: 0 15px; transition: color 0.3s, transform 0.3s; }
+        footer { background: var(--card-bg); border-top: 1px solid var(--border-color); padding: 40px 0; margin-top: 100px; }
+        footer .social-icons a { color: var(--text-muted); font-size: 1.5rem; margin: 0 10px; transition: all 0.3s; }
         footer .social-icons a:hover { color: var(--primary-color); transform: translateY(-3px); }
 
-        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .reveal.active { opacity: 1; transform: translateY(0); }
     </style>
 </head>
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+<nav class="navbar navbar-expand-lg sticky-top">
     <div class="container">
         <a class="navbar-brand" href="#">
             <img src="https://duccodedao.github.io/VIEC/img/logo_viewc.png" alt="VIEC Logo">
+            <span class="ms-2 fw-bold">VIEC Project</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto">
-                <li class="nav-item"><a class="nav-link" href="#vision">Tầm Nhìn</a></li>
-                <li class="nav-item"><a class="nav-link" href="#ecosystem">Hệ sinh thái</a></li>
-                <li class="nav-item"><a class="nav-link" href="#tokenomics">Tokenomics</a></li>
-                <li class="nav-item"><a class="nav-link" href="#roadmap">Lộ Trình</a></li>
-                <li class="nav-item"><a class="nav-link" href="/wallet.html">Ứng dụng</a></li>
+                <li class="nav-item"><a class="nav-link" href="#problem">Tổng quan</a></li>
+                <li class="nav-item"><a class="nav-link" href="#ecosystem">Hệ sinh thái Neuralis</a></li>
+                <li class="nav-item"><a class="nav-link" href="#roadmap">Lộ trình</a></li>
+                <li class="nav-item"><a class="nav-link" href="https://docs.yourdomain.com" target="_blank">Tài liệu</a></li>
             </ul>
-            <div id="ton-connect-button" class="ms-lg-3"></div>
+            <div class="d-flex align-items-center">
+                <a href="/wallet.html" class="btn btn-gradient btn-sm me-3">Khởi chạy Ứng dụng</a>
+                <div id="theme-toggler" class="theme-switch">
+                    <i class="fas fa-sun"></i>
+                </div>
+            </div>
         </div>
     </div>
 </nav>
@@ -171,121 +200,140 @@
 <header class="hero">
     <div class="hero-background"></div>
     <div class="hero-content container">
-        <h1 class="reveal">Kiến tạo <span class="highlight">Tương lai số</span><br>cho người Việt</h1>
-        <p class="reveal text-muted" style="transition-delay: 0.2s;">
-            VIEC là dự án tiên phong xây dựng hệ sinh thái Web3 toàn diện cho cộng đồng Việt trên nền tảng The Open Network (TON).
+        <h1 class="reveal">Cửa ngõ vào <span class="highlight">Web3</span><br>dành cho người Việt</h1>
+        <p class="reveal" style="transition-delay: 0.2s;">
+            Dự án VIEC giới thiệu **Neuralis** - Nền tảng trải nghiệm Web3 toàn diện đầu tiên trên mạng TON, được thiết kế để trao quyền, kết nối và tưởng thưởng cho cộng đồng Việt Nam.
         </p>
-        <div class="d-grid gap-3 d-sm-flex justify-content-sm-center reveal" style="transition-delay: 0.4s;">
-            <a href="/wallet.html" class="btn btn-gradient btn-lg px-5">Khám phá Ứng dụng</a>
+        <div class="d-flex gap-3 justify-content-center reveal" style="transition-delay: 0.4s;">
+            <a href="/wallet.html" class="btn btn-gradient btn-lg px-5">Bắt đầu Trải nghiệm</a>
+            <a href="#problem" class="btn btn-outline-secondary btn-lg px-5">Tìm hiểu thêm</a>
         </div>
     </div>
 </header>
 
-<!-- Vision Section -->
-<section id="vision" class="section">
+<!-- Problem & Solution Section -->
+<section id="problem" class="section">
     <div class="container">
-        <h2 class="section-title reveal">Tầm nhìn của chúng tôi</h2>
-        <p class="section-subtitle reveal">Chúng tôi tin rằng công nghệ blockchain là chìa khóa để mở ra một kỷ nguyên mới về sự minh bạch, kết nối và trao quyền. VIEC được sinh ra để hiện thực hóa tiềm năng đó cho cộng đồng Việt.</p>
-        <div class="row g-4">
-            <div class="col-lg-4 reveal">
-                <div class="glass-card text-center">
-                    <div class="card-icon"><i class="fas fa-network-wired"></i></div>
-                    <h5>Công nghệ Vượt trội</h5>
-                    <p class="text-muted">Tận dụng sức mạnh của TON để xây dựng các ứng dụng phi tập trung nhanh, rẻ và có khả năng mở rộng toàn cầu.</p>
-                </div>
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6 reveal">
+                <img src="https://images.unsplash.com/photo-1634733330363-c54361259a4f?q=80&w=1887&auto=format&fit=crop" class="img-fluid rounded-4 shadow-lg" alt="Connection nodes">
             </div>
-            <div class="col-lg-4 reveal" style="transition-delay: 0.15s;">
-                <div class="glass-card text-center">
-                    <div class="card-icon"><i class="fas fa-users"></i></div>
-                    <h5>Cộng đồng là Trung tâm</h5>
-                    <p class="text-muted">Xây dựng một cộng đồng vững mạnh, nơi mọi thành viên đều có tiếng nói và cùng nhau định hình tương lai của dự án.</p>
-                </div>
-            </div>
-            <div class="col-lg-4 reveal" style="transition-delay: 0.3s;">
-                <div class="glass-card text-center">
-                    <div class="card-icon"><i class="fas fa-eye"></i></div>
-                    <h5>Minh bạch Tuyệt đối</h5>
-                    <p class="text-muted">Mọi hoạt động, từ phân bổ token đến phát triển sản phẩm, đều được công khai để đảm bảo sự tin tưởng và bền vững.</p>
-                </div>
+            <div class="col-lg-6 reveal" style="transition-delay: 0.2s;">
+                <h2 class="fw-bold display-6 mb-3">Thách thức và Cơ hội</h2>
+                <p class="text-muted">Thị trường Web3 toàn cầu đang phát triển mạnh mẽ, nhưng người dùng Việt Nam thường gặp rào cản về ngôn ngữ, sự phức tạp của công nghệ và thiếu các nền tảng được xây dựng riêng cho nhu cầu của họ.</p>
+                <p class="fw-semibold">VIEC ra đời để giải quyết vấn đề này bằng cách xây dựng Neuralis - một hệ sinh thái tích hợp, thân thiện và tập trung vào việc tạo ra giá trị thực cho cộng đồng.</p>
             </div>
         </div>
     </div>
 </section>
 
 <!-- Ecosystem Section -->
-<section id="ecosystem" class="section">
+<section id="ecosystem" class="section bg-body-tertiary">
     <div class="container">
-        <h2 class="section-title reveal">Hệ sinh thái VIEC</h2>
-        <p class="section-subtitle reveal">Chúng tôi đang xây dựng một bộ công cụ và ứng dụng toàn diện, nơi VIEC đóng vai trò là huyết mạch của nền kinh tế số.</p>
-        <div class="row g-4 justify-content-center">
-            <div class="col-md-6 col-lg-5 reveal"><div class="glass-card"><i class="fas fa-wallet card-icon"></i><h5>VIEC dApp Suite</h5><p class="text-muted">Một cổng duy nhất để truy cập ví, tham gia airdrop, staking, và tương tác với các ứng dụng khác trong hệ sinh thái.</p></div></div>
-            <div class="col-md-6 col-lg-5 reveal" style="transition-delay: 0.15s;"><div class="glass-card"><i class="fas fa-landmark card-icon"></i><h5>Quản trị DAO</h5><p class="text-muted">Cho phép người nắm giữ VIEC tham gia biểu quyết và đề xuất các thay đổi quan trọng, định hình trực tiếp hướng đi của dự án.</p></div></div>
-            <div class="col-md-6 col-lg-5 reveal" style="transition-delay: 0.3s;"><div class="glass-card"><i class="fas fa-rocket card-icon"></i><h5>Nền tảng Launchpad</h5><p class="text-muted">Bệ phóng cho các dự án Web3 tiềm năng của người Việt, giúp họ tiếp cận vốn và sự hỗ trợ từ một cộng đồng lớn mạnh.</p></div></div>
-            <div class="col-md-6 col-lg-5 reveal" style="transition-delay: 0.45s;"><div class="glass-card"><i class="fas fa-hands-helping card-icon"></i><h5>Tích hợp Đối tác</h5><p class="text-muted">Hợp tác với các doanh nghiệp để đưa VIEC vào ứng dụng thực tế như thanh toán, khách hàng thân thiết và hơn thế nữa.</p></div></div>
+        <h2 class="section-title reveal">Khám phá Hệ sinh thái Neuralis</h2>
+        <p class="section-subtitle reveal">Neuralis không chỉ là một ứng dụng, mà là một hệ sinh thái sống động nơi mọi hoạt động của bạn đều được ghi nhận và tưởng thưởng.</p>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4 reveal">
+                <div class="card p-4">
+                    <div class="feature-icon"><i class="fas fa-wallet"></i></div>
+                    <h5 class="fw-bold">Ví Multi-chain Trực quan</h5>
+                    <p class="text-muted">Quản lý, gửi và nhận tài sản trên mạng TON một cách an toàn. Giao diện được thiết kế để ngay cả người mới cũng có thể dễ dàng sử dụng.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 reveal" style="transition-delay: 0.15s;">
+                <div class="card p-4">
+                    <div class="feature-icon"><i class="fas fa-tasks"></i></div>
+                    <h5 class="fw-bold">Nền tảng Nhiệm vụ (Tasks)</h5>
+                    <p class="text-muted">Hoàn thành các nhiệm vụ hàng ngày như check-in, mời bạn bè để tích lũy điểm kinh nghiệm (EXP), mở khóa các cấp độ và phần thưởng cao hơn.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 reveal" style="transition-delay: 0.3s;">
+                <div class="card p-4">
+                    <div class="feature-icon"><i class="fas fa-gift"></i></div>
+                    <h5 class="fw-bold">Airdrop & Phần thưởng</h5>
+                    <p class="text-muted">EXP tích lũy được sẽ là cơ sở để nhận Airdrop token VIEC trong tương lai. Hoạt động càng tích cực, phần thưởng càng lớn.</p>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
 <!-- Tokenomics Section -->
-<section id="tokenomics" class="section" style="background-color: var(--dark-bg);">
+<section id="tokenomics" class="section">
      <div class="container">
-        <h2 class="section-title reveal">Tokenomics: Xây dựng để Bền vững</h2>
-        <p class="section-subtitle reveal">Mô hình kinh tế của VIEC được thiết kế cẩn thận để đảm bảo sự phát triển lâu dài và mang lại giá trị thực cho cộng đồng. Chi tiết sẽ được công bố trong Whitepaper sắp tới.</p>
-        <div class="row g-4">
-            <div class="col-md-4 reveal">
-                <div class="glass-card"><h5><i class="fas fa-balance-scale-right me-2 text-primary"></i>Phân bổ Công bằng</h5><p class="text-muted">Phần lớn tổng cung sẽ được dành cho cộng đồng thông qua các chương trình airdrop, staking và các sự kiện khuyến khích tham gia.</p></div>
+        <h2 class="section-title reveal">Nguyên tắc Tokenomics</h2>
+        <p class="section-subtitle reveal">Mặc dù thông số chi tiết sẽ được công bố trong Whitepaper, mô hình kinh tế của VIEC được xây dựng dựa trên các nguyên tắc cốt lõi để đảm bảo sự bền vững.</p>
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-8 reveal">
+                <div class="card">
+                    <div class="card-body p-5">
+                        <ul class="list-unstyled">
+                            <li class="d-flex mb-4">
+                                <i class="fas fa-users fs-3 text-primary me-4 mt-1"></i>
+                                <div>
+                                    <h5 class="fw-bold">Ưu tiên Cộng đồng</h5>
+                                    <p class="text-muted mb-0">Một phần lớn tổng cung sẽ được phân phối cho người dùng sớm và những người đóng góp tích cực thông qua Airdrop và các chương trình khuyến khích.</p>
+                                </div>
+                            </li>
+                            <li class="d-flex mb-4">
+                                <i class="fas fa-cogs fs-3 text-primary me-4 mt-1"></i>
+                                <div>
+                                    <h5 class="fw-bold">Phát triển Hệ sinh thái</h5>
+                                    <p class="text-muted mb-0">Ngân sách dành riêng cho việc tài trợ các dự án mới, hợp tác với đối tác và mở rộng các tính năng của nền tảng Neuralis.</p>
+                                </div>
+                            </li>
+                            <li class="d-flex mb-0">
+                                <i class="fas fa-chart-line fs-3 text-primary me-4 mt-1"></i>
+                                <div>
+                                    <h5 class="fw-bold">Tăng trưởng Dài hạn</h5>
+                                    <p class="text-muted mb-0">Token của đội ngũ và nhà đầu tư sẽ được khóa (vesting) theo thời gian để đảm bảo cam kết lâu dài và sự phát triển ổn định của dự án.</p>
+                                </div>
+                            </li>
+                        </ul>
+                         <hr class="my-4">
+                         <p class="text-center text-muted">Tổng cung, mã hợp đồng và lịch trình phân bổ chi tiết sẽ được công bố trong thời gian sớm nhất.</p>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-4 reveal" style="transition-delay: 0.15s;">
-                <div class="glass-card"><h5><i class="fas fa-cogs me-2 text-primary"></i>Tiện ích Thực tiễn</h5><p class="text-muted">VIEC không chỉ để giao dịch. Nó là chìa khóa để sử dụng các dịch vụ, trả phí, tham gia quản trị và nhận các đặc quyền trong hệ sinh thái.</p></div>
-            </div>
-            <div class="col-md-4 reveal" style="transition-delay: 0.3s;">
-                 <div class="glass-card"><h5><i class="fas fa-lock me-2 text-primary"></i>Cơ chế Chống lạm phát</h5><p class="text-muted">Các cơ chế như đốt token (burn) và khóa token (vesting) sẽ được áp dụng để đảm bảo giá trị của VIEC tăng trưởng bền vững theo thời gian.</p></div>
-            </div>
-        </div>
-        <div class="text-center mt-5 reveal">
-            <h4 class="fw-light">Tổng cung & Mã hợp đồng: <span class="badge bg-secondary">Sẽ công bố (TBA)</span></h4>
         </div>
     </div>
 </section>
 
 <!-- Roadmap Section -->
-<section id="roadmap" class="section">
+<section id="roadmap" class="section bg-body-tertiary">
     <div class="container">
-        <h2 class="section-title reveal">Lộ trình của chúng tôi</h2>
-        <div class="roadmap-timeline mx-auto" style="max-width: 800px;">
-            <div class="roadmap-item reveal">
-                <div class="roadmap-dot"></div>
-                <div class="glass-card">
-                    <div class="roadmap-phase">Giai đoạn 1</div>
-                    <h4 class="roadmap-title">Nền tảng & Cộng đồng</h4>
-                    <p class="text-muted">Công bố Whitepaper, ra mắt website chính thức và xây dựng các kênh cộng đồng cốt lõi.</p>
+        <h2 class="section-title reveal">Lộ trình Phát triển</h2>
+        <p class="section-subtitle reveal">Chúng tôi đang đi theo một lộ trình rõ ràng để xây dựng và mở rộng hệ sinh thái VIEC.</p>
+        <ul class="timeline">
+            <li class="timeline-item reveal">
+                <div class="timeline-icon"><i class="fas fa-check"></i></div>
+                <div class="timeline-content">
+                    <h5 class="fw-bold">Giai đoạn 1: Nền tảng & Khởi động</h5>
+                    <p class="text-muted">Phát hành phiên bản Alpha của Neuralis dApp với các tính năng cốt lõi: Wallet, Nhiệm vụ và Bảng xếp hạng. Bắt đầu xây dựng cộng đồng ban đầu.</p>
                 </div>
-            </div>
-            <div class="roadmap-item reveal">
-                <div class="roadmap-dot"></div>
-                <div class="glass-card">
-                    <div class="roadmap-phase">Giai đoạn 2</div>
-                    <h4 class="roadmap-title">Phát hành & Tăng trưởng</h4>
-                    <p class="text-muted">Tổ chức sự kiện phát hành Token (TGE), niêm yết trên các sàn giao dịch phi tập trung (DEX) và khởi động chiến dịch Airdrop.</p>
+            </li>
+            <li class="timeline-item reveal">
+                <div class="timeline-icon"><i class="fas fa-rocket"></i></div>
+                <div class="timeline-content">
+                    <h5 class="fw-bold">Giai đoạn 2: Phát hành Token & Airdrop</h5>
+                    <p class="text-muted">Công bố Whitepaper và Tokenomics chi tiết. Tổ chức sự kiện phát hành token (TGE) và niêm yết trên các sàn DEX. Triển khai Airdrop dựa trên điểm EXP đã tích lũy.</p>
                 </div>
-            </div>
-            <div class="roadmap-item reveal">
-                <div class="roadmap-dot"></div>
-                <div class="glass-card">
-                    <div class="roadmap-phase">Giai đoạn 3</div>
-                    <h4 class="roadmap-title">Phát triển Hệ sinh thái</h4>
-                    <p class="text-muted">Ra mắt VIEC dApp với các tính năng Staking và Quản trị DAO. Tích hợp với các đối tác đầu tiên.</p>
+            </li>
+            <li class="timeline-item reveal">
+                <div class="timeline-icon"><i class="fas fa-cubes"></i></div>
+                <div class="timeline-content">
+                    <h5 class="fw-bold">Giai đoạn 3: Mở rộng Hệ sinh thái</h5>
+                    <p class="text-muted">Ra mắt các tính năng nâng cao như Staking, Quản trị DAO. Tích hợp các Mini App từ đối tác vào nền tảng Neuralis.</p>
                 </div>
-            </div>
-            <div class="roadmap-item reveal">
-                <div class="roadmap-dot"></div>
-                <div class="glass-card">
-                    <div class="roadmap-phase">Giai đoạn 4</div>
-                    <h4 class="roadmap-title">Mở rộng Toàn cầu</h4>
-                    <p class="text-muted">Triển khai Launchpad, niêm yết trên các sàn giao dịch tập trung (CEX) và thúc đẩy các sáng kiến toàn cầu.</p>
+            </li>
+            <li class="timeline-item reveal">
+                <div class="timeline-icon"><i class="fas fa-globe"></i></div>
+                <div class="timeline-content">
+                    <h5 class="fw-bold">Giai đoạn 4: Vươn ra Toàn cầu</h5>
+                    <p class="text-muted">Niêm yết trên các sàn giao dịch CEX uy tín. Thúc đẩy các chương trình hợp tác quốc tế và đưa Neuralis trở thành một nền tảng Web3 hàng đầu.</p>
                 </div>
-            </div>
-        </div>
+            </li>
+        </ul>
     </div>
 </section>
 
@@ -293,10 +341,10 @@
 <section class="section">
     <div class="container">
         <div class="cta-section text-center reveal">
-            <h2 class="display-5 fw-bold">Trở thành một phần của Hành trình</h2>
-            <p class="lead my-4 text-muted" style="max-width: 600px; margin: auto;">Tương lai của Web3 Việt Nam đang được xây dựng. Hãy tham gia cùng chúng tôi để không bỏ lỡ bất kỳ thông tin quan trọng nào.</p>
-            <a href="https://t.me/your_telegram_channel" target="_blank" class="btn btn-gradient btn-lg">
-                <i class="fab fa-telegram-plane me-2"></i> Tham gia Kênh Telegram
+            <h2 class="fw-bold">Sẵn sàng để bắt đầu?</h2>
+            <p class="lead my-4 text-muted mx-auto" style="max-width: 600px;">Trải nghiệm tương lai của Web3 ngay hôm nay. Khởi chạy Neuralis và bắt đầu hành trình tích lũy EXP của bạn.</p>
+            <a href="/wallet.html" class="btn btn-gradient btn-lg">
+                <i class="fas fa-rocket me-2"></i> Khởi chạy Ứng dụng Neuralis
             </a>
         </div>
     </div>
@@ -308,17 +356,30 @@
         <div class="social-icons mb-3">
             <a href="https://t.me/your_telegram_channel" target="_blank" title="Telegram"><i class="fab fa-telegram"></i></a>
             <a href="https://twitter.com/your_twitter_handle" target="_blank" title="Twitter"><i class="fab fa-twitter"></i></a>
-            <a href="#" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
-            <a href="#" target="_blank" title="Github"><i class="fab fa-github"></i></a>
         </div>
-        <p class="text-muted">© 2025 VIEC - Vietnam Coin. All Rights Reserved.</p>
+        <p class="text-muted">© 2025 VIEC Project. All Rights Reserved.</p>
     </div>
 </footer>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    
-    // --- Wallet Connection Logic ---
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Theme Switcher ---
+    const themeToggler = document.getElementById('theme-toggler');
+    const htmlEl = document.documentElement;
+
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    htmlEl.setAttribute('data-bs-theme', savedTheme);
+    themeToggler.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+
+    themeToggler.addEventListener('click', () => {
+        const currentTheme = htmlEl.getAttribute('data-bs-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        htmlEl.setAttribute('data-bs-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        themeToggler.innerHTML = newTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    });
+
+    // --- TON Connect ---
     new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json',
         buttonRootId: 'ton-connect-button'
