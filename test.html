@@ -779,7 +779,6 @@
                             <div class="col-12 col-md-10 col-lg-8">
                                 <h5 class="card-title text-center mt-4">Thống Kê Của Bạn</h5>
                             </div>
-                            <!-- MODIFIED: Changed col-md-4 to col-4 -->
                             <div class="col-12 col-md-10 col-lg-8">
                                 <div class="row g-3">
                                     <div class="col-4">
@@ -979,7 +978,6 @@
                         </div>
                     </div>
 
-                    <!-- MODIFIED: Added search bar -->
                     <div class="col-12">
                         <div class="card-glass">
                             <h5 class="card-title">Danh sách Người dùng</h5>
@@ -1185,11 +1183,10 @@
         const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000;
         const ADMIN_USERS_PER_PAGE = 50;
         
-        // --- MODIFIED: Airdrop Transaction Constants ---
-        const CONFIRM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD"; // For 100% confirmation
+        const CONFIRM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
         const CONFIRM_AMOUNT_NANOTONS = "10000"; // 0.00001 TON
-        const REQUEST_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD"; // NEW: For final reward request
-        const REQUEST_AMOUNT_NANOTONS = "20000"; // NEW: 0.00002 TON
+        const REQUEST_WALLET_ADDRESS = "UQA_s-8041-x_wB_AdYp3rJg_t94Lae_7gn_Yf2H3H5s-9AA"; 
+        const REQUEST_AMOUNT_NANOTONS = "20000"; // 0.00002 TON
 
         const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
         const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
@@ -1254,8 +1251,6 @@
 
             const baseReward = (refCount * refMultiplier) + (checkinCount * checkinMultiplier) + (expCount * expMultiplier);
 
-            // The reward amount is calculated based on the 100% confirmation, even if they didn't send it.
-            // The final payout list determines who actually gets paid.
             if (user.hasSentConfirmationTx) {
                 return baseReward;
             } else {
@@ -1279,7 +1274,7 @@
                     address: address, points: 0, lastCheckin: null, checkinCount: 0,
                     referralCount: 0, referredBy: null, 
                     hasSentConfirmationTx: false, 
-                    hasRequestedAirdrop: false, // NEW: Default state
+                    hasRequestedAirdrop: false,
                     disabledUntil: null, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 };
                 if (telegramUserData) {
@@ -1288,7 +1283,7 @@
                     newUser.fullName = `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim();
                     newUser.photoUrl = telegramUserData.photo_url || DEFAULT_LOGO_SRC;
                 }
-                await userRef.set(newUser, { merge: true }); // Use merge to be safe
+                await userRef.set(newUser, { merge: true });
                 userData = newUser;
             } else {
                 userData = doc.data();
@@ -1307,7 +1302,6 @@
                         photoUrl: telegramUserData.photo_url || DEFAULT_LOGO_SRC,
                     });
                 }
-                // NEW: Ensure all users have the new field
                 if (typeof userData.hasRequestedAirdrop === 'undefined') {
                     updates.hasRequestedAirdrop = false;
                 }
@@ -1632,7 +1626,7 @@
 
             if (isInitialLoad) {
                 lastVisibleAdminUser = null;
-                adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">EXP</th><th scope="col">Airdrop Status</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
+                adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">EXP</th><th scope="col">Airdrop (100%)</th><th scope="col">Reward Requested</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
             }
             
             const tableBody = adminUserListContainer.querySelector('tbody');
@@ -1668,7 +1662,7 @@
                     
                     const userDocs = Array.from(usersMap.values());
                      if (userDocs.length === 0) {
-                        tableBody.innerHTML = `<tr><td colspan="7" class="text-center text-secondary p-3">Không tìm thấy người dùng.</td></tr>`;
+                        tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-secondary p-3">Không tìm thấy người dùng.</td></tr>`;
                         return;
                     }
                     renderAdminUserRows(userDocs, tableBody);
@@ -1700,7 +1694,7 @@
 
             } catch (error) {
                 console.error("Error fetching user list for admin:", error);
-                tableBody.innerHTML = `<tr><td colspan="7" class="text-center text-danger p-3">Lỗi khi tải danh sách người dùng.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-danger p-3">Lỗi khi tải danh sách người dùng.</td></tr>`;
             } finally {
                 adminLoadMoreBtn.disabled = false;
                 adminLoadMoreBtn.innerHTML = `Tải thêm`;
@@ -1717,6 +1711,11 @@
                 const sentTxHtml = `
                     <div class="form-check form-switch d-flex justify-content-center">
                         <input class="form-check-input admin-tx-status-switch" type="checkbox" role="switch" data-address="${user.address}" ${user.hasSentConfirmationTx ? 'checked' : ''}>
+                    </div>`;
+
+                const requestedRewardHtml = `
+                    <div class="form-check form-switch d-flex justify-content-center">
+                        <input class="form-check-input admin-request-status-switch" type="checkbox" role="switch" data-address="${user.address}" ${user.hasRequestedAirdrop ? 'checked' : ''}>
                     </div>`;
 
                 let statusHtml;
@@ -1740,6 +1739,7 @@
                     <td>${user.telegramId || 'N/A'}</td>
                     <td class="fw-bold" style="color: var(--accent-secondary);">${(user.points || 0).toLocaleString()}</td>
                     <td>${sentTxHtml}</td>
+                    <td>${requestedRewardHtml}</td>
                     <td>${statusHtml}</td>
                     <td>${joinDate}</td>
                 `;
@@ -1757,11 +1757,32 @@
             try {
                 const userRef = db.collection('users').doc(userAddress);
                 await userRef.update({ hasSentConfirmationTx: newStatus });
-                showAppToast('Thành Công', `Đã cập nhật trạng thái cho ví ${shortenAddress(userAddress)}.`, 'success');
+                showAppToast('Thành Công', `Đã cập nhật trạng thái 100% cho ví ${shortenAddress(userAddress)}.`, 'success');
             } catch (error) {
                 console.error("Failed to update user transaction status:", error);
                 showAppToast('Lỗi', 'Cập nhật thất bại. Vui lòng thử lại.', 'error');
                 switchEl.checked = !newStatus;
+            } finally {
+                switchEl.disabled = false;
+            }
+        }
+        
+        async function handleAdminRequestStatusChange(e) {
+            const switchEl = e.target;
+            const userAddress = switchEl.dataset.address;
+            const newStatus = switchEl.checked;
+            
+            if (!userAddress) return;
+            
+            switchEl.disabled = true;
+            try {
+                const userRef = db.collection('users').doc(userAddress);
+                await userRef.update({ hasRequestedAirdrop: newStatus });
+                showAppToast('Thành Công', `Đã cập nhật trạng thái YÊU CẦU thưởng cho ví.`, 'success');
+            } catch (error) {
+                console.error("Failed to update user request status:", error);
+                showAppToast('Lỗi', 'Cập nhật thất bại.', 'error');
+                switchEl.checked = !newStatus; 
             } finally {
                 switchEl.disabled = false;
             }
@@ -2069,8 +2090,7 @@
                 };
             }
         }
-
-        // --- MODIFIED: Airdrop Section Rendering Logic ---
+        
         async function renderAirdropSection() {
             const airdropWrapper = document.getElementById('airdrop-content-wrapper');
             const comingSoonEl = document.getElementById('airdrop-coming-soon');
@@ -2125,14 +2145,13 @@
                     <p class="text-white-50 mt-3">Phần thưởng sẽ được phân bổ đến địa chỉ của bạn sớm nhất.</p>
                     <code class="copyable-address fs-6" data-address="${friendlyAddress}">${shortenAddress(friendlyAddress, 10, 10)}</code>
                 `;
-            } else { // Is eligible, but has not requested yet
+            } else {
                 const rewardTier = currentUserData.hasSentConfirmationTx ? '100%' : '50%';
                 eligibilityStatusEl.textContent = `BẠN ĐỦ ĐIỀU KIỆN (${rewardTier})`;
                 eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
                 
                 let buttonsHtml = '';
 
-                // Button 1: Confirm for 100%
                 if (!currentUserData.hasSentConfirmationTx && !settings.isSnapshotActive && settings.isClaimingEnabled) {
                      buttonsHtml += `<p class="text-white-50 mt-3 small">Gửi một giao dịch nhỏ để xác nhận ví và nâng mức thưởng lên <strong class="text-white">100%</strong>.</p>`;
                      buttonsHtml += `<button id="confirm-button" class="airdrop-action-btn">Xác Nhận (Nhận 100%)</button>`;
@@ -2140,7 +2159,6 @@
                      buttonsHtml += `<p class="text-white-50 mt-3 fw-bold" style="color: var(--color-verified)!important;"><i class="fas fa-check-circle me-2"></i>Đã xác nhận 100%</p>`;
                 }
 
-                // Button 2: Request the reward
                 if (!settings.isSnapshotActive && settings.isClaimingEnabled) {
                     buttonsHtml += `<p class="text-white-50 mt-3 small">Gửi giao dịch để yêu cầu nhận thưởng. Yêu cầu của bạn sẽ được ghi lại để phân phối sau.</p>`;
                     buttonsHtml += `<button id="request-reward-button" class="airdrop-action-btn" style="background: var(--accent-secondary); color: white;">Yêu Cầu Nhận Thưởng</button>`;
@@ -2162,7 +2180,6 @@
             loggedInContent.style.display = 'block';
         }
 
-        // MODIFIED: Renamed from handleClaimRequest
         async function handleConfirmationRequest() {
             const confirmButton = document.getElementById('confirm-button');
             if (!confirmButton) return;
@@ -2187,7 +2204,7 @@
 
                 currentUserData.hasSentConfirmationTx = true;
                 showAppToast('Thành công', 'Giao dịch xác nhận 100% đã được gửi!', 'success');
-                renderAirdropSection(); // Re-render to update UI
+                renderAirdropSection();
 
             } catch (error) {
                 console.error("Confirmation transaction failed:", error);
@@ -2197,7 +2214,6 @@
             }
         }
         
-        // NEW: Function to handle the final airdrop request
         async function handleAirdropRequest() {
             const requestButton = document.getElementById('request-reward-button');
             if (!requestButton) return;
@@ -2222,7 +2238,7 @@
 
                 currentUserData.hasRequestedAirdrop = true;
                 showAppToast('Yêu cầu thành công!', 'Yêu cầu nhận thưởng của bạn đã được ghi lại.', 'success');
-                renderAirdropSection(); // Re-render to show the final message
+                renderAirdropSection();
 
             } catch(error) {
                  console.error("Airdrop request transaction failed:", error);
@@ -2945,8 +2961,7 @@
                  setTimeout(() => { adminSettingsStatusEl.innerHTML = ''; }, 3000);
             }
         }
-
-        // --- MODIFIED: Excel Export Logic ---
+        
         async function exportAirdropData() {
             exportCsvBtn.disabled = true;
             adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang chuẩn bị dữ liệu...`;
@@ -2973,7 +2988,6 @@
                                            (user.checkinCount || 0) >= settings.minCheckins &&
                                            (user.points || 0) >= settings.minExp;
                         
-                        // MODIFIED: Only include users who have sent the final request transaction
                         if (isEligible && user.hasRequestedAirdrop) {
                             const finalReward = calculateViecReward(user, settings);
                             if (finalReward > 0) {
@@ -3034,9 +3048,12 @@
         checkinButton.addEventListener('click', handleCheckin);
         popupCheckinButton.addEventListener('click', handleCheckin);
         if (adminExpForm) adminExpForm.addEventListener('submit', handleAdminExpUpdate);
+
         if(adminUserListContainer) adminUserListContainer.addEventListener('change', (e) => {
             if (e.target.classList.contains('admin-tx-status-switch')) {
                 handleAdminTxStatusChange(e);
+            } else if (e.target.classList.contains('admin-request-status-switch')) {
+                handleAdminRequestStatusChange(e);
             }
         });
         
