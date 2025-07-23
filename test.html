@@ -325,7 +325,7 @@
             border-bottom: 2px solid var(--border-color);
         }
         #admin-section tbody tr {
-            transition: background-color: 0.2s ease;
+            transition: background-color 0.2s ease;
         }
         #admin-section tbody td {
             padding: 0.75rem;
@@ -353,6 +353,16 @@
             background-color: var(--accent-secondary);
             color: white;
         }
+        /* Style for the transaction status switch in admin panel */
+        #admin-user-list-container .form-check-input:checked {
+            background-color: var(--color-verified);
+            border-color: var(--color-verified);
+        }
+        #admin-user-list-container .form-switch .form-check-input {
+            height: 1.25em;
+            width: 2.25em;
+        }
+
 
         /* Airdrop Page Styles */
         .airdrop-stat-card {
@@ -405,7 +415,7 @@
             cursor: not-allowed;
         }
         
-        /* NEW: Password Protection Overlay */
+        /* Password Protection Overlay */
         #password-protection-overlay {
             position: fixed;
             top: 0;
@@ -446,6 +456,11 @@
             background-color: rgba(23, 27, 48, 0.8);
             color: var(--text-primary);
             -moz-appearance: textfield; /* Firefox */
+        }
+        /* NEW: Style for hidden password inputs */
+        .password-input-hidden {
+            -webkit-text-security: disc;
+            text-security: disc;
         }
         .password-input::-webkit-outer-spin-button,
         .password-input::-webkit-inner-spin-button {
@@ -536,7 +551,6 @@
                             <hr style="border-color: var(--border-color); opacity: 0.5;">
                             <div id="profile-details" class="text-start p-2">
                             </div>
-                            <!-- NEW BUTTONS FOR PASSWORD AND CONTACT -->
                             <div class="d-grid gap-2 mt-4">
                                 <button id="change-password-btn" class="btn" style="background-color: var(--accent-secondary); color: white;">
                                     <i class="fas fa-key me-2"></i>Đổi Mật Khẩu
@@ -961,7 +975,6 @@
                         </div>
                     </div>
                     
-                    <!-- MODIFIED: User Status Control Form -->
                     <div class="col-12 col-lg-10 col-xl-8">
                         <div class="card-glass">
                             <h5 class="card-title">Quản lý Trạng thái Tài khoản</h5>
@@ -1054,7 +1067,7 @@
       </div>
     </div>
 
-    <!-- NEW: Password Modal -->
+    <!-- Password Modal -->
     <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -1074,7 +1087,7 @@
       </div>
     </div>
     
-    <!-- NEW: Contact Admin Modal -->
+    <!-- Contact Admin Modal -->
     <div class="modal fade" id="contactAdminModal" tabindex="-1" aria-labelledby="contactAdminModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -1189,7 +1202,7 @@
         const exportCsvBtn = document.getElementById('export-csv-btn');
         const adminSettingsStatusEl = document.getElementById('admin-settings-status');
 
-        // NEW: Password Security Elements
+        // Password Security Elements
         const passwordOverlay = document.getElementById('password-protection-overlay');
         const passwordModalEl = document.getElementById('passwordModal');
         const passwordModal = new bootstrap.Modal(passwordModalEl);
@@ -1217,8 +1230,9 @@
         let db = null;
         let checkinInterval = null;
         let lastVisibleAdminUser = null; // For admin pagination
-        let isPasswordVerified = false; // NEW: Password verification flag
-        
+        let isPasswordVerified = false; 
+        let sessionTimeoutId = null; // NEW: Session timer ID
+
         // Constants
         const REFERRAL_REWARD = 200;
         const CHECKIN_REWARD = 10;
@@ -1226,6 +1240,7 @@
         const ADMIN_USERS_PER_PAGE = 50;
         const CLAIM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
         const CLAIM_AMOUNT_NANOTONS = "10000"; // 0.00001 TON
+        const SESSION_DURATION = 10 * 60 * 1000; // NEW: 10 minutes session
 
         const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
         const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
@@ -1250,13 +1265,8 @@
             db = firebase.firestore();
         }
         
-        // --- NEW: Password Security Functions ---
+        // --- Password & Session Security Functions ---
         
-        /**
-         * Hashes a password string using SHA-256.
-         * @param {string} password The password to hash.
-         * @returns {Promise<string>} The hex representation of the hash.
-         */
         async function hashPassword(password) {
             const encoder = new TextEncoder();
             const data = encoder.encode(password);
@@ -1275,38 +1285,54 @@
             passwordOverlay.classList.remove('visible');
         }
 
+        function lockApp() {
+            if (!isPasswordVerified) return; // Already locked
+            clearTimeout(sessionTimeoutId);
+            sessionTimeoutId = null;
+            isPasswordVerified = false;
+            
+            showAppToast('Phiên hết hạn', 'Vui lòng đăng nhập lại để tiếp tục.', 'warning');
+            showPasswordBlocker('Phiên làm việc đã hết hạn');
+            showPasswordModal('login');
+        }
+
+        function resetSessionTimer() {
+            clearTimeout(sessionTimeoutId);
+            sessionTimeoutId = setTimeout(lockApp, SESSION_DURATION);
+        }
+
         function setupPasswordInputs() {
             const inputs = document.querySelectorAll('.password-input');
             inputs.forEach((input, index) => {
                 input.addEventListener('keyup', (e) => {
+                    // Move to next input on number entry
                     if (e.key >= 0 && e.key <= 9) {
-                        if (index < inputs.length - 1) {
+                        if (index < inputs.length - 1 && input.value) {
                             inputs[index + 1].focus();
                         }
                     } else if (e.key === 'Backspace') {
-                        if (index > 0) {
+                        // Move to previous input on backspace
+                        if (index > 0 && !input.value) {
                             inputs[index - 1].focus();
                         }
                     }
                 });
                 input.addEventListener('input', () => {
-                     // Ensure only one digit
-                    if (input.value.length > 1) {
-                        input.value = input.value.slice(0, 1);
-                    }
+                    if (input.value.length > 1) input.value = input.value.slice(0, 1);
                 });
             });
         }
         
-        function getPasswordFromInputs() {
-            const inputs = document.querySelectorAll('.password-input');
+        function getPasswordFromInputs(selector = '.password-input') {
+            const inputs = document.querySelectorAll(selector);
             return Array.from(inputs).map(input => input.value).join('');
         }
         
-        function clearPasswordInputs() {
-            document.querySelectorAll('.password-input').forEach(input => input.value = '');
-            if(document.querySelector('.password-input')) {
-                document.querySelector('.password-input').focus();
+        function clearPasswordInputs(selector = '.password-input') {
+            document.querySelectorAll(selector).forEach(input => input.value = '');
+            const firstInput = document.querySelector(selector);
+            if (firstInput) {
+                firstInput.focus();
             }
         }
         
@@ -1316,15 +1342,14 @@
             let footer = '';
             passwordModalError.textContent = '';
 
-            const passwordInputHTML = `
-                <p class="text-secondary mb-3">Nhập mật khẩu 6 số của bạn.</p>
+            const passwordInputHTML = (className = '') => `
                 <div class="password-input-group">
-                    <input type="number" class="password-input" maxlength="1" required>
-                    <input type="number" class="password-input" maxlength="1" required>
-                    <input type="number" class="password-input" maxlength="1" required>
-                    <input type="number" class="password-input" maxlength="1" required>
-                    <input type="number" class="password-input" maxlength="1" required>
-                    <input type="number" class="password-input" maxlength="1" required>
+                    <input type="number" class="password-input password-input-hidden ${className}" maxlength="1" required>
+                    <input type="number" class="password-input password-input-hidden ${className}" maxlength="1" required>
+                    <input type="number" class="password-input password-input-hidden ${className}" maxlength="1" required>
+                    <input type="number" class="password-input password-input-hidden ${className}" maxlength="1" required>
+                    <input type="number" class="password-input password-input-hidden ${className}" maxlength="1" required>
+                    <input type="number" class="password-input password-input-hidden ${className}" maxlength="1" required>
                 </div>
             `;
 
@@ -1333,14 +1358,7 @@
                     title = 'Tạo Mật Khẩu An Toàn';
                     content = `
                         <p class="text-secondary mb-3">Đây là lần đầu bạn truy cập. Vui lòng tạo một mật khẩu 6 số để bảo vệ tài khoản.</p>
-                        <div class="password-input-group" id="create-password-group">
-                            <input type="number" class="password-input" maxlength="1">
-                            <input type="number" class="password-input" maxlength="1">
-                            <input type="number" class="password-input" maxlength="1">
-                            <input type="number" class="password-input" maxlength="1">
-                            <input type="number" class="password-input" maxlength="1">
-                            <input type="number" class="password-input" maxlength="1">
-                        </div>
+                        ${passwordInputHTML()}
                         <div class="form-group mt-3 text-start">
                             <label for="recovery-email" class="form-label text-secondary">Email khôi phục (Gmail)</label>
                             <input type="email" class="form-control" id="recovery-email" placeholder="your.email@gmail.com" required>
@@ -1350,7 +1368,7 @@
 
                 case 'login':
                     title = 'Nhập Mật Khẩu';
-                    content = passwordInputHTML;
+                    content = `<p class="text-secondary mb-3">Nhập mật khẩu 6 số của bạn.</p>${passwordInputHTML()}`;
                     footer = `
                         <button type="button" class="btn btn-link" id="forgot-password-btn">Quên mật khẩu?</button>
                         <button type="button" class="btn btn-primary" id="login-password-submit">Đăng Nhập</button>`;
@@ -1371,9 +1389,7 @@
 
                 case 'reset':
                      title = 'Tạo Mật Khẩu Mới';
-                     content = `
-                        <p class="text-secondary mb-3">Email đã được xác nhận. Vui lòng tạo mật khẩu 6 số mới.</p>
-                        ${passwordInputHTML}`;
+                     content = `<p class="text-secondary mb-3">Email đã được xác nhận. Vui lòng tạo mật khẩu 6 số mới.</p>${passwordInputHTML()}`;
                      footer = `<button type="button" class="btn btn-primary w-100" id="reset-password-submit">Lưu Mật Khẩu Mới</button>`;
                     break;
                 
@@ -1382,15 +1398,11 @@
                     content = `
                         <div class="form-group text-start mb-3">
                             <label class="form-label text-secondary">Mật khẩu cũ</label>
-                            <div class="password-input-group">
-                                ${Array(6).fill('<input type="number" class="password-input old-password" maxlength="1">').join('')}
-                            </div>
+                            ${passwordInputHTML('old-password')}
                         </div>
                         <div class="form-group text-start">
                             <label class="form-label text-secondary">Mật khẩu mới</label>
-                            <div class="password-input-group">
-                                ${Array(6).fill('<input type="number" class="password-input new-password" maxlength="1">').join('')}
-                            </div>
+                            ${passwordInputHTML('new-password')}
                         </div>`;
                     footer = `
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
@@ -1407,10 +1419,10 @@
 
         async function onPasswordVerified() {
             isPasswordVerified = true;
+            resetSessionTimer(); // Start the session timer
             passwordModal.hide();
             hidePasswordBlocker();
             
-            // Now run the functions that require authentication
             updateUIAfterLogin();
             await fetchAndDisplayAccountData(connectedWalletAddress);
             activityRefreshInterval = setInterval(() => {
@@ -1419,9 +1431,7 @@
                 }
             }, 30000);
         }
-
-        // --- End of Password Functions ---
-
+        
         function isCurrentUserAdmin() {
             if (!currentUserData) return false;
             const isAdminByAddress = currentUserData.address === ADMIN_ADDRESS;
@@ -1429,7 +1439,6 @@
             return isAdminByAddress || isAdminByUID;
         }
 
-        // --- Unified Airdrop Calculation Function ---
         function calculateViecReward(user, settings) {
             if (!user || !settings) return 0;
             const refCount = user.referralCount || 0;
@@ -1442,7 +1451,6 @@
 
             const baseReward = (refCount * refMultiplier) + (checkinCount * checkinMultiplier) + (expCount * expMultiplier);
 
-            // If snapshot is active, apply 50% penalty if tx not sent
             if (settings.isSnapshotActive) {
                 return user.hasSentConfirmationTx ? baseReward : Math.floor(baseReward * 0.5);
             }
@@ -1463,18 +1471,10 @@
                 isNewUser = true;
                 console.log(`Creating new user profile for address: ${address}`);
                 const newUser = {
-                    address: address,
-                    points: 0,
-                    lastCheckin: null,
-                    checkinCount: 0,
-                    referralCount: 0,
-                    referredBy: null,
-                    hasSentConfirmationTx: false, 
-                    disabledUntil: null,       
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    // NEW: Security fields will be added after password creation
-                    passwordHash: null,
-                    recoveryEmail: null,
+                    address: address, points: 0, lastCheckin: null, checkinCount: 0,
+                    referralCount: 0, referredBy: null, hasSentConfirmationTx: false, 
+                    disabledUntil: null, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    passwordHash: null, recoveryEmail: null,
                 };
                 if (telegramUserData) {
                     newUser.telegramId = telegramUserData.id;
@@ -1507,14 +1507,11 @@
             currentUserData = userData;
             hidePasswordBlocker();
 
-            // NEW: Password verification flow
             if (!currentUserData.passwordHash) {
                 showPasswordModal('create');
             } else {
                 showPasswordModal('login');
             }
-            
-            // The rest of the logic will be called from onPasswordVerified()
             
             if (isNewUser) {
                 const referrerCode = sessionStorage.getItem(REFERRAL_SESSION_KEY);
@@ -1826,11 +1823,10 @@
 
             if (isInitialLoad) {
                 lastVisibleAdminUser = null;
-                adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">EXP</th><th scope="col">Final Reward</th><th scope="col">Sent TX</th><th scope="col">Status</th><th scope="col">Referred</th><th scope="col">Referred By</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
+                adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">Gmail</th><th scope="col">UID</th><th scope="col">EXP</th><th scope="col">Airdrop Status</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
             }
             
             try {
-                const settings = await fetchAirdropSettings(); 
                 let query = db.collection('users').orderBy('createdAt', 'desc').limit(ADMIN_USERS_PER_PAGE);
 
                 if (!isInitialLoad && lastVisibleAdminUser) {
@@ -1854,14 +1850,16 @@
                     const avatarUrl = user.photoUrl || GENERIC_WALLET_ICON;
                     const joinDate = user.createdAt ? user.createdAt.toDate().toLocaleDateString('vi-VN') : 'N/A';
                     
-                    const finalReward = calculateViecReward(user, settings); // This function now handles snapshot logic
-                    
-                    const sentTxHtml = user.hasSentConfirmationTx ? `<span class="text-success fw-bold">Yes</span>` : `<span class="text-secondary">No</span>`;
+                    const sentTxHtml = `
+                        <div class="form-check form-switch d-flex justify-content-center">
+                            <input class="form-check-input admin-tx-status-switch" type="checkbox" role="switch" data-address="${user.address}" ${user.hasSentConfirmationTx ? 'checked' : ''}>
+                        </div>`;
+
                     let statusHtml;
                     if (user.disabledUntil && user.disabledUntil.toDate() > new Date()) {
-                        statusHtml = `<span class="text-danger" title="Disabled until ${user.disabledUntil.toDate().toLocaleString('vi-VN')}">Disabled</span>`;
+                        statusHtml = `<span class="badge bg-danger">Disabled</span>`;
                     } else {
-                        statusHtml = `<span class="text-success">Active</span>`;
+                        statusHtml = `<span class="badge bg-success">Active</span>`;
                     }
                     
                     const row = tableBody.insertRow();
@@ -1875,13 +1873,11 @@
                             </div>
                         </td>
                         <td><code class="copyable-address" data-address="${user.address}" title="Click to copy Raw Address">${shortenAddress(user.address, 6, 6)}</code></td>
+                        <td><div class="text-truncate" style="max-width: 150px;">${user.recoveryEmail || 'N/A'}</div></td>
                         <td>${user.telegramId || 'N/A'}</td>
                         <td class="fw-bold" style="color: var(--accent-secondary);">${(user.points || 0).toLocaleString()}</td>
-                        <td class="fw-bold" style="color: var(--accent-primary);">${finalReward.toLocaleString()}</td>
                         <td>${sentTxHtml}</td>
                         <td>${statusHtml}</td>
-                        <td>${user.referralCount || 0}</td>
-                        <td><div style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${user.referredBy || 'N/A'}</div></td>
                         <td>${joinDate}</td>
                     `;
                 }
@@ -1898,6 +1894,28 @@
             } finally {
                 adminLoadMoreBtn.disabled = false;
                 adminLoadMoreBtn.innerHTML = `Tải thêm`;
+            }
+        }
+        
+        async function handleAdminTxStatusChange(e) {
+            const switchEl = e.target;
+            const userAddress = switchEl.dataset.address;
+            const newStatus = switchEl.checked;
+            
+            if (!userAddress) return;
+            
+            switchEl.disabled = true;
+            try {
+                const userRef = db.collection('users').doc(userAddress);
+                await userRef.update({ hasSentConfirmationTx: newStatus });
+                showAppToast('Thành Công', `Đã cập nhật trạng thái cho ví ${shortenAddress(userAddress)}.`, 'success');
+            } catch (error) {
+                console.error("Failed to update user transaction status:", error);
+                showAppToast('Lỗi', 'Cập nhật thất bại. Vui lòng thử lại.', 'error');
+                // Revert switch on failure
+                switchEl.checked = !newStatus;
+            } finally {
+                switchEl.disabled = false;
             }
         }
 
@@ -2036,7 +2054,9 @@
             console.log("Logging out completely...");
             localStorage.removeItem(USER_SESSION_KEY);
             sessionStorage.removeItem(REFERRAL_SESSION_KEY);
-            isPasswordVerified = false; // NEW: Reset password flag
+            isPasswordVerified = false; 
+            clearTimeout(sessionTimeoutId);
+            sessionTimeoutId = null;
             if (tonConnectUI.connected) {
                 tonConnectUI.disconnect();
             } else {
@@ -2078,7 +2098,6 @@
                     <span class="metadata-key">Connected Wallet:</span>
                     <span class="copyable-address" data-address="${currentUserData.address}" title="Click to copy">${shortenAddress(currentUserData.address)}</span>
                 </div>
-                <!-- NEW: Show recovery email -->
                 <div class="d-flex justify-content-between mb-2">
                     <span class="metadata-key">Recovery Email:</span>
                     <span>${currentUserData.recoveryEmail || 'Chưa thiết lập'}</span>
@@ -2389,7 +2408,8 @@
 
         tonConnectUI.onStatusChange(async (wallet) => {
             clearInterval(activityRefreshInterval);
-            isPasswordVerified = false; // Reset on wallet change
+            isPasswordVerified = false;
+            clearTimeout(sessionTimeoutId);
 
             if (wallet) {
                 showPasswordBlocker('Đang kết nối ví...');
@@ -2405,7 +2425,6 @@
                 myAccountBtn.href = `https://tonviewer.com/${friendlyAddress}`;
 
                 await loadOrCreateUserByAddress(connectedWalletAddress);
-                // App unlock is now handled by password verification flow
                 
             } else {
                 connectedWalletAddress = null;
@@ -2423,14 +2442,13 @@
                 }
                 
                 handleRouteChange();
-                hidePasswordBlocker(); // Hide blocker when disconnected
+                hidePasswordBlocker();
             }
         });
         
         // --- UI & Navigation ---
         
         const switchView = (viewToShow) => {
-            // NEW: If password is not verified, don't switch views except for hero
             if (!isPasswordVerified && connectedWalletAddress) {
                 [dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl, accountSectionEl, leaderboardSectionEl, adminSectionEl, referralSectionEl, airdropSectionEl].forEach(section => {
                     if (section) section.style.display = 'none';
@@ -2541,8 +2559,6 @@
                 referralInputContainerHero.style.display = 'none';
             }
         };
-
-        // --- Unchanged Helper & Fetching functions ---
         
         const formatBalance = (bigIntString, decimals, symbol = '') => {
             try {
@@ -3133,6 +3149,11 @@
         checkinButton.addEventListener('click', handleCheckin);
         popupCheckinButton.addEventListener('click', handleCheckin);
         if (adminExpForm) adminExpForm.addEventListener('submit', handleAdminExpUpdate);
+        if(adminUserListContainer) adminUserListContainer.addEventListener('change', (e) => {
+            if (e.target.classList.contains('admin-tx-status-switch')) {
+                handleAdminTxStatusChange(e);
+            }
+        });
         
         if (adminDisableBtn) adminDisableBtn.addEventListener('click', () => updateUserStatus(false));
         if (adminEnableBtn) adminEnableBtn.addEventListener('click', () => updateUserStatus(true));
@@ -3151,7 +3172,10 @@
         backToMyWalletBtn.addEventListener('click', () => { if (connectedWalletAddress) fetchAndDisplayAccountData(connectedWalletAddress); });
         otherTokensContent.addEventListener('click', (e) => { const jettonItem = e.target.closest('.jetton-item'); if (jettonItem) showJettonDetails(jettonItem.dataset.jettonAddress); });
         
+        // Main event listener for clicks and session reset
         document.body.addEventListener('click', async (e) => { 
+            if (isPasswordVerified) resetSessionTimer();
+
             const copyAddressTarget = e.target.closest('.copyable-address');
             const copyCodeTarget = e.target.closest('.copyable-code');
 
@@ -3166,7 +3190,7 @@
             if (!customWalletContainer?.contains(e.target)) walletDropdown.style.display = 'none'; 
             if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none'; 
             
-            // --- NEW: Password Modal Event Delegation ---
+            // Password Modal Event Delegation
             const targetId = e.target.id;
             passwordModalError.textContent = ''; // Clear previous errors
 
@@ -3216,7 +3240,7 @@
                     }
 
                     e.target.disabled = true;
-                    e.target.previousElementSibling.disabled = true; // disable 'forgot' button
+                    e.target.previousElementSibling.disabled = true; 
                     e.target.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
 
                     const loginHash = await hashPassword(loginPassword);
@@ -3249,8 +3273,9 @@
                     break;
 
                 case 'change-password-submit':
-                     const oldPassword = Array.from(document.querySelectorAll('.old-password')).map(i => i.value).join('');
-                     const newPassword = Array.from(document.querySelectorAll('.new-password')).map(i => i.value).join('');
+                     const oldPassword = getPasswordFromInputs('.old-password');
+                     const newPassword = getPasswordFromInputs('.new-password');
+
                      if (oldPassword.length !== 6 || newPassword.length !== 6) {
                          passwordModalError.textContent = 'Mật khẩu cũ và mới phải đủ 6 số.';
                          return;
@@ -3268,6 +3293,7 @@
                          passwordModalError.textContent = 'Mật khẩu cũ không chính xác.';
                          e.target.disabled = false;
                          e.target.textContent = 'Lưu Thay Đổi';
+                         clearPasswordInputs('.old-password');
                          return;
                      }
 
@@ -3289,6 +3315,10 @@
             }
         });
         
+        ['keypress', 'scroll'].forEach(evt => document.addEventListener(evt, () => {
+             if (isPasswordVerified) resetSessionTimer();
+        }));
+
         [navDashboard, navApps, navTask, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(link => link.addEventListener('click', (e) => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
         appSearchInput.addEventListener('input', () => { renderApps(); const searchTerm = appSearchInput.value.trim(); const newUrl = searchTerm ? `#apps?search=${encodeURIComponent(searchTerm)}` : '#apps'; history.replaceState(null, '', newUrl); });
         appSearchButton.addEventListener('click', renderApps);
@@ -3296,7 +3326,6 @@
         appFilterControls.addEventListener('click', (e) => { const target = e.target.closest('.app-filter-btn'); if (target) { appFilterControls.querySelector('.active').classList.remove('active'); target.classList.add('active'); renderApps(); } });
         window.addEventListener('hashchange', handleRouteChange);
         
-        // NEW: Listeners for account page buttons
         changePasswordBtn.addEventListener('click', () => showPasswordModal('change'));
         contactAdminBtn.addEventListener('click', () => contactAdminModal.show());
 
@@ -3314,4 +3343,3 @@
     });
     </script>
 </body>
-</html>
