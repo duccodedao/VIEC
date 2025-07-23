@@ -1611,7 +1611,7 @@
 
             if (isInitialLoad) {
                 lastVisibleAdminUser = null;
-                adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">Gmail</th><th scope="col">UID</th><th scope="col">EXP</th><th scope="col">Airdrop Status</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
+                adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">EXP</th><th scope="col">Airdrop Status</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
             }
             
             const tableBody = adminUserListContainer.querySelector('tbody');
@@ -1647,7 +1647,7 @@
                     
                     const userDocs = Array.from(usersMap.values());
                      if (userDocs.length === 0) {
-                        tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-secondary p-3">Không tìm thấy người dùng.</td></tr>`;
+                        tableBody.innerHTML = `<tr><td colspan="7" class="text-center text-secondary p-3">Không tìm thấy người dùng.</td></tr>`;
                         return;
                     }
                     renderAdminUserRows(userDocs, tableBody);
@@ -1679,7 +1679,7 @@
 
             } catch (error) {
                 console.error("Error fetching user list for admin:", error);
-                tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-danger p-3">Lỗi khi tải danh sách người dùng.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="7" class="text-center text-danger p-3">Lỗi khi tải danh sách người dùng.</td></tr>`;
             } finally {
                 adminLoadMoreBtn.disabled = false;
                 adminLoadMoreBtn.innerHTML = `Tải thêm`;
@@ -1716,7 +1716,6 @@
                         </div>
                     </td>
                     <td><code class="copyable-address" data-address="${user.address}" title="Click to copy Raw Address">${shortenAddress(user.address, 6, 6)}</code></td>
-                    <td><div class="text-truncate" style="max-width: 150px;">${user.recoveryEmail || 'N/A'}</div></td>
                     <td>${user.telegramId || 'N/A'}</td>
                     <td class="fw-bold" style="color: var(--accent-secondary);">${(user.points || 0).toLocaleString()}</td>
                     <td>${sentTxHtml}</td>
