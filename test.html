@@ -1257,80 +1257,125 @@
                 return Math.floor(baseReward * 0.5);
             }
         }
-
+        
+        // =========================================================================
+        // UPDATED LOGIC FOR USER AUTHENTICATION & SYNCHRONIZATION
+        // =========================================================================
         async function loadOrCreateUserByAddress(address) {
             if (!address || !db) return;
 
-            showLoadingOverlay('Đang tải dữ liệu người dùng...');
+            showLoadingOverlay('Đang xác thực và đồng bộ...');
+
+            // --- UID-First Check for Mini App Users ---
+            if (telegramUserData) {
+                const uidQuery = db.collection('users').where('telegramId', '==', telegramUserData.id).limit(1);
+                const uidSnapshot = await uidQuery.get();
+
+                if (!uidSnapshot.empty) {
+                    const existingUserDoc = uidSnapshot.docs[0];
+                    const existingUserData = existingUserDoc.data();
+                    
+                    // If the existing user's wallet does NOT match the one they're connecting now, BLOCK IT.
+                    if (existingUserData.address !== address) {
+                        hideLoadingOverlay();
+                        showAppToast('Lỗi Liên Kết', `Tài khoản Telegram này đã được liên kết với một ví khác. Vui lòng sử dụng đúng ví đã kết nối.`, 'error');
+                        handleFullLogout();
+                        return; // Halt execution
+                    }
+                    // If wallets match, it's a valid login, proceed normally.
+                }
+            }
+            
+            // --- Wallet-First Check (for all users, including web-only) ---
             const userRef = db.collection('users').doc(address);
             const doc = await userRef.get();
-            let userData;
-            let isNewUser = false;
 
             if (!doc.exists) {
-                isNewUser = true;
+                // --- CREATE NEW USER ---
+                // This block now only runs for truly new users (new wallet, and if on Mini App, a new UID).
                 console.log(`Creating new user profile for address: ${address}`);
                 const newUser = {
                     address: address, points: 0, lastCheckin: null, checkinCount: 0,
                     referralCount: 0, referredBy: null, 
-                    hasSentConfirmationTx: false, 
-                    hasRequestedAirdrop: false,
+                    hasSentConfirmationTx: false, hasRequestedAirdrop: false,
                     disabledUntil: null, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    telegramId: telegramUserData ? telegramUserData.id : null,
+                    username: telegramUserData ? (telegramUserData.username || `user${telegramUserData.id}`) : null,
+                    fullName: telegramUserData ? `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim() : null,
+                    photoUrl: telegramUserData ? (telegramUserData.photo_url || DEFAULT_LOGO_SRC) : null,
                 };
-                if (telegramUserData) {
-                    newUser.telegramId = telegramUserData.id;
-                    newUser.username = telegramUserData.username || `user${telegramUserData.id}`;
-                    newUser.fullName = `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim();
-                    newUser.photoUrl = telegramUserData.photo_url || DEFAULT_LOGO_SRC;
+                await userRef.set(newUser);
+                currentUserData = newUser;
+                
+                const referrerCode = sessionStorage.getItem(REFERRAL_SESSION_KEY);
+                if (referrerCode) {
+                    await applyReferral(referrerCode, address);
+                    sessionStorage.removeItem(REFERRAL_SESSION_KEY);
                 }
-                await userRef.set(newUser, { merge: true });
-                userData = newUser;
+
             } else {
-                userData = doc.data();
+                // --- UPDATE OR AUTHENTICATE EXISTING USER ---
+                let userData = doc.data();
+
                 if (userData.disabledUntil && userData.disabledUntil.toDate() > new Date()) {
+                    hideLoadingOverlay();
                     showAppToast('Tài khoản bị khoá', `Tài khoản của bạn tạm thời không thể sử dụng các tính năng cho đến ${userData.disabledUntil.toDate().toLocaleString('vi-VN')}.`, 'error');
                     handleFullLogout();
-                    return; 
+                    return;
                 }
-                
+
+                // Conflict check: Wallet exists, but is owned by another UID.
+                if (telegramUserData && userData.telegramId && userData.telegramId !== telegramUserData.id) {
+                    hideLoadingOverlay();
+                    const ownerUsername = userData.username ? `@${userData.username}` : 'một người dùng khác';
+                    showAppToast('Lỗi Sở Hữu', `Ví này đã thuộc về ${ownerUsername}. Vui lòng kết nối bằng ví của bạn.`, 'error');
+                    handleFullLogout();
+                    return;
+                }
+
                 const updates = {};
+                // Sync backwards: Wallet exists from web, first time logging in from Mini App.
                 if (telegramUserData && !userData.telegramId) {
-                     Object.assign(updates, {
+                    Object.assign(updates, {
                         telegramId: telegramUserData.id,
                         username: telegramUserData.username || `user${telegramUserData.id}`,
                         fullName: `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim(),
                         photoUrl: telegramUserData.photo_url || DEFAULT_LOGO_SRC,
                     });
                 }
+                
                 if (typeof userData.hasRequestedAirdrop === 'undefined') {
                     updates.hasRequestedAirdrop = false;
                 }
+
                 if (Object.keys(updates).length > 0) {
-                     console.log(`Updating existing user profile:`, updates);
+                     console.log(`Updating existing user profile with Telegram data:`, updates);
                      await userRef.update(updates);
                      userData = { ...userData, ...updates };
                 }
+                
+                currentUserData = userData;
             }
-            
-            currentUserData = userData;
             
             await onUserAuthenticated();
-
-            if (isNewUser) {
-                const referrerCode = sessionStorage.getItem(REFERRAL_SESSION_KEY);
-                if(referrerCode) {
-                   await applyReferral(referrerCode, address);
-                   sessionStorage.removeItem(REFERRAL_SESSION_KEY);
-                }
-            }
         }
         
-         async function applyReferral(referrerCode, newAddress) {
+        // =========================================================================
+        // UPDATED LOGIC FOR REFERRAL
+        // =========================================================================
+        async function applyReferral(referrerCode, newAddress) {
             if (airdropSettings?.isSnapshotActive) {
                 showAppToast('Đã dừng', 'Hoạt động kiếm điểm đã dừng do Snapshot.', 'warning');
                 return;
             }
             if (!referrerCode || !newAddress) return;
+
+            // Prevent self-referral
+            if (referrerCode === newAddress || (telegramUserData && referrerCode === String(telegramUserData.id))) {
+                 showAppToast('Lỗi', 'Bạn không thể tự giới thiệu chính mình.', 'warning');
+                 return;
+            }
+
             console.log(`Attempting to apply referral code "${referrerCode}" for new user ${newAddress}`);
 
             let referrerQuery;
@@ -1351,6 +1396,7 @@
                 const referrerRef = referrerDoc.ref;
                 const referrerData = referrerDoc.data();
                 
+                // Double-check for self-referral using fetched data
                 if (referrerData.address === newAddress) {
                     showAppToast('Lỗi', 'Bạn không thể tự giới thiệu chính mình.', 'warning');
                     return;
@@ -3122,3 +3168,105 @@
     </script>
 </body>
 </html>
+```
+
+---
+
+### Tóm Tắt Các Thay Đổi Quan Trọng Trong Mã
+
+Để bạn dễ dàng theo dõi, đây là những đoạn code cốt lõi đã được sửa đổi.
+
+#### 1. Ngăn chặn Tự giới thiệu (`applyReferral`)
+
+Tôi đã thêm một bước kiểm tra ngay từ đầu để đảm bảo người mời và người được mời không phải là một.
+
+```javascript
+async function applyReferral(referrerCode, newAddress) {
+    // ...
+    
+    // UPDATED: Ngăn chặn tự giới thiệu
+    if (referrerCode === newAddress || (telegramUserData && referrerCode === String(telegramUserData.id))) {
+         showAppToast('Lỗi', 'Bạn không thể tự giới thiệu chính mình.', 'warning');
+         return;
+    }
+
+    // ... (phần còn lại của hàm)
+
+    try {
+        // ...
+        const referrerData = referrerDoc.data();
+        
+        // UPDATED: Kiểm tra kỹ hơn sau khi lấy được dữ liệu người mời
+        if (referrerData.address === newAddress) {
+            showAppToast('Lỗi', 'Bạn không thể tự giới thiệu chính mình.', 'warning');
+            return;
+        }
+
+        // ...
+    } catch (error) {
+        // ...
+    }
+}```
+
+#### 2. Logic "Một UID - Một Ví" (`loadOrCreateUserByAddress`)
+
+Đây là thay đổi lớn nhất. Luồng xử lý giờ đây ưu tiên kiểm tra sự tồn tại của UID trước khi làm bất cứ điều gì khác nếu người dùng đang ở trên Mini App.
+
+```javascript
+async function loadOrCreateUserByAddress(address) {
+    if (!address || !db) return;
+
+    showLoadingOverlay('Đang xác thực và đồng bộ...');
+
+    // --- LOGIC MỚI: Kiểm tra UID trước tiên đối với người dùng Mini App ---
+    if (telegramUserData) {
+        // Tìm xem có tài liệu nào đã tồn tại với UID này không
+        const uidQuery = db.collection('users').where('telegramId', '==', telegramUserData.id).limit(1);
+        const uidSnapshot = await uidQuery.get();
+
+        if (!uidSnapshot.empty) {
+            const existingUserDoc = uidSnapshot.docs[0];
+            const existingUserData = existingUserDoc.data();
+            
+            // Nếu ví đã tồn tại của UID này KHÔNG KHỚP với ví đang kết nối -> CHẶN
+            if (existingUserData.address !== address) {
+                hideLoadingOverlay();
+                showAppToast('Lỗi Liên Kết', `Tài khoản Telegram này đã được liên kết với một ví khác. Vui lòng sử dụng đúng ví đã kết nối.`, 'error');
+                handleFullLogout(); // Buộc đăng xuất để họ làm lại cho đúng
+                return; // Dừng hoàn toàn việc thực thi
+            }
+            // Nếu ví khớp, đây là một lần đăng nhập hợp lệ, cứ để logic bên dưới tiếp tục.
+        }
+    }
+    
+    // --- Logic cũ (giờ trở thành bước 2) ---
+    // Kiểm tra dựa trên địa chỉ ví
+    const userRef = db.collection('users').doc(address);
+    const doc = await userRef.get();
+
+    if (!doc.exists) {
+        // Tạo người dùng mới (Block này giờ an toàn hơn nhiều)
+        // ...
+    } else {
+        // Cập nhật hoặc xác thực người dùng hiện tại
+        let userData = doc.data();
+
+        // Kiểm tra xung đột: Ví có tồn tại nhưng đã được gán cho một UID khác
+        if (telegramUserData && userData.telegramId && userData.telegramId !== telegramUserData.id) {
+            hideLoadingOverlay();
+            const ownerUsername = userData.username ? `@${userData.username}` : 'một người dùng khác';
+            showAppToast('Lỗi Sở Hữu', `Ví này đã thuộc về ${ownerUsername}. Vui lòng kết nối bằng ví của bạn.`, 'error');
+            handleFullLogout();
+            return;
+        }
+
+        // Đồng bộ ngược: Gán thông tin Telegram cho tài khoản web đã tồn tại
+        if (telegramUserData && !userData.telegramId) {
+            // ... cập nhật thông tin
+        }
+        
+        // ... phần còn lại
+    }
+    
+    await onUserAuthenticated();
+}
