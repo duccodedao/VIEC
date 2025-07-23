@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VIEC - Vietnam Coin | Token của người Việt trên mạng TON</title>
+    <title>VIEC - Vietnam Coin | Sức mạnh Việt trong Kỷ nguyên số</title>
 
     <!-- Meta SEO -->
-    <meta name="description" content="Vietnam Coin (VIEC) là token trên mạng TON, đại diện cho cộng đồng người Việt trong Web3. Hãy sẵn sàng cho đợt Pre-Sale sắp tới và khám phá hệ sinh thái của chúng tôi.">
+    <meta name="description" content="Vietnam Coin (VIEC) - Token trên mạng TON, là cầu nối đưa cộng đồng và doanh nghiệp Việt Nam vươn ra thế giới bằng công nghệ Web3. Khám phá hệ sinh thái toàn diện của chúng tôi.">
     <link rel="icon" href="https://duccodedao.github.io/VIEC/img/logo.png" type="image/png">
-    <meta property="og:title" content="VIEC - Vietnam Coin | Token của người Việt trên mạng TON" />
-    <meta property="og:description" content="Vietnam Coin (VIEC) là token trên mạng TON, đại diện cho cộng đồng người Việt trong Web3. Hãy sẵn sàng cho đợt Pre-Sale sắp tới." />
-    <meta property="og:image" content="https://duccodedao.github.io/VIEC/img/logo.png" />
+    <meta property="og:title" content="VIEC - Vietnam Coin | Sức mạnh Việt trong Kỷ nguyên số" />
+    <meta property="og:description" content="Khám phá Vietnam Coin (VIEC), token đại diện cho cộng đồng người Việt trên mạng TON." />
+    <meta property="og:image" content="https://duccodedao.github.io/VIEC/img/logo_og.png" /> <!-- Optional: Create a larger image for social sharing -->
     <meta property="og:url" content="https://yourdomain.com/" />
     <meta name="twitter:card" content="summary_large_image" />
 
@@ -29,25 +29,31 @@
         :root {
             --primary-color: #f6b800;
             --secondary-color: #da251d;
-            --dark-bg: #121212;
-            --light-bg: #1a1a1a;
-            --text-color: #e0e0e0;
-            --text-muted: #888;
+            --dark-bg: #0d1117;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-color: #f0f6fc;
+            --text-muted: #8b949e;
         }
+
+        html { scroll-behavior: smooth; }
 
         body {
             font-family: 'Be Vietnam Pro', sans-serif;
             background-color: var(--dark-bg);
             color: var(--text-color);
+            background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
+            background-size: 20px 20px;
         }
 
         .navbar {
-            background-color: rgba(26, 26, 26, 0.8);
+            background-color: rgba(13, 17, 23, 0.8);
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
         }
-
         .navbar-brand img { height: 40px; }
-        .nav-link { color: var(--text-color); font-weight: 500; transition: color 0.3s; }
+        .nav-link { font-weight: 500; transition: color 0.3s; color: var(--text-muted); }
         .nav-link:hover, .nav-link.active { color: var(--primary-color); }
 
         .btn-gradient {
@@ -56,105 +62,102 @@
             transition: transform 0.3s, box-shadow 0.3s;
         }
         .btn-gradient:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(246, 184, 0, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(246, 184, 0, 0.3);
+        }
+        .btn-outline-primary {
+            color: var(--primary-color); border-color: var(--primary-color);
+        }
+        .btn-outline-primary:hover {
+            color: var(--dark-bg); background-color: var(--primary-color); border-color: var(--primary-color);
         }
 
-        /* Wallet Controls */
         .wallet-controls { display: flex; align-items: center; gap: 10px; }
         .wallet-info {
             display: none; align-items: center;
-            background-color: var(--light-bg); padding: 8px 12px;
-            border-radius: 20px; border: 1px solid #444; gap: 10px;
+            background-color: var(--card-bg); padding: 6px 12px;
+            border-radius: 50px; border: 1px solid var(--border-color); gap: 10px;
         }
-        #wallet-address {
-            font-family: monospace; font-weight: 600; color: var(--primary-color);
-            cursor: pointer;
-        }
+        #wallet-address { font-family: monospace; font-size: 0.9rem; color: var(--text-color); cursor: pointer; }
         .btn-disconnect {
             background: none; border: none; color: var(--text-muted);
             font-size: 1rem; cursor: pointer; padding: 0 5px; transition: color 0.3s;
         }
         .btn-disconnect:hover { color: var(--secondary-color); }
-
-        /* Hero Section */
+        
         .hero {
-            padding: 120px 0; text-align: center;
-            background: url('https://images.unsplash.com/photo-1639322537228-f710d846310a?q=80&w=1932&auto=format&fit=crop') no-repeat center center;
-            background-size: cover; position: relative;
+            padding: 150px 0; text-align: center;
+            background: var(--dark-bg); position: relative;
+            overflow: hidden;
         }
         .hero::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(18, 18, 18, 0.7);
+            content: ''; position: absolute; top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(246, 184, 0, 0.1), transparent 30%);
+            animation: rotate 20s linear infinite;
         }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .hero-content { position: relative; z-index: 2; }
-        .hero h1 { font-size: 3.5rem; font-weight: 800; }
+        .hero h1 { font-size: calc(2.5rem + 2vw); font-weight: 800; line-height: 1.2; }
         .hero .highlight { color: var(--primary-color); }
 
-        /* Pre-Sale Section */
-        #presale { background-color: var(--light-bg); }
-        .presale-card {
-            background: var(--dark-bg); padding: 40px; border-radius: 15px;
-            border: 1px solid var(--primary-color);
-            box-shadow: 0 0 30px rgba(246, 184, 0, 0.2);
-        }
-        .countdown-box { text-align: center; }
-        .countdown-box .time { font-size: 2.5rem; font-weight: 700; color: var(--primary-color); }
-        .countdown-box .label { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; }
-
-        /* General Section */
-        .section { padding: 80px 0; }
-        .section-title { text-align: center; margin-bottom: 50px; font-size: 2.5rem; font-weight: 700; }
+        .section { padding: 100px 0; }
+        .section-title { text-align: center; margin-bottom: 60px; font-size: 3rem; font-weight: 700; }
+        .section-subtitle { max-width: 600px; margin: -40px auto 60px; color: var(--text-muted); }
         
-        .feature-card {
-            background: var(--light-bg); padding: 30px; border-radius: 12px;
-            text-align: center; transition: transform 0.3s, box-shadow 0.3s; height: 100%;
+        .stats-card {
+            background: var(--card-bg); backdrop-filter: blur(5px);
+            border: 1px solid var(--border-color);
+            padding: 20px; border-radius: 15px; text-align: center;
         }
-        .feature-card:hover { transform: translateY(-10px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .feature-icon { font-size: 3rem; color: var(--primary-color); margin-bottom: 20px; }
+        .stats-value { font-size: 2.5rem; font-weight: 700; color: var(--primary-color); }
+        .stats-label { color: var(--text-muted); }
 
-        #tokenomics { background-color: var(--light-bg); }
-        .info-box {
-            background: var(--light-bg); padding: 20px; border-radius: 8px;
-            margin-bottom: 15px; border-left: 4px solid var(--primary-color);
+        .glass-card {
+            background: var(--card-bg); backdrop-filter: blur(5px);
+            border: 1px solid var(--border-color);
+            padding: 30px; border-radius: 15px;
+            transition: transform 0.3s, box-shadow 0.3s; height: 100%;
         }
-        
+        .glass-card:hover { transform: translateY(-10px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .card-icon { font-size: 3rem; color: var(--primary-color); margin-bottom: 20px; }
+
+        .tokenomics-card { padding: 40px; }
+        #tokenomicsChart { max-height: 350px; }
+
         /* Roadmap */
         .roadmap-timeline { position: relative; }
         .roadmap-timeline::before {
-            content: ''; position: absolute; left: 50%; top: 0; bottom: 0;
-            width: 3px; background-color: #333; transform: translateX(-50%);
+            content: ''; position: absolute; left: 1rem; top: 0; bottom: 0;
+            width: 3px; background-color: var(--border-color);
         }
-        .roadmap-item { position: relative; margin-bottom: 50px; width: 50%; }
-        .roadmap-item:nth-child(odd) { left: 0; padding-right: 50px; text-align: right; }
-        .roadmap-item:nth-child(even) { left: 50%; padding-left: 50px; text-align: left; }
+        .roadmap-item { position: relative; padding-left: 50px; margin-bottom: 40px; }
         .roadmap-dot {
-            position: absolute; top: 5px; width: 20px; height: 20px;
-            border-radius: 50%; background: #333; border: 4px solid var(--primary-color);
+            position: absolute; left: 1rem; top: 5px; width: 22px; height: 22px;
+            border-radius: 50%; background: var(--dark-bg); border: 4px solid var(--border-color);
+            transform: translateX(-50%); transition: background-color 0.3s;
         }
-        .roadmap-item:nth-child(odd) .roadmap-dot { right: -10px; transform: translateX(0); }
-        .roadmap-item:nth-child(even) .roadmap-dot { left: -10px; transform: translateX(0); }
-        .roadmap-item.completed .roadmap-dot { background: var(--primary-color); }
-        .roadmap-date { font-weight: 600; color: var(--primary-color); }
+        .roadmap-item.completed .roadmap-dot { background: var(--primary-color); border-color: var(--primary-color); }
+        .roadmap-phase { font-weight: 700; color: var(--primary-color); }
+        .roadmap-title { margin-bottom: 0.5rem; }
 
-        /* FAQ & Contact */
-        .accordion-button { background-color: var(--light-bg); color: var(--text-color); }
-        .accordion-button:not(.collapsed) { background-color: var(--primary-color); color: #111; }
-        .accordion-body { background-color: #2c2a2a; }
-        .contact-form { background: var(--light-bg); padding: 40px; border-radius: 12px; }
-        .form-control { background-color: #2a2a2a; border: 1px solid #444; color: var(--text-color); }
-        .form-control:focus {
-            background-color: #2a2a2a; color: var(--text-color);
-            border-color: var(--primary-color); box-shadow: 0 0 0 0.25rem rgba(246, 184, 0, 0.25);
+        .cta-section {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            padding: 80px 0; border-radius: 20px;
         }
-        
-        /* Footer */
-        footer { background: #000; padding: 40px 0 20px; text-align: center; }
-        footer .social-icons a { color: #888; font-size: 1.5rem; margin: 0 10px; transition: color 0.3s; }
+        .cta-section h2 { color: #111; font-weight: 800; }
+        .cta-section p { color: #333; }
+        .btn-dark-outline {
+            background: transparent; border: 2px solid #111; color: #111;
+            font-weight: 600; transition: all 0.3s;
+        }
+        .btn-dark-outline:hover { background: #111; color: #fff; }
+
+        footer { background: #000; padding: 40px 0 20px; text-align: center; margin-top: 100px; }
+        footer .social-icons a { color: var(--text-muted); font-size: 1.5rem; margin: 0 15px; transition: color 0.3s; }
         footer .social-icons a:hover { color: var(--primary-color); }
 
-        /* Animation */
-        .reveal { opacity: 0; transform: translateY(50px); transition: all 1s ease-out; }
+        .reveal { opacity: 0; transform: translateY(50px); transition: all 0.8s cubic-bezier(0.6, 0.01, 0.05, 0.95); }
         .reveal.active { opacity: 1; transform: translateY(0); }
     </style>
 </head>
@@ -171,20 +174,17 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto">
-                <li class="nav-item"><a class="nav-link" href="#features">Tính Năng</a></li>
+                <li class="nav-item"><a class="nav-link" href="#about">Về VIEC</a></li>
+                <li class="nav-item"><a class="nav-link" href="#ecosystem">Hệ sinh thái</a></li>
                 <li class="nav-item"><a class="nav-link" href="#tokenomics">Tokenomics</a></li>
                 <li class="nav-item"><a class="nav-link" href="#roadmap">Lộ Trình</a></li>
-                <li class="nav-item"><a class="nav-link" href="#faq">FAQ</a></li>
                 <li class="nav-item"><a class="nav-link" href="/wallet.html">Ứng dụng</a></li>
             </ul>
-            
             <div class="wallet-controls">
                 <div id="ton-connect-button"></div>
                 <div id="wallet-info-container" class="wallet-info">
-                    <span id="wallet-address" title="Click to copy"></span>
-                    <button id="disconnect-button" class="btn-disconnect" title="Ngắt kết nối">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
+                    <span id="wallet-address"></span>
+                    <button id="disconnect-button" class="btn-disconnect" title="Ngắt kết nối"><i class="fas fa-times"></i></button>
                 </div>
             </div>
         </div>
@@ -194,76 +194,81 @@
 <!-- Hero Section -->
 <header class="hero">
     <div class="hero-content container">
-        <h1 class="reveal">Sức mạnh Việt trong <span class="highlight">Kỷ nguyên số</span></h1>
-        <p class="lead my-4 reveal" style="transition-delay: 0.2s;">
-            VIEC là cầu nối, đưa cộng đồng và doanh nghiệp Việt Nam vươn ra thế giới bằng công nghệ blockchain trên mạng TON.
+        <h1 class="reveal">Sức mạnh Việt trong <br><span class="highlight">Kỷ nguyên số</span></h1>
+        <p class="lead my-4 reveal text-muted" style="transition-delay: 0.2s;">
+            VIEC là cầu nối, đưa cộng đồng và doanh nghiệp Việt Nam vươn ra thế giới <br>bằng công nghệ blockchain trên mạng TON.
         </p>
-        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center reveal" style="transition-delay: 0.4s;">
-            <a href="#presale" class="btn btn-gradient btn-lg px-4 gap-3">Tham gia Pre-Sale</a>
-            <a href="https://t.me/your_telegram_channel" target="_blank" class="btn btn-outline-light btn-lg px-4">Tham gia Telegram</a>
+        <div class="d-grid gap-3 d-sm-flex justify-content-sm-center reveal" style="transition-delay: 0.4s;">
+            <a href="#ecosystem" class="btn btn-gradient btn-lg px-4">Khám phá Hệ sinh thái</a>
+            <a href="https://t.me/your_telegram_channel" target="_blank" class="btn btn-outline-primary btn-lg px-4">Tham gia Cộng đồng</a>
         </div>
     </div>
 </header>
 
-<!-- Pre-Sale Countdown Section -->
-<section id="presale" class="section">
+<!-- Stats Section -->
+<section class="section pt-0" style="margin-top: -50px; position:relative; z-index: 3;">
     <div class="container">
-        <h2 class="section-title reveal">Pre-Sale Sắp Diễn Ra</h2>
-        <div class="row justify-content-center">
-            <div class="col-lg-10 col-xl-8 reveal">
-                <div class="presale-card text-center">
-                    <p class="lead">Hãy sẵn sàng! Đợt mở bán sớm token VIEC sẽ bắt đầu sau:</p>
-                    <div class="d-flex justify-content-center my-4 gap-3 gap-md-4">
-                        <div class="countdown-box">
-                            <div id="days" class="time">00</div>
-                            <div class="label">Ngày</div>
-                        </div>
-                        <div class="countdown-box">
-                            <div id="hours" class="time">00</div>
-                            <div class="label">Giờ</div>
-                        </div>
-                        <div class="countdown-box">
-                            <div id="minutes" class="time">00</div>
-                            <div class="label">Phút</div>
-                        </div>
-                        <div class="countdown-box">
-                            <div id="seconds" class="time">00</div>
-                            <div class="label">Giây</div>
-                        </div>
-                    </div>
-                    <p class="text-muted">Tham gia cộng đồng của chúng tôi để nhận thông báo sớm nhất!</p>
+        <div class="row g-4">
+            <div class="col-6 col-lg-3 reveal">
+                <div class="stats-card">
+                    <div class="stats-value" data-target="1000000000">0</div>
+                    <div class="stats-label">Tổng Cung</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3 reveal" style="transition-delay: 0.1s;">
+                <div class="stats-card">
+                    <div class="stats-value" data-target="5000">0</div>
+                    <div class="stats-label">Thành viên Cộng đồng</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3 reveal" style="transition-delay: 0.2s;">
+                <div class="stats-card">
+                    <div class="stats-value" data-target="10">0</div>
+                    <div class="stats-label">Đối tác chiến lược</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3 reveal" style="transition-delay: 0.3s;">
+                <div class="stats-card">
+                    <div class="stats-value" data-target="1">1</div>
+                    <div class="stats-label">Mạng lưới (TON)</div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Features Section -->
-<section id="features" class="section">
+<!-- About Section -->
+<section id="about" class="section">
     <div class="container">
-        <h2 class="section-title reveal">Tại sao chọn VIEC?</h2>
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6 reveal">
+                <h2 class="display-5 fw-bold mb-4">Sứ mệnh của VIEC</h2>
+                <p class="text-muted">VIEC không chỉ là một token. Đó là biểu tượng cho sự đoàn kết, sáng tạo và khát vọng của người Việt trong thế giới Web3. Sứ mệnh của chúng tôi là xây dựng một hệ sinh thái bền vững, nơi các dự án và tài năng Việt có thể phát triển và vươn tầm quốc tế.</p>
+                <ul class="list-unstyled mt-4">
+                    <li class="mb-2"><i class="fas fa-check-circle text-primary me-2"></i> Nền tảng cho các dApp Việt.</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-primary me-2"></i> Trao quyền quản trị cho cộng đồng.</li>
+                    <li><i class="fas fa-check-circle text-primary me-2"></i> Thúc đẩy ứng dụng blockchain thực tế.</li>
+                </ul>
+            </div>
+            <div class="col-lg-6 reveal" style="transition-delay: 0.2s;">
+                <img src="https://images.unsplash.com/photo-1641579287313-4e6f49b165a2?q=80&w=1780&auto=format&fit=crop" class="img-fluid rounded-4 shadow" alt="Abstract blockchain image">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Ecosystem Section -->
+<section id="ecosystem" class="section">
+    <div class="container">
+        <h2 class="section-title reveal">Một Hệ sinh thái Toàn diện</h2>
+        <p class="section-subtitle reveal">VIEC là trung tâm của một hệ sinh thái đa dạng, mang lại giá trị thực cho người nắm giữ.</p>
         <div class="row g-4">
-            <div class="col-md-4 reveal">
-                <div class="feature-card">
-                    <i class="fas fa-rocket feature-icon"></i>
-                    <h5>Nền tảng Tốc độ cao</h5>
-                    <p>Xây dựng trên The Open Network (TON), VIEC thừa hưởng tốc độ giao dịch vượt trội, phí thấp và khả năng mở rộng không giới hạn.</p>
-                </div>
-            </div>
-            <div class="col-md-4 reveal" style="transition-delay: 0.2s;">
-                <div class="feature-card">
-                    <i class="fas fa-users feature-icon"></i>
-                    <h5>Vì Cộng đồng Việt</h5>
-                    <p>Dự án được xây dựng với sứ mệnh kết nối, hỗ trợ và thúc đẩy các tài năng, dự án của người Việt trong không gian Web3.</p>
-                </div>
-            </div>
-            <div class="col-md-4 reveal" style="transition-delay: 0.4s;">
-                <div class="feature-card">
-                    <i class="fas fa-shield-alt feature-icon"></i>
-                    <h5>Minh bạch & An toàn</h5>
-                    <p>Hợp đồng thông minh của VIEC được công khai và kiểm toán. Mọi thông tin về phân bổ và lộ trình đều rõ ràng, minh bạch.</p>
-                </div>
-            </div>
+            <div class="col-md-6 col-lg-4 reveal"><div class="glass-card"><i class="fas fa-wallet card-icon"></i><h5>VIEC Wallet & dApp</h5><p class="text-muted">Ví điện tử phi tập trung và cổng vào các ứng dụng trong hệ sinh thái, nơi người dùng có thể tham gia airdrop, làm nhiệm vụ và quản lý tài sản.</p></div></div>
+            <div class="col-md-6 col-lg-4 reveal" style="transition-delay: 0.1s;"><div class="glass-card"><i class="fas fa-layer-group card-icon"></i><h5>Staking & Farming</h5><p class="text-muted">Gửi VIEC để nhận lãi suất thụ động, góp phần bảo mật mạng lưới và nhận thưởng từ các dự án đối tác.</p></div></div>
+            <div class="col-md-6 col-lg-4 reveal" style="transition-delay: 0.2s;"><div class="glass-card"><i class="fas fa-landmark card-icon"></i><h5>VIEC DAO</h5><p class="text-muted">Người nắm giữ VIEC có quyền biểu quyết cho các quyết định quan trọng của dự án, từ việc phát triển tính năng đến phân bổ ngân sách.</p></div></div>
+            <div class="col-md-6 col-lg-4 reveal" style="transition-delay: 0.3s;"><div class="glass-card"><i class="fas fa-palette card-icon"></i><h5>NFT Marketplace</h5><p class="text-muted">Nơi các nghệ sĩ và nhà sáng tạo Việt có thể phát hành và giao dịch các bộ sưu tập NFT độc quyền, sử dụng VIEC làm đồng tiền thanh toán chính.</p></div></div>
+            <div class="col-md-6 col-lg-4 reveal" style="transition-delay: 0.4s;"><div class="glass-card"><i class="fas fa-rocket card-icon"></i><h5>Launchpad</h5><p class="text-muted">Bệ phóng cho các dự án Web3 tiềm năng của người Việt, giúp họ tiếp cận nguồn vốn và sự hỗ trợ từ cộng đồng VIEC.</p></div></div>
+            <div class="col-md-6 col-lg-4 reveal" style="transition-delay: 0.5s;"><div class="glass-card"><i class="fas fa-gamepad card-icon"></i><h5>GameFi & Metaverse</h5><p class="text-muted">Tầm nhìn dài hạn về việc xây dựng các trò chơi và không gian ảo, nơi VIEC là đơn vị tiền tệ chính trong nền kinh tế số.</p></div></div>
         </div>
     </div>
 </section>
@@ -271,19 +276,21 @@
 <!-- Tokenomics Section -->
 <section id="tokenomics" class="section">
     <div class="container">
-        <h2 class="section-title reveal">Tokenomics & Phân bổ</h2>
+        <h2 class="section-title reveal">Phân bổ Token</h2>
         <div class="row align-items-center g-5">
-            <div class="col-lg-6 reveal">
-                <div class="info-box"><strong>Tên Token:</strong> Vietnam Coin (VIEC)</div>
-                <div class="info-box"><strong>Tổng Cung:</strong> 1,000,000,000 VIEC</div>
-                <div class="info-box"><strong>Mạng lưới:</strong> The Open Network (TON)</div>
-                <div class="info-box">
-                    <strong>Mã Hợp Đồng:</strong> 
-                    <span class="text-muted">Sẽ được công bố khi phát hành.</span>
+            <div class="col-lg-6 reveal" style="transition-delay: 0.2s;">
+                <div class="tokenomics-card">
+                    <canvas id="tokenomicsChart"></canvas>
                 </div>
             </div>
-            <div class="col-lg-6 reveal" style="transition-delay: 0.2s;">
-                <canvas id="tokenomicsChart"></canvas>
+            <div class="col-lg-6 reveal">
+                <div class="info-box"><strong>Tổng Cung:</strong> 1,000,000,000 VIEC</div>
+                <ul class="list-unstyled mt-4 fs-5">
+                    <li class="mb-3 d-flex align-items-center"><div style="width:20px; height:20px; background-color: #f6b800; border-radius: 50%;" class="me-3"></div> 40% - Cộng đồng & Airdrop</li>
+                    <li class="mb-3 d-flex align-items-center"><div style="width:20px; height:20px; background-color: #a71e16; border-radius: 50%;" class="me-3"></div> 20% - Hệ sinh thái & Thanh khoản</li>
+                    <li class="mb-3 d-flex align-items-center"><div style="width:20px; height:20px; background-color: #ffcf40; border-radius: 50%;" class="me-3"></div> 20% - Marketing & Đối tác</li>
+                    <li class="mb-3 d-flex align-items-center"><div style="width:20px; height:20px; background-color: #da251d; border-radius: 50%;" class="me-3"></div> 20% - Đội ngũ & Cố vấn</li>
+                </ul>
             </div>
         </div>
     </div>
@@ -292,50 +299,50 @@
 <!-- Roadmap Section -->
 <section id="roadmap" class="section">
     <div class="container">
-        <h2 class="section-title reveal">Lộ trình phát triển</h2>
+        <h2 class="section-title reveal">Lộ trình Phát triển</h2>
         <div class="roadmap-timeline mx-auto" style="max-width: 800px;">
             <div class="roadmap-item completed reveal">
                 <div class="roadmap-dot"></div>
-                <div class="roadmap-date">Q3 2025</div>
-                <h5>Khởi động & Xây dựng</h5>
-                <p>Nghiên cứu, lên ý tưởng. Xây dựng hợp đồng thông minh và website. Phát triển cộng đồng ban đầu.</p>
+                <div class="roadmap-phase">Giai đoạn 1</div>
+                <h4 class="roadmap-title">Nền tảng & Cộng đồng</h4>
+                <p class="text-muted">Phát hành Whitepaper, xây dựng website, phát triển Hợp đồng thông minh và xây dựng các kênh cộng đồng ban đầu.</p>
             </div>
             <div class="roadmap-item reveal">
                 <div class="roadmap-dot"></div>
-                <div class="roadmap-date">Q4 2025</div>
-                <h5>Pre-Sale & Ra mắt</h5>
-                <p>Mở bán Pre-Sale cho cộng đồng. Niêm yết trên các sàn DEX (STON.fi). Ra mắt ứng dụng Wallet & Airdrop.</p>
+                <div class="roadmap-phase">Giai đoạn 2</div>
+                <h4 class="roadmap-title">Ra mắt & Tăng trưởng</h4>
+                <p class="text-muted">Mở bán Public Sale, niêm yết trên STON.fi, triển khai chiến dịch Airdrop lớn và ra mắt phiên bản đầu tiên của VIEC Wallet.</p>
             </div>
             <div class="roadmap-item reveal">
                 <div class="roadmap-dot"></div>
-                <div class="roadmap-date">Q1 2026</div>
-                <h5>Phát triển Hệ sinh thái</h5>
-                <p>Ra mắt tính năng Staking. Tích hợp thanh toán VIEC vào các nền tảng đối tác. Mở rộng marketing.</p>
+                <div class="roadmap-phase">Giai đoạn 3</div>
+                <h4 class="roadmap-title">Phát triển Tiện ích</h4>
+                <p class="text-muted">Ra mắt tính năng Staking, triển khai NFT Marketplace và tích hợp VIEC vào các ứng dụng đối tác đầu tiên.</p>
             </div>
             <div class="roadmap-item reveal">
                 <div class="roadmap-dot"></div>
-                <div class="roadmap-date">Q2 2026</div>
-                <h5>Mở rộng & Quản trị</h5>
-                <p>Triển khai VIEC DAO để cộng đồng tham gia quản trị. Niêm yết trên các sàn CEX. Tìm kiếm đối tác chiến lược toàn cầu.</p>
+                <div class="roadmap-phase">Giai đoạn 4</div>
+                <h4 class="roadmap-title">Mở rộng & Trao quyền</h4>
+                <p class="text-muted">Thành lập VIEC DAO, niêm yết trên các sàn CEX, và khởi động chương trình Launchpad cho các dự án Việt.</p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- FAQ Section -->
-<section id="faq" class="section" style="background-color: var(--light-bg);">
+<!-- CTA Section -->
+<section class="section">
     <div class="container">
-        <h2 class="section-title reveal">Câu hỏi thường gặp</h2>
-        <div class="accordion accordion-flush reveal" id="faqAccordion" style="max-width: 800px; margin: auto;">
-            <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-1">VIEC là gì?</button></h2><div id="faq-1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">VIEC (Vietnam Coin) là một token được xây dựng trên nền tảng The Open Network (TON), với mục tiêu trở thành đồng tiền kỹ thuật số đại diện cho cộng đồng và các dự án của người Việt trong thế giới Web3.</div></div></div>
-            <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-2">Làm thế nào để sở hữu VIEC?</button></h2><div id="faq-2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Hiện tại, VIEC chưa được phát hành. Bạn có thể tham gia đợt Pre-Sale sắp tới bằng cách kết nối ví TON tương thích (như Tonkeeper). Hãy tham gia cộng đồng của chúng tôi để nhận thông tin sớm nhất.</div></div></div>
-            <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-3">Tiện ích của VIEC là gì?</button></h2><div id="faq-3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">VIEC sẽ được sử dụng để staking nhận thưởng, thanh toán phí trên các nền tảng trong hệ sinh thái, tham gia quản trị dự án (DAO), và mua các NFT độc quyền.</div></div></div>
-            <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-4">Tại sao lại chọn mạng TON?</button></h2><div id="faq-4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">TON được chọn vì tốc độ giao dịch cực nhanh, chi phí thấp, khả năng mở rộng lớn và tích hợp sâu với Telegram, nền tảng có lượng người dùng khổng lồ, rất phù hợp để xây dựng cộng đồng.</div></div></div>
+        <div class="cta-section text-center reveal">
+            <div class="container py-4">
+                <h2 class="display-5">Trở thành một phần của Tương lai</h2>
+                <p class="lead my-4">Đừng bỏ lỡ bất kỳ thông báo quan trọng nào. <br>Tham gia cộng đồng VIEC ngay hôm nay!</p>
+                <a href="https://t.me/your_telegram_channel" target="_blank" class="btn btn-dark-outline btn-lg">
+                    <i class="fab fa-telegram-plane me-2"></i> Tham gia Telegram
+                </a>
+            </div>
         </div>
     </div>
 </section>
-
-<!-- Contact Section (Tùy chọn) -->
 
 <!-- Footer -->
 <footer>
@@ -346,7 +353,7 @@
             <a href="#" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
             <a href="#" target="_blank" title="Github"><i class="fab fa-github"></i></a>
         </div>
-        <p>© 2025 VIEC - Vietnam Coin. All Rights Reserved.</p>
+        <p class="text-muted">© 2025 VIEC - Vietnam Coin. All Rights Reserved.</p>
     </div>
 </footer>
 
@@ -361,11 +368,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const disconnectButton = document.getElementById('disconnect-button');
     let fullAddress = '';
 
-    function shortenAddress(address, startChars = 6, endChars = 4) {
-        if (!address) return '';
-        return `${address.slice(0, startChars)}...${address.slice(-endChars)}`;
-    }
-
+    const shortenAddress = (address, start = 6, end = 4) => address ? `${address.slice(0, start)}...${address.slice(-end)}` : '';
+    
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json',
         buttonRootId: 'ton-connect-button'
@@ -375,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (wallet) {
             fullAddress = wallet.account.address;
             walletAddressSpan.textContent = shortenAddress(fullAddress);
-            walletAddressSpan.title = `Full address: ${fullAddress}. Click to copy.`;
+            walletAddressSpan.title = `Địa chỉ đầy đủ: ${fullAddress}. Nhấn để sao chép.`;
             tonConnectButton.style.display = 'none';
             walletInfoContainer.style.display = 'flex';
         } else {
@@ -386,79 +390,55 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     disconnectButton.addEventListener('click', () => tonConnectUI.disconnect());
-
     walletAddressSpan.addEventListener('click', () => {
         if (fullAddress) {
-            navigator.clipboard.writeText(fullAddress).then(() => {
-                alert('Đã sao chép địa chỉ ví!');
-            });
+            navigator.clipboard.writeText(fullAddress).then(() => alert('Đã sao chép địa chỉ ví!'));
         }
     });
-
-    // --- Countdown Timer ---
-    // !!! QUAN TRỌNG: Thay đổi ngày này thành ngày Pre-Sale của bạn !!!
-    const countDownDate = new Date("Oct 30, 2025 15:00:00").getTime();
-
-    const countdownFunction = setInterval(function() {
-        const now = new Date().getTime();
-        const distance = countDownDate - now;
-
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        document.getElementById("days").innerText = days.toString().padStart(2, '0');
-        document.getElementById("hours").innerText = hours.toString().padStart(2, '0');
-        document.getElementById("minutes").innerText = minutes.toString().padStart(2, '0');
-        document.getElementById("seconds").innerText = seconds.toString().padStart(2, '0');
-
-        if (distance < 0) {
-            clearInterval(countdownFunction);
-            document.querySelector('.presale-card .lead').innerHTML = "<b>Pre-Sale ĐÃ BẮT ĐẦU!</b>";
-            document.querySelector('.d-flex.justify-content-center').innerHTML = `<a href="#" class="btn btn-gradient btn-lg">Tham gia ngay!</a>`;
-        }
-    }, 1000);
 
     // --- Tokenomics Chart ---
     const ctx = document.getElementById('tokenomicsChart').getContext('2d');
     new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ['Cộng đồng & Airdrop', 'Đội ngũ & Cố vấn', 'Marketing & Đối tác', 'Hệ sinh thái & Thanh khoản'],
-            datasets: [{
-                data: [40, 20, 20, 20], // Sử dụng phần trăm
-                backgroundColor: ['#f6b800', '#da251d', '#ffcf40', '#a71e16'],
-                borderColor: '#1a1a1a',
-                borderWidth: 4
-            }]
+            labels: ['Cộng đồng & Airdrop', 'Hệ sinh thái & Thanh khoản', 'Marketing & Đối tác', 'Đội ngũ & Cố vấn'],
+            datasets: [{ data: [40, 20, 20, 20], backgroundColor: ['#f6b800', '#a71e16', '#ffcf40', '#da251d'], borderColor: '#0d1117', borderWidth: 5 }]
         },
-        options: {
-            responsive: true,
-            cutout: '70%',
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: { color: '#e0e0e0', font: { size: 14 } }
-                }
-            }
-        }
+        options: { responsive: true, cutout: '70%', plugins: { legend: { display: false } } }
     });
 
-    // --- Animation on scroll ---
-    const reveal = () => {
-        const reveals = document.querySelectorAll(".reveal");
-        for (let i = 0; i < reveals.length; i++) {
-            const windowHeight = window.innerHeight;
-            const elementTop = reveals[i].getBoundingClientRect().top;
-            const elementVisible = 100;
-            if (elementTop < windowHeight - elementVisible) {
-                reveals[i].classList.add("active");
+    // --- Intersection Observer for Animations ---
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                
+                // Animate counter if it's a stats value
+                const counter = entry.target.querySelector('.stats-value');
+                if (counter && !counter.classList.contains('counted')) {
+                    counter.classList.add('counted');
+                    const target = +counter.getAttribute('data-target');
+                    let current = 0;
+                    const increment = target / 100;
+                    
+                    const updateCounter = () => {
+                        if (current < target) {
+                            current += increment;
+                            counter.innerText = Math.ceil(current).toLocaleString('vi-VN');
+                            requestAnimationFrame(updateCounter);
+                        } else {
+                            counter.innerText = target.toLocaleString('vi-VN');
+                        }
+                    };
+                    updateCounter();
+                }
             }
-        }
-    }
-    window.addEventListener("scroll", reveal);
-    reveal(); // Chạy lần đầu để hiển thị các phần tử trong viewport
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => {
+        observer.observe(el);
+    });
 });
 </script>
 </body>
