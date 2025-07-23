@@ -853,20 +853,34 @@
                         <div class="card-glass">
                             <h5 class="card-title">Cấu hình Airdrop & Xuất dữ liệu</h5>
                             <div id="admin-airdrop-settings-form">
-                                <div class="d-flex justify-content-around mb-4">
-                                    <div class="form-check form-switch fs-5">
-                                        <input class="form-check-input" type="checkbox" role="switch" id="airdrop-live-switch">
-                                        <label class="form-check-label" for="airdrop-live-switch">Live</label>
+                                <!-- UPDATED: Admin Global Switches -->
+                                <div class="row text-center g-3 mb-4">
+                                    <div class="col-6 col-sm-3">
+                                        <div class="form-check form-switch fs-5 d-inline-block">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="airdrop-live-switch">
+                                            <label class="form-check-label" for="airdrop-live-switch">Live</label>
+                                        </div>
                                     </div>
-                                    <div class="form-check form-switch fs-5">
-                                        <input class="form-check-input" type="checkbox" role="switch" id="claim-enabled-switch">
-                                        <label class="form-check-label" for="claim-enabled-switch">Claim</label>
+                                    <div class="col-6 col-sm-3">
+                                        <div class="form-check form-switch fs-5 d-inline-block">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="confirmation-enabled-switch">
+                                            <label class="form-check-label" for="confirmation-enabled-switch">Xác nhận</label>
+                                        </div>
                                     </div>
-                                    <div class="form-check form-switch fs-5">
-                                        <input class="form-check-input" type="checkbox" role="switch" id="snapshot-active-switch">
-                                        <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snap</label>
+                                    <div class="col-6 col-sm-3">
+                                        <div class="form-check form-switch fs-5 d-inline-block">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="claim-enabled-switch">
+                                            <label class="form-check-label" for="claim-enabled-switch">Yêu cầu</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-sm-3">
+                                        <div class="form-check form-switch fs-5 d-inline-block">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="snapshot-active-switch">
+                                            <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snapshot</label>
+                                        </div>
                                     </div>
                                 </div>
+
 
                                 <hr style="border-color: var(--border-color); opacity: 0.5;">
                                 <h6 class="text-secondary text-center my-3">CÔNG THỨC TÍNH ĐIỂM</h6>
@@ -1259,7 +1273,7 @@
         }
         
         // =========================================================================
-        // UPDATED LOGIC FOR USER AUTHENTICATION & SYNCHRONIZATION
+        // UPDATED LOGIC FOR USER AUTHENTICATION & SYNCHRONIZATION (ONE UID - ONE WALLET)
         // =========================================================================
         async function loadOrCreateUserByAddress(address) {
             if (!address || !db) return;
@@ -1275,24 +1289,19 @@
                     const existingUserDoc = uidSnapshot.docs[0];
                     const existingUserData = existingUserDoc.data();
                     
-                    // If the existing user's wallet does NOT match the one they're connecting now, BLOCK IT.
                     if (existingUserData.address !== address) {
                         hideLoadingOverlay();
                         showAppToast('Lỗi Liên Kết', `Tài khoản Telegram này đã được liên kết với một ví khác. Vui lòng sử dụng đúng ví đã kết nối.`, 'error');
                         handleFullLogout();
-                        return; // Halt execution
+                        return;
                     }
-                    // If wallets match, it's a valid login, proceed normally.
                 }
             }
             
-            // --- Wallet-First Check (for all users, including web-only) ---
             const userRef = db.collection('users').doc(address);
             const doc = await userRef.get();
 
             if (!doc.exists) {
-                // --- CREATE NEW USER ---
-                // This block now only runs for truly new users (new wallet, and if on Mini App, a new UID).
                 console.log(`Creating new user profile for address: ${address}`);
                 const newUser = {
                     address: address, points: 0, lastCheckin: null, checkinCount: 0,
@@ -1314,7 +1323,6 @@
                 }
 
             } else {
-                // --- UPDATE OR AUTHENTICATE EXISTING USER ---
                 let userData = doc.data();
 
                 if (userData.disabledUntil && userData.disabledUntil.toDate() > new Date()) {
@@ -1324,7 +1332,6 @@
                     return;
                 }
 
-                // Conflict check: Wallet exists, but is owned by another UID.
                 if (telegramUserData && userData.telegramId && userData.telegramId !== telegramUserData.id) {
                     hideLoadingOverlay();
                     const ownerUsername = userData.username ? `@${userData.username}` : 'một người dùng khác';
@@ -1334,7 +1341,6 @@
                 }
 
                 const updates = {};
-                // Sync backwards: Wallet exists from web, first time logging in from Mini App.
                 if (telegramUserData && !userData.telegramId) {
                     Object.assign(updates, {
                         telegramId: telegramUserData.id,
@@ -1346,6 +1352,9 @@
                 
                 if (typeof userData.hasRequestedAirdrop === 'undefined') {
                     updates.hasRequestedAirdrop = false;
+                }
+                 if (typeof userData.hasSentConfirmationTx === 'undefined') {
+                    updates.hasSentConfirmationTx = false;
                 }
 
                 if (Object.keys(updates).length > 0) {
@@ -1361,7 +1370,7 @@
         }
         
         // =========================================================================
-        // UPDATED LOGIC FOR REFERRAL
+        // UPDATED LOGIC FOR REFERRAL (PREVENT SELF-REFERRAL)
         // =========================================================================
         async function applyReferral(referrerCode, newAddress) {
             if (airdropSettings?.isSnapshotActive) {
@@ -1370,7 +1379,6 @@
             }
             if (!referrerCode || !newAddress) return;
 
-            // Prevent self-referral
             if (referrerCode === newAddress || (telegramUserData && referrerCode === String(telegramUserData.id))) {
                  showAppToast('Lỗi', 'Bạn không thể tự giới thiệu chính mình.', 'warning');
                  return;
@@ -1396,7 +1404,6 @@
                 const referrerRef = referrerDoc.ref;
                 const referrerData = referrerDoc.data();
                 
-                // Double-check for self-referral using fetched data
                 if (referrerData.address === newAddress) {
                     showAppToast('Lỗi', 'Bạn không thể tự giới thiệu chính mình.', 'warning');
                     return;
@@ -1672,7 +1679,7 @@
 
             if (isInitialLoad) {
                 lastVisibleAdminUser = null;
-                adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">EXP</th><th scope="col">Airdrop (100%)</th><th scope="col">Reward Requested</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
+                adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">EXP</th><th scope="col">Đã xác nhận 100%</th><th scope="col">Đã yêu cầu</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
             }
             
             const tableBody = adminUserListContainer.querySelector('tbody');
@@ -1803,7 +1810,7 @@
             try {
                 const userRef = db.collection('users').doc(userAddress);
                 await userRef.update({ hasSentConfirmationTx: newStatus });
-                showAppToast('Thành Công', `Đã cập nhật trạng thái 100% cho ví ${shortenAddress(userAddress)}.`, 'success');
+                showAppToast('Thành Công', `Đã cập nhật trạng thái "Xác nhận 100%" cho ví.`, 'success');
             } catch (error) {
                 console.error("Failed to update user transaction status:", error);
                 showAppToast('Lỗi', 'Cập nhật thất bại. Vui lòng thử lại.', 'error');
@@ -1824,7 +1831,7 @@
             try {
                 const userRef = db.collection('users').doc(userAddress);
                 await userRef.update({ hasRequestedAirdrop: newStatus });
-                showAppToast('Thành Công', `Đã cập nhật trạng thái YÊU CẦU thưởng cho ví.`, 'success');
+                showAppToast('Thành Công', `Đã cập nhật trạng thái "Yêu cầu Thưởng" cho ví.`, 'success');
             } catch (error) {
                 console.error("Failed to update user request status:", error);
                 showAppToast('Lỗi', 'Cập nhật thất bại.', 'error');
@@ -2121,7 +2128,7 @@
                 if (doc.exists) { airdropSettings = doc.data(); } 
                 else {
                     airdropSettings = { 
-                        isAirdropLive: false, isClaimingEnabled: false, isSnapshotActive: false,
+                        isAirdropLive: false, isConfirmationEnabled: false, isClaimingEnabled: false, isSnapshotActive: false,
                         minCheckins: 0, minReferrals: 0, minExp: 0,
                         refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 20
                     };
@@ -2130,7 +2137,7 @@
             } catch (error) {
                 console.error("Error fetching airdrop settings:", error);
                 return { 
-                    isAirdropLive: false, isClaimingEnabled: false, isSnapshotActive: false,
+                    isAirdropLive: false, isConfirmationEnabled: false, isClaimingEnabled: false, isSnapshotActive: false,
                     minCheckins: 0, minReferrals: 0, minExp: 0,
                     refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 20
                 };
@@ -2198,13 +2205,15 @@
                 
                 let buttonsHtml = '';
 
-                if (!currentUserData.hasSentConfirmationTx && !settings.isSnapshotActive && settings.isClaimingEnabled) {
+                // Logic for Confirmation (100%) Button
+                if (!currentUserData.hasSentConfirmationTx && !settings.isSnapshotActive && settings.isConfirmationEnabled) {
                      buttonsHtml += `<p class="text-white-50 mt-3 small">Gửi một giao dịch nhỏ để xác nhận ví và nâng mức thưởng lên <strong class="text-white">100%</strong>.</p>`;
                      buttonsHtml += `<button id="confirm-button" class="airdrop-action-btn">Xác Nhận (Nhận 100%)</button>`;
                 } else if (currentUserData.hasSentConfirmationTx) {
                      buttonsHtml += `<p class="text-white-50 mt-3 fw-bold" style="color: var(--color-verified)!important;"><i class="fas fa-check-circle me-2"></i>Đã xác nhận 100%</p>`;
                 }
 
+                // Logic for Claim/Request Button
                 if (!settings.isSnapshotActive && settings.isClaimingEnabled) {
                     buttonsHtml += `<p class="text-white-50 mt-3 small">Gửi giao dịch để yêu cầu nhận thưởng. Yêu cầu của bạn sẽ được ghi lại để phân phối sau.</p>`;
                     buttonsHtml += `<button id="request-reward-button" class="airdrop-action-btn" style="background: var(--accent-secondary); color: white;">Yêu Cầu Nhận Thưởng</button>`;
@@ -2432,6 +2441,7 @@
                 fetchAndRenderAdminUserList(true); 
                 fetchAirdropSettings().then(settings => {
                      document.getElementById('airdrop-live-switch').checked = settings.isAirdropLive || false;
+                     document.getElementById('confirmation-enabled-switch').checked = settings.isConfirmationEnabled || false;
                      document.getElementById('claim-enabled-switch').checked = settings.isClaimingEnabled || false;
                      document.getElementById('snapshot-active-switch').checked = settings.isSnapshotActive || false;
                      document.getElementById('min-checkins-input').value = settings.minCheckins || 0;
@@ -2965,11 +2975,12 @@
 
         async function saveAirdropSettings() {
             const isAirdropLive = document.getElementById('airdrop-live-switch').checked;
+            const isConfirmationEnabled = document.getElementById('confirmation-enabled-switch').checked; // NEW
             const isClaimingEnabled = document.getElementById('claim-enabled-switch').checked;
             const isSnapshotActive = document.getElementById('snapshot-active-switch').checked;
 
             if (isSnapshotActive && !airdropSettings?.isSnapshotActive) {
-                if (!confirm("CẢNH BÁO: Bạn sắp kích hoạt Snapshot. Hành động này sẽ DỪNG tất cả các hoạt động kiếm điểm (check-in, giới thiệu, sửa EXP) và CHỐT phần thưởng cuối cùng (50% hoặc 100%). Hành động này không thể hoàn tác. Bạn có chắc chắn muốn tiếp tục không?")) {
+                if (!confirm("CẢNH BÁO: Bạn sắp kích hoạt Snapshot. Hành động này sẽ DỪNG tất cả các hoạt động kiếm điểm và CHỐT dữ liệu. Hành động này không thể hoàn tác. Bạn có chắc chắn muốn tiếp tục không?")) {
                     document.getElementById('snapshot-active-switch').checked = false;
                     return;
                 }
@@ -2992,8 +3003,8 @@
 
             try {
                 const settingsRef = db.collection('admin_settings').doc('airdrop_criteria');
-                const newSettings = { isAirdropLive, isClaimingEnabled, isSnapshotActive, minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier };
-                await settingsRef.set(newSettings);
+                const newSettings = { isAirdropLive, isConfirmationEnabled, isClaimingEnabled, isSnapshotActive, minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier };
+                await settingsRef.set(newSettings, { merge: true }); // Use merge to be safe
                 airdropSettings = newSettings; 
                 adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
                 showAppToast('Thành công', 'Đã lưu cài đặt Airdrop.', 'success');
@@ -3172,101 +3183,39 @@
 
 ---
 
-### Tóm Tắt Các Thay Đổi Quan Trọng Trong Mã
+### Giải Thích Các Thay Đổi Chính
 
-Để bạn dễ dàng theo dõi, đây là những đoạn code cốt lõi đã được sửa đổi.
+#### 1. Bảng Điều Khiển Admin (HTML)
 
-#### 1. Ngăn chặn Tự giới thiệu (`applyReferral`)
+Tôi đã thêm công tắc **"Xác nhận"** (`confirmation-enabled-switch`) và sắp xếp lại 4 công tắc toàn cục cho rõ ràng.
 
-Tôi đã thêm một bước kiểm tra ngay từ đầu để đảm bảo người mời và người được mời không phải là một.
-
-```javascript
-async function applyReferral(referrerCode, newAddress) {
-    // ...
-    
-    // UPDATED: Ngăn chặn tự giới thiệu
-    if (referrerCode === newAddress || (telegramUserData && referrerCode === String(telegramUserData.id))) {
-         showAppToast('Lỗi', 'Bạn không thể tự giới thiệu chính mình.', 'warning');
-         return;
-    }
-
-    // ... (phần còn lại của hàm)
-
-    try {
-        // ...
-        const referrerData = referrerDoc.data();
-        
-        // UPDATED: Kiểm tra kỹ hơn sau khi lấy được dữ liệu người mời
-        if (referrerData.address === newAddress) {
-            showAppToast('Lỗi', 'Bạn không thể tự giới thiệu chính mình.', 'warning');
-            return;
-        }
-
-        // ...
-    } catch (error) {
-        // ...
-    }
-}```
-
-#### 2. Logic "Một UID - Một Ví" (`loadOrCreateUserByAddress`)
-
-Đây là thay đổi lớn nhất. Luồng xử lý giờ đây ưu tiên kiểm tra sự tồn tại của UID trước khi làm bất cứ điều gì khác nếu người dùng đang ở trên Mini App.
-
-```javascript
-async function loadOrCreateUserByAddress(address) {
-    if (!address || !db) return;
-
-    showLoadingOverlay('Đang xác thực và đồng bộ...');
-
-    // --- LOGIC MỚI: Kiểm tra UID trước tiên đối với người dùng Mini App ---
-    if (telegramUserData) {
-        // Tìm xem có tài liệu nào đã tồn tại với UID này không
-        const uidQuery = db.collection('users').where('telegramId', '==', telegramUserData.id).limit(1);
-        const uidSnapshot = await uidQuery.get();
-
-        if (!uidSnapshot.empty) {
-            const existingUserDoc = uidSnapshot.docs[0];
-            const existingUserData = existingUserDoc.data();
-            
-            // Nếu ví đã tồn tại của UID này KHÔNG KHỚP với ví đang kết nối -> CHẶN
-            if (existingUserData.address !== address) {
-                hideLoadingOverlay();
-                showAppToast('Lỗi Liên Kết', `Tài khoản Telegram này đã được liên kết với một ví khác. Vui lòng sử dụng đúng ví đã kết nối.`, 'error');
-                handleFullLogout(); // Buộc đăng xuất để họ làm lại cho đúng
-                return; // Dừng hoàn toàn việc thực thi
-            }
-            // Nếu ví khớp, đây là một lần đăng nhập hợp lệ, cứ để logic bên dưới tiếp tục.
-        }
-    }
-    
-    // --- Logic cũ (giờ trở thành bước 2) ---
-    // Kiểm tra dựa trên địa chỉ ví
-    const userRef = db.collection('users').doc(address);
-    const doc = await userRef.get();
-
-    if (!doc.exists) {
-        // Tạo người dùng mới (Block này giờ an toàn hơn nhiều)
-        // ...
-    } else {
-        // Cập nhật hoặc xác thực người dùng hiện tại
-        let userData = doc.data();
-
-        // Kiểm tra xung đột: Ví có tồn tại nhưng đã được gán cho một UID khác
-        if (telegramUserData && userData.telegramId && userData.telegramId !== telegramUserData.id) {
-            hideLoadingOverlay();
-            const ownerUsername = userData.username ? `@${userData.username}` : 'một người dùng khác';
-            showAppToast('Lỗi Sở Hữu', `Ví này đã thuộc về ${ownerUsername}. Vui lòng kết nối bằng ví của bạn.`, 'error');
-            handleFullLogout();
-            return;
-        }
-
-        // Đồng bộ ngược: Gán thông tin Telegram cho tài khoản web đã tồn tại
-        if (telegramUserData && !userData.telegramId) {
-            // ... cập nhật thông tin
-        }
-        
-        // ... phần còn lại
-    }
-    
-    await onUserAuthenticated();
-}
+```html
+<!-- / admin-section / -->
+<div class="row text-center g-3 mb-4">
+    <div class="col-6 col-sm-3">
+        <div class="form-check form-switch fs-5 d-inline-block">
+            <input class="form-check-input" type="checkbox" role="switch" id="airdrop-live-switch">
+            <label class="form-check-label" for="airdrop-live-switch">Live</label>
+        </div>
+    </div>
+    <div class="col-6 col-sm-3">
+        <div class="form-check form-switch fs-5 d-inline-block">
+            <!-- CÔNG TẮC 1 (TOÀN CỤC) BẠN YÊU CẦU -->
+            <input class="form-check-input" type="checkbox" role="switch" id="confirmation-enabled-switch">
+            <label class="form-check-label" for="confirmation-enabled-switch">Xác nhận</label>
+        </div>
+    </div>
+    <div class="col-6 col-sm-3">
+        <div class="form-check form-switch fs-5 d-inline-block">
+            <input class="form-check-input" type="checkbox" role="switch" id="claim-enabled-switch">
+            <label class="form-check-label" for="claim-enabled-switch">Yêu cầu</label>
+        </div>
+    </div>
+    <div class="col-6 col-sm-3">
+        <div class="form-check form-switch fs-5 d-inline-block">
+            <!-- CÔNG TẮC 2 (TOÀN CỤC) BẠN YÊU CẦU -->
+            <input class="form-check-input" type="checkbox" role="switch" id="snapshot-active-switch">
+            <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snapshot</label>
+        </div>
+    </div>
+</div>
