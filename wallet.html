@@ -2196,7 +2196,7 @@
                 eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
                 actionsContainer.innerHTML = `<p class="text-white-50 mt-3">Hãy tiếp tục hoàn thành các nhiệm vụ để đủ điều kiện nhận airdrop.</p>`;
             } else if (currentUserData.hasRequestedAirdrop) {
-                eligibilityStatusEl.textContent = 'YÊU CẦU ĐÃ ĐƯỢC GỬI';
+                eligibilityStatusEl.textContent = 'ĐÃ YÊU CẦU NHẬN $VIEC';
                 eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
                 const friendlyAddress = await getFriendlyAddress(currentUserData.address);
                 finalMessageContainer.innerHTML = `
