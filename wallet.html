@@ -1836,7 +1836,7 @@
             try {
                 const userRef = db.collection('users').doc(userAddress);
                 await userRef.update({ hasRequestedAirdrop: newStatus });
-                showAppToast('Thành Công', `Đã cập nhật trạng thái "Yêu cầu Thưởng" cho ví.`, 'success');
+                showAppToast('Thành Công', `Đã cập nhật trạng thái "Yêu cầu Thưởng".`, 'success');
             } catch (error) {
                 console.error("Failed to update user request status:", error);
                 showAppToast('Lỗi', 'Cập nhật thất bại.', 'error');
