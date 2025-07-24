@@ -3599,27 +3599,31 @@
             const task = doc.data();
             task.id = doc.id;
             const isCompleted = completedTaskIds.has(task.id);
-            const isDescLong = task.description.length > 100; // Điều kiện để hiện nút "Xem chi tiết"
+            const isDescLong = task.description.length > 100;
 
-            // Cấu trúc HTML mới
+            // Cấu trúc HTML mới với nút trải dài
             const cardHtml = `
                 <a href="${task.taskLink}" target="_blank" rel="noopener noreferrer" 
                    class="partner-task-card ${task.taskType === 'mandatory' ? 'mandatory' : ''} ${isCompleted ? 'completed' : ''}"
                    data-task-id="${task.id}" data-exp="${task.expReward}" data-name="${task.projectName}">
                     
-                    <img src="${task.imageUrl || GENERIC_TASK_ICON}" class="partner-task-img" onerror="this.src='${GENERIC_TASK_ICON}'">
-                    
-                    <div class="partner-task-body">
-                        <h4 class="partner-task-title">
-                            ${task.projectName}
-                            ${task.taskType === 'mandatory' ? '<i class="fas fa-star mandatory-icon" title="Nhiệm vụ bắt buộc"></i>' : ''}
-                        </h4>
-                        <p class="partner-task-desc">${task.description}</p>
-                        ${isDescLong ? '<button class="task-details-toggle">Xem chi tiết</button>' : ''}
+                    <!-- Khối trên chứa ảnh và text -->
+                    <div class="partner-task-top">
+                        <img src="${task.imageUrl || GENERIC_TASK_ICON}" class="partner-task-img" onerror="this.src='${GENERIC_TASK_ICON}'">
+                        
+                        <div class="partner-task-body">
+                            <h4 class="partner-task-title">
+                                ${task.projectName}
+                                ${task.taskType === 'mandatory' ? '<i class="fas fa-star mandatory-icon" title="Nhiệm vụ bắt buộc"></i>' : ''}
+                            </h4>
+                            <p class="partner-task-desc">${task.description}</p>
+                            ${isDescLong ? '<button class="task-details-toggle">Xem chi tiết</button>' : ''}
+                        </div>
                     </div>
                     
-                    <div class="partner-task-reward">
-                        ${isCompleted ? '<i class="fas fa-check-circle"></i>' : `+${task.expReward} EXP`}
+                    <!-- Thanh hành động/nút nằm bên dưới -->
+                    <div class="partner-task-action-bar">
+                        ${isCompleted ? '<i class="fas fa-check-circle me-2"></i>Đã hoàn thành' : `+${task.expReward} EXP`}
                     </div>
                 </a>
             `;
@@ -3684,8 +3688,8 @@ async function handlePartnerTaskCompletion(e, taskCard) {
 
     if (!taskId || isNaN(expReward)) return;
 
-    const rewardIndicator = taskCard.querySelector('.partner-task-reward');
-    rewardIndicator.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+    const actionBar = taskCard.querySelector('.partner-task-action-bar');
+    actionBar.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
     
     try {
         const userRef = db.collection('users').doc(connectedWalletAddress);
