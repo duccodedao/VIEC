@@ -3940,7 +3940,7 @@ async function handlePartnerTaskCompletion(e, taskCard) {
         }
         
         // NEW: Partner Task Event Listeners
-        if (partnerTasksContainer) partnerTasksContainer.addEventListener('click', handlePartnerTaskClick);
+if (partnerTasksContainer) partnerTasksContainer.addEventListener('click', handlePartnerCardClick);
         if (adminPartnerTaskForm) adminPartnerTaskForm.addEventListener('submit', handleAdminPartnerTaskSave);
         if (partnerTaskClearBtn) partnerTaskClearBtn.addEventListener('click', clearPartnerTaskForm);
         if (adminPartnerTasksList) adminPartnerTasksList.addEventListener('click', handleAdminPartnerTaskActions);
