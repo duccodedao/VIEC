@@ -449,30 +449,39 @@
             opacity: 1;
             transition: opacity 0.3s ease;
         }
-        
+
+
+   /* ======================================== */
+/* CSS TỐI ƯU HÓA CHO MỤC PARTNER TASK (v2) */
 /* ======================================== */
-/* CSS TỐI ƯU HÓA CHO MỤC PARTNER TASK      */
-/* ======================================== */
+
+/* Biến toàn bộ card thành một link có thể click */
 .partner-task-card {
     display: flex;
-    align-items: center; /* Căn giữa các mục theo chiều dọc */
-    gap: 1rem;           /* Khoảng cách giữa ảnh, chữ và nút */
+    align-items: center;
+    gap: 1rem;
     background: var(--card-color);
     border: 1px solid var(--border-color);
     padding: 1rem;
     border-radius: 16px;
     transition: all 0.3s ease;
+    text-decoration: none; /* Bỏ gạch chân của link */
+    color: var(--text-primary); /* Đặt màu chữ mặc định */
+    position: relative; /* Cần cho các phần tử con */
 }
+.partner-task-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 25px rgba(145, 94, 255, 0.3);
+    border-color: var(--accent-primary);
+}
+
 .partner-task-card.mandatory {
     border-left: 4px solid var(--gold);
 }
 .partner-task-card.completed {
     opacity: 0.6;
     background: rgba(23, 27, 48, 0.2);
-}
-.partner-task-card.completed .partner-task-button {
-    background-color: #3a3f5a !important;
-    cursor: not-allowed;
+    pointer-events: none; /* Vô hiệu hóa click khi đã hoàn thành */
 }
 
 .partner-task-img {
@@ -480,82 +489,68 @@
     height: 64px;
     border-radius: 12px;
     object-fit: cover;
-    flex-shrink: 0; /* QUAN TRỌNG: Ngăn ảnh bị co lại khi không đủ chỗ */
+    flex-shrink: 0;
     border: 2px solid var(--border-color);
 }
 
-/* Khối chứa Tên và Mô tả */
 .partner-task-body {
-    flex-grow: 1; /* QUAN TRỌNG: Làm cho khối này giãn ra để chiếm hết không gian trống */
-    min-width: 0; /* QUAN TRỌNG: Cho phép text-overflow hoạt động đúng khi co màn hình */
+    flex-grow: 1;
+    min-width: 0;
 }
 
 .partner-task-title {
     font-weight: 600;
     font-size: 1.1rem;
     margin: 0;
-    display: flex;
-    align-items: center;
-}
-.partner-task-title .mandatory-icon {
-    color: var(--gold);
-    margin-left: 8px;
-    font-size: 1rem;
+    color: var(--text-primary); /* Đảm bảo màu chữ cho tiêu đề */
 }
 
-/* Mô tả được rút gọn */
+/* CSS cho mô tả có thể ẩn/hiện */
 .partner-task-desc {
     color: var(--text-secondary);
     font-size: 0.9rem;
-    margin: 0.25rem 0 0;
-    white-space: nowrap;       /* Ngăn xuống dòng */
-    overflow: hidden;          /* Ẩn phần thừa */
-    text-overflow: ellipsis;   /* Hiển thị dấu "..." */
+    margin: 0.25rem 0 0.5rem;
+    transition: max-height 0.3s ease-in-out;
+    white-space: normal; /* Cho phép xuống dòng */
+    overflow: hidden;
+    /* Rút gọn mặc định còn 2 dòng */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+.partner-task-desc.expanded {
+    -webkit-line-clamp: unset; /* Hiển thị toàn bộ khi có class expanded */
+     max-height: 200px; /* Giới hạn chiều cao tối đa có thể mở rộng */
 }
 
-/* Khối chứa nút bấm */
-.partner-task-action {
-    flex-shrink: 0; /* QUAN TRỌNG: Ngăn nút bấm bị co lại */
-}
-
-.partner-task-button {
-    text-decoration: none;
-    background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-    color: white;
+/* Nút "Xem chi tiết" */
+.task-details-toggle {
+    background: none;
+    border: none;
+    color: var(--accent-secondary);
+    font-size: 0.85rem;
     font-weight: 600;
-    padding: 10px 18px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
+    padding: 0;
+    cursor: pointer;
 }
-.partner-task-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 15px rgba(145, 94, 255, 0.5);
-}
-.partner-task-button.completed {
-    background: #4a5568;
-    pointer-events: none;
-}
-.partner-task-button .completed-icon {
-    font-size: 1.2rem;
+.task-details-toggle:hover {
+    text-decoration: underline;
 }
 
-/* Responsive cho màn hình nhỏ */
-@media (max-width: 576px) {
-    .partner-task-card {
-        /* Giữ nguyên bố cục flex-row thay vì chuyển sang column */
-        padding: 0.75rem;
-    }
-    .partner-task-img {
-        width: 56px;
-        height: 56px;
-    }
-    .partner-task-button {
-        padding: 8px 12px;
-        font-size: 0.9rem;
-    }
+/* Khối hiển thị phần thưởng EXP */
+.partner-task-reward {
+    flex-shrink: 0;
+    background: rgba(145, 94, 255, 0.15);
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    color: var(--accent-primary);
+    margin-left: 1rem; /* Tạo khoảng cách với khối text */
+}
+
+.partner-task-card.completed .partner-task-reward {
+    color: var(--color-verified);
+    background: rgba(46, 204, 113, 0.15);
 }
     </style>
 </head>
@@ -3582,143 +3577,164 @@
             }
         }
         
-        // =========================================================================
-        // [NEW] PARTNER TASK LOGIC
-        // =========================================================================
-        async function renderPartnerSection() {
-            if (!partnerTasksContainer || !db || !connectedWalletAddress) return;
-            partnerTasksContainer.innerHTML = skeletonTx.repeat(3);
+       async function renderPartnerSection() {
+    if (!partnerTasksContainer || !db || !connectedWalletAddress) return;
+    partnerTasksContainer.innerHTML = skeletonTx.repeat(3);
+    
+    try {
+        const tasksSnapshot = await db.collection('partner_tasks').orderBy('createdAt', 'desc').get();
+        const completedTasksSnapshot = await db.collection('users').doc(connectedWalletAddress).collection('completed_partner_tasks').get();
+        
+        const completedTaskIds = new Set(completedTasksSnapshot.docs.map(doc => doc.id));
+        
+        if (tasksSnapshot.empty) {
+            partnerTasksContainer.innerHTML = `<p class="text-secondary text-center p-3">Chưa có nhiệm vụ nào từ đối tác. Hãy quay lại sau!</p>`;
+            return;
+        }
+        
+        let mandatoryHtml = '';
+        let normalHtml = '';
+        
+        tasksSnapshot.forEach(doc => {
+            const task = doc.data();
+            task.id = doc.id;
+            const isCompleted = completedTaskIds.has(task.id);
+            const isDescLong = task.description.length > 100; // Điều kiện để hiện nút "Xem chi tiết"
+
+            // Cấu trúc HTML mới
+            const cardHtml = `
+                <a href="${task.taskLink}" target="_blank" rel="noopener noreferrer" 
+                   class="partner-task-card ${task.taskType === 'mandatory' ? 'mandatory' : ''} ${isCompleted ? 'completed' : ''}"
+                   data-task-id="${task.id}" data-exp="${task.expReward}" data-name="${task.projectName}">
+                    
+                    <img src="${task.imageUrl || GENERIC_TASK_ICON}" class="partner-task-img" onerror="this.src='${GENERIC_TASK_ICON}'">
+                    
+                    <div class="partner-task-body">
+                        <h4 class="partner-task-title">
+                            ${task.projectName}
+                            ${task.taskType === 'mandatory' ? '<i class="fas fa-star mandatory-icon" title="Nhiệm vụ bắt buộc"></i>' : ''}
+                        </h4>
+                        <p class="partner-task-desc">${task.description}</p>
+                        ${isDescLong ? '<button class="task-details-toggle">Xem chi tiết</button>' : ''}
+                    </div>
+                    
+                    <div class="partner-task-reward">
+                        ${isCompleted ? '<i class="fas fa-check-circle"></i>' : `+${task.expReward} EXP`}
+                    </div>
+                </a>
+            `;
             
-            try {
-                const tasksSnapshot = await db.collection('partner_tasks').orderBy('createdAt', 'desc').get();
-                const completedTasksSnapshot = await db.collection('users').doc(connectedWalletAddress).collection('completed_partner_tasks').get();
-                
-                const completedTaskIds = new Set(completedTasksSnapshot.docs.map(doc => doc.id));
-                
-                if (tasksSnapshot.empty) {
-                    partnerTasksContainer.innerHTML = `<p class="text-secondary text-center p-3">Chưa có nhiệm vụ nào từ đối tác. Hãy quay lại sau!</p>`;
-                    return;
-                }
-                
-                let mandatoryHtml = '';
-                let normalHtml = '';
-                
-    tasksSnapshot.forEach(doc => {
-        const task = doc.data();
-        task.id = doc.id;
-        const isCompleted = completedTaskIds.has(task.id);
+            if (task.taskType === 'mandatory') {
+                mandatoryHtml += cardHtml;
+            } else {
+                normalHtml += cardHtml;
+            }
+        });
         
-        // Cấu trúc HTML được tối ưu hóa
-        const cardHtml = `
-            <div class="partner-task-card ${task.taskType === 'mandatory' ? 'mandatory' : ''} ${isCompleted ? 'completed' : ''}">
-                <!-- Ảnh bên trái -->
-                <img src="${task.imageUrl || GENERIC_TASK_ICON}" class="partner-task-img" onerror="this.src='${GENERIC_TASK_ICON}'">
-                
-                <!-- Khối Tên & Mô tả ở giữa (sẽ giãn ra) -->
-                <div class="partner-task-body">
-                    <h4 class="partner-task-title">
-                        ${task.projectName}
-                        ${task.taskType === 'mandatory' ? '<i class="fas fa-star mandatory-icon" title="Nhiệm vụ bắt buộc"></i>' : ''}
-                    </h4>
-                    <p class="partner-task-desc" title="${task.description}">${task.description}</p>
-                </div>
-                
-                <!-- Nút bấm bên phải -->
-                <div class="partner-task-action">
-                    <a href="${task.taskLink}" target="_blank" rel="noopener noreferrer" class="partner-task-button ${isCompleted ? 'completed' : ''}" 
-                       data-task-id="${task.id}" data-exp="${task.expReward}" data-name="${task.projectName}" ${isCompleted ? 'aria-disabled="true"' : ''}>
-                        ${isCompleted ? '<i class="fas fa-check-circle completed-icon"></i> Đã HT' : `+${task.expReward} EXP`}
-                    </a>
-                </div>
-            </div>
-        `;
+        partnerTasksContainer.innerHTML = mandatoryHtml + normalHtml;
         
-        if (task.taskType === 'mandatory') {
-            mandatoryHtml += cardHtml;
+    } catch (error) {
+        console.error("Error rendering partner tasks:", error);
+        partnerTasksContainer.innerHTML = `<p class="text-danger text-center p-3">Lỗi tải nhiệm vụ đối tác. Vui lòng thử lại.</p>`;
+    }
+}
+        
+// HÀM MỚI để xử lý tất cả các click trong khu vực partner
+function handlePartnerCardClick(e) {
+    const toggleBtn = e.target.closest('.task-details-toggle');
+    const taskCard = e.target.closest('.partner-task-card');
+
+    // Ưu tiên 1: Người dùng bấm nút "Xem chi tiết"
+    if (toggleBtn) {
+        e.preventDefault();  // Ngăn thẻ <a> điều hướng
+        e.stopPropagation(); // Ngăn sự kiện nổi bọt lên thẻ <a>
+
+        const desc = toggleBtn.previousElementSibling; // Lấy phần tử <p> mô tả ngay trước nó
+        desc.classList.toggle('expanded');
+        toggleBtn.textContent = desc.classList.contains('expanded') ? 'Thu gọn' : 'Xem chi tiết';
+        return; // Dừng xử lý tại đây
+    }
+
+    // Ưu tiên 2: Người dùng click vào thẻ để hoàn thành nhiệm vụ
+    if (taskCard) {
+        handlePartnerTaskCompletion(e, taskCard);
+    }
+}
+
+// HÀM ĐƯỢC CẬP NHẬT để xử lý logic hoàn thành nhiệm vụ
+async function handlePartnerTaskCompletion(e, taskCard) {
+    if (airdropSettings?.isSnapshotActive) {
+        showAppToast('Đã dừng', 'Hoạt động kiếm điểm đã dừng do Snapshot.', 'warning');
+        e.preventDefault();
+        return;
+    }
+    
+    // Nếu thẻ đã hoàn thành, không làm gì cả (CSS đã xử lý pointer-events)
+    if (taskCard.classList.contains('completed')) {
+        e.preventDefault();
+        return;
+    }
+
+    e.preventDefault(); // Luôn ngăn điều hướng mặc định trước
+
+    const taskId = taskCard.dataset.taskId;
+    const expReward = parseInt(taskCard.dataset.exp, 10);
+    const projectName = taskCard.dataset.name;
+    const taskLink = taskCard.href;
+
+    if (!taskId || isNaN(expReward)) return;
+
+    const rewardIndicator = taskCard.querySelector('.partner-task-reward');
+    rewardIndicator.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+    
+    try {
+        const userRef = db.collection('users').doc(connectedWalletAddress);
+        const completedTaskRef = userRef.collection('completed_partner_tasks').doc(taskId);
+        
+        // Logic giao dịch với Firestore giữ nguyên
+        await db.runTransaction(async (transaction) => {
+            const completedDoc = await transaction.get(completedTaskRef);
+            if (completedDoc.exists) {
+                throw new Error("Task already completed.");
+            }
+            const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+            transaction.update(userRef, {
+                points: firebase.firestore.FieldValue.increment(expReward),
+                partnerTasksCompletedCount: firebase.firestore.FieldValue.increment(1)
+            });
+            transaction.set(completedTaskRef, { completedAt: newTimestamp });
+            const historyRef = userRef.collection('task_history').doc();
+            transaction.set(historyRef, {
+                taskName: 'Partner Task',
+                projectName: projectName,
+                exp: expReward,
+                timestamp: newTimestamp
+            });
+        });
+        
+        showAppToast('Thành công!', `Bạn đã nhận +${expReward} EXP từ nhiệm vụ ${projectName}.`, 'success');
+        
+        // Mở link nhiệm vụ trong tab mới
+        window.open(taskLink, '_blank');
+        
+        // Cập nhật giao diện mà không cần tải lại toàn bộ
+        const updatedDoc = await userRef.get();
+        currentUserData = updatedDoc.data();
+        updateExpBalances(currentUserData.points);
+        taskCard.classList.add('completed');
+        rewardIndicator.innerHTML = '<i class="fas fa-check-circle"></i>';
+
+    } catch (error) {
+        if (error.message.includes("Task already completed.")) {
+             taskCard.classList.add('completed'); // Đảm bảo UI đúng nếu có lỗi đồng bộ
+             rewardIndicator.innerHTML = '<i class="fas fa-check-circle"></i>';
         } else {
-            normalHtml += cardHtml;
+            console.error("Failed to complete partner task:", error);
+            showAppToast('Lỗi', 'Không thể hoàn thành nhiệm vụ. Vui lòng thử lại.', 'error');
+            rewardIndicator.innerHTML = `+${expReward} EXP`; // Trả lại trạng thái cũ khi lỗi
         }
-    });
-
-    partnerTasksContainer.innerHTML = mandatoryHtml + normalHtml;
-                
-            } catch (error) {
-                console.error("Error rendering partner tasks:", error);
-                partnerTasksContainer.innerHTML = `<p class="text-danger text-center p-3">Lỗi tải nhiệm vụ đối tác. Vui lòng thử lại.</p>`;
-            }
-        }
-        
-        async function handlePartnerTaskClick(e) {
-             if (airdropSettings?.isSnapshotActive) {
-                showAppToast('Đã dừng', 'Hoạt động kiếm điểm đã dừng do Snapshot.', 'warning');
-                e.preventDefault();
-                return;
-            }
-             
-            const button = e.target.closest('.partner-task-button');
-            if (!button || button.classList.contains('completed')) {
-                return;
-            }
-
-            e.preventDefault();
-            
-            const taskId = button.dataset.taskId;
-            const expReward = parseInt(button.dataset.exp, 10);
-            const projectName = button.dataset.name;
-            const taskLink = button.href;
-            
-            if (!taskId || isNaN(expReward)) return;
-
-            button.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
-            button.style.pointerEvents = 'none';
-
-            try {
-                const userRef = db.collection('users').doc(connectedWalletAddress);
-                const completedTaskRef = userRef.collection('completed_partner_tasks').doc(taskId);
-                
-                await db.runTransaction(async (transaction) => {
-                    const completedDoc = await transaction.get(completedTaskRef);
-                    if (completedDoc.exists) {
-                        throw new Error("Task already completed.");
-                    }
-                    
-                    const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
-                    
-                    transaction.update(userRef, {
-                        points: firebase.firestore.FieldValue.increment(expReward),
-                        partnerTasksCompletedCount: firebase.firestore.FieldValue.increment(1)
-                    });
-                    
-                    transaction.set(completedTaskRef, { completedAt: newTimestamp });
-                    
-                    const historyRef = userRef.collection('task_history').doc();
-                    transaction.set(historyRef, {
-                        taskName: 'Partner Task',
-                        projectName: projectName,
-                        exp: expReward,
-                        timestamp: newTimestamp
-                    });
-                });
-                
-                showAppToast('Thành công!', `Bạn đã nhận +${expReward} EXP từ nhiệm vụ ${projectName}.`, 'success');
-                window.open(taskLink, '_blank');
-                
-                // Optimistic UI update
-                const updatedDoc = await userRef.get();
-                currentUserData = updatedDoc.data();
-                updateExpBalances(currentUserData.points);
-                renderPartnerSection(); // Re-render to show locked task
-
-            } catch (error) {
-                console.error("Failed to complete partner task:", error);
-                if (error.message !== "Task already completed.") {
-                    showAppToast('Lỗi', 'Không thể hoàn thành nhiệm vụ. Vui lòng thử lại.', 'error');
-                }
-                button.innerHTML = `+${expReward} EXP`; // Revert button text on failure
-            } finally {
-                 button.style.pointerEvents = 'auto';
-            }
-        }
+    }
+}
         
         async function handleAdminPartnerTaskSave(e) {
             e.preventDefault();
