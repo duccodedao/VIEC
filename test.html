@@ -450,112 +450,113 @@
             transition: opacity 0.3s ease;
         }
         
-        /* NEW: Partner Task Styles */
-        .partner-task-card {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            background: var(--card-color);
-            border: 1px solid var(--border-color);
-            padding: 1rem;
-            border-radius: 16px;
-            transition: all 0.3s ease;
-        }
-        .partner-task-card.mandatory {
-            border-left: 4px solid var(--gold);
-        }
-        .partner-task-card.completed {
-            opacity: 0.6;
-            background: rgba(23, 27, 48, 0.2);
-        }
-        .partner-task-card.completed .partner-task-button {
-            background-color: #3a3f5a !important;
-            cursor: not-allowed;
-        }
-        .partner-task-img {
-            width: 64px;
-            height: 64px;
-            border-radius: 12px;
-            object-fit: cover;
-            flex-shrink: 0;
-            border: 2px solid var(--border-color);
-        }
-        .partner-task-body {
-            flex-grow: 1;
-            min-width: 0; /* Important for flexbox truncation */
-        }
-        .partner-task-title {
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin: 0;
-            display: flex;
-            align-items: center;
-        }
-        .partner-task-title .mandatory-icon {
-            color: var(--gold);
-            margin-left: 8px;
-            font-size: 1rem;
-        }
-        .partner-task-desc {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin: 0.25rem 0 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .partner-task-action {
-            flex-shrink: 0;
-        }
-        .partner-task-button {
-            text-decoration: none;
-            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-            color: white;
-            font-weight: 600;
-            padding: 10px 18px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-        .partner-task-button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(145, 94, 255, 0.5);
-        }
-        .partner-task-button.completed {
-            background: #4a5568;
-            pointer-events: none;
-        }
-        .partner-task-button .completed-icon {
-            font-size: 1.2rem;
-        }
+/* ======================================== */
+/* CSS TỐI ƯU HÓA CHO MỤC PARTNER TASK      */
+/* ======================================== */
+.partner-task-card {
+    display: flex;
+    align-items: center; /* Căn giữa các mục theo chiều dọc */
+    gap: 1rem;           /* Khoảng cách giữa ảnh, chữ và nút */
+    background: var(--card-color);
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+.partner-task-card.mandatory {
+    border-left: 4px solid var(--gold);
+}
+.partner-task-card.completed {
+    opacity: 0.6;
+    background: rgba(23, 27, 48, 0.2);
+}
+.partner-task-card.completed .partner-task-button {
+    background-color: #3a3f5a !important;
+    cursor: not-allowed;
+}
 
+.partner-task-img {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    object-fit: cover;
+    flex-shrink: 0; /* QUAN TRỌNG: Ngăn ảnh bị co lại khi không đủ chỗ */
+    border: 2px solid var(--border-color);
+}
 
-        /* Responsive Adjustments */
-        @media (min-width: 768px) {
-            .hero-section h1, .login-section h1 { font-size: 3.5rem; }
-            .card-glass { padding: 2rem; }
-            .main-container { padding: 2rem; }
-        }
-        @media (max-width: 576px) {
-            .partner-task-card {
-                flex-direction: column;
-                align-items: flex-start;
-                text-align: center;
-            }
-            .partner-task-body {
-                width: 100%;
-                margin-bottom: 1rem;
-            }
-            .partner-task-action {
-                width: 100%;
-            }
-            .partner-task-button {
-                width: 100%;
-                justify-content: center;
-            }
-        }
+/* Khối chứa Tên và Mô tả */
+.partner-task-body {
+    flex-grow: 1; /* QUAN TRỌNG: Làm cho khối này giãn ra để chiếm hết không gian trống */
+    min-width: 0; /* QUAN TRỌNG: Cho phép text-overflow hoạt động đúng khi co màn hình */
+}
+
+.partner-task-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+.partner-task-title .mandatory-icon {
+    color: var(--gold);
+    margin-left: 8px;
+    font-size: 1rem;
+}
+
+/* Mô tả được rút gọn */
+.partner-task-desc {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0.25rem 0 0;
+    white-space: nowrap;       /* Ngăn xuống dòng */
+    overflow: hidden;          /* Ẩn phần thừa */
+    text-overflow: ellipsis;   /* Hiển thị dấu "..." */
+}
+
+/* Khối chứa nút bấm */
+.partner-task-action {
+    flex-shrink: 0; /* QUAN TRỌNG: Ngăn nút bấm bị co lại */
+}
+
+.partner-task-button {
+    text-decoration: none;
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    color: white;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+.partner-task-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(145, 94, 255, 0.5);
+}
+.partner-task-button.completed {
+    background: #4a5568;
+    pointer-events: none;
+}
+.partner-task-button .completed-icon {
+    font-size: 1.2rem;
+}
+
+/* Responsive cho màn hình nhỏ */
+@media (max-width: 576px) {
+    .partner-task-card {
+        /* Giữ nguyên bố cục flex-row thay vì chuyển sang column */
+        padding: 0.75rem;
+    }
+    .partner-task-img {
+        width: 56px;
+        height: 56px;
+    }
+    .partner-task-button {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+}
     </style>
 </head>
 <body>
@@ -3602,38 +3603,44 @@
                 let mandatoryHtml = '';
                 let normalHtml = '';
                 
-                tasksSnapshot.forEach(doc => {
-                    const task = doc.data();
-                    task.id = doc.id;
-                    const isCompleted = completedTaskIds.has(task.id);
-                    
-                    const cardHtml = `
-                        <div class="partner-task-card ${task.taskType === 'mandatory' ? 'mandatory' : ''} ${isCompleted ? 'completed' : ''}">
-                            <img src="${task.imageUrl || GENERIC_TASK_ICON}" class="partner-task-img" onerror="this.src='${GENERIC_TASK_ICON}'">
-                            <div class="partner-task-body">
-                                <h4 class="partner-task-title">
-                                    ${task.projectName}
-                                    ${task.taskType === 'mandatory' ? '<i class="fas fa-star mandatory-icon" title="Nhiệm vụ bắt buộc"></i>' : ''}
-                                </h4>
-                                <p class="partner-task-desc" title="${task.description}">${task.description}</p>
-                            </div>
-                            <div class="partner-task-action">
-                                <a href="${task.taskLink}" target="_blank" rel="noopener noreferrer" class="partner-task-button ${isCompleted ? 'completed' : ''}" 
-                                   data-task-id="${task.id}" data-exp="${task.expReward}" data-name="${task.projectName}" ${isCompleted ? 'aria-disabled="true"' : ''}>
-                                    ${isCompleted ? '<i class="fas fa-check-circle completed-icon"></i> Đã hoàn thành' : `+${task.expReward} EXP`}
-                                </a>
-                            </div>
-                        </div>
-                    `;
-                    
-                    if (task.taskType === 'mandatory') {
-                        mandatoryHtml += cardHtml;
-                    } else {
-                        normalHtml += cardHtml;
-                    }
-                });
+    tasksSnapshot.forEach(doc => {
+        const task = doc.data();
+        task.id = doc.id;
+        const isCompleted = completedTaskIds.has(task.id);
+        
+        // Cấu trúc HTML được tối ưu hóa
+        const cardHtml = `
+            <div class="partner-task-card ${task.taskType === 'mandatory' ? 'mandatory' : ''} ${isCompleted ? 'completed' : ''}">
+                <!-- Ảnh bên trái -->
+                <img src="${task.imageUrl || GENERIC_TASK_ICON}" class="partner-task-img" onerror="this.src='${GENERIC_TASK_ICON}'">
                 
-                partnerTasksContainer.innerHTML = mandatoryHtml + normalHtml;
+                <!-- Khối Tên & Mô tả ở giữa (sẽ giãn ra) -->
+                <div class="partner-task-body">
+                    <h4 class="partner-task-title">
+                        ${task.projectName}
+                        ${task.taskType === 'mandatory' ? '<i class="fas fa-star mandatory-icon" title="Nhiệm vụ bắt buộc"></i>' : ''}
+                    </h4>
+                    <p class="partner-task-desc" title="${task.description}">${task.description}</p>
+                </div>
+                
+                <!-- Nút bấm bên phải -->
+                <div class="partner-task-action">
+                    <a href="${task.taskLink}" target="_blank" rel="noopener noreferrer" class="partner-task-button ${isCompleted ? 'completed' : ''}" 
+                       data-task-id="${task.id}" data-exp="${task.expReward}" data-name="${task.projectName}" ${isCompleted ? 'aria-disabled="true"' : ''}>
+                        ${isCompleted ? '<i class="fas fa-check-circle completed-icon"></i> Đã HT' : `+${task.expReward} EXP`}
+                    </a>
+                </div>
+            </div>
+        `;
+        
+        if (task.taskType === 'mandatory') {
+            mandatoryHtml += cardHtml;
+        } else {
+            normalHtml += cardHtml;
+        }
+    });
+
+    partnerTasksContainer.innerHTML = mandatoryHtml + normalHtml;
                 
             } catch (error) {
                 console.error("Error rendering partner tasks:", error);
