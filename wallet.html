@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -650,7 +651,6 @@
             </div>
         </main>
 
-        <!-- MODIFIED TASK SECTION -->
         <main id="task-section" style="display: none;">
             <div class="container">
                 <div class="text-center mb-5">
@@ -681,8 +681,8 @@
                             <!-- Task History -->
                             <h5 class="card-title">Lịch sử Hoạt động</h5>
                             <div id="task-history-content" style="max-height: 300px; overflow-y: auto; padding-right: 10px; padding-bottom: 15px;">
-    <p class="text-secondary text-center p-3">Chưa có hoạt động nào.</p>
-</div>
+                                <p class="text-secondary text-center p-3">Chưa có hoạt động nào.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -700,7 +700,7 @@
                         <div class="card-glass">
                             <ul class="nav nav-tabs" id="referralTab" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab"><i class="fas fa-link me-2"></i>Link</button>
+                                    <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab"><i class="fas fa-link me-2"></i>Mã Của Tôi</button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link" id="invited-list-tab" data-bs-toggle="tab" data-bs-target="#invited-list-pane" type="button" role="tab"><i class="fas fa-users me-2"></i>Đã mời (<span id="referral-count">0</span>)</button>
@@ -711,7 +711,11 @@
                                 <div class="tab-pane fade show active" id="my-codes-pane" role="tabpanel">
                                     <div id="referral-links-container"></div>
                                     <div id="referral-codes-container"></div>
-                                     <div id="referral-input-container" class="mt-4" style="display: none;">
+
+                                    <!-- [NEW] Hiển thị người đã mời bạn -->
+                                    <div id="referred-by-container" class="mt-4" style="display: none;"></div>
+                                    
+                                    <div id="referral-input-container" class="mt-4" style="display: none;">
                                         <h6 class="mb-2"><i class="fas fa-user-plus me-2"></i>Nhập Mã Mời</h6>
                                         <p class="text-secondary small">Nếu bạn được ai đó mời nhưng chưa nhập mã, hãy nhập vào đây.</p>
                                         <div class="input-group">
@@ -924,7 +928,7 @@
 
                     <div class="col-12 col-lg-10 col-xl-8">
                         <div class="card-glass">
-                            <h5 class="card-title">Chỉnh sửa EXP</h5>
+                            <h5 class="card-title">Chỉnh sửa EXP cho một User</h5>
                             <form id="admin-exp-form">
                                 <div class="mb-3">
                                     <label for="admin-target-type" class="form-label">Loại định danh</label>
@@ -954,6 +958,49 @@
                                 </div>
                                 <button type="submit" id="admin-submit-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;">
                                     <i class="fas fa-check me-2"></i>Xác nhận
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- [NEW] THƯỞNG EXP HÀNG LOẠT -->
+                    <div class="col-12 col-lg-10 col-xl-8">
+                        <div class="card-glass">
+                            <h5 class="card-title">Thưởng EXP Hàng Loạt</h5>
+                            <form id="admin-mass-award-form">
+                                <div class="mb-3">
+                                    <label for="admin-mass-condition-type" class="form-label">Thưởng cho người dùng theo</label>
+                                    <select class="form-select" id="admin-mass-condition-type">
+                                        <option value="all" selected>Tất cả người dùng</option>
+                                        <option value="referralCount">Số lượt mời</option>
+                                        <option value="checkinCount">Số lượt Check-in</option>
+                                        <option value="points">Số điểm EXP</option>
+                                    </select>
+                                </div>
+                                <div id="admin-mass-condition-wrapper" style="display: none;">
+                                    <label class="form-label">Điều kiện</label>
+                                    <div class="input-group mb-3">
+                                        <select class="form-select" id="admin-mass-operator" style="max-width: 150px;">
+                                            <option value=">=" selected>Lớn hơn hoặc bằng</option>
+                                            <option value="<=">Nhỏ hơn hoặc bằng</option>
+                                        </select>
+                                        <input type="number" class="form-control" id="admin-mass-condition-value" placeholder="e.g., 10" min="0">
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="admin-mass-exp-amount" class="form-label">Số lượng EXP để thưởng</label>
+                                    <input type="number" class="form-control" id="admin-mass-exp-amount" placeholder="e.g., 500" required min="1">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="admin-mass-task-name" class="form-label">Nội dung/Lý do thưởng</label>
+                                    <input type="text" class="form-control" id="admin-mass-task-name" placeholder="e.g., Thưởng event Giáng Sinh" required>
+                                </div>
+                                
+                                <div id="admin-mass-award-status" class="mt-3 text-center"></div>
+
+                                <button type="submit" id="admin-mass-award-submit-btn" class="btn w-100" style="background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white;">
+                                    <i class="fas fa-gifts me-2"></i>Thực Hiện Thưởng Hàng Loạt
                                 </button>
                             </form>
                         </div>
@@ -1168,10 +1215,17 @@
         const saveSettingsBtn = document.getElementById('save-settings-btn');
         const exportCsvBtn = document.getElementById('export-csv-btn');
         const adminSettingsStatusEl = document.getElementById('admin-settings-status');
-
         const contactAdminBtn = document.getElementById('contact-admin-btn');
         const contactAdminModal = new bootstrap.Modal(document.getElementById('contactAdminModal'));
         
+        // NEW: Mass Award Form Elements
+        const adminMassAwardForm = document.getElementById('admin-mass-award-form');
+        const adminMassConditionType = document.getElementById('admin-mass-condition-type');
+        const adminMassConditionWrapper = document.getElementById('admin-mass-condition-wrapper');
+        const adminMassAwardSubmitBtn = document.getElementById('admin-mass-award-submit-btn');
+        const adminMassAwardStatus = document.getElementById('admin-mass-award-status');
+
+
         const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo_viewc.png';
         const GENERIC_WALLET_ICON = 'https://ton.org/download/ton_symbol.png';
 
@@ -1194,6 +1248,7 @@
         const CHECKIN_REWARD = 10;
         const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000;
         const ADMIN_USERS_PER_PAGE = 50;
+        const BATCH_SIZE = 200; // For mass award processing
         
         const CONFIRM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
         const CONFIRM_AMOUNT_NANOTONS = "10000"; // 0.00001 TON
@@ -1270,15 +1325,11 @@
             }
         }
         
-        // =========================================================================
-        // UPDATED LOGIC FOR USER AUTHENTICATION & SYNCHRONIZATION (ONE UID - ONE WALLET)
-        // =========================================================================
         async function loadOrCreateUserByAddress(address) {
             if (!address || !db) return;
 
             showLoadingOverlay('Đang xác thực và đồng bộ...');
 
-            // --- UID-First Check for Mini App Users ---
             if (telegramUserData) {
                 const uidQuery = db.collection('users').where('telegramId', '==', telegramUserData.id).limit(1);
                 const uidSnapshot = await uidQuery.get();
@@ -1368,7 +1419,7 @@
         }
         
         // =========================================================================
-        // UPDATED LOGIC FOR REFERRAL (PREVENT SELF-REFERRAL)
+        // [RÀ SOÁT & TỐI ƯU] LOGIC GIỚI THIỆU
         // =========================================================================
         async function applyReferral(referrerCode, newAddress) {
             if (airdropSettings?.isSnapshotActive) {
@@ -1410,14 +1461,13 @@
                 const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
                 
                 await db.runTransaction(async (transaction) => {
+                    // --- Logic cho Người Mời (Referrer - User A) ---
                     const freshReferrerDoc = await transaction.get(referrerRef);
-                    if (!freshReferrerDoc.exists) throw "Referrer not found in transaction";
+                    if (!freshReferrerDoc.exists) throw "Người mời không tồn tại trong giao dịch";
                     
-                    const currentPoints = freshReferrerDoc.data().points || 0;
-                    const currentRefCount = freshReferrerDoc.data().referralCount || 0;
                     transaction.update(referrerRef, {
-                        points: currentPoints + REFERRAL_REWARD,
-                        referralCount: currentRefCount + 1
+                        points: firebase.firestore.FieldValue.increment(REFERRAL_REWARD),
+                        referralCount: firebase.firestore.FieldValue.increment(1)
                     });
                     
                     const referrerHistoryRef = referrerRef.collection('task_history').doc();
@@ -1428,11 +1478,23 @@
                         referredUser: newAddress 
                     });
                     
+                    // --- Logic cho Người Được Mời (Referred - User B) ---
                     const newUserRef = db.collection('users').doc(newAddress);
-                    transaction.update(newUserRef, { referredBy: String(referrerCode) });
-                });
+                    transaction.update(newUserRef, { 
+                        referredBy: String(referrerCode),
+                        points: firebase.firestore.FieldValue.increment(REFERRAL_REWARD)
+                    });
 
-                showAppToast('Thành công!', `Bạn đã được giới thiệu bởi ${referrerData.fullName || shortenAddress(referrerData.address)}!`, 'success');
+                    const newUserHistoryRef = newUserRef.collection('task_history').doc();
+                    transaction.set(newUserHistoryRef, {
+                        taskName: 'Nhập mã mời',
+                        exp: REFERRAL_REWARD,
+                        timestamp: newTimestamp,
+                        referrer: String(referrerCode)
+                    });
+                });
+                
+                showAppToast(`Bonus Nhập Mã Mời!`, `Bạn và người mời đã cùng nhận được ${REFERRAL_REWARD} EXP.`, 'success');
 
             } catch (error) {
                 console.error("Failed to apply referral:", error);
@@ -1456,15 +1518,6 @@
                 navAdmin.style.display = 'block';
             } else {
                 navAdmin.style.display = 'none';
-            }
-            
-            if(currentUserData.referredBy || airdropSettings?.isSnapshotActive) {
-                referralInputContainer.style.display = 'none';
-                referralInputContainerHero.style.display = 'none';
-            } else if (!connectedWalletAddress) {
-                referralInputContainerHero.style.display = 'block';
-            } else {
-                referralInputContainer.style.display = 'block';
             }
         }
         
@@ -1544,10 +1597,9 @@
                         return;
                     }
 
-                    const newPoints = (userData.points || 0) + CHECKIN_REWARD;
                     const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
                     transaction.update(userRef, {
-                        points: newPoints,
+                        points: firebase.firestore.FieldValue.increment(CHECKIN_REWARD),
                         lastCheckin: newTimestamp,
                         checkinCount: firebase.firestore.FieldValue.increment(1)
                     });
@@ -1594,6 +1646,7 @@
                     switch (item.taskName) {
                         case 'Check-in Hàng ngày': iconClass = 'fa-calendar-check'; break;
                         case 'Mời bạn bè': iconClass = 'fa-user-group'; break;
+                        case 'Nhập mã mời': iconClass = 'fa-gift'; break;
                         default: iconClass = item.exp >= 0 ? 'fa-user-plus' : 'fa-user-minus';
                     }
 
@@ -1669,9 +1722,6 @@
             }
         }
         
-        // =========================================================================
-        // UPDATED: Admin User List Functions
-        // =========================================================================
         async function fetchAndRenderAdminUserList(isInitialLoad = true) {
             if (!adminUserListContainer || !db) return;
 
@@ -1680,8 +1730,7 @@
 
             if (isInitialLoad) {
                 lastVisibleAdminUser = null;
-                // ADDED NEW HEADERS
-                adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">Lượt mời</th><th scope="col">Check-in</th><th scope="col">EXP</th><th scope="col">$VIEC nhận được tại thời điểm TGE: 100%</th><th scope="col">Đã yêu cầu</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
+                adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">Lượt mời</th><th scope="col">Check-in</th><th scope="col">EXP</th><th scope="col">Đã xác nhận 100%</th><th scope="col">Đã yêu cầu</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
             }
             
             const tableBody = adminUserListContainer.querySelector('tbody');
@@ -1781,7 +1830,6 @@
                 }
                 
                 const row = tableBody.insertRow();
-                // ADDED NEW TD ELEMENTS
                 row.innerHTML = `
                     <td>
                         <div class="d-flex align-items-center">
@@ -1888,11 +1936,11 @@
                     const freshUserDoc = await transaction.get(userRef);
                     if (!freshUserDoc.exists) throw "User document not found in transaction!";
                     
-                    const currentPoints = freshUserDoc.data().points || 0;
-                    const newPoints = currentPoints + finalExpChange;
                     const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
                     
-                    transaction.update(userRef, { points: newPoints });
+                    transaction.update(userRef, { 
+                        points: firebase.firestore.FieldValue.increment(finalExpChange) 
+                    });
                     
                     const historyRef = userRef.collection('task_history').doc();
                     transaction.set(historyRef, {
@@ -1914,6 +1962,107 @@
                 submitBtn.innerHTML = `<i class="fas fa-check me-2"></i>Xác nhận`;
             }
         }
+        
+        // =========================================================================
+        // [FIXED] Mass Award Logic
+        // =========================================================================
+        async function handleMassAward(e) {
+            e.preventDefault();
+            if (!db) { showAppToast('Lỗi', 'Chưa kết nối cơ sở dữ liệu.', 'error'); return; }
+            if (airdropSettings?.isSnapshotActive) {
+                showAppToast('Đã dừng', 'Không thể thưởng EXP sau khi Snapshot.', 'error');
+                return;
+            }
+
+            const conditionType = document.getElementById('admin-mass-condition-type').value;
+            const operator = document.getElementById('admin-mass-operator').value;
+            const conditionValue = parseInt(document.getElementById('admin-mass-condition-value').value, 10);
+            const expAmount = parseInt(document.getElementById('admin-mass-exp-amount').value, 10);
+            const taskName = document.getElementById('admin-mass-task-name').value.trim();
+
+            if (!taskName || isNaN(expAmount) || expAmount <= 0) {
+                showAppToast('Lỗi', 'Vui lòng nhập số EXP và lý do thưởng hợp lệ.', 'error');
+                return;
+            }
+
+            if (conditionType !== 'all' && isNaN(conditionValue)) {
+                showAppToast('Lỗi', 'Vui lòng nhập giá trị điều kiện hợp lệ.', 'error');
+                return;
+            }
+            
+            const confirmationMessage = `Bạn có chắc chắn muốn cộng ${expAmount} EXP với lý do "${taskName}" cho tất cả người dùng thỏa mãn điều kiện không? Hành động này KHÔNG THỂ hoàn tác.`;
+            if (!confirm(confirmationMessage)) {
+                return;
+            }
+
+            adminMassAwardSubmitBtn.disabled = true;
+            adminMassAwardStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Bắt đầu quá trình thưởng...`;
+
+            try {
+                let query = db.collection('users');
+                if (conditionType !== 'all') {
+                    query = query.where(conditionType, operator, conditionValue);
+                }
+
+                let lastVisible = null;
+                let totalProcessed = 0;
+                
+                while (true) {
+                    let batchQuery;
+                    if (conditionType !== 'all') {
+                        // [FIX] If filtering on an inequality, the first orderBy must be on the same field.
+                        batchQuery = query.orderBy(conditionType).orderBy(firebase.firestore.FieldPath.documentId()).limit(BATCH_SIZE);
+                    } else {
+                        batchQuery = query.orderBy(firebase.firestore.FieldPath.documentId()).limit(BATCH_SIZE);
+                    }
+                    
+                    if (lastVisible) {
+                        batchQuery = batchQuery.startAfter(lastVisible);
+                    }
+                    
+                    const snapshot = await batchQuery.get();
+                    if (snapshot.empty) {
+                        break; 
+                    }
+                    
+                    lastVisible = snapshot.docs[snapshot.docs.length - 1];
+                    const batch = db.batch();
+                    const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+
+                    snapshot.forEach(doc => {
+                        const userRef = doc.ref;
+                        batch.update(userRef, { 
+                            points: firebase.firestore.FieldValue.increment(expAmount) 
+                        });
+
+                        const historyRef = userRef.collection('task_history').doc();
+                        batch.set(historyRef, {
+                            taskName: taskName,
+                            exp: expAmount,
+                            timestamp: newTimestamp
+                        });
+                    });
+
+                    await batch.commit();
+                    totalProcessed += snapshot.size;
+                    adminMassAwardStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã xử lý ${totalProcessed} người dùng...`;
+                }
+                
+                adminMassAwardStatus.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Hoàn tất! Đã thưởng cho ${totalProcessed} người dùng.</span>`;
+                showAppToast('Thành Công', `Đã hoàn tất việc thưởng EXP hàng loạt.`, 'success');
+                adminMassAwardForm.reset();
+                adminMassConditionWrapper.style.display = 'none';
+
+            } catch (error) {
+                console.error("Mass EXP award failed:", error);
+                adminMassAwardStatus.innerHTML = `<span class="text-danger">Đã xảy ra lỗi: ${error.message}</span>`;
+                showAppToast('Thất bại', `Quá trình thưởng hàng loạt đã thất bại.`, 'error');
+            } finally {
+                adminMassAwardSubmitBtn.disabled = false;
+                setTimeout(() => { adminMassAwardStatus.innerHTML = ''; }, 5000);
+            }
+        }
+
         
         async function updateUserStatus(enable) {
             if (!db) { showAppToast('Lỗi', 'Chưa kết nối cơ sở dữ liệu.', 'error'); return; }
@@ -2074,17 +2223,23 @@
             }
         }
         
-        function renderReferralSection() {
+        // =========================================================================
+        // [MODIFIED] Render Referral Section with "Referred By" Info
+        // =========================================================================
+        async function renderReferralSection() {
             if (!currentUserData) return;
             const linksContainer = document.getElementById('referral-links-container');
             const codesContainer = document.getElementById('referral-codes-container');
             const referralCountEl = document.getElementById('referral-count');
+            const referredByContainer = document.getElementById('referred-by-container');
+            const referralInputContainer = document.getElementById('referral-input-container');
             
             linksContainer.innerHTML = '';
             codesContainer.innerHTML = '';
 
             const webLink = `${YOUR_WEB_APP_URL}?ref=${currentUserData.address}`;
-            linksContainer.innerHTML += `
+            linksContainer.innerHTML = `
+                <h6 class="mb-2"><i class="fas fa-link me-2"></i>Link Mời Của Bạn</h6>
                 <div class="mb-3">
                     <label class="form-label small text-secondary">Link mời cho Web:</label>
                     <div class="input-group">
@@ -2092,7 +2247,8 @@
                         <button class="btn btn-outline-secondary copyable-code" data-code="${webLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
                     </div>
                 </div>`;
-            codesContainer.innerHTML += `
+            codesContainer.innerHTML = `
+                <h6 class="mb-2"><i class="fas fa-barcode me-2"></i>Mã Mời Của Bạn</h6>
                  <div class="mb-2">
                     <label class="form-label small text-secondary">Mã mời (Địa chỉ ví):</label>
                     <div class="input-group">
@@ -2105,7 +2261,7 @@
                 const miniAppLink = `https://t.me/${YOUR_TELEGRAM_BOT_NAME}/${YOUR_MINI_APP_NAME}?startapp=${currentUserData.telegramId}`;
                  linksContainer.innerHTML += `
                     <div class="mb-2">
-                        <label class="form-label small text-secondary">Link mời cho Mini App (Mở trực tiếp):</label>
+                        <label class="form-label small text-secondary">Link mời cho Mini App:</label>
                         <div class="input-group">
                             <input type="text" class="form-control" value="${miniAppLink}" readonly>
                             <button class="btn btn-outline-secondary copyable-code" data-code="${miniAppLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
@@ -2119,6 +2275,46 @@
                             <button class="btn btn-outline-secondary copyable-code" data-code="${currentUserData.telegramId}" title="Copy Code"><i class="fas fa-copy"></i></button>
                         </div>
                     </div>`;
+            }
+            
+            // [NEW] Logic to display who referred the current user
+            if (currentUserData.referredBy) {
+                referralInputContainer.style.display = 'none';
+                referredByContainer.style.display = 'block';
+                referredByContainer.innerHTML = `<div class="skeleton-loader skeleton-line w-75"></div>`; // Placeholder
+                
+                const referrerCode = currentUserData.referredBy;
+                let referrerQuery;
+                if (!isNaN(referrerCode)) {
+                    referrerQuery = db.collection('users').where('telegramId', '==', parseInt(referrerCode, 10));
+                } else {
+                    referrerQuery = db.collection('users').where('address', '==', referrerCode);
+                }
+                
+                try {
+                    const snapshot = await referrerQuery.get();
+                    let referrerName = shortenAddress(referrerCode);
+                    if (!snapshot.empty) {
+                        const referrerData = snapshot.docs[0].data();
+                        referrerName = referrerData.fullName || (referrerData.username ? `@${referrerData.username}` : shortenAddress(referrerData.address));
+                    }
+                    referredByContainer.innerHTML = `
+                        <hr style="border-color: var(--border-color); opacity: 0.5;">
+                        <h6 class="mb-2 text-secondary"><i class="fas fa-user-check me-2"></i>Người giới thiệu của bạn</h6>
+                        <div class="d-flex align-items-center p-2" style="background: rgba(43, 203, 196, 0.1); border-radius: 12px;">
+                            <i class="fas fa-award me-3" style="color: var(--accent-secondary); font-size: 1.5rem;"></i>
+                            <p class="m-0">Bạn đã được giới thiệu bởi <strong style="color: var(--accent-secondary);">${referrerName}</strong>.</p>
+                        </div>`;
+                } catch (error) {
+                    console.error("Could not fetch referrer's name", error);
+                    referredByContainer.innerHTML = '';
+                }
+
+            } else {
+                referredByContainer.style.display = 'none';
+                if (!airdropSettings?.isSnapshotActive) {
+                    referralInputContainer.style.display = 'block';
+                }
             }
             
             referralCountEl.textContent = `${currentUserData.referralCount || 0}`;
@@ -2210,7 +2406,6 @@
                 
                 let buttonsHtml = '';
 
-                // Logic for Confirmation (100%) Button
                 if (!currentUserData.hasSentConfirmationTx && !settings.isSnapshotActive && settings.isConfirmationEnabled) {
                      buttonsHtml += `<p class="text-white-50 mt-3 small">Nâng mức thưởng lên <strong class="text-white">100%</strong>.</p>`;
                      buttonsHtml += `<button id="confirm-button" class="airdrop-action-btn">Nhận 100% $VIEC</button>`;
@@ -2218,7 +2413,6 @@
                      buttonsHtml += `<p class="text-white-50 mt-3 fw-bold" style="color: var(--color-verified)!important;"><i class="fas fa-check-circle me-2"></i>Đặc quyền 100% tại TGE</p>`;
                 }
 
-                // Logic for Claim/Request Button
                 if (!settings.isSnapshotActive && settings.isClaimingEnabled) {
                     buttonsHtml += `<p class="text-white-50 mt-3 small">Bạn chỉ còn một bước nữa để nhận $VIEC, hãy điền tên minh vào danh sách yêu cầu phân thưởng.</p>`;
                     buttonsHtml += `<button id="request-reward-button" class="airdrop-action-btn" style="background: var(--accent-secondary); color: white;">Sent Transaction</button>`;
@@ -2980,7 +3174,7 @@
 
         async function saveAirdropSettings() {
             const isAirdropLive = document.getElementById('airdrop-live-switch').checked;
-            const isConfirmationEnabled = document.getElementById('confirmation-enabled-switch').checked; // NEW
+            const isConfirmationEnabled = document.getElementById('confirmation-enabled-switch').checked; 
             const isClaimingEnabled = document.getElementById('claim-enabled-switch').checked;
             const isSnapshotActive = document.getElementById('snapshot-active-switch').checked;
 
@@ -3009,7 +3203,7 @@
             try {
                 const settingsRef = db.collection('admin_settings').doc('airdrop_criteria');
                 const newSettings = { isAirdropLive, isConfirmationEnabled, isClaimingEnabled, isSnapshotActive, minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier };
-                await settingsRef.set(newSettings, { merge: true }); // Use merge to be safe
+                await settingsRef.set(newSettings, { merge: true });
                 airdropSettings = newSettings; 
                 adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
                 showAppToast('Thành công', 'Đã lưu cài đặt Airdrop.', 'success');
@@ -3036,7 +3230,7 @@
                 let processedCount = 0;
 
                 while (true) {
-                    let query = db.collection('users').orderBy('createdAt').limit(500);
+                    let query = db.collection('users').orderBy(firebase.firestore.FieldPath.documentId()).limit(500);
                     if(lastVisible) {
                         query = query.startAfter(lastVisible);
                     }
@@ -3110,6 +3304,18 @@
         checkinButton.addEventListener('click', handleCheckin);
         popupCheckinButton.addEventListener('click', handleCheckin);
         if (adminExpForm) adminExpForm.addEventListener('submit', handleAdminExpUpdate);
+
+        // NEW: Mass Award Form Listeners
+        if (adminMassAwardForm) adminMassAwardForm.addEventListener('submit', handleMassAward);
+        if (adminMassConditionType) {
+            adminMassConditionType.addEventListener('change', (e) => {
+                if (e.target.value === 'all') {
+                    adminMassConditionWrapper.style.display = 'none';
+                } else {
+                    adminMassConditionWrapper.style.display = 'block';
+                }
+            });
+        }
 
         if(adminUserListContainer) adminUserListContainer.addEventListener('change', (e) => {
             if (e.target.classList.contains('admin-tx-status-switch')) {
