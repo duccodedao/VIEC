@@ -1422,7 +1422,7 @@
                     
                     const referrerHistoryRef = referrerRef.collection('task_history').doc();
                     transaction.set(referrerHistoryRef, {
-                        taskName: 'Mời bạn bè thành công',
+                        taskName: 'Mời bạn bè',
                         exp: REFERRAL_REWARD,
                         timestamp: newTimestamp,
                         referredUser: newAddress 
@@ -1593,7 +1593,7 @@
                     let iconClass;
                     switch (item.taskName) {
                         case 'Check-in Hàng ngày': iconClass = 'fa-calendar-check'; break;
-                        case 'Mời bạn bè thành công': iconClass = 'fa-user-group'; break;
+                        case 'Mời bạn bè': iconClass = 'fa-user-group'; break;
                         default: iconClass = item.exp >= 0 ? 'fa-user-plus' : 'fa-user-minus';
                     }
 
