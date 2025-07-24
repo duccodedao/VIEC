@@ -1,14 +1,28 @@
 
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NEURALIS - The VIEC Experience</title>
+    <title>The Bmass Experience</title>
 
-    <!-- Meta SEO -->
-    <meta name="description" content="NEURALIS: Trải nghiệm Web3 đỉnh cao. Khám phá các Mini App hàng đầu và quản lý tài sản TON của bạn một cách trực quan.">
-    <link rel="icon" href="https://duccodedao.github.io/VIEC/img/logo.png" type="image/png">
+<!-- Meta SEO -->
+<meta name="description" content="Bmass: The ultimate Web3 experience. Discover top Mini Apps and manage your TON assets intuitively.">
+<link rel="icon" href="https://bmass.vercel.app/img/bmasslogo.png" type="image/png">
+
+<!-- Thẻ Open Graph (Quan trọng cho việc chia sẻ trên mạng xã hội) -->
+<meta property="og:title" content="The Bmass Experience" />
+<meta property="og:description" content="The ultimate Web3 experience. Discover top Mini Apps and manage your TON assets intuitively." />
+<meta property="og:image" content="https://bmass.vercel.app/img/bmass_nen.png" />
+<meta property="og:url" content="https://bmass.vercel.app/img/bmass_seo.png" />
+<meta property="og:type" content="website" />
+
+<!-- Thẻ Twitter Card (Quan trọng cho việc chia sẻ trên Twitter/X) -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="The Bmass Experience" />
+<meta name="twitter:description" content="The ultimate Web3 experience. Discover top Mini Apps and manage your TON assets intuitively." />
+<meta name="twitter:image" content="https://bmass.vercel.app/img/bmasslogo.png" />
+
 
     <!-- Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -156,7 +170,7 @@ body {
 
 .app-item { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; background: var(--card-color); border: 1px solid var(--border-color); border-radius: 25px; padding: 1rem; transition: all 0.3s ease; height: 100%; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .app-item:hover { transform: translateY(-8px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
-.app-item-img-wrapper { width: 64px; height: 64px; border-radius: 2525px; overflow: hidden; flex-shrink: 0; }
+.app-item-img-wrapper { width: 64px; height: 64px; border-radius: 15px; overflow: hidden; flex-shrink: 0; }
 .app-item-img { width: 100%; height: 100%; object-fit: cover; }
 .app-item-name { display: block; font-weight: 500; font-size: 0.9rem; color: var(--text-primary); line-height: 1.3; margin-top: 0.75rem; text-align: center; }
 
@@ -339,7 +353,7 @@ body {
 #admin-section tbody img.table-img-preview {
     width: 40px;
     height: 40px;
-    border-radius: 8px;
+    border-radius: 20px;
     border: 2px solid var(--border-color);
     object-fit: cover;
 }
@@ -450,16 +464,16 @@ body {
 }
 
 /* ============================================= */
-/* CSS CHO PARTNER TASK - BỐ CỤC NÚT TRẢI DÀI    */
+/* CSS FOR PARTNER TASK - FULL-WIDTH BUTTON LAYOUT */
 /* ============================================= */
 
-/* Thẻ cha: Giờ sẽ xếp các mục theo chiều dọc (top và button) */
+/* Parent card: Now stacks items vertically (top and button) */
 .partner-task-card {
     display: flex;
-    flex-direction: column; /* << THAY ĐỔI QUAN TRỌNG NHẤT */
-    gap: 0.75rem; /* Khoảng cách giữa khối trên và nút bên dưới */
+    flex-direction: column; /* << MOST IMPORTANT CHANGE */
+    gap: 0.75rem; /* Space between the top block and the button below */
     
-    /* Các style cũ giữ nguyên */
+    /* Old styles remain the same */
     background: var(--card-color);
     border: 1px solid var(--border-color);
     padding: 1rem;
@@ -478,10 +492,10 @@ body {
 }
 .partner-task-card.completed {
     opacity: 0.7;
-    pointer-events: none; /* Vô hiệu hóa toàn bộ thẻ khi đã xong */
+    pointer-events: none; /* Disable the entire card when completed */
 }
 
-/* Khối trên: Chứa ảnh và text, xếp theo chiều ngang */
+/* Top block: Contains image and text, stacked horizontally */
 .partner-task-top {
     display: flex;
     align-items: center;
@@ -531,14 +545,14 @@ body {
     font-weight: 600;
     padding: 0;
     cursor: pointer;
-    z-index: 2; /* Đảm bảo nút này luôn có thể click */
+    z-index: 2; /* Ensure this button is always clickable */
     position: relative;
 }
 .task-details-toggle:hover {
     text-decoration: underline;
 }
 
-/* Nút/Thanh hành động nằm bên dưới, trải dài 100% */
+/* Action button/bar below, spans 100% width */
 .partner-task-action-bar {
     width: 100%;
     text-align: center;
@@ -569,20 +583,20 @@ body {
         <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
           <span class="visually-hidden">Loading...</span>
         </div>
-        <p class="mt-3">Vui lòng đợi...</p>
+        <p class="mt-3">Please wait...</p>
     </div>
     
     <div id="sidebar-overlay"></div>
     <nav id="sidebar-menu" class="sidebar">
         <div class="sidebar-nav">
             <a href="#dashboard" class="sidebar-link active" id="nav-dashboard">Wallet</a>
-            <a href="#apps" class="sidebar-link" id="nav-apps">Ứng Dụng</a>
-            <a href="#task" class="sidebar-link" id="nav-task">Lịch Sử</a>
-            <a href="#partner" class="sidebar-link" id="nav-partner">Nhiệm Vụ</a>
-            <a href="#referral" class="sidebar-link" id="nav-referral">Giới Thiệu</a>
+            <a href="#apps" class="sidebar-link" id="nav-apps">Apps</a>
+            <a href="#task" class="sidebar-link" id="nav-task">History</a>
+            <a href="#partner" class="sidebar-link" id="nav-partner">Tasks</a>
+            <a href="#referral" class="sidebar-link" id="nav-referral">Referral</a>
             <a href="#airdrop" class="sidebar-link" id="nav-airdrop">Airdrop</a>
-            <a href="#leaderboard" class="sidebar-link" id="nav-leaderboard">Bảng Xếp Hạng</a>
-            <a href="#account" class="sidebar-link" id="nav-account">Tài Khoảng</a>
+            <a href="#leaderboard" class="sidebar-link" id="nav-leaderboard">Leaderboard</a>
+            <a href="#account" class="sidebar-link" id="nav-account">Account</a>
             <a href="#admin" class="sidebar-link" id="nav-admin" style="display: none;">Admin</a>
         </div>
         
@@ -604,7 +618,7 @@ body {
     <div class="main-container">
         <header class="header">
             <a href="#" class="header-logo" id="app-logo-container">
-                <img id="app-logo-img" src="https://duccodedao.github.io/VIEC/img/logo.png" alt="App Logo">
+                <img id="app-logo-img" src="https://bmass.vercel.app/img/bmasslogo.png" alt="App Logo">
                 <span id="app-logo-text"></span>
             </a>
             <div class="d-flex align-items-center gap-3">
@@ -622,8 +636,8 @@ body {
         <main id="account-section" style="display: none;">
             <div class="container">
                 <div class="text-center mb-5">
-                    <h1 class="mb-2" style="font-weight: 700;">Thông Tin Tài Khoản</h1>
-                    <p class="lead text-secondary col-md-8 mx-auto">Quản lý thông tin cá nhân và cài đặt của bạn.</p>
+                    <h1 class="mb-2" style="font-weight: 700;">Account Information</h1>
+                    <p class="lead text-secondary col-md-8 mx-auto">Manage your personal information and settings.</p>
                 </div>
                 <div class="row justify-content-center">
                     <div class="col-12 col-md-10 col-lg-8 col-xl-6">
@@ -636,10 +650,10 @@ body {
                             </div>
                             <div class="d-grid gap-2 mt-4">
                                 <button id="contact-admin-btn" class="btn btn-outline-secondary">
-                                    <i class="fab fa-telegram-plane me-2"></i>Liên Hệ Admin
+                                    <i class="fab fa-telegram-plane me-2"></i>Contact Admin
                                 </button>
                                 <button id="full-logout-btn" class="btn" style="background-color: var(--color-out); color: white;">
-                                    <i class="fas fa-sign-out-alt me-2"></i>Đăng Xuất
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
                                 </button>
                             </div>
                         </div>
@@ -652,10 +666,10 @@ body {
             <div class="row g-4 mb-4">
                 <div class="col-12">
                     <div id="portfolio-overview-card" class="card-glass">
-                        <h5 class="card-title">Tổng Quan Tài Sản</h5>
+                        <h5 class="card-title">Portfolio Overview</h5>
                         <div id="portfolio-overview-content">
                             <h2 id="total-value-usd">$0.00</h2>
-                            <h4 id="total-value-vnd">0 VNĐ</h4>
+                            <h4 id="total-value-vnd">0 VND</h4>
                         </div>
                          <div id="portfolio-overview-skeleton" style="display: none;">
                             <div class="skeleton-loader skeleton-line w-75" style="height: 35px; margin-bottom: 15px;"></div>
@@ -681,7 +695,7 @@ body {
                                 <h5 class="card-title d-flex justify-content-between align-items-center">
                                     <span>Core Assets</span>
                                     <button id="back-to-my-wallet-btn" class="btn btn-sm" style="display: none; background-color: var(--accent-secondary); color: white;">
-                                        <i class="fas fa-arrow-left me-1"></i> Quay lại
+                                        <i class="fas fa-arrow-left me-1"></i> Go Back
                                     </button>
                                 </h5>
                                 <div id="main-assets-content"></div>
@@ -716,14 +730,14 @@ body {
         
         <section id="hero-section" class="hero-section">
             <div class="container">
-                <h1 class="mb-4">Welcome to the <span class="highlight">Neuralis</span><br/>Web3 Experience</h1>
-                <p class="lead text-secondary col-md-8 mx-auto mb-4">Connect your wallet to visualize your assets and interact with the VIEC ecosystem in a stunning, next-generation interface.</p>
+                <h1 class="mb-4">Welcome to the <span class="highlight">Bmass</span><br/>Web3 Experience</h1>
+                <p class="lead text-secondary col-md-8 mx-auto mb-4">Connect your wallet to visualize your assets and interact with the Bmass ecosystem in a stunning, next-generation interface.</p>
                 <div id="connect-wallet-hero-btn-container"></div>
                  <div id="referral-input-container-hero" class="mt-4 col-md-6 mx-auto" style="display: none;">
-                    <p class="text-secondary">Bạn có mã giới thiệu? Nhập tại đây!</p>
+                    <p class="text-secondary">Have a referral code? Enter it here!</p>
                     <div class="input-group">
-                        <input type="text" id="referral-code-input-hero" class="form-control" placeholder="Nhập mã mời...">
-                        <button class="btn" id="referral-code-submit-hero" style="background-color: var(--accent-secondary); color: white;">Xác nhận</button>
+                        <input type="text" id="referral-code-input-hero" class="form-control" placeholder="Enter invitation code...">
+                        <button class="btn" id="referral-code-submit-hero" style="background-color: var(--accent-secondary); color: white;">Confirm</button>
                     </div>
                 </div>
             </div>
@@ -737,22 +751,22 @@ body {
         <main id="app-store-section" style="display: none;">
             <div class="app-menu-container">
                 <div class="text-center mb-5">
-                    <h1 class="mb-2" style="font-weight: 700;">Khám Phá Mini Apps</h1>
-                    <p class="lead text-secondary col-md-8 mx-auto">Các ứng dụng, game và công cụ mạnh mẽ nhất trong hệ sinh thái.</p>
+                    <h1 class="mb-2" style="font-weight: 700;">Discover Mini Apps</h1>
+                    <p class="lead text-secondary col-md-8 mx-auto">The most powerful apps, games, and tools in the ecosystem.</p>
                 </div>
                 <div id="app-search-section" class="mb-4 col-md-8 col-lg-6 mx-auto">
                     <div class="input-group">
-                        <input type="text" id="app-search-input" class="form-control" placeholder="Tìm kiếm theo tên...">
+                        <input type="text" id="app-search-input" class="form-control" placeholder="Search by name...">
                         <button class="btn" id="app-search-button"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div id="app-filter-controls" class="app-filter-bar">
-                    <button class="app-filter-btn active" data-filter="all">Tất cả</button>
+                    <button class="app-filter-btn active" data-filter="all">All</button>
                     <button class="app-filter-btn" data-filter="Airdrop">Airdrop</button>
                     <button class="app-filter-btn" data-filter="DePIN">DePIN</button>
                     <button class="app-filter-btn" data-filter="DEX">DEX</button>
                     <button class="app-filter-btn" data-filter="CEX">CEX</button>
-                    <button class="app-filter-btn" data-filter="Tiện ích">Tiện ích</button>
+                    <button class="app-filter-btn" data-filter="Tiện ích">Utility</button>
                 </div>
                 <div id="app-grid" class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
                     <!-- Apps will be rendered by JS -->
@@ -763,24 +777,24 @@ body {
         <main id="task-section" style="display: none;">
             <div class="container">
                 <div class="text-center mb-5">
-                    <h1 class="mb-2" style="font-weight: 700;">Nhiệm Vụ & Phần Thưởng</h1>
-                    <p class="lead text-secondary col-md-8 mx-auto">Hoàn thành nhiệm vụ để nhận thưởng. Phần thưởng EXP sẽ được quy đổi sang token trong tương lai.</p>
+                    <h1 class="mb-2" style="font-weight: 700;">Tasks & Rewards</h1>
+                    <p class="lead text-secondary col-md-8 mx-auto">Complete tasks to earn rewards. EXP rewards will be converted to tokens in the future.</p>
                 </div>
                 <div class="row justify-content-center g-4">
                     <div class="col-12 col-md-10 col-lg-8 col-xl-6">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <div>
-                                <p class="text-secondary mb-0">Tổng số dư EXP của bạn</p>
+                                <p class="text-secondary mb-0">Your total EXP balance</p>
                                 <h2 id="task-exp-balance" class="fw-bold mb-0">0</h2>
                             </div>
                         </div>
                         <div class="card-glass">
                             <!-- Daily Check-in -->
-                            <h5 class="card-title">Nhiệm vụ và lịch </h5>
+                            <h5 class="card-title">Tasks and History</h5>
                             <div id="daily-checkin-content" class="d-flex justify-content-between align-items-center">
-                                <p class="mb-0">Check-in để nhận <strong style="color: var(--accent-primary);">+10 EXP</strong>.</p>
+                                <p class="mb-0">Check-in to receive <strong style="color: var(--accent-primary);">+10 EXP</strong>.</p>
                                 <button id="checkin-button" class="btn px-4 py-2" style="background-color: var(--accent-secondary); color: white; font-weight: 600; flex-shrink: 0; min-width: 130px;" disabled>
-                                    <i class="fas fa-spinner fa-spin me-2"></i>Chờ...
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Wait...
                                 </button>
                             </div>
 
@@ -788,9 +802,9 @@ body {
                             <hr style="border-color: var(--border-color); opacity: 0.5; margin: 1.5rem 0;">
 
                             <!-- Task History -->
-                            <h5 class="card-title">Lịch sử Hoạt động</h5>
+                            <h5 class="card-title">Activity History</h5>
                             <div id="task-history-content" style="max-height: 300px; overflow-y: auto; padding-right: 10px; padding-bottom: 15px;">
-                                <p class="text-secondary text-center p-3">Chưa có hoạt động nào.</p>
+                                <p class="text-secondary text-center p-3">No activity yet.</p>
                             </div>
                         </div>
                     </div>
@@ -804,8 +818,8 @@ body {
         <main id="partner-section" style="display: none;">
             <div class="container">
                 <div class="text-center mb-5">
-                    <h1 class="mb-2" style="font-weight: 700;">Nhiệm Vụ Đối Tác</h1>
-                    <p class="lead text-secondary col-md-8 mx-auto">Hoàn thành các nhiệm vụ từ đối tác của chúng tôi để nhận thêm phần thưởng EXP giá trị.</p>
+                    <h1 class="mb-2" style="font-weight: 700;">Partner Tasks</h1>
+                    <p class="lead text-secondary col-md-8 mx-auto">Complete tasks from our partners to earn additional valuable EXP rewards.</p>
                 </div>
                 <div class="row justify-content-center g-4">
                     <div class="col-12 col-md-10 col-lg-8">
@@ -820,18 +834,18 @@ body {
         <main id="referral-section" style="display: none;">
              <div class="container">
                 <div class="text-center mb-5">
-                    <h1 class="mb-2" style="font-weight: 700;">Mời Bạn Bè</h1>
-                    <p class="lead text-secondary col-md-8 mx-auto">Mời bạn bè tham gia và cả hai cùng nhận thưởng. Nhận <strong style="color: var(--accent-secondary);">200 EXP</strong> cho mỗi lượt mời thành công!</p>
+                    <h1 class="mb-2" style="font-weight: 700;">Invite Friends</h1>
+                    <p class="lead text-secondary col-md-8 mx-auto">Invite friends to join and you both get a reward. Receive <strong style="color: var(--accent-secondary);">200 EXP</strong> for each successful referral!</p>
                 </div>
                 <div class="row justify-content-center g-4">
                     <div class="col-12 col-md-10 col-lg-8">
                         <div class="card-glass">
                             <ul class="nav nav-tabs" id="referralTab" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab"><i class="fas fa-link me-2"></i>Mã Của Tôi</button>
+                                    <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab"><i class="fas fa-link me-2"></i>My Codes</button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="invited-list-tab" data-bs-toggle="tab" data-bs-target="#invited-list-pane" type="button" role="tab"><i class="fas fa-users me-2"></i>Đã mời (<span id="referral-count">0</span>)</button>
+                                    <button class="nav-link" id="invited-list-tab" data-bs-toggle="tab" data-bs-target="#invited-list-pane" type="button" role="tab"><i class="fas fa-users me-2"></i>Invited (<span id="referral-count">0</span>)</button>
                                 </li>
                             </ul>
                             
@@ -840,15 +854,15 @@ body {
                                     <div id="referral-links-container"></div>
                                     <div id="referral-codes-container"></div>
 
-                                    <!-- [NEW] Hiển thị người đã mời bạn -->
+                                    <!-- [NEW] Display the user who referred you -->
                                     <div id="referred-by-container" class="mt-4" style="display: none;"></div>
                                     
                                     <div id="referral-input-container" class="mt-4" style="display: none;">
-                                        <h6 class="mb-2"><i class="fas fa-user-plus me-2"></i>Nhập Mã Mời</h6>
-                                        <p class="text-secondary small">Nếu bạn được ai đó mời nhưng chưa nhập mã, hãy nhập vào đây.</p>
+                                        <h6 class="mb-2"><i class="fas fa-user-plus me-2"></i>Enter Invitation Code</h6>
+                                        <p class="text-secondary small">If you were invited by someone but haven't entered the code, do it here.</p>
                                         <div class="input-group">
-                                            <input type="text" id="referral-code-input" class="form-control" placeholder="Nhập mã của người mời...">
-                                            <button class="btn" id="referral-code-submit" style="background-color: var(--accent-secondary); color: white;">Xác nhận</button>
+                                            <input type="text" id="referral-code-input" class="form-control" placeholder="Enter inviter's code...">
+                                            <button class="btn" id="referral-code-submit" style="background-color: var(--accent-secondary); color: white;">Confirm</button>
                                         </div>
                                     </div>
                                 </div>
@@ -866,14 +880,14 @@ body {
             <div class="container">
                  <div id="airdrop-coming-soon" style="display: none;" class="text-center p-5 card-glass col-md-8 mx-auto">
                     <i class="fas fa-rocket fa-3x text-secondary mb-3"></i>
-                    <h2 class="mb-2" style="font-weight: 700;">Tính năng Airdrop Sắp Ra Mắt!</h2>
-                    <p class="lead text-secondary">Hãy theo dõi để không bỏ lỡ những thông báo mới nhất. Chúng tôi đang làm việc chăm chỉ để mang đến cho bạn những phần thưởng hấp dẫn.</p>
+                    <h2 class="mb-2" style="font-weight: 700;">Airdrop Feature Coming Soon!</h2>
+                    <p class="lead text-secondary">Stay tuned to not miss the latest announcements. We are working hard to bring you exciting rewards.</p>
                 </div>
 
                 <div id="airdrop-content-wrapper">
                     <div class="text-center mb-5">
-                        <h1 class="mb-2" style="font-weight: 700;">Airdrop Token VIEC</h1>
-                        <p class="lead text-secondary col-md-8 mx-auto">Phần thưởng token VIEC sẽ được phân bổ dựa trên mức độ hoạt động tích cực của bạn. Tích lũy càng nhiều, phần thưởng càng lớn!</p>
+                        <h1 class="mb-2" style="font-weight: 700;">Bmass Token Airdrop</h1>
+                        <p class="lead text-secondary col-md-8 mx-auto">Bmass token rewards will be distributed based on your activity level. The more you accumulate, the bigger the reward!</p>
                     </div>
                     
                     <div id="airdrop-content-loading" class="text-center">
@@ -887,20 +901,20 @@ body {
                             <!-- Allocation Rules Card -->
                             <div class="col-12 col-md-10 col-lg-8">
                                 <div class="card-glass p-4">
-                                <h5 class="card-title text-center">Cơ Chế Tính Điểm</h5>
-                                <p class="text-center text-secondary">Điểm Airdrop cuối cùng được tính bằng cách nhân số lượng hoạt động của bạn với các hệ số điểm tương ứng.</p>
+                                <h5 class="card-title text-center">Scoring Mechanism</h5>
+                                <p class="text-center text-secondary">The final airdrop score is calculated by multiplying your activity counts by their respective point multipliers.</p>
                                 <div class="row text-center mt-4">
                                    <div class="col-4">
                                         <i class="fas fa-users airdrop-stat-icon" style="color:var(--accent-primary)"></i>
-                                        <p class="text-secondary mb-0"><strong>Bạn Bè</strong></p>
+                                        <p class="text-secondary mb-0"><strong>Friends</strong></p>
                                    </div>
                                    <div class="col-4">
                                        <i class="fas fa-calendar-check airdrop-stat-icon"></i>
-                                       <p class="text-secondary mb-0"><strong>Check-in</strong></p>
+                                       <p class="text-secondary mb-0"><strong>Check-ins</strong></p>
                                    </div>
                                    <div class="col-4">
                                         <i class="fas fa-star airdrop-stat-icon" style="color:var(--gold)"></i>
-                                       <p class="text-secondary mb-0"><strong>Điểm EXP</strong></p>
+                                       <p class="text-secondary mb-0"><strong>EXP Points</strong></p>
                                    </div>
                                </div>
                                 </div>
@@ -908,7 +922,7 @@ body {
 
                             <!-- User Stats -->
                             <div class="col-12 col-md-10 col-lg-8">
-                                <h5 class="card-title text-center mt-4">Thống Kê Của Bạn</h5>
+                                <h5 class="card-title text-center mt-4">Your Statistics</h5>
                             </div>
                             <div class="col-12 col-md-10 col-lg-8">
                                 <div class="row g-3">
@@ -916,21 +930,21 @@ body {
                                         <div class="airdrop-stat-card">
                                             <i class="fas fa-users airdrop-stat-icon"></i>
                                             <div id="airdrop-ref-count" class="airdrop-stat-value">0</div>
-                                            <div class="airdrop-stat-label">Lượt Mời</div>
+                                            <div class="airdrop-stat-label">Referrals</div>
                                         </div>
                                     </div>
                                     <div class="col-4">
                                         <div class="airdrop-stat-card">
                                             <i class="fas fa-calendar-check airdrop-stat-icon"></i>
                                             <div id="airdrop-checkin-count" class="airdrop-stat-value">0</div>
-                                            <div class="airdrop-stat-label">Check-in</div>
+                                            <div class="airdrop-stat-label">Check-ins</div>
                                         </div>
                                     </div>
                                     <div class="col-4">
                                         <div class="airdrop-stat-card">
                                             <i class="fas fa-star airdrop-stat-icon" style="color: var(--gold)"></i>
                                             <div id="airdrop-exp-count" class="airdrop-stat-value">0</div>
-                                            <div class="airdrop-stat-label">Điểm EXP</div>
+                                            <div class="airdrop-stat-label">EXP Score</div>
                                         </div>
                                     </div>
                                 </div>
@@ -939,10 +953,10 @@ body {
                             <!-- Total Reward & Eligibility -->
                             <div class="col-12 col-md-10 col-lg-8 mt-4">
                                 <div id="airdrop-reward-card" class="card-glass text-center">
-                                    <h6 class="text-white-50">PHẦN THƯỞNG $VIEC CỦA BẠN SẼ NHẬN ĐƯỢC</h6>
+                                    <h6 class="text-white-50">YOUR ESTIMATED $BMASS REWARD</h6>
                                     <div class="d-flex justify-content-center align-items-center">
                                         <h2 id="airdrop-reward-value" class="fw-bold display-4 mb-0">0</h2>
-                                        <img src="https://duccodedao.github.io/VIEC/img/logo.png" id="airdrop-reward-logo" alt="VIEC Token">
+                                        <img src="https://bmass.vercel.app/img/bmasslogo.png" id="airdrop-reward-logo" alt="Bmass Token">
                                     </div>
                                     <p id="airdrop-eligibility-status" class="fw-bold mt-2 mb-0 fs-5"></p>
                                     <div id="airdrop-final-message-container" class="mt-3"></div>
@@ -955,8 +969,8 @@ body {
 
                     <div id="airdrop-content-logged-out" class="text-center p-5 card-glass col-md-8 mx-auto" style="display: none;">
                         <i class="fas fa-wallet fa-3x text-secondary mb-3"></i>
-                        <h4 class="text-secondary">Vui lòng kết nối ví</h4>
-                        <p class="text-secondary">Kết nối ví của bạn để xem thống kê và tính toán phần thưởng airdrop.</p>
+                        <h4 class="text-secondary">Please Connect Wallet</h4>
+                        <p class="text-secondary">Connect your wallet to see your stats and calculate your airdrop reward.</p>
                     </div>
                 </div>
 
@@ -966,8 +980,8 @@ body {
         <main id="leaderboard-section" style="display: none;">
             <div class="container">
                 <div class="text-center mb-5">
-                    <h1 class="mb-2" style="font-weight: 700;">Bảng Xếp Hạng</h1>
-                    <p class="lead text-secondary col-md-8 mx-auto">Vinh danh những người dùng tích cực nhất. Hãy tích lũy EXP để leo hạng!</p>
+                    <h1 class="mb-2" style="font-weight: 700;">Leaderboard</h1>
+                    <p class="lead text-secondary col-md-8 mx-auto">Celebrating our most active users. Keep earning EXP to climb the ranks!</p>
                 </div>
                 <div id="leaderboard-list" class="leaderboard-list"></div>
             </div>
@@ -981,7 +995,53 @@ body {
                 </div>
                 <div class="row justify-content-center g-4">
                     <!-- ============================================= -->
-                    <!-- NEW: ADMIN PARTNER TASK MANAGEMENT            -->
+                    <!-- NEW: TELEGRAM BULK MESSENGER PANEL            -->
+                    <!-- ============================================= -->
+                     <div class="col-12 col-lg-10 col-xl-8">
+                        <div class="card-glass">
+                            <h5 class="card-title">Gửi Tin Nhắn Hàng Loạt qua Telegram</h5>
+                            <p class="text-secondary small">Soạn một tin nhắn và gửi đến TẤT CẢ người dùng đã liên kết tài khoản Telegram (có UID) trong hệ thống.</p>
+                            <form id="admin-telegram-sender-form">
+                                <div class="mb-3">
+                                    <label for="telegram-api-token-input" class="form-label">Telegram Bot API Token</label>
+                                    <input type="password" class="form-control" id="telegram-api-token-input" placeholder="Dán API Token của bot vào đây" required>
+                                </div>
+
+                                <hr style="border-color: var(--border-color); opacity: 0.5; margin: 2rem 0;">
+                                <h6 class="text-secondary mb-3">NỘI DUNG TIN NHẮN</h6>
+                                <div class="mb-3">
+                                    <label for="telegram-image-url-input" class="form-label">URL Hình ảnh (Tùy chọn)</label>
+                                    <input type="url" class="form-control" id="telegram-image-url-input" placeholder="https://example.com/image.png">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="telegram-message-text-input" class="form-label">Văn bản tin nhắn / Chú thích ảnh</label>
+                                    <textarea class="form-control" id="telegram-message-text-input" rows="4" placeholder="Nhập nội dung tin nhắn của bạn..."></textarea>
+                                </div>
+                                <h6 class="text-secondary my-3">NÚT BẤM (TÙY CHỌN)</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="telegram-button-text-input" class="form-label">Văn bản trên nút</label>
+                                        <input type="text" class="form-control" id="telegram-button-text-input" placeholder="e.g., Mở liên kết">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="telegram-button-url-input" class="form-label">URL của nút</label>
+                                        <input type="url" class="form-control" id="telegram-button-url-input" placeholder="https://t.me/your_channel">
+                                    </div>
+                                </div>
+
+                                <div id="telegram-sender-status" class="mt-3 text-center fw-bold"></div>
+
+                                <div class="d-grid mt-3">
+                                    <button type="button" id="send-bulk-telegram-message-btn" class="btn btn-lg" style="background: linear-gradient(90deg, #0088cc, #00aaff); color: white;">
+                                        <i class="fab fa-telegram-plane me-2"></i>Gửi Hàng Loạt cho Tất Cả User
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- ============================================= -->
+                    <!-- ADMIN PARTNER TASK MANAGEMENT                 -->
                     <!-- ============================================= -->
                      <div class="col-12 col-lg-10 col-xl-8">
                         <div class="card-glass">
@@ -1273,16 +1333,16 @@ body {
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="checkinPopupModalLabel"><i class="fas fa-calendar-check me-2" style="color: var(--accent-secondary);"></i>Đã đến giờ Check-in!</h5>
+            <h5 class="modal-title" id="checkinPopupModalLabel"><i class="fas fa-calendar-check me-2" style="color: var(--accent-secondary);"></i>It's Check-in Time!</h5>
           </div>
           <div class="modal-body text-center">
-            <p>Chúc mừng! Bạn đã đủ điều kiện để Check-in và nhận phần thưởng.</p>
+            <p>Congratulations! You are eligible to check in and receive your reward.</p>
             <p class="display-4 fw-bold" style="color: var(--accent-primary);">+10 EXP</p>
-            <p>Nhấn nút bên dưới để nhận ngay!</p>
+            <p>Press the button below to claim it now!</p>
           </div>
           <div class="modal-footer justify-content-center border-0">
-            <button type="button" id="popup-checkin-button" class="btn btn-lg" style="background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white; font-weight: 600;">Check-in và Nhận Thưởng</button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Để sau</button>
+            <button type="button" id="popup-checkin-button" class="btn btn-lg" style="background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white; font-weight: 600;">Check-in and Claim Reward</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Later</button>
           </div>
         </div>
       </div>
@@ -1293,13 +1353,13 @@ body {
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="contactAdminModalLabel"><i class="fab fa-telegram-plane me-2"></i>Liên hệ Admin</h5>
+                    <h5 class="modal-title" id="contactAdminModalLabel"><i class="fab fa-telegram-plane me-2"></i>Contact Admin</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center">
-                    <p>Nếu bạn cần hỗ trợ hoặc có bất kỳ câu hỏi nào, vui lòng liên hệ với quản trị viên qua Telegram.</p>
+                    <p>If you need assistance or have any questions, please contact the administrator via Telegram.</p>
                     <a href="https://t.me/BmassK3" target="_blank" rel="noopener noreferrer" class="btn btn-lg w-100" style="background-color: #0088cc; color: white;">
-                        <i class="fab fa-telegram-plane me-2"></i> Mở Telegram (@BmassK3)
+                        <i class="fab fa-telegram-plane me-2"></i> Open Telegram (@BmassK3)
                     </a>
                 </div>
             </div>
@@ -1313,13 +1373,13 @@ body {
 document.addEventListener('DOMContentLoaded', () => {
     const TON_API_BASE = 'https://tonapi.io/v2';
     const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
-    const USER_SESSION_KEY = 'neuralisUserSession';
-    const REFERRAL_SESSION_KEY = 'neuralisReferralCode';
+    const USER_SESSION_KEY = 'BmassUserSession';
+    const REFERRAL_SESSION_KEY = 'BmassReferralCode';
     
     // --- CONFIGURATION ---
     const YOUR_TELEGRAM_BOT_NAME = "bmassk3_bot"; 
     const YOUR_MINI_APP_NAME = "BmassK3"; 
-    const YOUR_WEB_APP_URL = "https://bmass.vercel.app/wallet.html";
+    const YOUR_WEB_APP_URL = "https://bmass.vercel.app/";
     
     // Admin Credentials
     const ADMIN_ADDRESS = '0:eef2fc994996c062f45143f8d6e3fd048811a26c01aaef6c126636164663401a';
@@ -1408,14 +1468,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const contactAdminBtn = document.getElementById('contact-admin-btn');
     const contactAdminModal = new bootstrap.Modal(document.getElementById('contactAdminModal'));
     
-    // NEW: Mass Award Form Elements
+    // Mass Award Form Elements
     const adminMassAwardForm = document.getElementById('admin-mass-award-form');
     const adminMassConditionType = document.getElementById('admin-mass-condition-type');
     const adminMassConditionWrapper = document.getElementById('admin-mass-condition-wrapper');
     const adminMassAwardSubmitBtn = document.getElementById('admin-mass-award-submit-btn');
     const adminMassAwardStatus = document.getElementById('admin-mass-award-status');
     
-    // NEW: Partner Task Elements
+    // Partner Task Elements
     const partnerTasksContainer = document.getElementById('partner-tasks-container');
     const adminPartnerTaskForm = document.getElementById('admin-partner-task-form');
     const partnerTaskIdInput = document.getElementById('partner-task-id-input');
@@ -1424,10 +1484,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminPartnerTaskStatus = document.getElementById('admin-partner-task-status');
     const adminPartnerTasksList = document.getElementById('admin-partner-tasks-list');
 
+    // Telegram Sender Elements
+    const sendBulkTelegramMessageBtn = document.getElementById('send-bulk-telegram-message-btn');
+    const telegramSenderStatus = document.getElementById('telegram-sender-status');
 
-    const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo_viewc.png';
+
+    const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/Bmass/img/logo_viewc.png';
     const GENERIC_WALLET_ICON = 'https://ton.org/download/ton_symbol.png';
-    const GENERIC_TASK_ICON = 'https://duccodedao.github.io/VIEC/img/logo.png';
+    const GENERIC_TASK_ICON = 'https://bmass.vercel.app/img/bmass.png';
 
     // State Variables
     let telegramUserData = null;
@@ -1450,6 +1514,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000;
     const ADMIN_USERS_PER_PAGE = 50;
     const BATCH_SIZE = 200; // For mass award processing
+    const FIRESTORE_FETCH_BATCH_SIZE = 500; // For fetching all users
+    const TELEGRAM_SEND_DELAY_MS = 150; // Delay between each message to avoid rate limits
     
     const CONFIRM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
     const CONFIRM_AMOUNT_NANOTONS = "10000"; // 0.00001 TON
@@ -1480,7 +1546,7 @@ document.addEventListener('DOMContentLoaded', () => {
         storage = firebase.storage();
     }
     
-    function showLoadingOverlay(message = 'Vui lòng đợi...') {
+    function showLoadingOverlay(message = 'Please wait...') {
         loadingOverlay.querySelector('p').textContent = message;
         loadingOverlay.classList.add('visible');
     }
@@ -1530,10 +1596,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return true; // All mandatory tasks are completed
     }
 
-    async function calculateViecReward(user, settings) {
+    async function calculateBmassReward(user, settings) {
         if (!user || !settings) return 0;
-        
-        // This check is now implicitly handled by renderAirdropSection and exportAirdropData
         
         const refCount = user.referralCount || 0;
         const checkinCount = user.checkinCount || 0;
@@ -1555,7 +1619,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadOrCreateUserByAddress(address) {
         if (!address || !db) return;
 
-        showLoadingOverlay('Đang xác thực và đồng bộ...');
+        showLoadingOverlay('Authenticating and syncing...');
 
         if (telegramUserData) {
             const uidQuery = db.collection('users').where('telegramId', '==', telegramUserData.id).limit(1);
@@ -1567,7 +1631,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (existingUserData.address !== address) {
                     hideLoadingOverlay();
-                    showAppToast('Lỗi Liên Kết', `Tài khoản Telegram này đã được liên kết với một ví khác. Vui lòng sử dụng đúng ví đã kết nối.`, 'error');
+                    showAppToast('Link Error', `This Telegram account is already linked with another wallet. Please use the correct connected wallet.`, 'error');
                     handleFullLogout();
                     return;
                 }
@@ -1603,15 +1667,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (userData.disabledUntil && userData.disabledUntil.toDate() > new Date()) {
                 hideLoadingOverlay();
-                showAppToast('Tài khoản bị khoá', `Tài khoản của bạn tạm thời không thể sử dụng các tính năng cho đến ${userData.disabledUntil.toDate().toLocaleString('vi-VN')}.`, 'error');
+                showAppToast('Account Disabled', `Your account is temporarily disabled until ${userData.disabledUntil.toDate().toLocaleString('en-US')}.`, 'error');
                 handleFullLogout();
                 return;
             }
 
             if (telegramUserData && userData.telegramId && userData.telegramId !== telegramUserData.id) {
                 hideLoadingOverlay();
-                const ownerUsername = userData.username ? `@${userData.username}` : 'một người dùng khác';
-                showAppToast('Lỗi Sở Hữu', `Ví này đã thuộc về ${ownerUsername}. Vui lòng kết nối bằng ví của bạn.`, 'error');
+                const ownerUsername = userData.username ? `@${userData.username}` : 'another user';
+                showAppToast('Ownership Error', `This wallet already belongs to ${ownerUsername}. Please connect with your own wallet.`, 'error');
                 handleFullLogout();
                 return;
             }
@@ -1644,13 +1708,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     async function applyReferral(referrerCode, newAddress) {
         if (airdropSettings?.isSnapshotActive) {
-            showAppToast('Đã dừng', 'Hoạt động kiếm điểm đã dừng do Snapshot.', 'warning');
+            showAppToast('Halted', 'Point-earning activities are paused due to the snapshot.', 'warning');
             return;
         }
         if (!referrerCode || !newAddress) return;
 
         if (referrerCode === newAddress || (telegramUserData && referrerCode === String(telegramUserData.id))) {
-             showAppToast('Lỗi', 'Bạn không thể tự giới thiệu chính mình.', 'warning');
+             showAppToast('Error', 'You cannot refer yourself.', 'warning');
              return;
         }
 
@@ -1666,7 +1730,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const snapshot = await referrerQuery.get();
             if (snapshot.empty) {
-                showAppToast('Lỗi', 'Mã giới thiệu không hợp lệ.', 'error');
+                showAppToast('Error', 'Invalid referral code.', 'error');
                 return;
             }
 
@@ -1675,7 +1739,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const referrerData = referrerDoc.data();
             
             if (referrerData.address === newAddress) {
-                showAppToast('Lỗi', 'Bạn không thể tự giới thiệu chính mình.', 'warning');
+                showAppToast('Error', 'You cannot refer yourself.', 'warning');
                 return;
             }
 
@@ -1683,7 +1747,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             await db.runTransaction(async (transaction) => {
                 const freshReferrerDoc = await transaction.get(referrerRef);
-                if (!freshReferrerDoc.exists) throw "Người mời không tồn tại trong giao dịch";
+                if (!freshReferrerDoc.exists) throw "Referrer does not exist in the transaction";
                 
                 transaction.update(referrerRef, {
                     points: firebase.firestore.FieldValue.increment(REFERRAL_REWARD),
@@ -1692,7 +1756,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const referrerHistoryRef = referrerRef.collection('task_history').doc();
                 transaction.set(referrerHistoryRef, {
-                    taskName: 'Mời bạn bè',
+                    taskName: 'Invited a friend',
                     exp: REFERRAL_REWARD,
                     timestamp: newTimestamp,
                     referredUser: newAddress 
@@ -1706,18 +1770,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const newUserHistoryRef = newUserRef.collection('task_history').doc();
                 transaction.set(newUserHistoryRef, {
-                    taskName: 'Nhập mã mời',
+                    taskName: 'Entered referral code',
                     exp: REFERRAL_REWARD,
                     timestamp: newTimestamp,
                     referrer: String(referrerCode)
                 });
             });
             
-            showAppToast(`Bonus Nhập Mã Mời!`, `Bạn và người mời đã cùng nhận được ${REFERRAL_REWARD} EXP.`, 'success');
+            showAppToast(`Referral Bonus!`, `You and your referrer both received ${REFERRAL_REWARD} EXP.`, 'success');
 
         } catch (error) {
             console.error("Failed to apply referral:", error);
-            showAppToast('Lỗi', 'Không thể áp dụng mã giới thiệu. Vui lòng thử lại.', 'error');
+            showAppToast('Error', 'Could not apply referral code. Please try again.', 'error');
         }
     }
 
@@ -1750,7 +1814,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (airdropSettings?.isSnapshotActive) {
             checkinButton.disabled = true;
-            checkinButton.innerHTML = `<i class="fas fa-pause-circle me-2"></i>Đã Snapshot`;
+            checkinButton.innerHTML = `<i class="fas fa-pause-circle me-2"></i>Snapshot Taken`;
             if (checkinInterval) clearInterval(checkinInterval);
             return;
         }
@@ -1762,7 +1826,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (isEligible) {
             checkinButton.disabled = false;
-            checkinButton.innerHTML = `<i class="fas fa-calendar-check me-2"></i> Nhận thưởng`;
+            checkinButton.innerHTML = `<i class="fas fa-calendar-check me-2"></i> Claim Reward`;
         } else {
             checkinButton.disabled = true;
             const lastCheckinTime = lastCheckin.toDate().getTime();
@@ -1773,7 +1837,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (newRemaining <= 0) {
                     clearInterval(checkinInterval);
                     checkinButton.disabled = false;
-                    checkinButton.innerHTML = `<i class="fas fa-calendar-check me-2"></i> Nhận thưởng`;
+                    checkinButton.innerHTML = `<i class="fas fa-calendar-check me-2"></i> Claim Reward`;
                 } else {
                     const hours = Math.floor((newRemaining / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
                     const minutes = Math.floor((newRemaining / 1000 / 60) % 60).toString().padStart(2, '0');
@@ -1788,18 +1852,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleCheckin() {
         if (airdropSettings?.isSnapshotActive) {
-            showAppToast('Đã dừng', 'Hoạt động kiếm điểm đã dừng do Snapshot.', 'warning');
+            showAppToast('Halted', 'Point-earning activities are paused due to the snapshot.', 'warning');
             return;
         }
         if (!connectedWalletAddress || !db) {
-            showAppToast('Lỗi', 'Vui lòng kết nối ví để check-in.', 'error');
+            showAppToast('Error', 'Please connect your wallet to check in.', 'error');
             return;
         };
         
         checkinPopupModal.hide();
         checkinButton.disabled = true;
         popupCheckinButton.disabled = true;
-        checkinButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...`;
+        checkinButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
         
         const userRef = db.collection('users').doc(connectedWalletAddress);
         
@@ -1812,7 +1876,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const lastCheckin = userData.lastCheckin;
 
                 if (lastCheckin && (Date.now() - lastCheckin.toDate().getTime() < CHECKIN_COOLDOWN)) {
-                    showAppToast('Thông báo', 'Bạn đã điểm danh rồi. Vui lòng quay lại sau.', 'warning');
+                    showAppToast('Notice', 'You have already checked in today. Please come back later.', 'warning');
                     return;
                 }
 
@@ -1825,15 +1889,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const historyRef = userRef.collection('task_history').doc();
                 transaction.set(historyRef, {
-                    taskName: 'Check-in Hàng ngày',
+                    taskName: 'Daily Check-in',
                     exp: CHECKIN_REWARD,
                     timestamp: newTimestamp
                 });
             });
-            showAppToast('Thành công!', `Bạn đã nhận được ${CHECKIN_REWARD} EXP.`, 'success');
+            showAppToast('Success!', `You've received ${CHECKIN_REWARD} EXP.`, 'success');
         } catch (error) {
             console.error("Check-in failed: ", error);
-            showAppToast('Thất bại', 'Đã có lỗi xảy ra. Vui lòng thử lại.', 'error');
+            showAppToast('Failed', 'An error occurred. Please try again.', 'error');
         } finally {
             const updatedDoc = await userRef.get();
             if(updatedDoc.exists) {
@@ -1852,20 +1916,20 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const snapshot = await historyRef.get();
             if (snapshot.empty) {
-                taskHistoryContent.innerHTML = `<p class="text-secondary text-center p-3">Chưa có hoạt động nào.</p>`;
+                taskHistoryContent.innerHTML = `<p class="text-secondary text-center p-3">No activity yet.</p>`;
                 return;
             }
             
             let historyHtml = '';
             snapshot.forEach(doc => {
                 const item = doc.data();
-                const date = item.timestamp ? item.timestamp.toDate().toLocaleString('vi-VN') : 'N/A';
+                const date = item.timestamp ? item.timestamp.toDate().toLocaleString('en-US') : 'N/A';
                 
                 let iconClass;
                 switch (item.taskName) {
-                    case 'Check-in Hàng ngày': iconClass = 'fa-calendar-check'; break;
-                    case 'Mời bạn bè': iconClass = 'fa-user-group'; break;
-                    case 'Nhập mã mời': iconClass = 'fa-gift'; break;
+                    case 'Daily Check-in': iconClass = 'fa-calendar-check'; break;
+                    case 'Invited a friend': iconClass = 'fa-user-group'; break;
+                    case 'Entered referral code': iconClass = 'fa-gift'; break;
                     case 'Partner Task': iconClass = 'fa-handshake'; break;
                     default: iconClass = item.exp >= 0 ? 'fa-user-plus' : 'fa-user-minus';
                 }
@@ -1890,7 +1954,7 @@ document.addEventListener('DOMContentLoaded', () => {
             taskHistoryContent.innerHTML = historyHtml;
         } catch(error) {
             console.error("Error fetching task history:", error);
-            taskHistoryContent.innerHTML = `<p class="text-danger text-center p-3">Lỗi tải lịch sử.</p>`;
+            taskHistoryContent.innerHTML = `<p class="text-danger text-center p-3">Error loading history.</p>`;
         }
     }
 
@@ -1906,7 +1970,7 @@ document.addEventListener('DOMContentLoaded', () => {
             listContainer.innerHTML = '';
 
             if (snapshot.empty) {
-                listContainer.innerHTML = `<p class="text-secondary text-center p-3">Chưa có ai trên bảng xếp hạng. Hãy là người đầu tiên!</p>`;
+                listContainer.innerHTML = `<p class="text-secondary text-center p-3">No one is on the leaderboard yet. Be the first!</p>`;
                 return;
             }
             
@@ -1939,7 +2003,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error("Error fetching leaderboard:", error);
-            listContainer.innerHTML = `<p class="text-danger text-center p-3">Không thể tải bảng xếp hạng. Vui lòng thử lại sau.</p>`;
+            listContainer.innerHTML = `<p class="text-danger text-center p-3">Could not load the leaderboard. Please try again later.</p>`;
         }
     }
     
@@ -2371,6 +2435,134 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    // =============================================
+    // NEW: TELEGRAM BULK SENDER FUNCTION
+    // =============================================
+    async function sendBulkTelegramMessage() {
+        // Helper function for delay
+        const delay = ms => new Promise(res => setTimeout(res, ms));
+
+        // 1. Get Inputs from Form
+        const apiToken = document.getElementById('telegram-api-token-input').value.trim();
+        const text = document.getElementById('telegram-message-text-input').value.trim();
+        const imageUrl = document.getElementById('telegram-image-url-input').value.trim();
+        const buttonText = document.getElementById('telegram-button-text-input').value.trim();
+        const buttonUrl = document.getElementById('telegram-button-url-input').value.trim();
+        
+        // 2. Validation
+        if (!apiToken) {
+            showAppToast('Lỗi', 'Vui lòng nhập API Token của bot.', 'error');
+            return;
+        }
+        if (!text && !imageUrl) {
+            showAppToast('Lỗi', 'Vui lòng nhập văn bản tin nhắn hoặc URL hình ảnh.', 'error');
+            return;
+        }
+        if ((buttonText && !buttonUrl) || (!buttonText && buttonUrl)) {
+            showAppToast('Lỗi', 'Để tạo nút, vui lòng nhập cả Văn bản và URL cho nút.', 'warning');
+            return;
+        }
+        
+        // 3. Confirmation
+        if (!confirm("CẢNH BÁO: Bạn sắp gửi tin nhắn này cho TẤT CẢ người dùng có UID trong hệ thống. Hành động này KHÔNG THỂ hoàn tác và có thể mất nhiều thời gian. Bạn có chắc chắn muốn tiếp tục?")) {
+            return;
+        }
+
+        // 4. Start Process & UI Feedback
+        sendBulkTelegramMessageBtn.disabled = true;
+        telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lấy danh sách người dùng từ cơ sở dữ liệu...`;
+
+        try {
+            // 5. Fetch all users from Firestore
+            const allUsers = [];
+            let lastVisible = null;
+            while (true) {
+                let query = db.collection('users').orderBy(firebase.firestore.FieldPath.documentId()).limit(FIRESTORE_FETCH_BATCH_SIZE);
+                if (lastVisible) {
+                    query = query.startAfter(lastVisible);
+                }
+                const snapshot = await query.get();
+                if (snapshot.empty) {
+                    break;
+                }
+                snapshot.forEach(doc => allUsers.push(doc.data()));
+                lastVisible = snapshot.docs[snapshot.docs.length - 1];
+                telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã lấy được ${allUsers.length} người dùng...`;
+            }
+
+            // 6. Filter for users with a UID
+            const usersWithUid = allUsers.filter(user => user.telegramId);
+
+            if (usersWithUid.length === 0) {
+                telegramSenderStatus.innerHTML = `<span class="text-warning">Không tìm thấy người dùng nào có UID để gửi.</span>`;
+                return;
+            }
+
+            // 7. Prepare the sending loop
+            let sentCount = 0;
+            let failedCount = 0;
+            const totalUsers = usersWithUid.length;
+            const baseUrl = `https://api.telegram.org/bot${apiToken}/`;
+            
+            for (let i = 0; i < totalUsers; i++) {
+                const user = usersWithUid[i];
+                telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang gửi tin ${i + 1}/${totalUsers}... (UID: ${user.telegramId})`;
+                
+                const body = { chat_id: user.telegramId };
+                let method;
+
+                if (buttonText && buttonUrl) {
+                    body.reply_markup = JSON.stringify({
+                        inline_keyboard: [[{ text: buttonText, url: buttonUrl }]]
+                    });
+                }
+                
+                if (imageUrl) {
+                    method = 'sendPhoto';
+                    body.photo = imageUrl;
+                    if (text) body.caption = text;
+                } else {
+                    method = 'sendMessage';
+                    body.text = text;
+                }
+                
+                // Send to one user
+                try {
+                    const response = await fetch(baseUrl + method, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body),
+                    });
+                    const result = await response.json();
+                    if (result.ok) {
+                        sentCount++;
+                    } else {
+                        failedCount++;
+                        console.error(`Failed to send to UID ${user.telegramId}: ${result.description}`);
+                    }
+                } catch (error) {
+                    failedCount++;
+                    console.error(`Network error sending to UID ${user.telegramId}:`, error);
+                }
+
+                // Wait before sending the next one
+                await delay(TELEGRAM_SEND_DELAY_MS);
+            }
+
+            // 8. Final Report
+            telegramSenderStatus.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Hoàn tất! Đã gửi: ${sentCount}. Thất bại: ${failedCount}.</span>`;
+            showAppToast('Hoàn tất gửi hàng loạt', `Thành công: ${sentCount}, Thất bại: ${failedCount}`, 'success');
+
+        } catch (error) {
+            console.error("Telegram bulk sender error:", error);
+            telegramSenderStatus.innerHTML = `<span class="text-danger">Gửi hàng loạt thất bại: ${error.message}</span>`;
+            showAppToast('Thất bại', error.message, 'error');
+        } finally {
+            sendBulkTelegramMessageBtn.disabled = false;
+            setTimeout(() => { telegramSenderStatus.innerHTML = ''; }, 10000);
+        }
+    }
+
     function handleFullLogout(e) {
         if (e) e.preventDefault();
         console.log("Logging out completely...");
@@ -2401,7 +2593,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!currentUserData || !currentUserData.telegramId) {
             if(accountSectionEl.style.display === 'block') {
-                document.querySelector('#account-section .container').innerHTML = `<div class="text-center p-5 card-glass"><h3 class="text-secondary">Thông tin tài khoản chỉ hiển thị khi truy cập từ Mini App.</h3><p class="text-secondary">Hãy kết nối ví của bạn trong Mini App để đồng bộ hóa dữ liệu.</p></div>`;
+                document.querySelector('#account-section .container').innerHTML = `<div class="text-center p-5 card-glass"><h3 class="text-secondary">Account information is only available when accessed from the Mini App.</h3><p class="text-secondary">Please connect your wallet within the Mini App to sync your data.</p></div>`;
             }
             return;
         }
@@ -2442,7 +2634,7 @@ document.addEventListener('DOMContentLoaded', () => {
             uidSnapshot.forEach(doc => invitedUsers.set(doc.id, doc.data()));
 
             if (invitedUsers.size === 0) {
-                invitedListPane.innerHTML = `<p class="text-secondary text-center p-3">Bạn chưa mời được ai. Chia sẻ mã của bạn ngay!</p>`;
+                invitedListPane.innerHTML = `<p class="text-secondary text-center p-3">You haven't invited anyone yet. Share your code now!</p>`;
                 return;
             }
 
@@ -2450,13 +2642,13 @@ document.addEventListener('DOMContentLoaded', () => {
             invitedUsers.forEach(user => {
                 const displayName = user.fullName || (user.username ? `@${user.username}` : shortenAddress(user.address));
                 const avatarUrl = user.photoUrl || GENERIC_WALLET_ICON;
-                const joinDate = user.createdAt ? user.createdAt.toDate().toLocaleDateString('vi-VN') : 'N/A';
+                const joinDate = user.createdAt ? user.createdAt.toDate().toLocaleDateString('en-US') : 'N/A';
                 listHtml += `
                     <div class="d-flex align-items-center p-2 mb-2" style="background: rgba(0,0,0,0.2); border-radius: 25px;">
                         <img src="${avatarUrl}" class="me-3" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;" onerror="this.src='${GENERIC_WALLET_ICON}'">
                         <div class="flex-grow-1">
                             <p class="m-0 fw-bold">${displayName}</p>
-                            <p class="m-0 text-secondary" style="font-size: 0.8rem;">Tham gia ngày: ${joinDate}</p>
+                            <p class="m-0 text-secondary" style="font-size: 0.8rem;">Joined on: ${joinDate}</p>
                         </div>
                     </div>
                 `;
@@ -2465,7 +2657,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
         } catch(error) {
             console.error("Error fetching invited users:", error);
-            invitedListPane.innerHTML = `<p class="text-danger text-center p-3">Lỗi tải danh sách người được mời.</p>`;
+            invitedListPane.innerHTML = `<p class="text-danger text-center p-3">Error loading invited users list.</p>`;
         }
     }
     
@@ -2482,18 +2674,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const webLink = `${YOUR_WEB_APP_URL}?ref=${currentUserData.address}`;
         linksContainer.innerHTML = `
-            <h6 class="mb-2"><i class="fas fa-link me-2"></i>Link Mời Của Bạn</h6>
+            <h6 class="mb-2"><i class="fas fa-link me-2"></i>Your Referral Link</h6>
             <div class="mb-3">
-                <label class="form-label small text-secondary">Link mời cho Web:</label>
+                <label class="form-label small text-secondary">Web Referral Link:</label>
                 <div class="input-group">
                     <input type="text" class="form-control" value="${webLink}" readonly>
                     <button class="btn btn-outline-secondary copyable-code" data-code="${webLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
                 </div>
             </div>`;
         codesContainer.innerHTML = `
-            <h6 class="mb-2"><i class="fas fa-barcode me-2"></i>Mã Mời Của Bạn</h6>
+            <h6 class="mb-2"><i class="fas fa-barcode me-2"></i>Your Referral Code</h6>
              <div class="mb-2">
-                <label class="form-label small text-secondary">Mã mời (Địa chỉ ví):</label>
+                <label class="form-label small text-secondary">Referral Code (Wallet Address):</label>
                 <div class="input-group">
                     <input type="text" class="form-control" value="${currentUserData.address}" readonly>
                     <button class="btn btn-outline-secondary copyable-code" data-code="${currentUserData.address}" title="Copy Code"><i class="fas fa-copy"></i></button>
@@ -2504,7 +2696,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const miniAppLink = `https://t.me/${YOUR_TELEGRAM_BOT_NAME}/${YOUR_MINI_APP_NAME}?startapp=${currentUserData.telegramId}`;
              linksContainer.innerHTML += `
                 <div class="mb-2">
-                    <label class="form-label small text-secondary">Link mời cho Mini App:</label>
+                    <label class="form-label small text-secondary">Mini App Referral Link:</label>
                     <div class="input-group">
                         <input type="text" class="form-control" value="${miniAppLink}" readonly>
                         <button class="btn btn-outline-secondary copyable-code" data-code="${miniAppLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
@@ -2512,7 +2704,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>`;
             codesContainer.innerHTML += `
                 <div class="mb-2">
-                    <label class="form-label small text-secondary">Mã mời (UID):</label>
+                    <label class="form-label small text-secondary">Referral Code (UID):</label>
                     <div class="input-group">
                         <input type="text" class="form-control" value="${currentUserData.telegramId}" readonly>
                         <button class="btn btn-outline-secondary copyable-code" data-code="${currentUserData.telegramId}" title="Copy Code"><i class="fas fa-copy"></i></button>
@@ -2542,10 +2734,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 referredByContainer.innerHTML = `
                     <hr style="border-color: var(--border-color); opacity: 0.5;">
-                    <h6 class="mb-2 text-secondary"><i class="fas fa-user-check me-2"></i>Người giới thiệu của bạn</h6>
+                    <h6 class="mb-2 text-secondary"><i class="fas fa-user-check me-2"></i>Your Referrer</h6>
                     <div class="d-flex align-items-center p-2" style="background: rgba(43, 203, 196, 0.1); border-radius: 25px;">
                         <i class="fas fa-award me-3" style="color: var(--accent-secondary); font-size: 1.5rem;"></i>
-                        <p class="m-0">Bạn đã được giới thiệu bởi <strong style="color: var(--accent-secondary);">${referrerName}</strong>.</p>
+                        <p class="m-0">You were referred by <strong style="color: var(--accent-secondary);">${referrerName}</strong>.</p>
                     </div>`;
             } catch (error) {
                 console.error("Could not fetch referrer's name", error);
@@ -2620,7 +2812,7 @@ document.addEventListener('DOMContentLoaded', () => {
                            (currentUserData.points || 0) >= settings.minExp;
         
         const isFullyEligible = isEligibleByStats && mandatoryTasksCompleted;
-        const finalReward = isFullyEligible ? await calculateViecReward(currentUserData, settings) : 0;
+        const finalReward = isFullyEligible ? await calculateBmassReward(currentUserData, settings) : 0;
 
         document.getElementById('airdrop-ref-count').textContent = (currentUserData.referralCount || 0).toLocaleString();
         document.getElementById('airdrop-checkin-count').textContent = (currentUserData.checkinCount || 0).toLocaleString();
@@ -2634,42 +2826,42 @@ document.addEventListener('DOMContentLoaded', () => {
         finalMessageContainer.innerHTML = '';
         
         if (!isEligibleByStats) {
-            eligibilityStatusEl.textContent = 'BẠN CHƯA ĐỦ ĐIỀU KIỆN';
+            eligibilityStatusEl.textContent = 'YOU ARE NOT ELIGIBLE';
             eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
-            actionsContainer.innerHTML = `<p class="text-white-50 mt-3">Hãy tiếp tục hoàn thành các nhiệm vụ thông thường để đủ điều kiện nhận airdrop.</p>`;
+            actionsContainer.innerHTML = `<p class="text-white-50 mt-3">Continue completing tasks to become eligible for the airdrop.</p>`;
         } else if (!mandatoryTasksCompleted) {
-            eligibilityStatusEl.textContent = 'BẠN CHƯA ĐỦ ĐIỀU KIỆN';
+            eligibilityStatusEl.textContent = 'YOU ARE NOT ELIGIBLE';
             eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
-            actionsContainer.innerHTML = `<p class="text-warning mt-3">Bạn cần hoàn thành tất cả <a href="#partner" style="color: var(--gold); font-weight: bold;">nhiệm vụ bắt buộc</a> từ đối tác để nhận thưởng.</p>`;
+            actionsContainer.innerHTML = `<p class="text-warning mt-3">You need to complete all <a href="#partner" style="color: var(--gold); font-weight: bold;">mandatory partner tasks</a> to claim rewards.</p>`;
         } else if (currentUserData.hasRequestedAirdrop) {
-            eligibilityStatusEl.textContent = 'ĐÃ YÊU CẦU NHẬN $VIEC';
+            eligibilityStatusEl.textContent = '$BMASS CLAIM REQUESTED';
             eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
             const friendlyAddress = await getFriendlyAddress(currentUserData.address);
             finalMessageContainer.innerHTML = `
-                <p class="text-white-50 mt-3">Phần thưởng sẽ được phân bổ đến địa chỉ của bạn sớm nhất.</p>
+                <p class="text-white-50 mt-3">Rewards will be distributed to your address soon.</p>
                 <code class="copyable-address fs-6" data-address="${friendlyAddress}">${shortenAddress(friendlyAddress, 10, 10)}</code>
             `;
         } else { // Fully eligible and hasn't requested
             const rewardTier = currentUserData.hasSentConfirmationTx ? '100%' : '50%';
-            eligibilityStatusEl.textContent = `BẠN ĐỦ ĐIỀU KIỆN (${rewardTier})`;
+            eligibilityStatusEl.textContent = `YOU ARE ELIGIBLE (${rewardTier})`;
             eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
             
             let buttonsHtml = '';
 
             if (!currentUserData.hasSentConfirmationTx && !settings.isSnapshotActive && settings.isConfirmationEnabled) {
-                 buttonsHtml += `<p class="text-white-50 mt-3 small">Nâng mức thưởng lên <strong class="text-white">100%</strong>.</p>`;
-                 buttonsHtml += `<button id="confirm-button" class="airdrop-action-btn">Nhận 100% $VIEC</button>`;
+                 buttonsHtml += `<p class="text-white-50 mt-3 small">Upgrade your reward tier to <strong class="text-white">100%</strong>.</p>`;
+                 buttonsHtml += `<button id="confirm-button" class="airdrop-action-btn">Claim 100% of $BMASS</button>`;
             } else if (currentUserData.hasSentConfirmationTx) {
-                 buttonsHtml += `<p class="text-white-50 mt-3 fw-bold" style="color: var(--color-verified)!important;"><i class="fas fa-check-circle me-2"></i>Đặc quyền 100% tại TGE</p>`;
+                 buttonsHtml += `<p class="text-white-50 mt-3 fw-bold" style="color: var(--color-verified)!important;"><i class="fas fa-check-circle me-2"></i>100% Privilege at TGE</p>`;
             }
 
             if (!settings.isSnapshotActive && settings.isClaimingEnabled) {
-                buttonsHtml += `<p class="text-white-50 mt-3 small">Bạn chỉ còn một bước nữa để nhận $VIEC, hãy điền tên minh vào danh sách yêu cầu phân thưởng.</p>`;
-                buttonsHtml += `<button id="request-reward-button" class="airdrop-action-btn" style="background: var(--accent-secondary); color: white;">Sent Transaction</button>`;
+                buttonsHtml += `<p class="text-white-50 mt-3 small">You are one step away from receiving $BMASS. Add your name to the reward distribution list.</p>`;
+                buttonsHtml += `<button id="request-reward-button" class="airdrop-action-btn" style="background: var(--accent-secondary); color: white;">Send Transaction</button>`;
             } else if (settings.isSnapshotActive) {
-                buttonsHtml += `<p class="mt-3 fw-bold" style="color: var(--gold);"><i class="fas fa-flag-checkered me-2"></i>Final Snapshot!</p><p class="text-white-50">Việc yêu cầu nhận thưởng đã kết thúc. Token sẽ được phân phối sớm cho những người đã yêu cầu.</p>`;
+                buttonsHtml += `<p class="mt-3 fw-bold" style="color: var(--gold);"><i class="fas fa-flag-checkered me-2"></i>Final Snapshot!</p><p class="text-white-50">Claiming has ended. Tokens will be distributed soon to those who requested.</p>`;
             } else {
-                 buttonsHtml += `<p class="text-white-50 mt-3 fst-italic">Việc yêu cầu nhận thưởng sẽ sớm được mở.</p>`;
+                 buttonsHtml += `<p class="text-white-50 mt-3 fst-italic">Reward claiming will be enabled soon.</p>`;
             }
 
             actionsContainer.innerHTML = buttonsHtml;
@@ -2689,7 +2881,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!confirmButton) return;
 
         confirmButton.disabled = true;
-        confirmButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...`;
+        confirmButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
         
         const transaction = {
             validUntil: Math.floor(Date.now() / 1000) + 60,
@@ -2707,14 +2899,14 @@ document.addEventListener('DOMContentLoaded', () => {
             await userRef.update({ hasSentConfirmationTx: true });
 
             currentUserData.hasSentConfirmationTx = true;
-            showAppToast('Thành công', 'Giao dịch xác nhận 100% đã được gửi!', 'success');
+            showAppToast('Success', '100% confirmation transaction sent!', 'success');
             renderAirdropSection();
 
         } catch (error) {
             console.error("Confirmation transaction failed:", error);
-            showAppToast('Giao dịch thất bại', 'Vui lòng thử lại.', 'error');
+            showAppToast('Transaction Failed', 'Please try again.', 'error');
             confirmButton.disabled = false;
-            confirmButton.textContent = 'Xác Nhận (Nhận 100%)';
+            confirmButton.textContent = 'Confirm (Get 100%)';
         }
     }
     
@@ -2723,7 +2915,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!requestButton) return;
         
         requestButton.disabled = true;
-        requestButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang yêu cầu...`;
+        requestButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Requesting...`;
 
         const transaction = {
             validUntil: Math.floor(Date.now() / 1000) + 60,
@@ -2741,14 +2933,14 @@ document.addEventListener('DOMContentLoaded', () => {
             await userRef.update({ hasRequestedAirdrop: true });
 
             currentUserData.hasRequestedAirdrop = true;
-            showAppToast('Yêu cầu thành công!', 'Yêu cầu nhận thưởng của bạn đã được ghi lại.', 'success');
+            showAppToast('Request Successful!', 'Your claim request has been recorded.', 'success');
             renderAirdropSection();
 
         } catch(error) {
              console.error("Airdrop request transaction failed:", error);
-            showAppToast('Yêu cầu thất bại', 'Vui lòng thử lại.', 'error');
+            showAppToast('Request Failed', 'Please try again.', 'error');
             requestButton.disabled = false;
-            requestButton.textContent = 'Yêu Cầu Nhận Thưởng';
+            requestButton.textContent = 'Request Reward';
         }
     }
 
@@ -2815,7 +3007,7 @@ document.addEventListener('DOMContentLoaded', () => {
         identifyTelegramUser(); 
         
         if (!telegramUserData) {
-            appLogoText.textContent = 'Neuralis';
+            appLogoText.textContent = 'Bmass';
         }
         
         initializeFirebase();
@@ -2824,7 +3016,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ 
-        manifestUrl: 'https://duccodedao.github.io/VIEC/tonconnect-manifest.json',
+        manifestUrl: 'https://duccodedao.github.io/Bmass/tonconnect-manifest.json',
         buttonRootId: 'ton-connect-button-root' 
     });
     
@@ -2832,7 +3024,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInterval(activityRefreshInterval);
 
         if (wallet) {
-            showLoadingOverlay('Đang kết nối ví...');
+            showLoadingOverlay('Connecting wallet...');
             connectedWalletAddress = wallet.account.address;
             const friendlyAddress = await getFriendlyAddress(connectedWalletAddress);
             
@@ -2914,13 +3106,13 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const protectedRoutes = ['task', 'partner', 'account', 'admin', 'referral', 'airdrop', 'leaderboard'];
         if (!connectedWalletAddress && protectedRoutes.includes(path)) {
-             showAppToast('Yêu cầu kết nối ví', 'Tính năng này yêu cầu kết nối ví.', 'warning');
+             showAppToast('Wallet Connection Required', 'This feature requires a connected wallet.', 'warning');
              window.location.hash = '#dashboard';
              hash = 'dashboard';
         }
          
         if (path === 'admin' && !isCurrentUserAdmin()){
-             showAppToast('Từ chối truy cập', 'Bạn không có quyền truy cập trang này.', 'error');
+             showAppToast('Access Denied', 'You do not have permission to access this page.', 'error');
              window.location.hash = '#dashboard';
              hash = 'dashboard'; 
         }
@@ -2946,7 +3138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const code = inputEl.value.trim();
-        if (!code) { showAppToast('Lỗi', 'Vui lòng nhập mã mời.', 'warning'); return; }
+        if (!code) { showAppToast('Error', 'Please enter an invitation code.', 'warning'); return; }
 
         if(connectedWalletAddress) { 
              btnEl.disabled = true;
@@ -2958,12 +3150,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateUIAfterLogin();
              }
              btnEl.disabled = false;
-             btnEl.textContent = 'Xác nhận';
+             btnEl.textContent = 'Confirm';
              inputEl.value = '';
 
         } else {
             sessionStorage.setItem(REFERRAL_SESSION_KEY, code);
-            showAppToast('Đã lưu mã', 'Mã giới thiệu của bạn đã được lưu. Hãy kết nối ví để hoàn tất.', 'info');
+            showAppToast('Code Saved', 'Your referral code has been saved. Connect your wallet to complete the process.', 'info');
             inputEl.value = '';
             referralInputContainerHero.style.display = 'none';
         }
@@ -3022,7 +3214,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const formattedTonBalance = tonBalance.toLocaleString('en-US', { maximumFractionDigits: 6 });
         const formattedPriceUsd = tonPriceUsd ? `$${tonPriceUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}` : 'N/A';
         const formattedValueUsd = tonValueUsd ? `$${tonValueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'N/A';
-        const formattedValueVnd = tonValueVnd ? `${tonValueVnd.toLocaleString('vi-VN')} VNĐ` : 'N/A';
+        const formattedValueVnd = tonValueVnd ? `${tonValueVnd.toLocaleString('vi-VN')} VND` : 'N/A';
         
         mainAssetsContent.innerHTML = `
             <div class="d-flex align-items-center mb-3">
@@ -3030,13 +3222,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div>
             </div>
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <span class="text-secondary">Số dư</span><strong style="font-size: 1.1rem;">${formattedTonBalance}</strong>
+                <span class="text-secondary">Balance</span><strong style="font-size: 1.1rem;">${formattedTonBalance}</strong>
             </div>
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <span class="text-secondary">Giá hiện tại</span><strong>${formattedPriceUsd}</strong>
+                <span class="text-secondary">Current Price</span><strong>${formattedPriceUsd}</strong>
             </div>
             <div class="d-flex justify-content-between align-items-center">
-                <span class="text-secondary">Tổng giá trị</span>
+                <span class="text-secondary">Total Value</span>
                 <div class="text-end">
                     <strong style="font-size: 1.1rem;">${formattedValueUsd}</strong><br>
                     <small class="text-secondary">${formattedValueVnd}</small>
@@ -3165,7 +3357,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
             totalValueUsdEl.textContent = `$${totalValueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            totalValueVndEl.textContent = `${totalValueVnd.toLocaleString('vi-VN')} VNĐ`;
+            totalValueVndEl.textContent = `${totalValueVnd.toLocaleString('vi-VN')} VND`;
             portfolioSkeleton.style.display = 'none';
             portfolioContent.style.display = 'block';
             const newLogs = (eventsInfo.events ?? []).flatMap((event) => parseEvent(event, accountInfo.address));
@@ -3181,7 +3373,7 @@ document.addEventListener('DOMContentLoaded', () => {
             portfolioSkeleton.style.display = 'none';
             portfolioContent.style.display = 'block';
             totalValueUsdEl.textContent = '$ -';
-            totalValueVndEl.textContent = '- VNĐ';
+            totalValueVndEl.textContent = '- VND';
         }
     }
     
@@ -3389,7 +3581,7 @@ document.addEventListener('DOMContentLoaded', () => {
         );
         appGrid.innerHTML = '';
         if (filteredApps.length === 0) {
-            appGrid.innerHTML = `<div class="col-12 text-center mt-4"><p class="text-secondary fs-5">Không tìm thấy ứng dụng.</p></div>`;
+            appGrid.innerHTML = `<div class="col-12 text-center mt-4"><p class="text-secondary fs-5">No applications found.</p></div>`;
             return;
         }
         filteredApps.forEach(app => {
@@ -3498,7 +3690,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (isEligibleByStats && user.hasRequestedAirdrop) {
                             const mandatoryTasksCompleted = await checkMandatoryTasksCompletion(user.address);
                             if (mandatoryTasksCompleted) {
-                                const finalReward = await calculateViecReward(user, settings);
+                                const finalReward = await calculateBmassReward(user, settings);
                                 if (finalReward > 0) {
                                     return { address: user.address, reward: finalReward };
                                 }
@@ -3571,7 +3763,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const completedTaskIds = new Set(completedTasksSnapshot.docs.map(doc => doc.id));
             
             if (tasksSnapshot.empty) {
-                partnerTasksContainer.innerHTML = `<p class="text-secondary text-center p-3">Chưa có nhiệm vụ nào từ đối tác. Hãy quay lại sau!</p>`;
+                partnerTasksContainer.innerHTML = `<p class="text-secondary text-center p-3">No partner tasks available yet. Check back later!</p>`;
                 return;
             }
             
@@ -3595,15 +3787,15 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="partner-task-body">
                                 <h4 class="partner-task-title">
                                     ${task.projectName}
-                                    ${task.taskType === 'mandatory' ? '<i class="fas fa-star mandatory-icon" title="Nhiệm vụ bắt buộc"></i>' : ''}
+                                    ${task.taskType === 'mandatory' ? '<i class="fas fa-star mandatory-icon" title="Mandatory Task"></i>' : ''}
                                 </h4>
                                 <p class="partner-task-desc">${task.description}</p>
-                                ${isDescLong ? '<button class="task-details-toggle">Xem chi tiết</button>' : ''}
+                                ${isDescLong ? '<button class="task-details-toggle">View Details</button>' : ''}
                             </div>
                         </div>
                         
                         <div class="partner-task-action-bar">
-                            ${isCompleted ? '<i class="fas fa-check-circle me-2"></i>Đã hoàn thành' : `+${task.expReward} EXP`}
+                            ${isCompleted ? '<i class="fas fa-check-circle me-2"></i>Completed' : `+${task.expReward} EXP`}
                         </div>
                     </a>
                 `;
@@ -3619,7 +3811,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
         } catch (error) {
             console.error("Error rendering partner tasks:", error);
-            partnerTasksContainer.innerHTML = `<p class="text-danger text-center p-3">Lỗi tải nhiệm vụ đối tác. Vui lòng thử lại.</p>`;
+            partnerTasksContainer.innerHTML = `<p class="text-danger text-center p-3">Error loading partner tasks. Please try again.</p>`;
         }
     }
 
@@ -3633,7 +3825,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const desc = toggleBtn.previousElementSibling;
             desc.classList.toggle('expanded');
-            toggleBtn.textContent = desc.classList.contains('expanded') ? 'Thu gọn' : 'Xem chi tiết';
+            toggleBtn.textContent = desc.classList.contains('expanded') ? 'Collapse' : 'View Details';
             return;
         }
 
@@ -3644,7 +3836,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handlePartnerTaskCompletion(e, taskCard) {
         if (airdropSettings?.isSnapshotActive) {
-            showAppToast('Đã dừng', 'Hoạt động kiếm điểm đã dừng do Snapshot.', 'warning');
+            showAppToast('Halted', 'Point-earning activities are paused due to the snapshot.', 'warning');
             e.preventDefault();
             return;
         }
@@ -3690,7 +3882,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
             
-            showAppToast('Thành công!', `Bạn đã nhận +${expReward} EXP từ nhiệm vụ ${projectName}.`, 'success');
+            showAppToast('Success!', `You received +${expReward} EXP from the ${projectName} task.`, 'success');
             
             window.open(taskLink, '_blank');
             
@@ -3698,15 +3890,15 @@ document.addEventListener('DOMContentLoaded', () => {
             currentUserData = updatedDoc.data();
             updateExpBalances(currentUserData.points);
             taskCard.classList.add('completed');
-            actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Đã hoàn thành';
+            actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
 
         } catch (error) {
             if (error.message.includes("Task already completed.")) {
                  taskCard.classList.add('completed');
-                 actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Đã hoàn thành';
+                 actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
             } else {
                 console.error("Failed to complete partner task:", error);
-                showAppToast('Lỗi', 'Không thể hoàn thành nhiệm vụ. Vui lòng thử lại.', 'error');
+                showAppToast('Error', 'Could not complete the task. Please try again.', 'error');
                 actionBar.innerHTML = `+${expReward} EXP`; 
             }
         }
@@ -3875,6 +4067,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkinButton.addEventListener('click', handleCheckin);
     popupCheckinButton.addEventListener('click', handleCheckin);
     if (adminExpForm) adminExpForm.addEventListener('submit', handleAdminExpUpdate);
+    if (sendBulkTelegramMessageBtn) sendBulkTelegramMessageBtn.addEventListener('click', sendBulkTelegramMessage);
 
     if (adminMassAwardForm) adminMassAwardForm.addEventListener('submit', handleMassAward);
     if (adminMassConditionType) {
@@ -3933,7 +4126,7 @@ document.addEventListener('DOMContentLoaded', () => {
             navigator.clipboard.writeText(target.dataset.address).then(() => { const originalText = target.textContent; target.textContent = 'Copied!'; target.classList.add('copied'); setTimeout(() => { target.textContent = originalText; target.classList.remove('copied'); }, 1500); }); 
         } else if (copyCodeTarget?.dataset?.code) {
              const target = copyCodeTarget;
-             navigator.clipboard.writeText(target.dataset.code).then(() => { showAppToast('Thành công', 'Đã sao chép vào bộ nhớ đệm!', 'success') }); 
+             navigator.clipboard.writeText(target.dataset.code).then(() => { showAppToast('Success', 'Copied to clipboard!', 'success') }); 
         }
         
         if (!customWalletContainer?.contains(e.target)) walletDropdown.style.display = 'none'; 
