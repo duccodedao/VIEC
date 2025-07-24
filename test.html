@@ -668,9 +668,9 @@
                         </div>
                         <div class="card-glass">
                             <!-- Daily Check-in -->
-                            <h5 class="card-title">Check-in Hàng Ngày</h5>
+                            <h5 class="card-title">Nhiệm vụ và lịch </h5>
                             <div id="daily-checkin-content" class="d-flex justify-content-between align-items-center">
-                                <p class="mb-0">Điểm danh để nhận <strong style="color: var(--accent-primary);">+10 EXP</strong>.</p>
+                                <p class="mb-0">Check-in để nhận <strong style="color: var(--accent-primary);">+10 EXP</strong>.</p>
                                 <button id="checkin-button" class="btn px-4 py-2" style="background-color: var(--accent-secondary); color: white; font-weight: 600; flex-shrink: 0; min-width: 130px;" disabled>
                                     <i class="fas fa-spinner fa-spin me-2"></i>Chờ...
                                 </button>
@@ -701,10 +701,10 @@
                         <div class="card-glass">
                             <ul class="nav nav-tabs" id="referralTab" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab"><i class="fas fa-link me-2"></i>Mã của bạn</button>
+                                    <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab"><i class="fas fa-link me-2"></i>Link</button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="invited-list-tab" data-bs-toggle="tab" data-bs-target="#invited-list-pane" type="button" role="tab"><i class="fas fa-users me-2"></i>Người đã mời (<span id="referral-count">0</span>)</button>
+                                    <button class="nav-link" id="invited-list-tab" data-bs-toggle="tab" data-bs-target="#invited-list-pane" type="button" role="tab"><i class="fas fa-users me-2"></i>Đã mời (<span id="referral-count">0</span>)</button>
                                 </li>
                             </ul>
                             
@@ -757,11 +757,11 @@
                             <div class="col-12 col-md-10 col-lg-8">
                                 <div class="card-glass p-4">
                                 <h5 class="card-title text-center">Cơ Chế Tính Điểm</h5>
-                                <p class="text-center text-secondary">Điểm Airdrop cuối cùng được tính bằng cách nhân số lượng hoạt động của bạn với các hệ số điểm tương ứng do quản trị viên thiết lập.</p>
+                                <p class="text-center text-secondary">Điểm Airdrop cuối cùng được tính bằng cách nhân số lượng hoạt động của bạn với các hệ số điểm tương ứng.</p>
                                 <div class="row text-center mt-4">
                                    <div class="col-4">
                                         <i class="fas fa-users airdrop-stat-icon" style="color:var(--accent-primary)"></i>
-                                        <p class="text-secondary mb-0"><strong>Lượt Mời</strong></p>
+                                        <p class="text-secondary mb-0"><strong>Bạn Bè</strong></p>
                                    </div>
                                    <div class="col-4">
                                        <i class="fas fa-calendar-check airdrop-stat-icon"></i>
@@ -785,14 +785,14 @@
                                         <div class="airdrop-stat-card">
                                             <i class="fas fa-users airdrop-stat-icon"></i>
                                             <div id="airdrop-ref-count" class="airdrop-stat-value">0</div>
-                                            <div class="airdrop-stat-label">Lượt mời</div>
+                                            <div class="airdrop-stat-label">Lượt Mời</div>
                                         </div>
                                     </div>
                                     <div class="col-4">
                                         <div class="airdrop-stat-card">
                                             <i class="fas fa-calendar-check airdrop-stat-icon"></i>
                                             <div id="airdrop-checkin-count" class="airdrop-stat-value">0</div>
-                                            <div class="airdrop-stat-label">Lần Check-in</div>
+                                            <div class="airdrop-stat-label">Check-in</div>
                                         </div>
                                     </div>
                                     <div class="col-4">
@@ -808,7 +808,7 @@
                             <!-- Total Reward & Eligibility -->
                             <div class="col-12 col-md-10 col-lg-8 mt-4">
                                 <div id="airdrop-reward-card" class="card-glass text-center">
-                                    <h6 class="text-white-50">PHẦN THƯỞNG VIEC DỰ KIẾN CỦA BẠN</h6>
+                                    <h6 class="text-white-50">PHẦN THƯỞNG $VIEC CỦA BẠN SẼ NHẬN ĐƯỢC</h6>
                                     <div class="d-flex justify-content-center align-items-center">
                                         <h2 id="airdrop-reward-value" class="fw-bold display-4 mb-0">0</h2>
                                         <img src="https://duccodedao.github.io/VIEC/img/logo.png" id="airdrop-reward-logo" alt="VIEC Token">
@@ -825,7 +825,7 @@
                     <div id="airdrop-content-logged-out" class="text-center p-5 card-glass col-md-8 mx-auto" style="display: none;">
                         <i class="fas fa-wallet fa-3x text-secondary mb-3"></i>
                         <h4 class="text-secondary">Vui lòng kết nối ví</h4>
-                        <p class="text-secondary">Kết nối ví của bạn để xem thống kê và tính toán phần thưởng airdrop tiềm năng.</p>
+                        <p class="text-secondary">Kết nối ví của bạn để xem thống kê và tính toán phần thưởng airdrop.</p>
                     </div>
                 </div>
 
@@ -853,7 +853,6 @@
                         <div class="card-glass">
                             <h5 class="card-title">Cấu hình Airdrop & Xuất dữ liệu</h5>
                             <div id="admin-airdrop-settings-form">
-                                <!-- UPDATED: Admin Global Switches -->
                                 <div class="row text-center g-3 mb-4">
                                     <div class="col-6 col-sm-3">
                                         <div class="form-check form-switch fs-5 d-inline-block">
@@ -876,7 +875,7 @@
                                     <div class="col-6 col-sm-3">
                                         <div class="form-check form-switch fs-5 d-inline-block">
                                             <input class="form-check-input" type="checkbox" role="switch" id="snapshot-active-switch">
-                                            <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snapshot</label>
+                                            <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snap</label>
                                         </div>
                                     </div>
                                 </div>
@@ -1199,7 +1198,7 @@
         
         const CONFIRM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
         const CONFIRM_AMOUNT_NANOTONS = "10000"; // 0.00001 TON
-        const REQUEST_WALLET_ADDRESS = "UQA_s-8041-x_wB_AdYp3rJg_t94Lae_7gn_Yf2H3H5s-9AA"; 
+        const REQUEST_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD"; 
         const REQUEST_AMOUNT_NANOTONS = "20000"; // 0.00002 TON
 
         const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
@@ -1370,7 +1369,7 @@
         }
         
         // =========================================================================
-        // UPDATED LOGIC FOR REFERRAL (PREVENT SELF-REFERRAL)
+        // [MODIFIED] LOGIC FOR REFERRAL (BOTH USERS GET REWARD)
         // =========================================================================
         async function applyReferral(referrerCode, newAddress) {
             if (airdropSettings?.isSnapshotActive) {
@@ -1412,29 +1411,47 @@
                 const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
                 
                 await db.runTransaction(async (transaction) => {
+                    // --- Referrer (User A) Logic ---
                     const freshReferrerDoc = await transaction.get(referrerRef);
                     if (!freshReferrerDoc.exists) throw "Referrer not found in transaction";
                     
-                    const currentPoints = freshReferrerDoc.data().points || 0;
-                    const currentRefCount = freshReferrerDoc.data().referralCount || 0;
+                    const referrerPoints = freshReferrerDoc.data().points || 0;
+                    const referrerCount = freshReferrerDoc.data().referralCount || 0;
                     transaction.update(referrerRef, {
-                        points: currentPoints + REFERRAL_REWARD,
-                        referralCount: currentRefCount + 1
+                        points: referrerPoints + REFERRAL_REWARD,
+                        referralCount: referrerCount + 1
                     });
                     
                     const referrerHistoryRef = referrerRef.collection('task_history').doc();
                     transaction.set(referrerHistoryRef, {
-                        taskName: 'Mời bạn bè thành công',
+                        taskName: 'Mời bạn bè',
                         exp: REFERRAL_REWARD,
                         timestamp: newTimestamp,
                         referredUser: newAddress 
                     });
                     
+                    // --- Referred (User B) Logic ---
                     const newUserRef = db.collection('users').doc(newAddress);
-                    transaction.update(newUserRef, { referredBy: String(referrerCode) });
+                    const freshNewUserDoc = await transaction.get(newUserRef);
+                    if (!freshNewUserDoc.exists) throw "New user document not found in transaction";
+
+                    const newUserPoints = freshNewUserDoc.data().points || 0;
+                    
+                    transaction.update(newUserRef, { 
+                        referredBy: String(referrerCode),
+                        points: newUserPoints + REFERRAL_REWARD // Give points to the new user
+                    });
+
+                    const newUserHistoryRef = newUserRef.collection('task_history').doc();
+                    transaction.set(newUserHistoryRef, {
+                        taskName: 'Nhập mã mời',
+                        exp: REFERRAL_REWARD,
+                        timestamp: newTimestamp,
+                        referrer: String(referrerCode)
+                    });
                 });
 
-                showAppToast('Thành công!', `Bạn đã được giới thiệu bởi ${referrerData.fullName || shortenAddress(referrerData.address)}!`, 'success');
+                showAppToast('Thành công!', `Bạn đã được giới thiệu bởi ${referrerData.fullName || shortenAddress(referrerData.address)}! Cả hai bạn đều nhận được ${REFERRAL_REWARD} EXP.`, 'success');
 
             } catch (error) {
                 console.error("Failed to apply referral:", error);
@@ -1595,7 +1612,9 @@
                     let iconClass;
                     switch (item.taskName) {
                         case 'Check-in Hàng ngày': iconClass = 'fa-calendar-check'; break;
-                        case 'Mời bạn bè thành công': iconClass = 'fa-user-group'; break;
+                        case 'Mời bạn bè': iconClass = 'fa-user-group'; break;
+                        // Added case for new user
+                        case 'Nhập mã mời': iconClass = 'fa-gift'; break;
                         default: iconClass = item.exp >= 0 ? 'fa-user-plus' : 'fa-user-minus';
                     }
 
@@ -1671,6 +1690,9 @@
             }
         }
         
+        // =========================================================================
+        // UPDATED: Admin User List Functions
+        // =========================================================================
         async function fetchAndRenderAdminUserList(isInitialLoad = true) {
             if (!adminUserListContainer || !db) return;
 
@@ -1679,7 +1701,8 @@
 
             if (isInitialLoad) {
                 lastVisibleAdminUser = null;
-                adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">EXP</th><th scope="col">Đã xác nhận 100%</th><th scope="col">Đã yêu cầu</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
+                // ADDED NEW HEADERS
+                adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">Lượt mời</th><th scope="col">Check-in</th><th scope="col">EXP</th><th scope="col">$VIEC nhận được tại thời điểm TGE: 100%</th><th scope="col">Đã yêu cầu</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
             }
             
             const tableBody = adminUserListContainer.querySelector('tbody');
@@ -1715,7 +1738,7 @@
                     
                     const userDocs = Array.from(usersMap.values());
                      if (userDocs.length === 0) {
-                        tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-secondary p-3">Không tìm thấy người dùng.</td></tr>`;
+                        tableBody.innerHTML = `<tr><td colspan="10" class="text-center text-secondary p-3">Không tìm thấy người dùng.</td></tr>`;
                         return;
                     }
                     renderAdminUserRows(userDocs, tableBody);
@@ -1747,7 +1770,7 @@
 
             } catch (error) {
                 console.error("Error fetching user list for admin:", error);
-                tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-danger p-3">Lỗi khi tải danh sách người dùng.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="10" class="text-center text-danger p-3">Lỗi khi tải danh sách người dùng.</td></tr>`;
             } finally {
                 adminLoadMoreBtn.disabled = false;
                 adminLoadMoreBtn.innerHTML = `Tải thêm`;
@@ -1779,6 +1802,7 @@
                 }
                 
                 const row = tableBody.insertRow();
+                // ADDED NEW TD ELEMENTS
                 row.innerHTML = `
                     <td>
                         <div class="d-flex align-items-center">
@@ -1790,6 +1814,8 @@
                     </td>
                     <td><code class="copyable-address" data-address="${user.address}" title="Click to copy Raw Address">${shortenAddress(user.address, 6, 6)}</code></td>
                     <td>${user.telegramId || 'N/A'}</td>
+                    <td>${user.referralCount || 0}</td>
+                    <td>${user.checkinCount || 0}</td>
                     <td class="fw-bold" style="color: var(--accent-secondary);">${(user.points || 0).toLocaleString()}</td>
                     <td>${sentTxHtml}</td>
                     <td>${requestedRewardHtml}</td>
@@ -1831,7 +1857,7 @@
             try {
                 const userRef = db.collection('users').doc(userAddress);
                 await userRef.update({ hasRequestedAirdrop: newStatus });
-                showAppToast('Thành Công', `Đã cập nhật trạng thái "Yêu cầu Thưởng" cho ví.`, 'success');
+                showAppToast('Thành Công', `Đã cập nhật trạng thái "Yêu cầu Thưởng".`, 'success');
             } catch (error) {
                 console.error("Failed to update user request status:", error);
                 showAppToast('Lỗi', 'Cập nhật thất bại.', 'error');
@@ -2016,7 +2042,7 @@
                     <span>${currentUserData.telegramId}</span>
                 </div>
                  <div class="d-flex justify-content-between mb-2">
-                    <span class="metadata-key">Connected Wallet:</span>
+                    <span class="metadata-key">Address:</span>
                     <span class="copyable-address" data-address="${currentUserData.address}" title="Click to copy">${shortenAddress(currentUserData.address)}</span>
                 </div>
             `;
@@ -2191,7 +2217,7 @@
                 eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
                 actionsContainer.innerHTML = `<p class="text-white-50 mt-3">Hãy tiếp tục hoàn thành các nhiệm vụ để đủ điều kiện nhận airdrop.</p>`;
             } else if (currentUserData.hasRequestedAirdrop) {
-                eligibilityStatusEl.textContent = 'YÊU CẦU ĐÃ ĐƯỢC GỬI';
+                eligibilityStatusEl.textContent = 'ĐÃ YÊU CẦU NHẬN $VIEC';
                 eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
                 const friendlyAddress = await getFriendlyAddress(currentUserData.address);
                 finalMessageContainer.innerHTML = `
@@ -2207,16 +2233,16 @@
 
                 // Logic for Confirmation (100%) Button
                 if (!currentUserData.hasSentConfirmationTx && !settings.isSnapshotActive && settings.isConfirmationEnabled) {
-                     buttonsHtml += `<p class="text-white-50 mt-3 small">Gửi một giao dịch nhỏ để xác nhận ví và nâng mức thưởng lên <strong class="text-white">100%</strong>.</p>`;
-                     buttonsHtml += `<button id="confirm-button" class="airdrop-action-btn">Xác Nhận (Nhận 100%)</button>`;
+                     buttonsHtml += `<p class="text-white-50 mt-3 small">Nâng mức thưởng lên <strong class="text-white">100%</strong>.</p>`;
+                     buttonsHtml += `<button id="confirm-button" class="airdrop-action-btn">Nhận 100% $VIEC</button>`;
                 } else if (currentUserData.hasSentConfirmationTx) {
-                     buttonsHtml += `<p class="text-white-50 mt-3 fw-bold" style="color: var(--color-verified)!important;"><i class="fas fa-check-circle me-2"></i>Đã xác nhận 100%</p>`;
+                     buttonsHtml += `<p class="text-white-50 mt-3 fw-bold" style="color: var(--color-verified)!important;"><i class="fas fa-check-circle me-2"></i>Đặc quyền 100% tại TGE</p>`;
                 }
 
                 // Logic for Claim/Request Button
                 if (!settings.isSnapshotActive && settings.isClaimingEnabled) {
-                    buttonsHtml += `<p class="text-white-50 mt-3 small">Gửi giao dịch để yêu cầu nhận thưởng. Yêu cầu của bạn sẽ được ghi lại để phân phối sau.</p>`;
-                    buttonsHtml += `<button id="request-reward-button" class="airdrop-action-btn" style="background: var(--accent-secondary); color: white;">Yêu Cầu Nhận Thưởng</button>`;
+                    buttonsHtml += `<p class="text-white-50 mt-3 small">Bạn chỉ còn một bước nữa để nhận $VIEC, hãy điền tên minh vào danh sách yêu cầu phân thưởng.</p>`;
+                    buttonsHtml += `<button id="request-reward-button" class="airdrop-action-btn" style="background: var(--accent-secondary); color: white;">Sent Transaction</button>`;
                 } else if (settings.isSnapshotActive) {
                     buttonsHtml += `<p class="mt-3 fw-bold" style="color: var(--gold);"><i class="fas fa-flag-checkered me-2"></i>Final Snapshot!</p><p class="text-white-50">Việc yêu cầu nhận thưởng đã kết thúc. Token sẽ được phân phối sớm cho những người đã yêu cầu.</p>`;
                 } else {
