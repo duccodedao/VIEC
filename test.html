@@ -925,7 +925,7 @@
 
                     <div class="col-12 col-lg-10 col-xl-8">
                         <div class="card-glass">
-                            <h5 class="card-title">Chỉnh sửa EXP</h5>
+                            <h5 class="card-title">Chỉnh sửa EXP cho một User</h5>
                             <form id="admin-exp-form">
                                 <div class="mb-3">
                                     <label for="admin-target-type" class="form-label">Loại định danh</label>
@@ -955,6 +955,51 @@
                                 </div>
                                 <button type="submit" id="admin-submit-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;">
                                     <i class="fas fa-check me-2"></i>Xác nhận
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- NEW: THƯỞNG EXP HÀNG LOẠT -->
+                    <div class="col-12 col-lg-10 col-xl-8">
+                        <div class="card-glass">
+                            <h5 class="card-title">Thưởng EXP Hàng Loạt</h5>
+                            <form id="admin-mass-award-form">
+                                <!-- Điều kiện -->
+                                <div class="mb-3">
+                                    <label for="admin-mass-condition-type" class="form-label">Thưởng cho người dùng theo</label>
+                                    <select class="form-select" id="admin-mass-condition-type">
+                                        <option value="all" selected>Tất cả người dùng (Không điều kiện)</option>
+                                        <option value="referralCount">Số lượt mời</option>
+                                        <option value="checkinCount">Số lượt Check-in</option>
+                                        <option value="points">Số điểm EXP</option>
+                                    </select>
+                                </div>
+                                <div id="admin-mass-condition-wrapper" style="display: none;">
+                                    <label class="form-label">Điều kiện</label>
+                                    <div class="input-group mb-3">
+                                        <select class="form-select" id="admin-mass-operator" style="max-width: 150px;">
+                                            <option value=">=" selected>Lớn hơn hoặc bằng</option>
+                                            <option value="<=">Nhỏ hơn hoặc bằng</option>
+                                        </select>
+                                        <input type="number" class="form-control" id="admin-mass-condition-value" placeholder="e.g., 10" min="0">
+                                    </div>
+                                </div>
+                                
+                                <!-- Phần thưởng -->
+                                <div class="mb-3">
+                                    <label for="admin-mass-exp-amount" class="form-label">Số lượng EXP để thưởng</label>
+                                    <input type="number" class="form-control" id="admin-mass-exp-amount" placeholder="e.g., 500" required min="1">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="admin-mass-task-name" class="form-label">Nội dung/Lý do thưởng</label>
+                                    <input type="text" class="form-control" id="admin-mass-task-name" placeholder="e.g., Thưởng event Giáng Sinh" required>
+                                </div>
+                                
+                                <div id="admin-mass-award-status" class="mt-3 text-center"></div>
+
+                                <button type="submit" id="admin-mass-award-submit-btn" class="btn w-100" style="background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white;">
+                                    <i class="fas fa-gifts me-2"></i>Thực Hiện Thưởng Hàng Loạt
                                 </button>
                             </form>
                         </div>
@@ -1169,10 +1214,17 @@
         const saveSettingsBtn = document.getElementById('save-settings-btn');
         const exportCsvBtn = document.getElementById('export-csv-btn');
         const adminSettingsStatusEl = document.getElementById('admin-settings-status');
-
         const contactAdminBtn = document.getElementById('contact-admin-btn');
         const contactAdminModal = new bootstrap.Modal(document.getElementById('contactAdminModal'));
         
+        // NEW: Mass Award Form Elements
+        const adminMassAwardForm = document.getElementById('admin-mass-award-form');
+        const adminMassConditionType = document.getElementById('admin-mass-condition-type');
+        const adminMassConditionWrapper = document.getElementById('admin-mass-condition-wrapper');
+        const adminMassAwardSubmitBtn = document.getElementById('admin-mass-award-submit-btn');
+        const adminMassAwardStatus = document.getElementById('admin-mass-award-status');
+
+
         const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo_viewc.png';
         const GENERIC_WALLET_ICON = 'https://ton.org/download/ton_symbol.png';
 
@@ -1195,6 +1247,7 @@
         const CHECKIN_REWARD = 10;
         const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000;
         const ADMIN_USERS_PER_PAGE = 50;
+        const BATCH_SIZE = 200; // For mass award processing
         
         const CONFIRM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
         const CONFIRM_AMOUNT_NANOTONS = "10000"; // 0.00001 TON
@@ -1271,15 +1324,11 @@
             }
         }
         
-        // =========================================================================
-        // UPDATED LOGIC FOR USER AUTHENTICATION & SYNCHRONIZATION (ONE UID - ONE WALLET)
-        // =========================================================================
         async function loadOrCreateUserByAddress(address) {
             if (!address || !db) return;
 
             showLoadingOverlay('Đang xác thực và đồng bộ...');
 
-            // --- UID-First Check for Mini App Users ---
             if (telegramUserData) {
                 const uidQuery = db.collection('users').where('telegramId', '==', telegramUserData.id).limit(1);
                 const uidSnapshot = await uidQuery.get();
@@ -1369,7 +1418,7 @@
         }
         
         // =========================================================================
-        // [MODIFIED] LOGIC FOR REFERRAL (BOTH USERS GET REWARD)
+        // [RÀ SOÁT & TỐI ƯU] LOGIC GIỚI THIỆU (CẢ HAI CÙNG NHẬN THƯỞNG)
         // =========================================================================
         async function applyReferral(referrerCode, newAddress) {
             if (airdropSettings?.isSnapshotActive) {
@@ -1411,9 +1460,9 @@
                 const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
                 
                 await db.runTransaction(async (transaction) => {
-                    // --- Referrer (User A) Logic ---
+                    // --- Logic cho Người Mời (Referrer - User A) ---
                     const freshReferrerDoc = await transaction.get(referrerRef);
-                    if (!freshReferrerDoc.exists) throw "Referrer not found in transaction";
+                    if (!freshReferrerDoc.exists) throw "Người mời không tồn tại trong giao dịch";
                     
                     const referrerPoints = freshReferrerDoc.data().points || 0;
                     const referrerCount = freshReferrerDoc.data().referralCount || 0;
@@ -1430,16 +1479,16 @@
                         referredUser: newAddress 
                     });
                     
-                    // --- Referred (User B) Logic ---
+                    // --- Logic cho Người Được Mời (Referred - User B) ---
                     const newUserRef = db.collection('users').doc(newAddress);
                     const freshNewUserDoc = await transaction.get(newUserRef);
-                    if (!freshNewUserDoc.exists) throw "New user document not found in transaction";
+                    if (!freshNewUserDoc.exists) throw "Người dùng mới không tồn tại trong giao dịch";
 
                     const newUserPoints = freshNewUserDoc.data().points || 0;
                     
                     transaction.update(newUserRef, { 
                         referredBy: String(referrerCode),
-                        points: newUserPoints + REFERRAL_REWARD // Give points to the new user
+                        points: newUserPoints + REFERRAL_REWARD 
                     });
 
                     const newUserHistoryRef = newUserRef.collection('task_history').doc();
@@ -1450,8 +1499,8 @@
                         referrer: String(referrerCode)
                     });
                 });
-
-                showAppToast('Thành công!', `Bạn đã được giới thiệu bởi ${referrerData.fullName || shortenAddress(referrerData.address)}! Cả hai bạn đều nhận được ${REFERRAL_REWARD} EXP.`, 'success');
+                
+                showAppToast(`Bonus Nhập Mã Mời!`, `Bạn và người mời đã nhận được ${REFERRAL_REWARD} EXP.`, 'success');
 
             } catch (error) {
                 console.error("Failed to apply referral:", error);
@@ -1613,7 +1662,6 @@
                     switch (item.taskName) {
                         case 'Check-in Hàng ngày': iconClass = 'fa-calendar-check'; break;
                         case 'Mời bạn bè': iconClass = 'fa-user-group'; break;
-                        // Added case for new user
                         case 'Nhập mã mời': iconClass = 'fa-gift'; break;
                         default: iconClass = item.exp >= 0 ? 'fa-user-plus' : 'fa-user-minus';
                     }
@@ -1690,9 +1738,6 @@
             }
         }
         
-        // =========================================================================
-        // UPDATED: Admin User List Functions
-        // =========================================================================
         async function fetchAndRenderAdminUserList(isInitialLoad = true) {
             if (!adminUserListContainer || !db) return;
 
@@ -1701,7 +1746,6 @@
 
             if (isInitialLoad) {
                 lastVisibleAdminUser = null;
-                // ADDED NEW HEADERS
                 adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">Lượt mời</th><th scope="col">Check-in</th><th scope="col">EXP</th><th scope="col">$VIEC nhận được tại thời điểm TGE: 100%</th><th scope="col">Đã yêu cầu</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
             }
             
@@ -1802,7 +1846,6 @@
                 }
                 
                 const row = tableBody.insertRow();
-                // ADDED NEW TD ELEMENTS
                 row.innerHTML = `
                     <td>
                         <div class="d-flex align-items-center">
@@ -1933,6 +1976,99 @@
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = `<i class="fas fa-check me-2"></i>Xác nhận`;
+            }
+        }
+        
+        // =========================================================================
+        // NEW: Mass Award Logic
+        // =========================================================================
+        async function handleMassAward(e) {
+            e.preventDefault();
+            if (!db) { showAppToast('Lỗi', 'Chưa kết nối cơ sở dữ liệu.', 'error'); return; }
+            if (airdropSettings?.isSnapshotActive) {
+                showAppToast('Đã dừng', 'Không thể thưởng EXP sau khi Snapshot.', 'error');
+                return;
+            }
+
+            const conditionType = document.getElementById('admin-mass-condition-type').value;
+            const operator = document.getElementById('admin-mass-operator').value;
+            const conditionValue = parseInt(document.getElementById('admin-mass-condition-value').value, 10);
+            const expAmount = parseInt(document.getElementById('admin-mass-exp-amount').value, 10);
+            const taskName = document.getElementById('admin-mass-task-name').value.trim();
+
+            if (!taskName || isNaN(expAmount) || expAmount <= 0) {
+                showAppToast('Lỗi', 'Vui lòng nhập số EXP và lý do thưởng hợp lệ.', 'error');
+                return;
+            }
+
+            if (conditionType !== 'all' && isNaN(conditionValue)) {
+                showAppToast('Lỗi', 'Vui lòng nhập giá trị điều kiện hợp lệ.', 'error');
+                return;
+            }
+            
+            const confirmationMessage = `Bạn có chắc chắn muốn cộng ${expAmount} EXP với lý do "${taskName}" cho tất cả người dùng thỏa mãn điều kiện không? Hành động này KHÔNG THỂ hoàn tác.`;
+            if (!confirm(confirmationMessage)) {
+                return;
+            }
+
+            adminMassAwardSubmitBtn.disabled = true;
+            adminMassAwardStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Bắt đầu quá trình thưởng...`;
+
+            try {
+                let query = db.collection('users');
+                if (conditionType !== 'all') {
+                    query = query.where(conditionType, operator, conditionValue);
+                }
+
+                let lastVisible = null;
+                let totalProcessed = 0;
+                
+                while (true) {
+                    let batchQuery = query.orderBy(firebase.firestore.FieldPath.documentId()).limit(BATCH_SIZE);
+                    if (lastVisible) {
+                        batchQuery = batchQuery.startAfter(lastVisible);
+                    }
+                    
+                    const snapshot = await batchQuery.get();
+                    if (snapshot.empty) {
+                        break; 
+                    }
+                    
+                    lastVisible = snapshot.docs[snapshot.docs.length - 1];
+                    const batch = db.batch();
+                    const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+
+                    snapshot.forEach(doc => {
+                        const userRef = doc.ref;
+                        batch.update(userRef, { 
+                            points: firebase.firestore.FieldValue.increment(expAmount) 
+                        });
+
+                        const historyRef = userRef.collection('task_history').doc();
+                        batch.set(historyRef, {
+                            taskName: taskName,
+                            exp: expAmount,
+                            timestamp: newTimestamp
+                        });
+                    });
+
+                    await batch.commit();
+                    totalProcessed += snapshot.size;
+                    adminMassAwardStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã xử lý ${totalProcessed} người dùng...`;
+                }
+                
+                adminMassAwardStatus.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Hoàn tất! Đã thưởng cho ${totalProcessed} người dùng.</span>`;
+                showAppToast('Thành Công', `Đã hoàn tất việc thưởng EXP hàng loạt.`, 'success');
+                adminMassAwardForm.reset();
+                adminMassConditionWrapper.style.display = 'none';
+
+            } catch (error) {
+                console.error("Mass EXP award failed:", error);
+                adminMassAwardStatus.innerHTML = `<span class="text-danger">Đã xảy ra lỗi: ${error.message}</span>`;
+                showAppToast('Thất bại', `Quá trình thưởng hàng loạt đã thất bại.`, 'error');
+            } finally {
+                adminMassAwardSubmitBtn.disabled = false;
+                setTimeout(() => { adminMassAwardStatus.innerHTML = ''; }, 5000);
             }
         }
         
@@ -3057,7 +3193,7 @@
                 let processedCount = 0;
 
                 while (true) {
-                    let query = db.collection('users').orderBy('createdAt').limit(500);
+                    let query = db.collection('users').orderBy(firebase.firestore.FieldPath.documentId()).limit(500);
                     if(lastVisible) {
                         query = query.startAfter(lastVisible);
                     }
@@ -3131,6 +3267,18 @@
         checkinButton.addEventListener('click', handleCheckin);
         popupCheckinButton.addEventListener('click', handleCheckin);
         if (adminExpForm) adminExpForm.addEventListener('submit', handleAdminExpUpdate);
+
+        // NEW: Mass Award Form Listeners
+        if (adminMassAwardForm) adminMassAwardForm.addEventListener('submit', handleMassAward);
+        if (adminMassConditionType) {
+            adminMassConditionType.addEventListener('change', (e) => {
+                if (e.target.value === 'all') {
+                    adminMassConditionWrapper.style.display = 'none';
+                } else {
+                    adminMassConditionWrapper.style.display = 'block';
+                }
+            });
+        }
 
         if(adminUserListContainer) adminUserListContainer.addEventListener('change', (e) => {
             if (e.target.classList.contains('admin-tx-status-switch')) {
