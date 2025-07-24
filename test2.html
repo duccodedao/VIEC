@@ -19,6 +19,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -335,11 +336,12 @@
         #admin-section tbody tr:last-child td {
             border-bottom: none;
         }
-        #admin-section tbody img {
+        #admin-section tbody img.table-img-preview {
             width: 40px;
             height: 40px;
-            border-radius: 50%;
+            border-radius: 8px;
             border: 2px solid var(--border-color);
+            object-fit: cover;
         }
         #admin-section .text-truncate {
             max-width: 150px;
@@ -448,12 +450,108 @@
             transition: opacity 0.3s ease;
         }
 
-        /* Responsive Adjustments */
-        @media (min-width: 768px) {
-            .hero-section h1, .login-section h1 { font-size: 3.5rem; }
-            .card-glass { padding: 2rem; }
-            .main-container { padding: 2rem; }
-        }
+
+   /* ======================================== */
+/* CSS TỐI ƯU HÓA CHO MỤC PARTNER TASK (v2) */
+/* ======================================== */
+
+/* Biến toàn bộ card thành một link có thể click */
+.partner-task-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--card-color);
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    text-decoration: none; /* Bỏ gạch chân của link */
+    color: var(--text-primary); /* Đặt màu chữ mặc định */
+    position: relative; /* Cần cho các phần tử con */
+}
+.partner-task-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 25px rgba(145, 94, 255, 0.3);
+    border-color: var(--accent-primary);
+}
+
+.partner-task-card.mandatory {
+    border-left: 4px solid var(--gold);
+}
+.partner-task-card.completed {
+    opacity: 0.6;
+    background: rgba(23, 27, 48, 0.2);
+    pointer-events: none; /* Vô hiệu hóa click khi đã hoàn thành */
+}
+
+.partner-task-img {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 2px solid var(--border-color);
+}
+
+.partner-task-body {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.partner-task-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin: 0;
+    color: var(--text-primary); /* Đảm bảo màu chữ cho tiêu đề */
+}
+
+/* CSS cho mô tả có thể ẩn/hiện */
+.partner-task-desc {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0.25rem 0 0.5rem;
+    transition: max-height 0.3s ease-in-out;
+    white-space: normal; /* Cho phép xuống dòng */
+    overflow: hidden;
+    /* Rút gọn mặc định còn 2 dòng */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+.partner-task-desc.expanded {
+    -webkit-line-clamp: unset; /* Hiển thị toàn bộ khi có class expanded */
+     max-height: 200px; /* Giới hạn chiều cao tối đa có thể mở rộng */
+}
+
+/* Nút "Xem chi tiết" */
+.task-details-toggle {
+    background: none;
+    border: none;
+    color: var(--accent-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0;
+    cursor: pointer;
+}
+.task-details-toggle:hover {
+    text-decoration: underline;
+}
+
+/* Khối hiển thị phần thưởng EXP */
+.partner-task-reward {
+    flex-shrink: 0;
+    background: rgba(145, 94, 255, 0.15);
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    color: var(--accent-primary);
+    margin-left: 1rem; /* Tạo khoảng cách với khối text */
+}
+
+.partner-task-card.completed .partner-task-reward {
+    color: var(--color-verified);
+    background: rgba(46, 204, 113, 0.15);
+}
     </style>
 </head>
 <body>
@@ -469,7 +567,8 @@
         <div class="sidebar-nav">
             <a href="#dashboard" class="sidebar-link active" id="nav-dashboard">Dashboard</a>
             <a href="#apps" class="sidebar-link" id="nav-apps">Apps</a>
-            <a href="#task" class="sidebar-link" id="nav-task">Task</a>
+            <a href="#task" class="sidebar-link" id="nav-task">Nhiệm vụ</a>
+            <a href="#partner" class="sidebar-link" id="nav-partner">Partner</a>
             <a href="#referral" class="sidebar-link" id="nav-referral">Giới thiệu</a>
             <a href="#airdrop" class="sidebar-link" id="nav-airdrop">Airdrop</a>
             <a href="#leaderboard" class="sidebar-link" id="nav-leaderboard">Leaderboard</a>
@@ -651,7 +750,6 @@
             </div>
         </main>
 
-        <!-- MODIFIED TASK SECTION -->
         <main id="task-section" style="display: none;">
             <div class="container">
                 <div class="text-center mb-5">
@@ -668,9 +766,9 @@
                         </div>
                         <div class="card-glass">
                             <!-- Daily Check-in -->
-                            <h5 class="card-title">Check-in Hàng Ngày</h5>
+                            <h5 class="card-title">Nhiệm vụ và lịch </h5>
                             <div id="daily-checkin-content" class="d-flex justify-content-between align-items-center">
-                                <p class="mb-0">Điểm danh để nhận <strong style="color: var(--accent-primary);">+10 EXP</strong>.</p>
+                                <p class="mb-0">Check-in để nhận <strong style="color: var(--accent-primary);">+10 EXP</strong>.</p>
                                 <button id="checkin-button" class="btn px-4 py-2" style="background-color: var(--accent-secondary); color: white; font-weight: 600; flex-shrink: 0; min-width: 130px;" disabled>
                                     <i class="fas fa-spinner fa-spin me-2"></i>Chờ...
                                 </button>
@@ -682,8 +780,27 @@
                             <!-- Task History -->
                             <h5 class="card-title">Lịch sử Hoạt động</h5>
                             <div id="task-history-content" style="max-height: 300px; overflow-y: auto; padding-right: 10px; padding-bottom: 15px;">
-    <p class="text-secondary text-center p-3">Chưa có hoạt động nào.</p>
-</div>
+                                <p class="text-secondary text-center p-3">Chưa có hoạt động nào.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- ============================================= -->
+        <!-- NEW: PARTNER SECTION                          -->
+        <!-- ============================================= -->
+        <main id="partner-section" style="display: none;">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h1 class="mb-2" style="font-weight: 700;">Nhiệm Vụ Đối Tác</h1>
+                    <p class="lead text-secondary col-md-8 mx-auto">Hoàn thành các nhiệm vụ từ đối tác của chúng tôi để nhận thêm phần thưởng EXP giá trị.</p>
+                </div>
+                <div class="row justify-content-center g-4">
+                    <div class="col-12 col-md-10 col-lg-8">
+                        <div id="partner-tasks-container" class="d-flex flex-column gap-3">
+                            <!-- Partner tasks will be rendered here by JS -->
                         </div>
                     </div>
                 </div>
@@ -701,10 +818,10 @@
                         <div class="card-glass">
                             <ul class="nav nav-tabs" id="referralTab" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab"><i class="fas fa-link me-2"></i>Mã của bạn</button>
+                                    <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab"><i class="fas fa-link me-2"></i>Mã Của Tôi</button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="invited-list-tab" data-bs-toggle="tab" data-bs-target="#invited-list-pane" type="button" role="tab"><i class="fas fa-users me-2"></i>Người đã mời (<span id="referral-count">0</span>)</button>
+                                    <button class="nav-link" id="invited-list-tab" data-bs-toggle="tab" data-bs-target="#invited-list-pane" type="button" role="tab"><i class="fas fa-users me-2"></i>Đã mời (<span id="referral-count">0</span>)</button>
                                 </li>
                             </ul>
                             
@@ -712,7 +829,11 @@
                                 <div class="tab-pane fade show active" id="my-codes-pane" role="tabpanel">
                                     <div id="referral-links-container"></div>
                                     <div id="referral-codes-container"></div>
-                                     <div id="referral-input-container" class="mt-4" style="display: none;">
+
+                                    <!-- [NEW] Hiển thị người đã mời bạn -->
+                                    <div id="referred-by-container" class="mt-4" style="display: none;"></div>
+                                    
+                                    <div id="referral-input-container" class="mt-4" style="display: none;">
                                         <h6 class="mb-2"><i class="fas fa-user-plus me-2"></i>Nhập Mã Mời</h6>
                                         <p class="text-secondary small">Nếu bạn được ai đó mời nhưng chưa nhập mã, hãy nhập vào đây.</p>
                                         <div class="input-group">
@@ -757,11 +878,11 @@
                             <div class="col-12 col-md-10 col-lg-8">
                                 <div class="card-glass p-4">
                                 <h5 class="card-title text-center">Cơ Chế Tính Điểm</h5>
-                                <p class="text-center text-secondary">Điểm Airdrop cuối cùng được tính bằng cách nhân số lượng hoạt động của bạn với các hệ số điểm tương ứng do quản trị viên thiết lập.</p>
+                                <p class="text-center text-secondary">Điểm Airdrop cuối cùng được tính bằng cách nhân số lượng hoạt động của bạn với các hệ số điểm tương ứng.</p>
                                 <div class="row text-center mt-4">
                                    <div class="col-4">
                                         <i class="fas fa-users airdrop-stat-icon" style="color:var(--accent-primary)"></i>
-                                        <p class="text-secondary mb-0"><strong>Lượt Mời</strong></p>
+                                        <p class="text-secondary mb-0"><strong>Bạn Bè</strong></p>
                                    </div>
                                    <div class="col-4">
                                        <i class="fas fa-calendar-check airdrop-stat-icon"></i>
@@ -785,14 +906,14 @@
                                         <div class="airdrop-stat-card">
                                             <i class="fas fa-users airdrop-stat-icon"></i>
                                             <div id="airdrop-ref-count" class="airdrop-stat-value">0</div>
-                                            <div class="airdrop-stat-label">Lượt mời</div>
+                                            <div class="airdrop-stat-label">Lượt Mời</div>
                                         </div>
                                     </div>
                                     <div class="col-4">
                                         <div class="airdrop-stat-card">
                                             <i class="fas fa-calendar-check airdrop-stat-icon"></i>
                                             <div id="airdrop-checkin-count" class="airdrop-stat-value">0</div>
-                                            <div class="airdrop-stat-label">Lần Check-in</div>
+                                            <div class="airdrop-stat-label">Check-in</div>
                                         </div>
                                     </div>
                                     <div class="col-4">
@@ -808,7 +929,7 @@
                             <!-- Total Reward & Eligibility -->
                             <div class="col-12 col-md-10 col-lg-8 mt-4">
                                 <div id="airdrop-reward-card" class="card-glass text-center">
-                                    <h6 class="text-white-50">PHẦN THƯỞNG VIEC DỰ KIẾN CỦA BẠN</h6>
+                                    <h6 class="text-white-50">PHẦN THƯỞNG $VIEC CỦA BẠN SẼ NHẬN ĐƯỢC</h6>
                                     <div class="d-flex justify-content-center align-items-center">
                                         <h2 id="airdrop-reward-value" class="fw-bold display-4 mb-0">0</h2>
                                         <img src="https://duccodedao.github.io/VIEC/img/logo.png" id="airdrop-reward-logo" alt="VIEC Token">
@@ -825,7 +946,7 @@
                     <div id="airdrop-content-logged-out" class="text-center p-5 card-glass col-md-8 mx-auto" style="display: none;">
                         <i class="fas fa-wallet fa-3x text-secondary mb-3"></i>
                         <h4 class="text-secondary">Vui lòng kết nối ví</h4>
-                        <p class="text-secondary">Kết nối ví của bạn để xem thống kê và tính toán phần thưởng airdrop tiềm năng.</p>
+                        <p class="text-secondary">Kết nối ví của bạn để xem thống kê và tính toán phần thưởng airdrop.</p>
                     </div>
                 </div>
 
@@ -849,6 +970,63 @@
                     <p class="lead text-secondary col-md-8 mx-auto">Công cụ quản lý người dùng và sự kiện.</p>
                 </div>
                 <div class="row justify-content-center g-4">
+                    <!-- ============================================= -->
+                    <!-- NEW: ADMIN PARTNER TASK MANAGEMENT            -->
+                    <!-- ============================================= -->
+                     <div class="col-12 col-lg-10 col-xl-8">
+                        <div class="card-glass">
+                            <h5 class="card-title">Quản lý Nhiệm vụ Partner</h5>
+                            <form id="admin-partner-task-form">
+                                <input type="hidden" id="partner-task-id-input">
+                                <div class="mb-3">
+                                    <label for="partner-task-name-input" class="form-label">Tên dự án</label>
+                                    <input type="text" class="form-control" id="partner-task-name-input" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="partner-task-desc-input" class="form-label">Mô tả ngắn</label>
+                                    <textarea class="form-control" id="partner-task-desc-input" rows="2" required></textarea>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="partner-task-img-upload" class="form-label">Tải ảnh lên</label>
+                                        <input class="form-control" type="file" id="partner-task-img-upload" accept="image/*">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="partner-task-img-url" class="form-label">Hoặc dán Link ảnh</label>
+                                        <input type="url" class="form-control" id="partner-task-img-url" placeholder="https://...">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="partner-task-link-input" class="form-label">Link nhiệm vụ</label>
+                                    <input type="url" class="form-control" id="partner-task-link-input" required placeholder="https://...">
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="partner-task-exp-input" class="form-label">EXP Thưởng</label>
+                                        <input type="number" class="form-control" id="partner-task-exp-input" required min="0">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="partner-task-type-select" class="form-label">Loại nhiệm vụ</label>
+                                        <select class="form-select" id="partner-task-type-select">
+                                            <option value="normal" selected>Thông thường</option>
+                                            <option value="mandatory">Bắt buộc (Ghim)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="admin-partner-task-status" class="mt-3 text-center"></div>
+                                <div class="d-flex gap-3 mt-3">
+                                    <button type="submit" id="partner-task-save-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;">Lưu Nhiệm Vụ</button>
+                                    <button type="button" id="partner-task-clear-btn" class="btn btn-outline-secondary w-50">Làm mới</button>
+                                </div>
+                            </form>
+                            <hr style="border-color: var(--border-color); opacity: 0.5; margin: 2rem 0;">
+                            <h5 class="card-title">Danh sách Nhiệm vụ Partner</h5>
+                            <div id="admin-partner-tasks-list" class="table-responsive">
+                                <!-- Admin partner tasks table will be rendered here -->
+                            </div>
+                        </div>
+                    </div>
+
                      <div class="col-12 col-lg-10 col-xl-8">
                         <div class="card-glass">
                             <h5 class="card-title">Cấu hình Airdrop & Xuất dữ liệu</h5>
@@ -875,7 +1053,7 @@
                                     <div class="col-6 col-sm-3">
                                         <div class="form-check form-switch fs-5 d-inline-block">
                                             <input class="form-check-input" type="checkbox" role="switch" id="snapshot-active-switch">
-                                            <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snapshot</label>
+                                            <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snap</label>
                                         </div>
                                     </div>
                                 </div>
@@ -914,6 +1092,9 @@
                                         <input type="number" class="form-control" id="min-exp-input" value="0" min="0">
                                     </div>
                                 </div>
+                                <div class="mt-3">
+                                     <label for="min-exp-input" class="form-label fw-bold" style="color: var(--gold);">ĐIỀU KIỆN NHIỆM VỤ BẮT BUỘC (Tự động áp dụng)</label>
+                                </div>
                                 <div id="admin-settings-status" class="mt-3"></div>
                                 <div class="d-flex gap-3 mt-3">
                                     <button type="button" id="save-settings-btn" class="btn w-100" style="background-color: var(--accent-secondary); color: white;">Lưu Cài Đặt</button>
@@ -925,7 +1106,7 @@
 
                     <div class="col-12 col-lg-10 col-xl-8">
                         <div class="card-glass">
-                            <h5 class="card-title">Chỉnh sửa EXP</h5>
+                            <h5 class="card-title">Chỉnh sửa EXP cho một User</h5>
                             <form id="admin-exp-form">
                                 <div class="mb-3">
                                     <label for="admin-target-type" class="form-label">Loại định danh</label>
@@ -955,6 +1136,49 @@
                                 </div>
                                 <button type="submit" id="admin-submit-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;">
                                     <i class="fas fa-check me-2"></i>Xác nhận
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- [NEW] THƯỞNG EXP HÀNG LOẠT -->
+                    <div class="col-12 col-lg-10 col-xl-8">
+                        <div class="card-glass">
+                            <h5 class="card-title">Thưởng EXP Hàng Loạt</h5>
+                            <form id="admin-mass-award-form">
+                                <div class="mb-3">
+                                    <label for="admin-mass-condition-type" class="form-label">Thưởng cho người dùng theo</label>
+                                    <select class="form-select" id="admin-mass-condition-type">
+                                        <option value="all" selected>Tất cả người dùng</option>
+                                        <option value="referralCount">Số lượt mời</option>
+                                        <option value="checkinCount">Số lượt Check-in</option>
+                                        <option value="points">Số điểm EXP</option>
+                                    </select>
+                                </div>
+                                <div id="admin-mass-condition-wrapper" style="display: none;">
+                                    <label class="form-label">Điều kiện</label>
+                                    <div class="input-group mb-3">
+                                        <select class="form-select" id="admin-mass-operator" style="max-width: 150px;">
+                                            <option value=">=" selected>Lớn hơn hoặc bằng</option>
+                                            <option value="<=">Nhỏ hơn hoặc bằng</option>
+                                        </select>
+                                        <input type="number" class="form-control" id="admin-mass-condition-value" placeholder="e.g., 10" min="0">
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="admin-mass-exp-amount" class="form-label">Số lượng EXP để thưởng</label>
+                                    <input type="number" class="form-control" id="admin-mass-exp-amount" placeholder="e.g., 500" required min="1">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="admin-mass-task-name" class="form-label">Nội dung/Lý do thưởng</label>
+                                    <input type="text" class="form-control" id="admin-mass-task-name" placeholder="e.g., Thưởng event Giáng Sinh" required>
+                                </div>
+                                
+                                <div id="admin-mass-award-status" class="mt-3 text-center"></div>
+
+                                <button type="submit" id="admin-mass-award-submit-btn" class="btn w-100" style="background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white;">
+                                    <i class="fas fa-gifts me-2"></i>Thực Hiện Thưởng Hàng Loạt
                                 </button>
                             </form>
                         </div>
@@ -1112,6 +1336,7 @@
         const navDashboard = document.getElementById('nav-dashboard');
         const navApps = document.getElementById('nav-apps');
         const navTask = document.getElementById('nav-task');
+        const navPartner = document.getElementById('nav-partner');
         const navReferral = document.getElementById('nav-referral');
         const navAirdrop = document.getElementById('nav-airdrop');
         const navLeaderboard = document.getElementById('nav-leaderboard');
@@ -1130,6 +1355,7 @@
         const appLogoText = document.getElementById('app-logo-text');
         const appStoreSection = document.getElementById('app-store-section');
         const taskSectionEl = document.getElementById('task-section');
+        const partnerSectionEl = document.getElementById('partner-section');
         const leaderboardSectionEl = document.getElementById('leaderboard-section');
         const adminSectionEl = document.getElementById('admin-section');
         const referralSectionEl = document.getElementById('referral-section');
@@ -1169,12 +1395,29 @@
         const saveSettingsBtn = document.getElementById('save-settings-btn');
         const exportCsvBtn = document.getElementById('export-csv-btn');
         const adminSettingsStatusEl = document.getElementById('admin-settings-status');
-
         const contactAdminBtn = document.getElementById('contact-admin-btn');
         const contactAdminModal = new bootstrap.Modal(document.getElementById('contactAdminModal'));
         
+        // NEW: Mass Award Form Elements
+        const adminMassAwardForm = document.getElementById('admin-mass-award-form');
+        const adminMassConditionType = document.getElementById('admin-mass-condition-type');
+        const adminMassConditionWrapper = document.getElementById('admin-mass-condition-wrapper');
+        const adminMassAwardSubmitBtn = document.getElementById('admin-mass-award-submit-btn');
+        const adminMassAwardStatus = document.getElementById('admin-mass-award-status');
+        
+        // NEW: Partner Task Elements
+        const partnerTasksContainer = document.getElementById('partner-tasks-container');
+        const adminPartnerTaskForm = document.getElementById('admin-partner-task-form');
+        const partnerTaskIdInput = document.getElementById('partner-task-id-input');
+        const partnerTaskSaveBtn = document.getElementById('partner-task-save-btn');
+        const partnerTaskClearBtn = document.getElementById('partner-task-clear-btn');
+        const adminPartnerTaskStatus = document.getElementById('admin-partner-task-status');
+        const adminPartnerTasksList = document.getElementById('admin-partner-tasks-list');
+
+
         const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/VIEC/img/logo_viewc.png';
         const GENERIC_WALLET_ICON = 'https://ton.org/download/ton_symbol.png';
+        const GENERIC_TASK_ICON = 'https://duccodedao.github.io/VIEC/img/logo.png';
 
         // State Variables
         let telegramUserData = null;
@@ -1187,6 +1430,7 @@
         const addressCache = {};
         let searchTimeout;
         let db = null;
+        let storage = null; // Firebase Storage
         let checkinInterval = null;
         let lastVisibleAdminUser = null; // For admin pagination
 
@@ -1195,10 +1439,11 @@
         const CHECKIN_REWARD = 10;
         const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000;
         const ADMIN_USERS_PER_PAGE = 50;
+        const BATCH_SIZE = 200; // For mass award processing
         
         const CONFIRM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
         const CONFIRM_AMOUNT_NANOTONS = "10000"; // 0.00001 TON
-        const REQUEST_WALLET_ADDRESS = "UQA_s-8041-x_wB_AdYp3rJg_t94Lae_7gn_Yf2H3H5s-9AA"; 
+        const REQUEST_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD"; 
         const REQUEST_AMOUNT_NANOTONS = "20000"; // 0.00002 TON
 
         const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
@@ -1222,6 +1467,7 @@
                 firebase.initializeApp(firebaseConfig);
             }
             db = firebase.firestore();
+            storage = firebase.storage();
         }
         
         function showLoadingOverlay(message = 'Vui lòng đợi...') {
@@ -1252,8 +1498,36 @@
             return isAdminByAddress || isAdminByUID;
         }
 
-        function calculateViecReward(user, settings) {
+        async function checkMandatoryTasksCompletion(userAddress) {
+            if (!db) return true; // Fail open if db is not ready
+
+            const mandatoryTasksSnapshot = await db.collection('partner_tasks').where('taskType', '==', 'mandatory').get();
+            if (mandatoryTasksSnapshot.empty) {
+                return true; // No mandatory tasks exist
+            }
+            
+            const mandatoryTaskIds = new Set(mandatoryTasksSnapshot.docs.map(doc => doc.id));
+            
+            const completedTasksSnapshot = await db.collection('users').doc(userAddress).collection('completed_partner_tasks').get();
+            const completedTaskIds = new Set(completedTasksSnapshot.docs.map(doc => doc.id));
+
+            for (const taskId of mandatoryTaskIds) {
+                if (!completedTaskIds.has(taskId)) {
+                    return false; // Found a mandatory task that is not completed
+                }
+            }
+
+            return true; // All mandatory tasks are completed
+        }
+
+        async function calculateViecReward(user, settings) {
             if (!user || !settings) return 0;
+            
+            const mandatoryTasksCompleted = await checkMandatoryTasksCompletion(user.address);
+            if (!mandatoryTasksCompleted) {
+                return 0; // Not eligible if mandatory tasks are not done
+            }
+            
             const refCount = user.referralCount || 0;
             const checkinCount = user.checkinCount || 0;
             const expCount = user.points || 0;
@@ -1271,15 +1545,11 @@
             }
         }
         
-        // =========================================================================
-        // UPDATED LOGIC FOR USER AUTHENTICATION & SYNCHRONIZATION (ONE UID - ONE WALLET)
-        // =========================================================================
         async function loadOrCreateUserByAddress(address) {
             if (!address || !db) return;
 
             showLoadingOverlay('Đang xác thực và đồng bộ...');
 
-            // --- UID-First Check for Mini App Users ---
             if (telegramUserData) {
                 const uidQuery = db.collection('users').where('telegramId', '==', telegramUserData.id).limit(1);
                 const uidSnapshot = await uidQuery.get();
@@ -1304,7 +1574,7 @@
                 console.log(`Creating new user profile for address: ${address}`);
                 const newUser = {
                     address: address, points: 0, lastCheckin: null, checkinCount: 0,
-                    referralCount: 0, referredBy: null, 
+                    referralCount: 0, referredBy: null, partnerTasksCompletedCount: 0,
                     hasSentConfirmationTx: false, hasRequestedAirdrop: false,
                     disabledUntil: null, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     telegramId: telegramUserData ? telegramUserData.id : null,
@@ -1349,12 +1619,9 @@
                     });
                 }
                 
-                if (typeof userData.hasRequestedAirdrop === 'undefined') {
-                    updates.hasRequestedAirdrop = false;
-                }
-                 if (typeof userData.hasSentConfirmationTx === 'undefined') {
-                    updates.hasSentConfirmationTx = false;
-                }
+                if (typeof userData.hasRequestedAirdrop === 'undefined') { updates.hasRequestedAirdrop = false; }
+                if (typeof userData.hasSentConfirmationTx === 'undefined') { updates.hasSentConfirmationTx = false; }
+                if (typeof userData.partnerTasksCompletedCount === 'undefined') { updates.partnerTasksCompletedCount = 0; }
 
                 if (Object.keys(updates).length > 0) {
                      console.log(`Updating existing user profile with Telegram data:`, updates);
@@ -1369,7 +1636,7 @@
         }
         
         // =========================================================================
-        // UPDATED LOGIC FOR REFERRAL (PREVENT SELF-REFERRAL)
+        // [RÀ SOÁT & TỐI ƯU] LOGIC GIỚI THIỆU
         // =========================================================================
         async function applyReferral(referrerCode, newAddress) {
             if (airdropSettings?.isSnapshotActive) {
@@ -1411,29 +1678,40 @@
                 const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
                 
                 await db.runTransaction(async (transaction) => {
+                    // --- Logic cho Người Mời (Referrer - User A) ---
                     const freshReferrerDoc = await transaction.get(referrerRef);
-                    if (!freshReferrerDoc.exists) throw "Referrer not found in transaction";
+                    if (!freshReferrerDoc.exists) throw "Người mời không tồn tại trong giao dịch";
                     
-                    const currentPoints = freshReferrerDoc.data().points || 0;
-                    const currentRefCount = freshReferrerDoc.data().referralCount || 0;
                     transaction.update(referrerRef, {
-                        points: currentPoints + REFERRAL_REWARD,
-                        referralCount: currentRefCount + 1
+                        points: firebase.firestore.FieldValue.increment(REFERRAL_REWARD),
+                        referralCount: firebase.firestore.FieldValue.increment(1)
                     });
                     
                     const referrerHistoryRef = referrerRef.collection('task_history').doc();
                     transaction.set(referrerHistoryRef, {
-                        taskName: 'Mời bạn bè thành công',
+                        taskName: 'Mời bạn bè',
                         exp: REFERRAL_REWARD,
                         timestamp: newTimestamp,
                         referredUser: newAddress 
                     });
                     
+                    // --- Logic cho Người Được Mời (Referred - User B) ---
                     const newUserRef = db.collection('users').doc(newAddress);
-                    transaction.update(newUserRef, { referredBy: String(referrerCode) });
-                });
+                    transaction.update(newUserRef, { 
+                        referredBy: String(referrerCode),
+                        points: firebase.firestore.FieldValue.increment(REFERRAL_REWARD)
+                    });
 
-                showAppToast('Thành công!', `Bạn đã được giới thiệu bởi ${referrerData.fullName || shortenAddress(referrerData.address)}!`, 'success');
+                    const newUserHistoryRef = newUserRef.collection('task_history').doc();
+                    transaction.set(newUserHistoryRef, {
+                        taskName: 'Nhập mã mời',
+                        exp: REFERRAL_REWARD,
+                        timestamp: newTimestamp,
+                        referrer: String(referrerCode)
+                    });
+                });
+                
+                showAppToast(`Bonus Nhập Mã Mời!`, `Bạn và người mời đã cùng nhận được ${REFERRAL_REWARD} EXP.`, 'success');
 
             } catch (error) {
                 console.error("Failed to apply referral:", error);
@@ -1457,15 +1735,6 @@
                 navAdmin.style.display = 'block';
             } else {
                 navAdmin.style.display = 'none';
-            }
-            
-            if(currentUserData.referredBy || airdropSettings?.isSnapshotActive) {
-                referralInputContainer.style.display = 'none';
-                referralInputContainerHero.style.display = 'none';
-            } else if (!connectedWalletAddress) {
-                referralInputContainerHero.style.display = 'block';
-            } else {
-                referralInputContainer.style.display = 'block';
             }
         }
         
@@ -1545,10 +1814,9 @@
                         return;
                     }
 
-                    const newPoints = (userData.points || 0) + CHECKIN_REWARD;
                     const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
                     transaction.update(userRef, {
-                        points: newPoints,
+                        points: firebase.firestore.FieldValue.increment(CHECKIN_REWARD),
                         lastCheckin: newTimestamp,
                         checkinCount: firebase.firestore.FieldValue.increment(1)
                     });
@@ -1594,7 +1862,9 @@
                     let iconClass;
                     switch (item.taskName) {
                         case 'Check-in Hàng ngày': iconClass = 'fa-calendar-check'; break;
-                        case 'Mời bạn bè thành công': iconClass = 'fa-user-group'; break;
+                        case 'Mời bạn bè': iconClass = 'fa-user-group'; break;
+                        case 'Nhập mã mời': iconClass = 'fa-gift'; break;
+                        case 'Partner Task': iconClass = 'fa-handshake'; break;
                         default: iconClass = item.exp >= 0 ? 'fa-user-plus' : 'fa-user-minus';
                     }
 
@@ -1602,12 +1872,14 @@
                     const expClass = expAmount >= 0 ? 'amount-in' : 'amount-out';
                     const expSign = expAmount > 0 ? '+' : '';
                     const expDisplay = `<strong class="${expClass}">${expSign}${expAmount} EXP</strong>`;
+                    const taskTitle = item.taskName === 'Partner Task' ? `${item.taskName}: ${item.projectName}` : item.taskName;
+
 
                     historyHtml += `
                         <div class="task-history-item">
                             <i class="fas ${iconClass} task-history-icon" style="color: ${expAmount < 0 ? 'var(--color-out)' : 'var(--accent-secondary)'};"></i>
                             <div class="flex-grow-1">
-                                <p class="m-0 fw-bold">${item.taskName}</p>
+                                <p class="m-0 fw-bold">${taskTitle}</p>
                                 <p class="m-0 text-secondary" style="font-size: 0.8rem;">${date}</p>
                             </div>
                             ${expDisplay}
@@ -1620,7 +1892,7 @@
                 taskHistoryContent.innerHTML = `<p class="text-danger text-center p-3">Lỗi tải lịch sử.</p>`;
             }
         }
-
+        
         async function fetchAndRenderLeaderboard() {
             if (!db) initializeFirebase();
 
@@ -1670,9 +1942,6 @@
             }
         }
         
-        // =========================================================================
-        // UPDATED: Admin User List Functions
-        // =========================================================================
         async function fetchAndRenderAdminUserList(isInitialLoad = true) {
             if (!adminUserListContainer || !db) return;
 
@@ -1681,8 +1950,7 @@
 
             if (isInitialLoad) {
                 lastVisibleAdminUser = null;
-                // ADDED NEW HEADERS
-                adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">Lượt mời</th><th scope="col">Check-in</th><th scope="col">EXP</th><th scope="col">Đã xác nhận 100%</th><th scope="col">Đã yêu cầu</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
+                adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">Lượt mời</th><th scope="col">Check-in</th><th scope="col">N.vụ Partner HT</th><th scope="col">N.vụ Bắt buộc</th><th scope="col">EXP</th><th scope="col">Đã xác nhận 100%</th><th scope="col">Đã yêu cầu</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
             }
             
             const tableBody = adminUserListContainer.querySelector('tbody');
@@ -1691,6 +1959,11 @@
             }
             
             try {
+                // Pre-fetch all mandatory task IDs once for efficiency
+                const mandatoryTasksSnapshot = await db.collection('partner_tasks').where('taskType', '==', 'mandatory').get();
+                const mandatoryTaskIds = new Set(mandatoryTasksSnapshot.docs.map(doc => doc.id));
+
+
                 const searchQuery = adminUserSearchInput.value.trim();
                 let query;
 
@@ -1718,10 +1991,10 @@
                     
                     const userDocs = Array.from(usersMap.values());
                      if (userDocs.length === 0) {
-                        tableBody.innerHTML = `<tr><td colspan="10" class="text-center text-secondary p-3">Không tìm thấy người dùng.</td></tr>`;
+                        tableBody.innerHTML = `<tr><td colspan="12" class="text-center text-secondary p-3">Không tìm thấy người dùng.</td></tr>`;
                         return;
                     }
-                    renderAdminUserRows(userDocs, tableBody);
+                    renderAdminUserRows(userDocs, tableBody, mandatoryTaskIds);
                     
                 } else {
                     query = db.collection('users').orderBy('createdAt', 'desc').limit(ADMIN_USERS_PER_PAGE);
@@ -1739,7 +2012,7 @@
                     }
 
                     lastVisibleAdminUser = snapshot.docs[snapshot.docs.length - 1];
-                    renderAdminUserRows(snapshot.docs, tableBody);
+                    renderAdminUserRows(snapshot.docs, tableBody, mandatoryTaskIds);
 
                     if (snapshot.docs.length < ADMIN_USERS_PER_PAGE) {
                         adminLoadMoreBtn.style.display = 'none';
@@ -1750,15 +2023,20 @@
 
             } catch (error) {
                 console.error("Error fetching user list for admin:", error);
-                tableBody.innerHTML = `<tr><td colspan="10" class="text-center text-danger p-3">Lỗi khi tải danh sách người dùng.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="12" class="text-center text-danger p-3">Lỗi khi tải danh sách người dùng.</td></tr>`;
             } finally {
                 adminLoadMoreBtn.disabled = false;
                 adminLoadMoreBtn.innerHTML = `Tải thêm`;
             }
         }
 
-        function renderAdminUserRows(docs, tableBody) {
-             docs.forEach(doc => {
+        async function renderAdminUserRows(docs, tableBody, mandatoryTaskIds) {
+             const completedTasksPromises = docs.map(doc => 
+                db.collection('users').doc(doc.id).collection('completed_partner_tasks').get()
+             );
+             const completedTasksSnapshots = await Promise.all(completedTasksPromises);
+             
+             docs.forEach((doc, index) => {
                 const user = doc.data();
                 const displayName = user.fullName || (user.username ? `@${user.username}` : 'N/A');
                 const avatarUrl = user.photoUrl || GENERIC_WALLET_ICON;
@@ -1781,12 +2059,32 @@
                     statusHtml = `<span class="badge bg-success">Active</span>`;
                 }
                 
+                // Check mandatory task completion
+                let mandatoryStatusHtml;
+                if (mandatoryTaskIds.size === 0) {
+                     mandatoryStatusHtml = `<span class="badge bg-secondary">N/A</span>`;
+                } else {
+                    const completedSnapshot = completedTasksSnapshots[index];
+                    const completedIds = new Set(completedSnapshot.docs.map(d => d.id));
+                    let allMandatoryDone = true;
+                    for (const mid of mandatoryTaskIds) {
+                        if (!completedIds.has(mid)) {
+                            allMandatoryDone = false;
+                            break;
+                        }
+                    }
+                    if (allMandatoryDone) {
+                        mandatoryStatusHtml = `<span class="badge bg-success">Đã xong</span>`;
+                    } else {
+                        mandatoryStatusHtml = `<span class="badge bg-warning text-dark">Chưa xong</span>`;
+                    }
+                }
+                
                 const row = tableBody.insertRow();
-                // ADDED NEW TD ELEMENTS
                 row.innerHTML = `
                     <td>
                         <div class="d-flex align-items-center">
-                            <img src="${avatarUrl}" class="me-2 flex-shrink-0" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" onerror="this.src='${GENERIC_WALLET_ICON}'">
+                            <img src="${avatarUrl}" class="me-2 flex-shrink-0 table-img-preview" onerror="this.src='${GENERIC_WALLET_ICON}'">
                             <div class="text-truncate" style="min-width: 120px;">
                                 <strong class="d-block text-truncate">${displayName}</strong>
                             </div>
@@ -1796,6 +2094,8 @@
                     <td>${user.telegramId || 'N/A'}</td>
                     <td>${user.referralCount || 0}</td>
                     <td>${user.checkinCount || 0}</td>
+                    <td>${user.partnerTasksCompletedCount || 0}</td>
+                    <td>${mandatoryStatusHtml}</td>
                     <td class="fw-bold" style="color: var(--accent-secondary);">${(user.points || 0).toLocaleString()}</td>
                     <td>${sentTxHtml}</td>
                     <td>${requestedRewardHtml}</td>
@@ -1837,7 +2137,7 @@
             try {
                 const userRef = db.collection('users').doc(userAddress);
                 await userRef.update({ hasRequestedAirdrop: newStatus });
-                showAppToast('Thành Công', `Đã cập nhật trạng thái "Yêu cầu Thưởng" cho ví.`, 'success');
+                showAppToast('Thành Công', `Đã cập nhật trạng thái "Yêu cầu Thưởng".`, 'success');
             } catch (error) {
                 console.error("Failed to update user request status:", error);
                 showAppToast('Lỗi', 'Cập nhật thất bại.', 'error');
@@ -1889,11 +2189,11 @@
                     const freshUserDoc = await transaction.get(userRef);
                     if (!freshUserDoc.exists) throw "User document not found in transaction!";
                     
-                    const currentPoints = freshUserDoc.data().points || 0;
-                    const newPoints = currentPoints + finalExpChange;
                     const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
                     
-                    transaction.update(userRef, { points: newPoints });
+                    transaction.update(userRef, { 
+                        points: firebase.firestore.FieldValue.increment(finalExpChange) 
+                    });
                     
                     const historyRef = userRef.collection('task_history').doc();
                     transaction.set(historyRef, {
@@ -1915,6 +2215,107 @@
                 submitBtn.innerHTML = `<i class="fas fa-check me-2"></i>Xác nhận`;
             }
         }
+        
+        // =========================================================================
+        // [FIXED] Mass Award Logic
+        // =========================================================================
+        async function handleMassAward(e) {
+            e.preventDefault();
+            if (!db) { showAppToast('Lỗi', 'Chưa kết nối cơ sở dữ liệu.', 'error'); return; }
+            if (airdropSettings?.isSnapshotActive) {
+                showAppToast('Đã dừng', 'Không thể thưởng EXP sau khi Snapshot.', 'error');
+                return;
+            }
+
+            const conditionType = document.getElementById('admin-mass-condition-type').value;
+            const operator = document.getElementById('admin-mass-operator').value;
+            const conditionValue = parseInt(document.getElementById('admin-mass-condition-value').value, 10);
+            const expAmount = parseInt(document.getElementById('admin-mass-exp-amount').value, 10);
+            const taskName = document.getElementById('admin-mass-task-name').value.trim();
+
+            if (!taskName || isNaN(expAmount) || expAmount <= 0) {
+                showAppToast('Lỗi', 'Vui lòng nhập số EXP và lý do thưởng hợp lệ.', 'error');
+                return;
+            }
+
+            if (conditionType !== 'all' && isNaN(conditionValue)) {
+                showAppToast('Lỗi', 'Vui lòng nhập giá trị điều kiện hợp lệ.', 'error');
+                return;
+            }
+            
+            const confirmationMessage = `Bạn có chắc chắn muốn cộng ${expAmount} EXP với lý do "${taskName}" cho tất cả người dùng thỏa mãn điều kiện không? Hành động này KHÔNG THỂ hoàn tác.`;
+            if (!confirm(confirmationMessage)) {
+                return;
+            }
+
+            adminMassAwardSubmitBtn.disabled = true;
+            adminMassAwardStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Bắt đầu quá trình thưởng...`;
+
+            try {
+                let query = db.collection('users');
+                if (conditionType !== 'all') {
+                    query = query.where(conditionType, operator, conditionValue);
+                }
+
+                let lastVisible = null;
+                let totalProcessed = 0;
+                
+                while (true) {
+                    let batchQuery;
+                    if (conditionType !== 'all') {
+                        // [FIX] If filtering on an inequality, the first orderBy must be on the same field.
+                        batchQuery = query.orderBy(conditionType).orderBy(firebase.firestore.FieldPath.documentId()).limit(BATCH_SIZE);
+                    } else {
+                        batchQuery = query.orderBy(firebase.firestore.FieldPath.documentId()).limit(BATCH_SIZE);
+                    }
+                    
+                    if (lastVisible) {
+                        batchQuery = batchQuery.startAfter(lastVisible);
+                    }
+                    
+                    const snapshot = await batchQuery.get();
+                    if (snapshot.empty) {
+                        break; 
+                    }
+                    
+                    lastVisible = snapshot.docs[snapshot.docs.length - 1];
+                    const batch = db.batch();
+                    const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+
+                    snapshot.forEach(doc => {
+                        const userRef = doc.ref;
+                        batch.update(userRef, { 
+                            points: firebase.firestore.FieldValue.increment(expAmount) 
+                        });
+
+                        const historyRef = userRef.collection('task_history').doc();
+                        batch.set(historyRef, {
+                            taskName: taskName,
+                            exp: expAmount,
+                            timestamp: newTimestamp
+                        });
+                    });
+
+                    await batch.commit();
+                    totalProcessed += snapshot.size;
+                    adminMassAwardStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã xử lý ${totalProcessed} người dùng...`;
+                }
+                
+                adminMassAwardStatus.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Hoàn tất! Đã thưởng cho ${totalProcessed} người dùng.</span>`;
+                showAppToast('Thành Công', `Đã hoàn tất việc thưởng EXP hàng loạt.`, 'success');
+                adminMassAwardForm.reset();
+                adminMassConditionWrapper.style.display = 'none';
+
+            } catch (error) {
+                console.error("Mass EXP award failed:", error);
+                adminMassAwardStatus.innerHTML = `<span class="text-danger">Đã xảy ra lỗi: ${error.message}</span>`;
+                showAppToast('Thất bại', `Quá trình thưởng hàng loạt đã thất bại.`, 'error');
+            } finally {
+                adminMassAwardSubmitBtn.disabled = false;
+                setTimeout(() => { adminMassAwardStatus.innerHTML = ''; }, 5000);
+            }
+        }
+
         
         async function updateUserStatus(enable) {
             if (!db) { showAppToast('Lỗi', 'Chưa kết nối cơ sở dữ liệu.', 'error'); return; }
@@ -2022,7 +2423,7 @@
                     <span>${currentUserData.telegramId}</span>
                 </div>
                  <div class="d-flex justify-content-between mb-2">
-                    <span class="metadata-key">Connected Wallet:</span>
+                    <span class="metadata-key">Address:</span>
                     <span class="copyable-address" data-address="${currentUserData.address}" title="Click to copy">${shortenAddress(currentUserData.address)}</span>
                 </div>
             `;
@@ -2075,17 +2476,23 @@
             }
         }
         
-        function renderReferralSection() {
+        // =========================================================================
+        // [MODIFIED] Render Referral Section with "Referred By" Info
+        // =========================================================================
+        async function renderReferralSection() {
             if (!currentUserData) return;
             const linksContainer = document.getElementById('referral-links-container');
             const codesContainer = document.getElementById('referral-codes-container');
             const referralCountEl = document.getElementById('referral-count');
+            const referredByContainer = document.getElementById('referred-by-container');
+            const referralInputContainer = document.getElementById('referral-input-container');
             
             linksContainer.innerHTML = '';
             codesContainer.innerHTML = '';
 
             const webLink = `${YOUR_WEB_APP_URL}?ref=${currentUserData.address}`;
-            linksContainer.innerHTML += `
+            linksContainer.innerHTML = `
+                <h6 class="mb-2"><i class="fas fa-link me-2"></i>Link Mời Của Bạn</h6>
                 <div class="mb-3">
                     <label class="form-label small text-secondary">Link mời cho Web:</label>
                     <div class="input-group">
@@ -2093,7 +2500,8 @@
                         <button class="btn btn-outline-secondary copyable-code" data-code="${webLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
                     </div>
                 </div>`;
-            codesContainer.innerHTML += `
+            codesContainer.innerHTML = `
+                <h6 class="mb-2"><i class="fas fa-barcode me-2"></i>Mã Mời Của Bạn</h6>
                  <div class="mb-2">
                     <label class="form-label small text-secondary">Mã mời (Địa chỉ ví):</label>
                     <div class="input-group">
@@ -2106,7 +2514,7 @@
                 const miniAppLink = `https://t.me/${YOUR_TELEGRAM_BOT_NAME}/${YOUR_MINI_APP_NAME}?startapp=${currentUserData.telegramId}`;
                  linksContainer.innerHTML += `
                     <div class="mb-2">
-                        <label class="form-label small text-secondary">Link mời cho Mini App (Mở trực tiếp):</label>
+                        <label class="form-label small text-secondary">Link mời cho Mini App:</label>
                         <div class="input-group">
                             <input type="text" class="form-control" value="${miniAppLink}" readonly>
                             <button class="btn btn-outline-secondary copyable-code" data-code="${miniAppLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
@@ -2120,6 +2528,46 @@
                             <button class="btn btn-outline-secondary copyable-code" data-code="${currentUserData.telegramId}" title="Copy Code"><i class="fas fa-copy"></i></button>
                         </div>
                     </div>`;
+            }
+            
+            // [NEW] Logic to display who referred the current user
+            if (currentUserData.referredBy) {
+                referralInputContainer.style.display = 'none';
+                referredByContainer.style.display = 'block';
+                referredByContainer.innerHTML = `<div class="skeleton-loader skeleton-line w-75"></div>`; // Placeholder
+                
+                const referrerCode = currentUserData.referredBy;
+                let referrerQuery;
+                if (!isNaN(referrerCode)) {
+                    referrerQuery = db.collection('users').where('telegramId', '==', parseInt(referrerCode, 10));
+                } else {
+                    referrerQuery = db.collection('users').where('address', '==', referrerCode);
+                }
+                
+                try {
+                    const snapshot = await referrerQuery.get();
+                    let referrerName = shortenAddress(referrerCode);
+                    if (!snapshot.empty) {
+                        const referrerData = snapshot.docs[0].data();
+                        referrerName = referrerData.fullName || (referrerData.username ? `@${referrerData.username}` : shortenAddress(referrerData.address));
+                    }
+                    referredByContainer.innerHTML = `
+                        <hr style="border-color: var(--border-color); opacity: 0.5;">
+                        <h6 class="mb-2 text-secondary"><i class="fas fa-user-check me-2"></i>Người giới thiệu của bạn</h6>
+                        <div class="d-flex align-items-center p-2" style="background: rgba(43, 203, 196, 0.1); border-radius: 12px;">
+                            <i class="fas fa-award me-3" style="color: var(--accent-secondary); font-size: 1.5rem;"></i>
+                            <p class="m-0">Bạn đã được giới thiệu bởi <strong style="color: var(--accent-secondary);">${referrerName}</strong>.</p>
+                        </div>`;
+                } catch (error) {
+                    console.error("Could not fetch referrer's name", error);
+                    referredByContainer.innerHTML = '';
+                }
+
+            } else {
+                referredByContainer.style.display = 'none';
+                if (!airdropSettings?.isSnapshotActive) {
+                    referralInputContainer.style.display = 'block';
+                }
             }
             
             referralCountEl.textContent = `${currentUserData.referralCount || 0}`;
@@ -2175,11 +2623,17 @@
                 loggedOutContent.style.display = 'block';
                 return;
             }
-
-            const finalReward = calculateViecReward(currentUserData, settings);
-            const isEligible = (currentUserData.referralCount || 0) >= settings.minReferrals &&
+            
+            // Re-calculate reward and eligibility inside the function
+            const mandatoryTasksCompleted = await checkMandatoryTasksCompletion(currentUserData.address);
+            
+            const isEligibleByStats = (currentUserData.referralCount || 0) >= settings.minReferrals &&
                                (currentUserData.checkinCount || 0) >= settings.minCheckins &&
                                (currentUserData.points || 0) >= settings.minExp;
+            
+            const isFullyEligible = isEligibleByStats && mandatoryTasksCompleted;
+            const finalReward = isFullyEligible ? await calculateViecReward(currentUserData, settings) : 0;
+
 
             document.getElementById('airdrop-ref-count').textContent = (currentUserData.referralCount || 0).toLocaleString();
             document.getElementById('airdrop-checkin-count').textContent = (currentUserData.checkinCount || 0).toLocaleString();
@@ -2192,37 +2646,39 @@
             actionsContainer.innerHTML = '';
             finalMessageContainer.innerHTML = '';
             
-            if (!isEligible) {
+            if (!isEligibleByStats) {
                 eligibilityStatusEl.textContent = 'BẠN CHƯA ĐỦ ĐIỀU KIỆN';
                 eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
-                actionsContainer.innerHTML = `<p class="text-white-50 mt-3">Hãy tiếp tục hoàn thành các nhiệm vụ để đủ điều kiện nhận airdrop.</p>`;
+                actionsContainer.innerHTML = `<p class="text-white-50 mt-3">Hãy tiếp tục hoàn thành các nhiệm vụ thông thường để đủ điều kiện nhận airdrop.</p>`;
+            } else if (!mandatoryTasksCompleted) {
+                eligibilityStatusEl.textContent = 'BẠN CHƯA ĐỦ ĐIỀU KIỆN';
+                eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
+                actionsContainer.innerHTML = `<p class="text-warning mt-3">Bạn cần hoàn thành tất cả <a href="#partner" style="color: var(--gold); font-weight: bold;">nhiệm vụ bắt buộc</a> từ đối tác để nhận thưởng.</p>`;
             } else if (currentUserData.hasRequestedAirdrop) {
-                eligibilityStatusEl.textContent = 'YÊU CẦU ĐÃ ĐƯỢC GỬI';
+                eligibilityStatusEl.textContent = 'ĐÃ YÊU CẦU NHẬN $VIEC';
                 eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
                 const friendlyAddress = await getFriendlyAddress(currentUserData.address);
                 finalMessageContainer.innerHTML = `
                     <p class="text-white-50 mt-3">Phần thưởng sẽ được phân bổ đến địa chỉ của bạn sớm nhất.</p>
                     <code class="copyable-address fs-6" data-address="${friendlyAddress}">${shortenAddress(friendlyAddress, 10, 10)}</code>
                 `;
-            } else {
+            } else { // Fully eligible and hasn't requested
                 const rewardTier = currentUserData.hasSentConfirmationTx ? '100%' : '50%';
                 eligibilityStatusEl.textContent = `BẠN ĐỦ ĐIỀU KIỆN (${rewardTier})`;
                 eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
                 
                 let buttonsHtml = '';
 
-                // Logic for Confirmation (100%) Button
                 if (!currentUserData.hasSentConfirmationTx && !settings.isSnapshotActive && settings.isConfirmationEnabled) {
-                     buttonsHtml += `<p class="text-white-50 mt-3 small">Gửi một giao dịch nhỏ để xác nhận ví và nâng mức thưởng lên <strong class="text-white">100%</strong>.</p>`;
-                     buttonsHtml += `<button id="confirm-button" class="airdrop-action-btn">Xác Nhận (Nhận 100%)</button>`;
+                     buttonsHtml += `<p class="text-white-50 mt-3 small">Nâng mức thưởng lên <strong class="text-white">100%</strong>.</p>`;
+                     buttonsHtml += `<button id="confirm-button" class="airdrop-action-btn">Nhận 100% $VIEC</button>`;
                 } else if (currentUserData.hasSentConfirmationTx) {
-                     buttonsHtml += `<p class="text-white-50 mt-3 fw-bold" style="color: var(--color-verified)!important;"><i class="fas fa-check-circle me-2"></i>Đã xác nhận 100%</p>`;
+                     buttonsHtml += `<p class="text-white-50 mt-3 fw-bold" style="color: var(--color-verified)!important;"><i class="fas fa-check-circle me-2"></i>Đặc quyền 100% tại TGE</p>`;
                 }
 
-                // Logic for Claim/Request Button
                 if (!settings.isSnapshotActive && settings.isClaimingEnabled) {
-                    buttonsHtml += `<p class="text-white-50 mt-3 small">Gửi giao dịch để yêu cầu nhận thưởng. Yêu cầu của bạn sẽ được ghi lại để phân phối sau.</p>`;
-                    buttonsHtml += `<button id="request-reward-button" class="airdrop-action-btn" style="background: var(--accent-secondary); color: white;">Yêu Cầu Nhận Thưởng</button>`;
+                    buttonsHtml += `<p class="text-white-50 mt-3 small">Bạn chỉ còn một bước nữa để nhận $VIEC, hãy điền tên minh vào danh sách yêu cầu phân thưởng.</p>`;
+                    buttonsHtml += `<button id="request-reward-button" class="airdrop-action-btn" style="background: var(--accent-secondary); color: white;">Sent Transaction</button>`;
                 } else if (settings.isSnapshotActive) {
                     buttonsHtml += `<p class="mt-3 fw-bold" style="color: var(--gold);"><i class="fas fa-flag-checkered me-2"></i>Final Snapshot!</p><p class="text-white-50">Việc yêu cầu nhận thưởng đã kết thúc. Token sẽ được phân phối sớm cho những người đã yêu cầu.</p>`;
                 } else {
@@ -2427,23 +2883,25 @@
         // --- UI & Navigation ---
         
         const switchView = (viewToShow) => {
-            [dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl, accountSectionEl, leaderboardSectionEl, adminSectionEl, referralSectionEl, airdropSectionEl].forEach(section => {
+            [dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl, partnerSectionEl, accountSectionEl, leaderboardSectionEl, adminSectionEl, referralSectionEl, airdropSectionEl].forEach(section => {
                 if(section) section.style.display = 'none';
             });
-            [navDashboard, navApps, navTask, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(nav => nav.classList.remove('active'));
+            [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(nav => nav.classList.remove('active'));
 
             const isLoggedIn = !!connectedWalletAddress;
-            [navTask, navAccount, navReferral, navAirdrop].forEach(nav => nav.style.display = isLoggedIn ? 'block' : 'none');
+            [navTask, navPartner, navAccount, navReferral, navAirdrop].forEach(nav => nav.style.display = isLoggedIn ? 'block' : 'none');
 
             if (viewToShow === 'account' && isLoggedIn) { accountSectionEl.style.display = 'block'; navAccount.classList.add('active'); } 
             else if (viewToShow === 'apps') { appStoreSection.style.display = 'block'; navApps.classList.add('active'); } 
             else if (viewToShow === 'task' && isLoggedIn) { taskSectionEl.style.display = 'block'; navTask.classList.add('active'); } 
+            else if (viewToShow === 'partner' && isLoggedIn) { partnerSectionEl.style.display = 'block'; navPartner.classList.add('active'); renderPartnerSection(); }
             else if (viewToShow === 'referral' && isLoggedIn) { referralSectionEl.style.display = 'block'; navReferral.classList.add('active'); } 
             else if (viewToShow === 'airdrop') { airdropSectionEl.style.display = 'block'; navAirdrop.classList.add('active'); renderAirdropSection(); } 
             else if (viewToShow === 'leaderboard') { leaderboardSectionEl.style.display = 'block'; navLeaderboard.classList.add('active'); fetchAndRenderLeaderboard(); } 
             else if (viewToShow === 'admin' && isLoggedIn && isCurrentUserAdmin()){
                 adminSectionEl.style.display = 'block';
                 navAdmin.classList.add('active');
+                renderAdminPartnerTasks();
                 fetchAndRenderAdminUserList(true); 
                 fetchAirdropSettings().then(settings => {
                      document.getElementById('airdrop-live-switch').checked = settings.isAirdropLive || false;
@@ -2470,7 +2928,7 @@
             let hash = window.location.hash.substring(1) || 'dashboard';
             const [path, queryString] = hash.split('?');
             
-            const protectedRoutes = ['task', 'account', 'admin', 'referral', 'airdrop', 'leaderboard'];
+            const protectedRoutes = ['task', 'partner', 'account', 'admin', 'referral', 'airdrop', 'leaderboard'];
             if (!connectedWalletAddress && protectedRoutes.includes(path)) {
                  showAppToast('Yêu cầu kết nối ví', 'Tính năng này yêu cầu kết nối ví.', 'warning');
                  window.location.hash = '#dashboard';
@@ -2981,7 +3439,7 @@
 
         async function saveAirdropSettings() {
             const isAirdropLive = document.getElementById('airdrop-live-switch').checked;
-            const isConfirmationEnabled = document.getElementById('confirmation-enabled-switch').checked; // NEW
+            const isConfirmationEnabled = document.getElementById('confirmation-enabled-switch').checked; 
             const isClaimingEnabled = document.getElementById('claim-enabled-switch').checked;
             const isSnapshotActive = document.getElementById('snapshot-active-switch').checked;
 
@@ -3010,7 +3468,7 @@
             try {
                 const settingsRef = db.collection('admin_settings').doc('airdrop_criteria');
                 const newSettings = { isAirdropLive, isConfirmationEnabled, isClaimingEnabled, isSnapshotActive, minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier };
-                await settingsRef.set(newSettings, { merge: true }); // Use merge to be safe
+                await settingsRef.set(newSettings, { merge: true });
                 airdropSettings = newSettings; 
                 adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
                 showAppToast('Thành công', 'Đã lưu cài đặt Airdrop.', 'success');
@@ -3037,39 +3495,55 @@
                 let processedCount = 0;
 
                 while (true) {
-                    let query = db.collection('users').orderBy('createdAt').limit(500);
+                    let query = db.collection('users').orderBy(firebase.firestore.FieldPath.documentId()).limit(500);
                     if(lastVisible) {
                         query = query.startAfter(lastVisible);
                     }
                     const snapshot = await query.get();
                     if (snapshot.empty) break;
 
-                    snapshot.forEach(doc => {
+                    const userDocs = snapshot.docs;
+                    const eligibilityPromises = userDocs.map(doc => {
                         const user = doc.data();
                         
-                        const isEligible = (user.referralCount || 0) >= settings.minReferrals &&
-                                           (user.checkinCount || 0) >= settings.minCheckins &&
-                                           (user.points || 0) >= settings.minExp;
-                        
-                        if (isEligible && user.hasRequestedAirdrop) {
-                            const finalReward = calculateViecReward(user, settings);
-                            if (finalReward > 0) {
-                                finalAirdropList.push({ address: user.address, reward: finalReward });
+                        // Define a function to process each user
+                        const processUser = async () => {
+                            const isEligibleByStats = (user.referralCount || 0) >= settings.minReferrals &&
+                                                    (user.checkinCount || 0) >= settings.minCheckins &&
+                                                    (user.points || 0) >= settings.minExp;
+                            
+                            if (isEligibleByStats && user.hasRequestedAirdrop) {
+                                const mandatoryTasksCompleted = await checkMandatoryTasksCompletion(user.address);
+                                if (mandatoryTasksCompleted) {
+                                    const finalReward = await calculateViecReward(user, settings);
+                                    if (finalReward > 0) {
+                                        return { address: user.address, reward: finalReward };
+                                    }
+                                }
                             }
+                            return null;
+                        };
+                        return processUser();
+                    });
+
+                    const results = await Promise.all(eligibilityPromises);
+                    results.forEach(result => {
+                        if (result) {
+                            finalAirdropList.push(result);
                         }
                     });
-                    
-                    processedCount += snapshot.docs.length;
+
+                    processedCount += userDocs.length;
                     adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã xử lý ${processedCount} người dùng...`;
 
-                    if (snapshot.docs.length < 500) break; 
-                    lastVisible = snapshot.docs[snapshot.docs.length - 1];
+                    if (userDocs.length < 500) break; 
+                    lastVisible = userDocs[userDocs.length - 1];
                 }
                 
                 adminSettingsStatusEl.innerHTML = `<i class="fas fa-file-csv me-2"></i>Đang tạo file...`;
                 
                 if (finalAirdropList.length === 0) {
-                    showAppToast('Thông báo', 'Không có người dùng nào yêu cầu nhận Airdrop.', 'info');
+                    showAppToast('Thông báo', 'Không có người dùng nào đủ điều kiện và yêu cầu nhận Airdrop.', 'info');
                     adminSettingsStatusEl.innerHTML = `<span class="text-warning">Không có ai yêu cầu.</span>`;
                     return;
                 }
@@ -3102,6 +3576,322 @@
                 setTimeout(() => { adminSettingsStatusEl.innerHTML = ''; }, 4000);
             }
         }
+        
+       async function renderPartnerSection() {
+    if (!partnerTasksContainer || !db || !connectedWalletAddress) return;
+    partnerTasksContainer.innerHTML = skeletonTx.repeat(3);
+    
+    try {
+        const tasksSnapshot = await db.collection('partner_tasks').orderBy('createdAt', 'desc').get();
+        const completedTasksSnapshot = await db.collection('users').doc(connectedWalletAddress).collection('completed_partner_tasks').get();
+        
+        const completedTaskIds = new Set(completedTasksSnapshot.docs.map(doc => doc.id));
+        
+        if (tasksSnapshot.empty) {
+            partnerTasksContainer.innerHTML = `<p class="text-secondary text-center p-3">Chưa có nhiệm vụ nào từ đối tác. Hãy quay lại sau!</p>`;
+            return;
+        }
+        
+        let mandatoryHtml = '';
+        let normalHtml = '';
+        
+        tasksSnapshot.forEach(doc => {
+            const task = doc.data();
+            task.id = doc.id;
+            const isCompleted = completedTaskIds.has(task.id);
+            const isDescLong = task.description.length > 100; // Điều kiện để hiện nút "Xem chi tiết"
+
+            // Cấu trúc HTML mới
+            const cardHtml = `
+                <a href="${task.taskLink}" target="_blank" rel="noopener noreferrer" 
+                   class="partner-task-card ${task.taskType === 'mandatory' ? 'mandatory' : ''} ${isCompleted ? 'completed' : ''}"
+                   data-task-id="${task.id}" data-exp="${task.expReward}" data-name="${task.projectName}">
+                    
+                    <img src="${task.imageUrl || GENERIC_TASK_ICON}" class="partner-task-img" onerror="this.src='${GENERIC_TASK_ICON}'">
+                    
+                    <div class="partner-task-body">
+                        <h4 class="partner-task-title">
+                            ${task.projectName}
+                            ${task.taskType === 'mandatory' ? '<i class="fas fa-star mandatory-icon" title="Nhiệm vụ bắt buộc"></i>' : ''}
+                        </h4>
+                        <p class="partner-task-desc">${task.description}</p>
+                        ${isDescLong ? '<button class="task-details-toggle">Xem chi tiết</button>' : ''}
+                    </div>
+                    
+                    <div class="partner-task-reward">
+                        ${isCompleted ? '<i class="fas fa-check-circle"></i>' : `+${task.expReward} EXP`}
+                    </div>
+                </a>
+            `;
+            
+            if (task.taskType === 'mandatory') {
+                mandatoryHtml += cardHtml;
+            } else {
+                normalHtml += cardHtml;
+            }
+        });
+        
+        partnerTasksContainer.innerHTML = mandatoryHtml + normalHtml;
+        
+    } catch (error) {
+        console.error("Error rendering partner tasks:", error);
+        partnerTasksContainer.innerHTML = `<p class="text-danger text-center p-3">Lỗi tải nhiệm vụ đối tác. Vui lòng thử lại.</p>`;
+    }
+}
+        
+// HÀM MỚI để xử lý tất cả các click trong khu vực partner
+function handlePartnerCardClick(e) {
+    const toggleBtn = e.target.closest('.task-details-toggle');
+    const taskCard = e.target.closest('.partner-task-card');
+
+    // Ưu tiên 1: Người dùng bấm nút "Xem chi tiết"
+    if (toggleBtn) {
+        e.preventDefault();  // Ngăn thẻ <a> điều hướng
+        e.stopPropagation(); // Ngăn sự kiện nổi bọt lên thẻ <a>
+
+        const desc = toggleBtn.previousElementSibling; // Lấy phần tử <p> mô tả ngay trước nó
+        desc.classList.toggle('expanded');
+        toggleBtn.textContent = desc.classList.contains('expanded') ? 'Thu gọn' : 'Xem chi tiết';
+        return; // Dừng xử lý tại đây
+    }
+
+    // Ưu tiên 2: Người dùng click vào thẻ để hoàn thành nhiệm vụ
+    if (taskCard) {
+        handlePartnerTaskCompletion(e, taskCard);
+    }
+}
+
+// HÀM ĐƯỢC CẬP NHẬT để xử lý logic hoàn thành nhiệm vụ
+async function handlePartnerTaskCompletion(e, taskCard) {
+    if (airdropSettings?.isSnapshotActive) {
+        showAppToast('Đã dừng', 'Hoạt động kiếm điểm đã dừng do Snapshot.', 'warning');
+        e.preventDefault();
+        return;
+    }
+    
+    // Nếu thẻ đã hoàn thành, không làm gì cả (CSS đã xử lý pointer-events)
+    if (taskCard.classList.contains('completed')) {
+        e.preventDefault();
+        return;
+    }
+
+    e.preventDefault(); // Luôn ngăn điều hướng mặc định trước
+
+    const taskId = taskCard.dataset.taskId;
+    const expReward = parseInt(taskCard.dataset.exp, 10);
+    const projectName = taskCard.dataset.name;
+    const taskLink = taskCard.href;
+
+    if (!taskId || isNaN(expReward)) return;
+
+    const rewardIndicator = taskCard.querySelector('.partner-task-reward');
+    rewardIndicator.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+    
+    try {
+        const userRef = db.collection('users').doc(connectedWalletAddress);
+        const completedTaskRef = userRef.collection('completed_partner_tasks').doc(taskId);
+        
+        // Logic giao dịch với Firestore giữ nguyên
+        await db.runTransaction(async (transaction) => {
+            const completedDoc = await transaction.get(completedTaskRef);
+            if (completedDoc.exists) {
+                throw new Error("Task already completed.");
+            }
+            const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+            transaction.update(userRef, {
+                points: firebase.firestore.FieldValue.increment(expReward),
+                partnerTasksCompletedCount: firebase.firestore.FieldValue.increment(1)
+            });
+            transaction.set(completedTaskRef, { completedAt: newTimestamp });
+            const historyRef = userRef.collection('task_history').doc();
+            transaction.set(historyRef, {
+                taskName: 'Partner Task',
+                projectName: projectName,
+                exp: expReward,
+                timestamp: newTimestamp
+            });
+        });
+        
+        showAppToast('Thành công!', `Bạn đã nhận +${expReward} EXP từ nhiệm vụ ${projectName}.`, 'success');
+        
+        // Mở link nhiệm vụ trong tab mới
+        window.open(taskLink, '_blank');
+        
+        // Cập nhật giao diện mà không cần tải lại toàn bộ
+        const updatedDoc = await userRef.get();
+        currentUserData = updatedDoc.data();
+        updateExpBalances(currentUserData.points);
+        taskCard.classList.add('completed');
+        rewardIndicator.innerHTML = '<i class="fas fa-check-circle"></i>';
+
+    } catch (error) {
+        if (error.message.includes("Task already completed.")) {
+             taskCard.classList.add('completed'); // Đảm bảo UI đúng nếu có lỗi đồng bộ
+             rewardIndicator.innerHTML = '<i class="fas fa-check-circle"></i>';
+        } else {
+            console.error("Failed to complete partner task:", error);
+            showAppToast('Lỗi', 'Không thể hoàn thành nhiệm vụ. Vui lòng thử lại.', 'error');
+            rewardIndicator.innerHTML = `+${expReward} EXP`; // Trả lại trạng thái cũ khi lỗi
+        }
+    }
+}
+        
+        async function handleAdminPartnerTaskSave(e) {
+            e.preventDefault();
+            if (!db || !storage) return;
+
+            const taskId = partnerTaskIdInput.value.trim();
+            const projectName = document.getElementById('partner-task-name-input').value.trim();
+            const description = document.getElementById('partner-task-desc-input').value.trim();
+            const imageUpload = document.getElementById('partner-task-img-upload').files[0];
+            const imageUrlInput = document.getElementById('partner-task-img-url').value.trim();
+            const taskLink = document.getElementById('partner-task-link-input').value.trim();
+            const expReward = parseInt(document.getElementById('partner-task-exp-input').value, 10);
+            const taskType = document.getElementById('partner-task-type-select').value;
+            
+            if (!projectName || !description || !taskLink || isNaN(expReward)) {
+                showAppToast('Lỗi', 'Vui lòng điền đầy đủ các trường bắt buộc.', 'error');
+                return;
+            }
+            if (!imageUpload && !imageUrlInput && !taskId) { // Require image for new tasks
+                 showAppToast('Lỗi', 'Vui lòng tải lên ảnh hoặc cung cấp URL ảnh.', 'error');
+                return;
+            }
+
+            partnerTaskSaveBtn.disabled = true;
+            adminPartnerTaskStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...`;
+            
+            try {
+                let imageUrl = imageUrlInput;
+                if (imageUpload) {
+                    const storageRef = storage.ref(`partner_tasks/${Date.now()}_${imageUpload.name}`);
+                    const uploadTask = await storageRef.put(imageUpload);
+                    imageUrl = await uploadTask.ref.getDownloadURL();
+                }
+                
+                const taskData = {
+                    projectName, description, taskLink, expReward, taskType
+                };
+                
+                if (imageUrl) { taskData.imageUrl = imageUrl; }
+
+                if (taskId) { // Editing existing task
+                    await db.collection('partner_tasks').doc(taskId).update(taskData);
+                    showAppToast('Thành công', 'Đã cập nhật nhiệm vụ đối tác.', 'success');
+                } else { // Creating new task
+                    taskData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('partner_tasks').add(taskData);
+                    showAppToast('Thành công', 'Đã thêm nhiệm vụ đối tác mới.', 'success');
+                }
+                
+                adminPartnerTaskForm.reset();
+                partnerTaskIdInput.value = '';
+                renderAdminPartnerTasks();
+
+            } catch (error) {
+                console.error("Error saving partner task:", error);
+                showAppToast('Thất bại', 'Đã xảy ra lỗi khi lưu nhiệm vụ.', 'error');
+            } finally {
+                partnerTaskSaveBtn.disabled = false;
+                adminPartnerTaskStatus.innerHTML = '';
+            }
+        }
+        
+        function clearPartnerTaskForm() {
+            adminPartnerTaskForm.reset();
+            partnerTaskIdInput.value = '';
+            partnerTaskSaveBtn.textContent = 'Lưu Nhiệm Vụ';
+        }
+        
+        async function renderAdminPartnerTasks() {
+            if (!adminPartnerTasksList || !db) return;
+            adminPartnerTasksList.innerHTML = skeletonTx;
+            
+            try {
+                const snapshot = await db.collection('partner_tasks').orderBy('createdAt', 'desc').get();
+                if (snapshot.empty) {
+                    adminPartnerTasksList.innerHTML = `<p class="text-secondary text-center p-3">Chưa có nhiệm vụ nào.</p>`;
+                    return;
+                }
+                
+                let tableHtml = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem; white-space: normal;">
+                    <thead><tr>
+                        <th>Ảnh</th><th>Tên dự án</th><th>Loại</th><th>EXP</th><th>Hành động</th>
+                    </tr></thead><tbody>`;
+                
+                snapshot.forEach(doc => {
+                    const task = doc.data();
+                    const typeBadge = task.taskType === 'mandatory'
+                        ? `<span class="badge" style="background-color: var(--gold); color: #000;">Bắt buộc</span>`
+                        : `<span class="badge bg-secondary">Thường</span>`;
+                        
+                    tableHtml += `
+                        <tr data-id="${doc.id}">
+                            <td><img src="${task.imageUrl || GENERIC_TASK_ICON}" class="table-img-preview" onerror="this.src='${GENERIC_TASK_ICON}'"></td>
+                            <td style="white-space: normal;"><strong>${task.projectName}</strong><br><small class="text-secondary">${task.description}</small></td>
+                            <td>${typeBadge}</td>
+                            <td class="fw-bold">${task.expReward}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-light admin-edit-partner-task-btn" title="Chỉnh sửa"><i class="fas fa-pencil-alt"></i></button>
+                                <button class="btn btn-sm btn-outline-danger admin-delete-partner-task-btn" title="Xóa"><i class="fas fa-trash-alt"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                tableHtml += '</tbody></table>';
+                adminPartnerTasksList.innerHTML = tableHtml;
+
+            } catch (error) {
+                console.error("Error rendering admin partner tasks:", error);
+                adminPartnerTasksList.innerHTML = `<p class="text-danger text-center p-3">Lỗi tải danh sách nhiệm vụ.</p>`;
+            }
+        }
+        
+        async function handleAdminPartnerTaskActions(e) {
+            const editBtn = e.target.closest('.admin-edit-partner-task-btn');
+            const deleteBtn = e.target.closest('.admin-delete-partner-task-btn');
+
+            if (!editBtn && !deleteBtn) return;
+            
+            const row = e.target.closest('tr');
+            const taskId = row.dataset.id;
+            
+            if (deleteBtn) {
+                if (!confirm(`Bạn có chắc chắn muốn xóa nhiệm vụ này không? Hành động này không thể hoàn tác.`)) {
+                    return;
+                }
+                try {
+                    await db.collection('partner_tasks').doc(taskId).delete();
+                    showAppToast('Thành công', 'Đã xóa nhiệm vụ.', 'success');
+                    renderAdminPartnerTasks();
+                } catch (error) {
+                    console.error("Error deleting partner task:", error);
+                    showAppToast('Lỗi', 'Không thể xóa nhiệm vụ.', 'error');
+                }
+            } else if (editBtn) {
+                try {
+                    const docSnap = await db.collection('partner_tasks').doc(taskId).get();
+                    if (docSnap.exists) {
+                        const task = docSnap.data();
+                        partnerTaskIdInput.value = taskId;
+                        document.getElementById('partner-task-name-input').value = task.projectName || '';
+                        document.getElementById('partner-task-desc-input').value = task.description || '';
+                        document.getElementById('partner-task-img-url').value = task.imageUrl || '';
+                        document.getElementById('partner-task-link-input').value = task.taskLink || '';
+                        document.getElementById('partner-task-exp-input').value = task.expReward || 0;
+                        document.getElementById('partner-task-type-select').value = task.taskType || 'normal';
+                        
+                        partnerTaskSaveBtn.textContent = 'Cập nhật Nhiệm Vụ';
+                        adminPartnerTaskForm.scrollIntoView({ behavior: 'smooth' });
+                    }
+                } catch (error) {
+                    console.error("Error fetching task for edit:", error);
+                    showAppToast('Lỗi', 'Không thể tải dữ liệu để chỉnh sửa.', 'error');
+                }
+            }
+        }
+
 
         // --- Event Listeners ---
         hamburgerBtn.addEventListener('click', toggleSidebar);
@@ -3111,6 +3901,18 @@
         checkinButton.addEventListener('click', handleCheckin);
         popupCheckinButton.addEventListener('click', handleCheckin);
         if (adminExpForm) adminExpForm.addEventListener('submit', handleAdminExpUpdate);
+
+        // NEW: Mass Award Form Listeners
+        if (adminMassAwardForm) adminMassAwardForm.addEventListener('submit', handleMassAward);
+        if (adminMassConditionType) {
+            adminMassConditionType.addEventListener('change', (e) => {
+                if (e.target.value === 'all') {
+                    adminMassConditionWrapper.style.display = 'none';
+                } else {
+                    adminMassConditionWrapper.style.display = 'block';
+                }
+            });
+        }
 
         if(adminUserListContainer) adminUserListContainer.addEventListener('change', (e) => {
             if (e.target.classList.contains('admin-tx-status-switch')) {
@@ -3136,6 +3938,12 @@
                 }, 500); 
             });
         }
+        
+        // NEW: Partner Task Event Listeners
+if (partnerTasksContainer) partnerTasksContainer.addEventListener('click', handlePartnerCardClick);
+        if (adminPartnerTaskForm) adminPartnerTaskForm.addEventListener('submit', handleAdminPartnerTaskSave);
+        if (partnerTaskClearBtn) partnerTaskClearBtn.addEventListener('click', clearPartnerTaskForm);
+        if (adminPartnerTasksList) adminPartnerTasksList.addEventListener('click', handleAdminPartnerTaskActions);
 
 
         customWalletButton.addEventListener('click', () => { walletDropdown.style.display = walletDropdown.style.display === 'block' ? 'none' : 'block'; });
@@ -3161,7 +3969,7 @@
             if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none'; 
         });
         
-        [navDashboard, navApps, navTask, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(link => link.addEventListener('click', (e) => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
+        [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(link => link.addEventListener('click', (e) => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
         appSearchInput.addEventListener('input', () => { renderApps(); const searchTerm = appSearchInput.value.trim(); const newUrl = searchTerm ? `#apps?search=${encodeURIComponent(searchTerm)}` : '#apps'; history.replaceState(null, '', newUrl); });
         appSearchButton.addEventListener('click', renderApps);
         appSearchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') renderApps(); });
