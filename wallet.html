@@ -700,10 +700,10 @@
                         <div class="card-glass">
                             <ul class="nav nav-tabs" id="referralTab" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab"><i class="fas fa-link me-2"></i>Mã của bạn</button>
+                                    <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab"><i class="fas fa-link me-2"></i></button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="invited-list-tab" data-bs-toggle="tab" data-bs-target="#invited-list-pane" type="button" role="tab"><i class="fas fa-users me-2"></i>Người đã mời (<span id="referral-count">0</span>)</button>
+                                    <button class="nav-link" id="invited-list-tab" data-bs-toggle="tab" data-bs-target="#invited-list-pane" type="button" role="tab"><i class="fas fa-users me-2"></i>Đã mời (<span id="referral-count">0</span>)</button>
                                 </li>
                             </ul>
                             
@@ -756,11 +756,11 @@
                             <div class="col-12 col-md-10 col-lg-8">
                                 <div class="card-glass p-4">
                                 <h5 class="card-title text-center">Cơ Chế Tính Điểm</h5>
-                                <p class="text-center text-secondary">Điểm Airdrop cuối cùng được tính bằng cách nhân số lượng hoạt động của bạn với các hệ số điểm tương ứng do quản trị viên thiết lập.</p>
+                                <p class="text-center text-secondary">Điểm Airdrop cuối cùng được tính bằng cách nhân số lượng hoạt động của bạn với các hệ số điểm tương ứng.</p>
                                 <div class="row text-center mt-4">
                                    <div class="col-4">
                                         <i class="fas fa-users airdrop-stat-icon" style="color:var(--accent-primary)"></i>
-                                        <p class="text-secondary mb-0"><strong>Lượt Mời</strong></p>
+                                        <p class="text-secondary mb-0"><strong>Bạn Bè</strong></p>
                                    </div>
                                    <div class="col-4">
                                        <i class="fas fa-calendar-check airdrop-stat-icon"></i>
@@ -784,7 +784,7 @@
                                         <div class="airdrop-stat-card">
                                             <i class="fas fa-users airdrop-stat-icon"></i>
                                             <div id="airdrop-ref-count" class="airdrop-stat-value">0</div>
-                                            <div class="airdrop-stat-label">Lượt mời</div>
+                                            <div class="airdrop-stat-label">Lượt MMời</div>
                                         </div>
                                     </div>
                                     <div class="col-4">
@@ -807,7 +807,7 @@
                             <!-- Total Reward & Eligibility -->
                             <div class="col-12 col-md-10 col-lg-8 mt-4">
                                 <div id="airdrop-reward-card" class="card-glass text-center">
-                                    <h6 class="text-white-50">PHẦN THƯỞNG VIEC DỰ KIẾN CỦA BẠN</h6>
+                                    <h6 class="text-white-50">PHẦN THƯỞNG $VIEC CỦA BẠN SẼ NHẬN ĐƯỢC</h6>
                                     <div class="d-flex justify-content-center align-items-center">
                                         <h2 id="airdrop-reward-value" class="fw-bold display-4 mb-0">0</h2>
                                         <img src="https://duccodedao.github.io/VIEC/img/logo.png" id="airdrop-reward-logo" alt="VIEC Token">
@@ -824,7 +824,7 @@
                     <div id="airdrop-content-logged-out" class="text-center p-5 card-glass col-md-8 mx-auto" style="display: none;">
                         <i class="fas fa-wallet fa-3x text-secondary mb-3"></i>
                         <h4 class="text-secondary">Vui lòng kết nối ví</h4>
-                        <p class="text-secondary">Kết nối ví của bạn để xem thống kê và tính toán phần thưởng airdrop tiềm năng.</p>
+                        <p class="text-secondary">Kết nối ví của bạn để xem thống kê và tính toán phần thưởng airdrop.</p>
                     </div>
                 </div>
 
@@ -2221,7 +2221,7 @@
                 // Logic for Claim/Request Button
                 if (!settings.isSnapshotActive && settings.isClaimingEnabled) {
                     buttonsHtml += `<p class="text-white-50 mt-3 small">Bạn chỉ còn một bước nữa để nhận $VIEC, hãy điền tên minh vào danh sách yêu cầu phân thưởng.</p>`;
-                    buttonsHtml += `<button id="request-reward-button" class="airdrop-action-btn" style="background: var(--accent-secondary); color: white;">Yêu Cầu Nhận Thưởng</button>`;
+                    buttonsHtml += `<button id="request-reward-button" class="airdrop-action-btn" style="background: var(--accent-secondary); color: white;">Sent </button>`;
                 } else if (settings.isSnapshotActive) {
                     buttonsHtml += `<p class="mt-3 fw-bold" style="color: var(--gold);"><i class="fas fa-flag-checkered me-2"></i>Final Snapshot!</p><p class="text-white-50">Việc yêu cầu nhận thưởng đã kết thúc. Token sẽ được phân phối sớm cho những người đã yêu cầu.</p>`;
                 } else {
