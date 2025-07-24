@@ -651,7 +651,6 @@
             </div>
         </main>
 
-        <!-- MODIFIED TASK SECTION -->
         <main id="task-section" style="display: none;">
             <div class="container">
                 <div class="text-center mb-5">
@@ -682,8 +681,8 @@
                             <!-- Task History -->
                             <h5 class="card-title">Lịch sử Hoạt động</h5>
                             <div id="task-history-content" style="max-height: 300px; overflow-y: auto; padding-right: 10px; padding-bottom: 15px;">
-    <p class="text-secondary text-center p-3">Chưa có hoạt động nào.</p>
-</div>
+                                <p class="text-secondary text-center p-3">Chưa có hoạt động nào.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -701,7 +700,7 @@
                         <div class="card-glass">
                             <ul class="nav nav-tabs" id="referralTab" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab"><i class="fas fa-link me-2"></i>Link</button>
+                                    <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab"><i class="fas fa-link me-2"></i>Mã Của Tôi</button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link" id="invited-list-tab" data-bs-toggle="tab" data-bs-target="#invited-list-pane" type="button" role="tab"><i class="fas fa-users me-2"></i>Đã mời (<span id="referral-count">0</span>)</button>
@@ -712,7 +711,11 @@
                                 <div class="tab-pane fade show active" id="my-codes-pane" role="tabpanel">
                                     <div id="referral-links-container"></div>
                                     <div id="referral-codes-container"></div>
-                                     <div id="referral-input-container" class="mt-4" style="display: none;">
+
+                                    <!-- [NEW] Hiển thị người đã mời bạn -->
+                                    <div id="referred-by-container" class="mt-4" style="display: none;"></div>
+                                    
+                                    <div id="referral-input-container" class="mt-4" style="display: none;">
                                         <h6 class="mb-2"><i class="fas fa-user-plus me-2"></i>Nhập Mã Mời</h6>
                                         <p class="text-secondary small">Nếu bạn được ai đó mời nhưng chưa nhập mã, hãy nhập vào đây.</p>
                                         <div class="input-group">
@@ -960,16 +963,15 @@
                         </div>
                     </div>
                     
-                    <!-- NEW: THƯỞNG EXP HÀNG LOẠT -->
+                    <!-- [NEW] THƯỞNG EXP HÀNG LOẠT -->
                     <div class="col-12 col-lg-10 col-xl-8">
                         <div class="card-glass">
                             <h5 class="card-title">Thưởng EXP Hàng Loạt</h5>
                             <form id="admin-mass-award-form">
-                                <!-- Điều kiện -->
                                 <div class="mb-3">
                                     <label for="admin-mass-condition-type" class="form-label">Thưởng cho người dùng theo</label>
                                     <select class="form-select" id="admin-mass-condition-type">
-                                        <option value="all" selected>Tất cả người dùng (Không điều kiện)</option>
+                                        <option value="all" selected>Tất cả người dùng</option>
                                         <option value="referralCount">Số lượt mời</option>
                                         <option value="checkinCount">Số lượt Check-in</option>
                                         <option value="points">Số điểm EXP</option>
@@ -986,7 +988,6 @@
                                     </div>
                                 </div>
                                 
-                                <!-- Phần thưởng -->
                                 <div class="mb-3">
                                     <label for="admin-mass-exp-amount" class="form-label">Số lượng EXP để thưởng</label>
                                     <input type="number" class="form-control" id="admin-mass-exp-amount" placeholder="e.g., 500" required min="1">
@@ -1418,7 +1419,7 @@
         }
         
         // =========================================================================
-        // [RÀ SOÁT & TỐI ƯU] LOGIC GIỚI THIỆU (CẢ HAI CÙNG NHẬN THƯỞNG)
+        // [RÀ SOÁT & TỐI ƯU] LOGIC GIỚI THIỆU
         // =========================================================================
         async function applyReferral(referrerCode, newAddress) {
             if (airdropSettings?.isSnapshotActive) {
@@ -1464,11 +1465,9 @@
                     const freshReferrerDoc = await transaction.get(referrerRef);
                     if (!freshReferrerDoc.exists) throw "Người mời không tồn tại trong giao dịch";
                     
-                    const referrerPoints = freshReferrerDoc.data().points || 0;
-                    const referrerCount = freshReferrerDoc.data().referralCount || 0;
                     transaction.update(referrerRef, {
-                        points: referrerPoints + REFERRAL_REWARD,
-                        referralCount: referrerCount + 1
+                        points: firebase.firestore.FieldValue.increment(REFERRAL_REWARD),
+                        referralCount: firebase.firestore.FieldValue.increment(1)
                     });
                     
                     const referrerHistoryRef = referrerRef.collection('task_history').doc();
@@ -1481,14 +1480,9 @@
                     
                     // --- Logic cho Người Được Mời (Referred - User B) ---
                     const newUserRef = db.collection('users').doc(newAddress);
-                    const freshNewUserDoc = await transaction.get(newUserRef);
-                    if (!freshNewUserDoc.exists) throw "Người dùng mới không tồn tại trong giao dịch";
-
-                    const newUserPoints = freshNewUserDoc.data().points || 0;
-                    
                     transaction.update(newUserRef, { 
                         referredBy: String(referrerCode),
-                        points: newUserPoints + REFERRAL_REWARD 
+                        points: firebase.firestore.FieldValue.increment(REFERRAL_REWARD)
                     });
 
                     const newUserHistoryRef = newUserRef.collection('task_history').doc();
@@ -1500,7 +1494,7 @@
                     });
                 });
                 
-                showAppToast(`Bonus Nhập Mã Mời!`, `Bạn và người mời đã nhận được ${REFERRAL_REWARD} EXP.`, 'success');
+                showAppToast(`Bonus Nhập Mã Mời!`, `Bạn và người mời đã cùng nhận được ${REFERRAL_REWARD} EXP.`, 'success');
 
             } catch (error) {
                 console.error("Failed to apply referral:", error);
@@ -1524,15 +1518,6 @@
                 navAdmin.style.display = 'block';
             } else {
                 navAdmin.style.display = 'none';
-            }
-            
-            if(currentUserData.referredBy || airdropSettings?.isSnapshotActive) {
-                referralInputContainer.style.display = 'none';
-                referralInputContainerHero.style.display = 'none';
-            } else if (!connectedWalletAddress) {
-                referralInputContainerHero.style.display = 'block';
-            } else {
-                referralInputContainer.style.display = 'block';
             }
         }
         
@@ -1612,10 +1597,9 @@
                         return;
                     }
 
-                    const newPoints = (userData.points || 0) + CHECKIN_REWARD;
                     const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
                     transaction.update(userRef, {
-                        points: newPoints,
+                        points: firebase.firestore.FieldValue.increment(CHECKIN_REWARD),
                         lastCheckin: newTimestamp,
                         checkinCount: firebase.firestore.FieldValue.increment(1)
                     });
@@ -1746,7 +1730,7 @@
 
             if (isInitialLoad) {
                 lastVisibleAdminUser = null;
-                adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">Lượt mời</th><th scope="col">Check-in</th><th scope="col">EXP</th><th scope="col">$VIEC nhận được tại thời điểm TGE: 100%</th><th scope="col">Đã yêu cầu</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
+                adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">Lượt mời</th><th scope="col">Check-in</th><th scope="col">EXP</th><th scope="col">Đã xác nhận 100%</th><th scope="col">Đã yêu cầu</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
             }
             
             const tableBody = adminUserListContainer.querySelector('tbody');
@@ -1952,11 +1936,11 @@
                     const freshUserDoc = await transaction.get(userRef);
                     if (!freshUserDoc.exists) throw "User document not found in transaction!";
                     
-                    const currentPoints = freshUserDoc.data().points || 0;
-                    const newPoints = currentPoints + finalExpChange;
                     const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
                     
-                    transaction.update(userRef, { points: newPoints });
+                    transaction.update(userRef, { 
+                        points: firebase.firestore.FieldValue.increment(finalExpChange) 
+                    });
                     
                     const historyRef = userRef.collection('task_history').doc();
                     transaction.set(historyRef, {
@@ -1980,7 +1964,7 @@
         }
         
         // =========================================================================
-        // NEW: Mass Award Logic
+        // [FIXED] Mass Award Logic
         // =========================================================================
         async function handleMassAward(e) {
             e.preventDefault();
@@ -2024,7 +2008,14 @@
                 let totalProcessed = 0;
                 
                 while (true) {
-                    let batchQuery = query.orderBy(firebase.firestore.FieldPath.documentId()).limit(BATCH_SIZE);
+                    let batchQuery;
+                    if (conditionType !== 'all') {
+                        // [FIX] If filtering on an inequality, the first orderBy must be on the same field.
+                        batchQuery = query.orderBy(conditionType).orderBy(firebase.firestore.FieldPath.documentId()).limit(BATCH_SIZE);
+                    } else {
+                        batchQuery = query.orderBy(firebase.firestore.FieldPath.documentId()).limit(BATCH_SIZE);
+                    }
+                    
                     if (lastVisible) {
                         batchQuery = batchQuery.startAfter(lastVisible);
                     }
@@ -2071,6 +2062,7 @@
                 setTimeout(() => { adminMassAwardStatus.innerHTML = ''; }, 5000);
             }
         }
+
         
         async function updateUserStatus(enable) {
             if (!db) { showAppToast('Lỗi', 'Chưa kết nối cơ sở dữ liệu.', 'error'); return; }
@@ -2231,17 +2223,23 @@
             }
         }
         
-        function renderReferralSection() {
+        // =========================================================================
+        // [MODIFIED] Render Referral Section with "Referred By" Info
+        // =========================================================================
+        async function renderReferralSection() {
             if (!currentUserData) return;
             const linksContainer = document.getElementById('referral-links-container');
             const codesContainer = document.getElementById('referral-codes-container');
             const referralCountEl = document.getElementById('referral-count');
+            const referredByContainer = document.getElementById('referred-by-container');
+            const referralInputContainer = document.getElementById('referral-input-container');
             
             linksContainer.innerHTML = '';
             codesContainer.innerHTML = '';
 
             const webLink = `${YOUR_WEB_APP_URL}?ref=${currentUserData.address}`;
-            linksContainer.innerHTML += `
+            linksContainer.innerHTML = `
+                <h6 class="mb-2"><i class="fas fa-link me-2"></i>Link Mời Của Bạn</h6>
                 <div class="mb-3">
                     <label class="form-label small text-secondary">Link mời cho Web:</label>
                     <div class="input-group">
@@ -2249,7 +2247,8 @@
                         <button class="btn btn-outline-secondary copyable-code" data-code="${webLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
                     </div>
                 </div>`;
-            codesContainer.innerHTML += `
+            codesContainer.innerHTML = `
+                <h6 class="mb-2"><i class="fas fa-barcode me-2"></i>Mã Mời Của Bạn</h6>
                  <div class="mb-2">
                     <label class="form-label small text-secondary">Mã mời (Địa chỉ ví):</label>
                     <div class="input-group">
@@ -2262,7 +2261,7 @@
                 const miniAppLink = `https://t.me/${YOUR_TELEGRAM_BOT_NAME}/${YOUR_MINI_APP_NAME}?startapp=${currentUserData.telegramId}`;
                  linksContainer.innerHTML += `
                     <div class="mb-2">
-                        <label class="form-label small text-secondary">Link mời cho Mini App (Mở trực tiếp):</label>
+                        <label class="form-label small text-secondary">Link mời cho Mini App:</label>
                         <div class="input-group">
                             <input type="text" class="form-control" value="${miniAppLink}" readonly>
                             <button class="btn btn-outline-secondary copyable-code" data-code="${miniAppLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
@@ -2276,6 +2275,46 @@
                             <button class="btn btn-outline-secondary copyable-code" data-code="${currentUserData.telegramId}" title="Copy Code"><i class="fas fa-copy"></i></button>
                         </div>
                     </div>`;
+            }
+            
+            // [NEW] Logic to display who referred the current user
+            if (currentUserData.referredBy) {
+                referralInputContainer.style.display = 'none';
+                referredByContainer.style.display = 'block';
+                referredByContainer.innerHTML = `<div class="skeleton-loader skeleton-line w-75"></div>`; // Placeholder
+                
+                const referrerCode = currentUserData.referredBy;
+                let referrerQuery;
+                if (!isNaN(referrerCode)) {
+                    referrerQuery = db.collection('users').where('telegramId', '==', parseInt(referrerCode, 10));
+                } else {
+                    referrerQuery = db.collection('users').where('address', '==', referrerCode);
+                }
+                
+                try {
+                    const snapshot = await referrerQuery.get();
+                    let referrerName = shortenAddress(referrerCode);
+                    if (!snapshot.empty) {
+                        const referrerData = snapshot.docs[0].data();
+                        referrerName = referrerData.fullName || (referrerData.username ? `@${referrerData.username}` : shortenAddress(referrerData.address));
+                    }
+                    referredByContainer.innerHTML = `
+                        <hr style="border-color: var(--border-color); opacity: 0.5;">
+                        <h6 class="mb-2 text-secondary"><i class="fas fa-user-check me-2"></i>Người giới thiệu của bạn</h6>
+                        <div class="d-flex align-items-center p-2" style="background: rgba(43, 203, 196, 0.1); border-radius: 12px;">
+                            <i class="fas fa-award me-3" style="color: var(--accent-secondary); font-size: 1.5rem;"></i>
+                            <p class="m-0">Bạn đã được giới thiệu bởi <strong style="color: var(--accent-secondary);">${referrerName}</strong>.</p>
+                        </div>`;
+                } catch (error) {
+                    console.error("Could not fetch referrer's name", error);
+                    referredByContainer.innerHTML = '';
+                }
+
+            } else {
+                referredByContainer.style.display = 'none';
+                if (!airdropSettings?.isSnapshotActive) {
+                    referralInputContainer.style.display = 'block';
+                }
             }
             
             referralCountEl.textContent = `${currentUserData.referralCount || 0}`;
@@ -2367,7 +2406,6 @@
                 
                 let buttonsHtml = '';
 
-                // Logic for Confirmation (100%) Button
                 if (!currentUserData.hasSentConfirmationTx && !settings.isSnapshotActive && settings.isConfirmationEnabled) {
                      buttonsHtml += `<p class="text-white-50 mt-3 small">Nâng mức thưởng lên <strong class="text-white">100%</strong>.</p>`;
                      buttonsHtml += `<button id="confirm-button" class="airdrop-action-btn">Nhận 100% $VIEC</button>`;
@@ -2375,7 +2413,6 @@
                      buttonsHtml += `<p class="text-white-50 mt-3 fw-bold" style="color: var(--color-verified)!important;"><i class="fas fa-check-circle me-2"></i>Đặc quyền 100% tại TGE</p>`;
                 }
 
-                // Logic for Claim/Request Button
                 if (!settings.isSnapshotActive && settings.isClaimingEnabled) {
                     buttonsHtml += `<p class="text-white-50 mt-3 small">Bạn chỉ còn một bước nữa để nhận $VIEC, hãy điền tên minh vào danh sách yêu cầu phân thưởng.</p>`;
                     buttonsHtml += `<button id="request-reward-button" class="airdrop-action-btn" style="background: var(--accent-secondary); color: white;">Sent Transaction</button>`;
@@ -3137,7 +3174,7 @@
 
         async function saveAirdropSettings() {
             const isAirdropLive = document.getElementById('airdrop-live-switch').checked;
-            const isConfirmationEnabled = document.getElementById('confirmation-enabled-switch').checked; // NEW
+            const isConfirmationEnabled = document.getElementById('confirmation-enabled-switch').checked; 
             const isClaimingEnabled = document.getElementById('claim-enabled-switch').checked;
             const isSnapshotActive = document.getElementById('snapshot-active-switch').checked;
 
@@ -3166,7 +3203,7 @@
             try {
                 const settingsRef = db.collection('admin_settings').doc('airdrop_criteria');
                 const newSettings = { isAirdropLive, isConfirmationEnabled, isClaimingEnabled, isSnapshotActive, minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier };
-                await settingsRef.set(newSettings, { merge: true }); // Use merge to be safe
+                await settingsRef.set(newSettings, { merge: true });
                 airdropSettings = newSettings; 
                 adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
                 showAppToast('Thành công', 'Đã lưu cài đặt Airdrop.', 'success');
