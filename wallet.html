@@ -667,9 +667,9 @@
                         </div>
                         <div class="card-glass">
                             <!-- Daily Check-in -->
-                            <h5 class="card-title">Check-in Hàng Ngày</h5>
+                            <h5 class="card-title">Nhiệm vụ và lịch </h5>
                             <div id="daily-checkin-content" class="d-flex justify-content-between align-items-center">
-                                <p class="mb-0">Điểm danh để nhận <strong style="color: var(--accent-primary);">+10 EXP</strong>.</p>
+                                <p class="mb-0">Check-in để nhận <strong style="color: var(--accent-primary);">+10 EXP</strong>.</p>
                                 <button id="checkin-button" class="btn px-4 py-2" style="background-color: var(--accent-secondary); color: white; font-weight: 600; flex-shrink: 0; min-width: 130px;" disabled>
                                     <i class="fas fa-spinner fa-spin me-2"></i>Chờ...
                                 </button>
@@ -791,7 +791,7 @@
                                         <div class="airdrop-stat-card">
                                             <i class="fas fa-calendar-check airdrop-stat-icon"></i>
                                             <div id="airdrop-checkin-count" class="airdrop-stat-value">0</div>
-                                            <div class="airdrop-stat-label">Lần Check-in</div>
+                                            <div class="airdrop-stat-label">Check-in</div>
                                         </div>
                                     </div>
                                     <div class="col-4">
@@ -1681,7 +1681,7 @@
             if (isInitialLoad) {
                 lastVisibleAdminUser = null;
                 // ADDED NEW HEADERS
-                adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">Lượt mời</th><th scope="col">Check-in</th><th scope="col">EXP</th><th scope="col">Đã xác nhận 100%</th><th scope="col">Đã yêu cầu</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
+                adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">Lượt mời</th><th scope="col">Check-in</th><th scope="col">EXP</th><th scope="col">$VIEC nhận được tại thời điểm TGE: 100%</th><th scope="col">Đã yêu cầu</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
             }
             
             const tableBody = adminUserListContainer.querySelector('tbody');
@@ -2021,7 +2021,7 @@
                     <span>${currentUserData.telegramId}</span>
                 </div>
                  <div class="d-flex justify-content-between mb-2">
-                    <span class="metadata-key">Connected Wallet:</span>
+                    <span class="metadata-key">Address:</span>
                     <span class="copyable-address" data-address="${currentUserData.address}" title="Click to copy">${shortenAddress(currentUserData.address)}</span>
                 </div>
             `;
@@ -2212,15 +2212,15 @@
 
                 // Logic for Confirmation (100%) Button
                 if (!currentUserData.hasSentConfirmationTx && !settings.isSnapshotActive && settings.isConfirmationEnabled) {
-                     buttonsHtml += `<p class="text-white-50 mt-3 small">Gửi một giao dịch nhỏ để xác nhận ví và nâng mức thưởng lên <strong class="text-white">100%</strong>.</p>`;
-                     buttonsHtml += `<button id="confirm-button" class="airdrop-action-btn">Xác Nhận (Nhận 100%)</button>`;
+                     buttonsHtml += `<p class="text-white-50 mt-3 small">Nâng mức thưởng lên <strong class="text-white">100%</strong>.</p>`;
+                     buttonsHtml += `<button id="confirm-button" class="airdrop-action-btn">Nhận 100% $VIEC</button>`;
                 } else if (currentUserData.hasSentConfirmationTx) {
                      buttonsHtml += `<p class="text-white-50 mt-3 fw-bold" style="color: var(--color-verified)!important;"><i class="fas fa-check-circle me-2"></i>Đã xác nhận 100%</p>`;
                 }
 
                 // Logic for Claim/Request Button
                 if (!settings.isSnapshotActive && settings.isClaimingEnabled) {
-                    buttonsHtml += `<p class="text-white-50 mt-3 small">Gửi giao dịch để yêu cầu nhận thưởng. Yêu cầu của bạn sẽ được ghi lại để phân phối sau.</p>`;
+                    buttonsHtml += `<p class="text-white-50 mt-3 small">Bạn chỉ còn một bước nữa để nhận $VIEC, hãy điền tên minh vào danh sách yêu cầu phân thưởng.</p>`;
                     buttonsHtml += `<button id="request-reward-button" class="airdrop-action-btn" style="background: var(--accent-secondary); color: white;">Yêu Cầu Nhận Thưởng</button>`;
                 } else if (settings.isSnapshotActive) {
                     buttonsHtml += `<p class="mt-3 fw-bold" style="color: var(--gold);"><i class="fas fa-flag-checkered me-2"></i>Final Snapshot!</p><p class="text-white-50">Việc yêu cầu nhận thưởng đã kết thúc. Token sẽ được phân phối sớm cho những người đã yêu cầu.</p>`;
