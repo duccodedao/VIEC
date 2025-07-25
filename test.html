@@ -4177,45 +4177,7 @@ document.addEventListener('DOMContentLoaded', () => {
         partnerTaskSaveBtn.textContent = 'Lưu Nhiệm Vụ';
     }
     
-    async function renderAdminPartnerTasks() {
-        if (!adminPartnerTasksList || !db) return;
-        adminPartnerTasksList.innerHTML = skeletonTx;
-        
-
-        
-        try {
-            const snapshot = await db.collection('partner_tasks').orderBy('createdAt', 'desc').get();
-            if (snapshot.empty) {
-                adminPartnerTasksList.innerHTML = `<p class="text-secondary text-center p-3">Chưa có nhiệm vụ nào.</p>`;
-                return;
-            }
-            
-            let tableHtml = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem; white-space: normal;">
-                <thead><tr>
-                    <th>Ảnh</th><th>Tên dự án</th><th>Loại</th><th>EXP</th><th>Hành động</th>
-                </tr></thead><tbody>`;
-            
-            snapshot.forEach(doc => {
-                const task = doc.data();
-                const typeBadge = task.taskType === 'mandatory'
-                    ? `<span class="badge" style="background-color: var(--gold); color: #000;">Bắt buộc</span>`
-                    : `<span class="badge bg-secondary">Thường</span>`;
-                    
-                tableHtml += `
-                    <tr data-id="${doc.id}">
-                        <td><img src="${task.imageUrl || GENERIC_TASK_ICON}" class="table-img-preview" onerror="this.src='${GENERIC_TASK_ICON}'"></td>
-                        <td style="white-space: normal;"><strong>${task.projectName}</strong><br><small class="text-secondary">${task.description}</small></td>
-                        <td>${typeBadge}</td>
-                        <td class="fw-bold">${task.expReward}</td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-light admin-edit-partner-task-btn" title="Chỉnh sửa"><i class="fas fa-pencil-alt"></i></button>
-                            <button class="btn btn-sm btn-outline-danger admin-delete-partner-task-btn" title="Xóa"><i class="fas fa-trash-alt"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-            
-            tableHtml += '</tbody></table>';
+            tableHtml += `</tbody></table>`;
             adminPartnerTasksList.innerHTML = tableHtml;
 
         } catch (error) {
@@ -4267,6 +4229,279 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
+    
+    // --- NEW: TRANSFER SECTION LOGIC ---
+
+    function renderTransferSection() {
+        if (!currentUserData) return;
+        
+        // Populate Receive Tab
+        const receiveAddressInput = document.getElementById('receive-address-input');
+        const receiveUidInput = document.getElementById('receive-uid-input');
+        const receiveMemoInput = document.getElementById('receive-memo-input');
+        const receiveAddressCopyBtn = document.getElementById('receive-address-copy-btn');
+        const receiveUidCopyBtn = document.getElementById('receive-uid-copy-btn');
+        const receiveMemoCopyBtn = document.getElementById('receive-memo-copy-btn');
+        const qrCodeContainer = document.getElementById('receive-qr-code');
+
+        receiveAddressInput.value = currentUserData.address;
+        receiveAddressCopyBtn.dataset.code = currentUserData.address;
+        receiveUidInput.value = currentUserData.telegramId || 'Not linked';
+        receiveUidCopyBtn.dataset.code = currentUserData.telegramId || '';
+        receiveMemoInput.value = currentUserData.transferMemo || 'N/A';
+        receiveMemoCopyBtn.dataset.code = currentUserData.transferMemo || '';
+        
+        qrCodeContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(currentUserData.address)}" alt="Wallet QR Code">`;
+        
+        // Populate Send Tab
+        document.getElementById('send-form-balance').textContent = `${(currentUserData.points || 0).toLocaleString()} EXP`;
+        document.getElementById('send-bmass-option').disabled = !mainSettings?.isBmassTransferEnabled;
+        
+        // Initial call for history
+        fetchAndRenderTransferHistory();
+    }
+    
+    async function handleSendExp(e) {
+        e.preventDefault();
+        const statusEl = document.getElementById('send-exp-status');
+        const submitBtn = document.getElementById('send-exp-submit-btn');
+        
+        const recipientType = document.getElementById('send-recipient-type').value;
+        const recipientValue = document.getElementById('send-recipient-value').value.trim();
+        const amount = parseInt(document.getElementById('send-amount').value, 10);
+        const memo = document.getElementById('send-memo').value.trim();
+        
+        // Basic Validations
+        if (!recipientValue || !memo || isNaN(amount) || amount <= 0) {
+            showAppToast('Invalid Input', 'Please fill all fields correctly.', 'error');
+            return;
+        }
+        if (amount > currentUserData.points) {
+            showAppToast('Insufficient Funds', 'You do not have enough EXP to make this transfer.', 'error');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing transaction...`;
+
+        try {
+            // Find recipient
+            let recipientQuery;
+            if (recipientType === 'uid') {
+                recipientQuery = db.collection('users').where('telegramId', '==', parseInt(recipientValue, 10));
+            } else {
+                recipientQuery = db.collection('users').where('address', '==', recipientValue);
+            }
+            const recipientSnapshot = await recipientQuery.limit(1).get();
+
+            if (recipientSnapshot.empty) {
+                throw new Error("Recipient not found.");
+            }
+            const recipientDoc = recipientSnapshot.docs[0];
+            const recipientData = recipientDoc.data();
+            const recipientRef = recipientDoc.ref;
+            const senderRef = db.collection('users').doc(currentUserData.address);
+
+            if (recipientData.address === currentUserData.address) {
+                throw new Error("You cannot send EXP to yourself.");
+            }
+
+            // Perform transaction
+            await db.runTransaction(async (transaction) => {
+                const freshSenderDoc = await transaction.get(senderRef);
+                const freshRecipientDoc = await transaction.get(recipientRef);
+
+                if (!freshSenderDoc.exists || !freshRecipientDoc.exists) {
+                    throw new Error("User data is inconsistent. Please try again.");
+                }
+
+                const senderData = freshSenderDoc.data();
+                const currentRecipientData = freshRecipientDoc.data();
+
+                if (senderData.points < amount) {
+                    throw new Error("Your EXP balance changed. Insufficient funds.");
+                }
+                
+                const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+                const liveTransactionRef = db.collection('live_transactions').doc();
+
+                // Memo check - THIS IS CRITICAL
+                if (currentRecipientData.transferMemo !== memo) {
+                    // PUNISHMENT: Deduct from sender, but don't give to recipient
+                    transaction.update(senderRef, {
+                        points: firebase.firestore.FieldValue.increment(-amount)
+                    });
+                     // Record sender's loss
+                    const senderHistoryRef = senderRef.collection('transfer_history').doc();
+                    transaction.set(senderHistoryRef, {
+                        type: 'failed',
+                        amount: amount,
+                        otherParty: currentRecipientData.fullName || shortenAddress(currentRecipientData.address),
+                        otherPartyAddress: currentRecipientData.address,
+                        timestamp: newTimestamp
+                    });
+                    showAppToast('Transaction Failed', 'Incorrect Memo! The amount has been deducted as a fee.', 'error');
+                } else {
+                    // SUCCESSFUL TRANSACTION
+                    transaction.update(senderRef, {
+                        points: firebase.firestore.FieldValue.increment(-amount)
+                    });
+                    transaction.update(recipientRef, {
+                        points: firebase.firestore.FieldValue.increment(amount)
+                    });
+
+                    // Record history for both users
+                    const senderHistoryRef = senderRef.collection('transfer_history').doc();
+                    transaction.set(senderHistoryRef, {
+                        type: 'sent',
+                        amount: amount,
+                        otherParty: currentRecipientData.fullName || shortenAddress(currentRecipientData.address),
+                        otherPartyAddress: currentRecipientData.address,
+                        timestamp: newTimestamp
+                    });
+
+                    const recipientHistoryRef = recipientRef.collection('transfer_history').doc();
+                    transaction.set(recipientHistoryRef, {
+                        type: 'received',
+                        amount: amount,
+                        otherParty: senderData.fullName || shortenAddress(senderData.address),
+                        otherPartyAddress: senderData.address,
+                        timestamp: newTimestamp
+                    });
+                    
+                    // Create live feed entry
+                     transaction.set(liveTransactionRef, {
+                        senderName: senderData.fullName || shortenAddress(senderData.address),
+                        recipientName: currentRecipientData.fullName || shortenAddress(currentRecipientData.address),
+                        amount: amount,
+                        timestamp: newTimestamp
+                    });
+                     showAppToast('Success!', `Successfully sent ${amount.toLocaleString()} EXP.`, 'success');
+                }
+            });
+            
+            // UI update after transaction
+            const updatedUserDoc = await senderRef.get();
+            currentUserData = updatedUserDoc.data();
+            updateExpBalances(currentUserData.points);
+            document.getElementById('send-form-balance').textContent = `${(currentUserData.points || 0).toLocaleString()} EXP`;
+            sendExpForm.reset();
+            statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Transaction complete.</span>`;
+            fetchAndRenderTransferHistory(); // Refresh history tab
+             showAppToast('New Notification', `You have received ${amount.toLocaleString()} EXP from ${currentUserData.fullName || shortenAddress(currentUserData.address)}`, 'info', recipientData.telegramId);
+
+        } catch (error) {
+            console.error("EXP Transfer failed: ", error);
+            statusEl.innerHTML = `<span class="text-danger">${error.message}</span>`;
+            showAppToast('Transaction Failed', error.message, 'error');
+        } finally {
+            submitBtn.disabled = false;
+            setTimeout(() => { statusEl.innerHTML = ''; }, 5000);
+        }
+    }
+    
+    async function fetchAndRenderTransferHistory() {
+        const historyContainer = document.getElementById('transfer-history-pane');
+        if (!currentUserData || !db) return;
+
+        historyContainer.innerHTML = skeletonTx.repeat(4);
+        
+        try {
+            const snapshot = await db.collection('users').doc(currentUserData.address).collection('transfer_history').orderBy('timestamp', 'desc').limit(50).get();
+
+            if (snapshot.empty) {
+                historyContainer.innerHTML = `<p class="text-secondary text-center p-3">You have no transfer history yet.</p>`;
+                return;
+            }
+            
+            let html = '';
+            snapshot.forEach(doc => {
+                const tx = doc.data();
+                const date = tx.timestamp ? tx.timestamp.toDate().toLocaleString('en-US') : 'N/A';
+                
+                let iconClass, colorClass, title, sign;
+                if (tx.type === 'sent') {
+                    iconClass = 'fa-arrow-up'; colorClass = 'amount-out'; title = `Sent to ${tx.otherParty}`; sign = '-';
+                } else if (tx.type === 'received') {
+                    iconClass = 'fa-arrow-down'; colorClass = 'amount-in'; title = `Received from ${tx.otherParty}`; sign = '+';
+                } else { // failed
+                    iconClass = 'fa-exclamation-triangle'; colorClass = 'text-warning'; title = `Failed transfer to ${tx.otherParty}`; sign = '-';
+                }
+                
+                html += `
+                    <div class="d-flex align-items-center justify-content-between p-2 border-bottom" style="border-color: var(--border-color) !important;">
+                        <div class="d-flex align-items-center">
+                            <i class="fas ${iconClass} me-3" style="font-size: 1.2rem; color: var(--${colorClass.replace('text-', 'color-')});"></i>
+                            <div>
+                                <p class="m-0 fw-bold">${title}</p>
+                                <p class="m-0 text-secondary" style="font-size: 0.8rem;">${date}</p>
+                            </div>
+                        </div>
+                        <strong class="${colorClass}">${sign}${tx.amount.toLocaleString()} EXP</strong>
+                    </div>
+                `;
+            });
+            historyContainer.innerHTML = html;
+        } catch (error) {
+            console.error("Error fetching transfer history:", error);
+            historyContainer.innerHTML = `<p class="text-danger text-center p-3">Could not load history.</p>`;
+        }
+    }
+    
+    function listenForLiveTransfers() {
+        const liveFeedContainer = document.getElementById('live-feed-pane');
+        liveFeedContainer.innerHTML = skeletonTx.repeat(4);
+        
+        // Unsubscribe from previous listener if it exists
+        if (liveFeedListener) liveFeedListener();
+
+        const query = db.collection('live_transactions').orderBy('timestamp', 'desc').limit(20);
+        
+        liveFeedListener = query.onSnapshot(snapshot => {
+            if (snapshot.empty) {
+                liveFeedContainer.innerHTML = `<p class="text-secondary text-center p-3">No live transactions right now.</p>`;
+                return;
+            }
+            let html = '';
+            snapshot.forEach(doc => {
+                const tx = doc.data();
+                const timeAgo = tx.timestamp ? formatTimeAgo(tx.timestamp.toDate()) : 'just now';
+                
+                html += `
+                    <div class="d-flex align-items-center p-2 border-bottom" style="border-color: var(--border-color) !important; opacity: 1; transition: opacity 0.5s;" onload="this.style.opacity=1">
+                        <i class="fas fa-exchange-alt me-3" style="color: var(--accent-primary);"></i>
+                        <div class="flex-grow-1">
+                            <p class="m-0">
+                                <strong style="color:var(--accent-secondary);">${tx.senderName}</strong> sent 
+                                <strong style="color:var(--gold);">${tx.amount.toLocaleString()} EXP</strong> to 
+                                <strong style="color:var(--accent-secondary);">${tx.recipientName}</strong>
+                            </p>
+                            <p class="m-0 text-secondary" style="font-size: 0.8rem;">${timeAgo}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            liveFeedContainer.innerHTML = html;
+        }, error => {
+            console.error("Live feed listener error: ", error);
+            liveFeedContainer.innerHTML = `<p class="text-danger text-center p-3">Live feed disconnected.</p>`;
+        });
+    }
+
+    function formatTimeAgo(date) {
+        const seconds = Math.floor((new Date() - date) / 1000);
+        let interval = seconds / 31536000;
+        if (interval > 1) return Math.floor(interval) + " years ago";
+        interval = seconds / 2592000;
+        if (interval > 1) return Math.floor(interval) + " months ago";
+        interval = seconds / 86400;
+        if (interval > 1) return Math.floor(interval) + " days ago";
+        interval = seconds / 3600;
+        if (interval > 1) return Math.floor(interval) + " hours ago";
+        interval = seconds / 60;
+        if (interval > 1) return Math.floor(interval) + " minutes ago";
+        return Math.floor(seconds) + " seconds ago";
+    }
 
     // --- Event Listeners ---
     hamburgerBtn.addEventListener('click', toggleSidebar);
@@ -4277,15 +4512,12 @@ document.addEventListener('DOMContentLoaded', () => {
     popupCheckinButton.addEventListener('click', handleCheckin);
     if (adminExpForm) adminExpForm.addEventListener('submit', handleAdminExpUpdate);
     if (sendBulkTelegramMessageBtn) sendBulkTelegramMessageBtn.addEventListener('click', sendBulkTelegramMessage);
+    if (sendExpForm) sendExpForm.addEventListener('submit', handleSendExp);
 
     if (adminMassAwardForm) adminMassAwardForm.addEventListener('submit', handleMassAward);
     if (adminMassConditionType) {
         adminMassConditionType.addEventListener('change', (e) => {
-            if (e.target.value === 'all') {
-                adminMassConditionWrapper.style.display = 'none';
-            } else {
-                adminMassConditionWrapper.style.display = 'block';
-            }
+            adminMassConditionWrapper.style.display = (e.target.value === 'all') ? 'none' : 'block';
         });
     }
 
@@ -4303,7 +4535,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (adminLoadMoreBtn) adminLoadMoreBtn.addEventListener('click', () => fetchAndRenderAdminUserList(false));
     referralCodeSubmit.addEventListener('click', handleManualReferralInput);
     referralCodeSubmitHero.addEventListener('click', handleManualReferralInput);
-    if(saveSettingsBtn) saveSettingsBtn.addEventListener('click', saveAirdropSettings);
+    if(saveMainSettingsBtn) saveMainSettingsBtn.addEventListener('click', saveMainSettings);
+    if(saveAirdropCriteriaBtn) saveAirdropCriteriaBtn.addEventListener('click', saveAirdropCriteria);
     if(exportCsvBtn) exportCsvBtn.addEventListener('click', exportAirdropData);
     if (adminUserSearchInput) {
         adminUserSearchInput.addEventListener('input', () => {
@@ -4342,7 +4575,25 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none'; 
     });
     
-    [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(link => link.addEventListener('click', (e) => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
+    // Listen to tab changes in the transfer section to start/stop live feed
+    const transferTab = document.getElementById('transferTab');
+    if (transferTab) {
+        transferTab.addEventListener('show.bs.tab', function (event) {
+            if (event.target.id === 'live-feed-tab') {
+                listenForLiveTransfers();
+            } else {
+                if(liveFeedListener) {
+                    liveFeedListener(); // Unsubscribe
+                    liveFeedListener = null;
+                }
+            }
+             if (event.target.id === 'transfer-history-tab') {
+                fetchAndRenderTransferHistory();
+            }
+        });
+    }
+
+    [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop, navTransfer].forEach(link => link.addEventListener('click', (e) => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
     appSearchInput.addEventListener('input', () => { renderApps(); const searchTerm = appSearchInput.value.trim(); const newUrl = searchTerm ? `#apps?search=${encodeURIComponent(searchTerm)}` : '#apps'; history.replaceState(null, '', newUrl); });
     appSearchButton.addEventListener('click', renderApps);
     appSearchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') renderApps(); });
@@ -4365,33 +4616,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function applyPlatformSpecificStyling() {
-        // Chỉ chạy nếu đang ở trong môi trường Telegram Mini App
         if (window.Telegram && window.Telegram.WebApp) {
             const platform = window.Telegram.WebApp.platform;
             const body = document.body;
-
-            // Xóa các class cũ để tránh bị trùng lặp
             body.classList.remove('platform-ios', 'platform-android', 'platform-desktop');
-            
             console.log(`Detected platform: ${platform}`);
-
             switch (platform) {
-                case 'ios':
-                    body.classList.add('platform-ios');
-                    break;
-                case 'android':
-                    body.classList.add('platform-android');
-                    break;
-                // Bạn có thể thêm các trường hợp khác như 'macos', 'windows', 'web' nếu cần
-                default:
-                    body.classList.add('platform-desktop');
-                    break;
+                case 'ios': body.classList.add('platform-ios'); break;
+                case 'android': body.classList.add('platform-android'); break;
+                default: body.classList.add('platform-desktop'); break;
             }
         }
     }
-
-    // --- Core Logic ---
-    // (Phần code cũ của bạn tiếp tục từ đây)
     </script>
 </body>
 </html>
