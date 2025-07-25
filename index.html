@@ -576,6 +576,54 @@ body {
     .card-glass { padding: 2rem; }
     .main-container { padding: 2rem; }
 }
+
+
+
+        /* =================================================================== */
+/* [PHIÊN BẢN CUỐI CÙNG] CSS ĐIỀU CHỈNH SAFE AREA CHO TẤT CẢ PHẦN TỬ */
+/* =================================================================== */
+
+/*
+  PHẦN 1: Áp dụng PADDING cho các container nội dung chính và lớp phủ.
+  - .main-container: Nội dung các trang.
+  - #loading-overlay: Màn hình chờ.
+*/
+.platform-ios .main-container,
+.platform-ios #loading-overlay {
+    padding-top: 90px !important;
+}
+
+.platform-android .main-container,
+.platform-android #loading-overlay {
+    padding-top: 65px !important;
+}
+
+/*
+  PHẦN 2: Điều chỉnh VỊ TRÍ cho các phần tử cố định đặc biệt.
+  - .toast-notification: Thông báo nhanh ở góc.
+*/
+.platform-ios .toast-notification {
+    top: 9090px !important;
+}
+
+.platform-android .toast-notification {
+    top: 65px !important;
+}
+
+/*
+  PHẦN 3: SỬA LỖI CHO SIDEBAR - THEO YÊU CẦU.
+  Giữ nguyên background của sidebar (top: 0),
+  chỉ đẩy NỘI DUNG BÊN TRONG nó xuống bằng padding-top.
+*/
+.platform-ios #sidebar-menu {
+    /* Đây là giá trị bạn yêu cầu, nó sẽ ghi đè lên padding-top: 6rem gốc */
+    padding-top: 150px !important; 
+}
+
+.platform-android #sidebar-menu {
+    /* Giữ giá trị an toàn cho Android */
+    padding-top: 140px !important;
+}
     </style>
 </head>
 <body>
@@ -3001,10 +3049,26 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(e) { console.error("Error capturing web referral:", e); }
     }
 
+        // --- PHIÊN BẢN MỚI ---
     async function initializeApp() {
         checkUserSession();
         captureWebReferral();
         identifyTelegramUser(); 
+
+        // [MỚI] Gọi hàm áp dụng style theo nền tảng
+        applyPlatformSpecificStyling();
+        
+        // [MỚI] Cấu hình chức năng cho nút Back Button
+        if (window.Telegram && window.Telegram.WebApp) {
+            const tg = window.Telegram.WebApp;
+            
+            // Định nghĩa hành động khi người dùng nhấn nút Back
+            tg.BackButton.onClick(() => {
+                // Chuyển hướng về trang chủ
+                window.location.hash = '#dashboard';
+                // Không cần gọi handleRouteChange() ở đây vì sự kiện hashchange sẽ tự động làm điều đó
+            });
+        }
         
         if (!telegramUserData) {
             appLogoText.textContent = 'Bmass';
@@ -3012,7 +3076,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         initializeFirebase();
         await fetchAirdropSettings();
-        handleRouteChange(); 
+        handleRouteChange(); // Gọi hàm này để kiểm tra route ban đầu và thiết lập nút Back
     }
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ 
@@ -3100,9 +3164,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sidebarMenu.classList.contains('open')) toggleSidebar();
     };
     
+        // --- PHIÊN BẢN MỚI ---
     const handleRouteChange = () => {
         let hash = window.location.hash.substring(1) || 'dashboard';
         const [path, queryString] = hash.split('?');
+        const tg = window.Telegram?.WebApp; // [ĐÃ SỬA] Lấy đối tượng WebApp một cách an toàn
         
         const protectedRoutes = ['task', 'partner', 'account', 'admin', 'referral', 'airdrop', 'leaderboard'];
         if (!connectedWalletAddress && protectedRoutes.includes(path)) {
@@ -3115,6 +3181,17 @@ document.addEventListener('DOMContentLoaded', () => {
              showAppToast('Access Denied', 'You do not have permission to access this page.', 'error');
              window.location.hash = '#dashboard';
              hash = 'dashboard'; 
+        }
+
+        // [MỚI] Logic quản lý nút Back Button
+        if (tg) {
+            if (path === 'dashboard' || path === '') {
+                // Nếu đang ở trang chủ, ẩn nút Back
+                tg.BackButton.hide();
+            } else {
+                // Nếu ở các trang khác, hiện nút Back
+                tg.BackButton.show();
+            }
         }
 
         switchView(path);
@@ -4153,6 +4230,36 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchCryptoNews();
     initializeApp();
 });
+
+
+    function applyPlatformSpecificStyling() {
+        // Chỉ chạy nếu đang ở trong môi trường Telegram Mini App
+        if (window.Telegram && window.Telegram.WebApp) {
+            const platform = window.Telegram.WebApp.platform;
+            const body = document.body;
+
+            // Xóa các class cũ để tránh bị trùng lặp
+            body.classList.remove('platform-ios', 'platform-android', 'platform-desktop');
+            
+            console.log(`Detected platform: ${platform}`);
+
+            switch (platform) {
+                case 'ios':
+                    body.classList.add('platform-ios');
+                    break;
+                case 'android':
+                    body.classList.add('platform-android');
+                    break;
+                // Bạn có thể thêm các trường hợp khác như 'macos', 'windows', 'web' nếu cần
+                default:
+                    body.classList.add('platform-desktop');
+                    break;
+            }
+        }
+    }
+
+    // --- Core Logic ---
+    // (Phần code cũ của bạn tiếp tục từ đây)
     </script>
 </body>
 </html>
