@@ -576,54 +576,6 @@ body {
     .card-glass { padding: 2rem; }
     .main-container { padding: 2rem; }
 }
-/* =================================================================== */
-/* [HOÀN CHỈNH] CSS ĐIỀU CHỈNH KHOẢNG CÁCH CHO IOS & ANDROID */
-/* =================================================================== */
-
-/* 
-  PHẦN 1: Áp dụng PADDING cho các container có thể cuộn.
-  Cách này đẩy NỘI DUNG bên trong xuống, giữ nguyên kích thước của container.
-  - .main-container: Nội dung chính của các trang.
-  - #loading-overlay: Màn hình chờ.
-*/
-.platform-ios .main-container,
-.platform-ios #loading-overlay {
-    padding-top: 85px !important;
-}
-
-.platform-android .main-container,
-.platform-android #loading-overlay {
-    padding-top: 65px !important;
-}
-
-/* 
-  PHẦN 2: Điều chỉnh VỊ TRÍ cho các phần tử cố định đặc biệt.
-  - .toast-notification: Thông báo nhanh ở góc màn hình.
-*/
-.platform-ios .toast-notification {
-    top: 85px !important;
-}
-
-.platform-android .toast-notification {
-    top: 65px !important;
-}
-
-/* 
-  PHẦN 3: SỬA LỖI CHO SIDEBAR.
-  Đây là cách tiếp cận đúng: thay đổi vị trí 'top' và 'height' của chính sidebar.
-*/
-.platform-ios #sidebar-menu {
-    top: 85px !important; /* Đẩy toàn bộ sidebar xuống dưới vùng tai thỏ */
-    height: calc(100% - 85px) !important; /* Giảm chiều cao để không bị tràn */
-    /* Đồng thời, giảm padding bên trong để nội dung không bị đẩy xuống quá xa */
-    padding-top: 2rem !important; 
-}
-
-.platform-android #sidebar-menu {
-    top: 65px !important; /* Đẩy toàn bộ sidebar xuống */
-    height: calc(100% - 65px) !important; /* Giảm chiều cao */
-    padding-top: 2rem !important;
-}
     </style>
 </head>
 <body>
@@ -635,7 +587,7 @@ body {
     </div>
     
     <div id="sidebar-overlay"></div>
-    <nav id="" class="sidebar">
+    <nav id="sidebar-menu" class="sidebar">
         <div class="sidebar-nav">
             <a href="#dashboard" class="sidebar-link active" id="nav-dashboard">Wallet</a>
             <a href="#apps" class="sidebar-link" id="nav-apps">Apps</a>
@@ -4231,9 +4183,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
 });
 
-      
 
-    // [MỚI] Hàm để phát hiện nền tảng và áp dụng style
     function applyPlatformSpecificStyling() {
         // Chỉ chạy nếu đang ở trong môi trường Telegram Mini App
         if (window.Telegram && window.Telegram.WebApp) {
