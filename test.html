@@ -4177,6 +4177,42 @@ document.addEventListener('DOMContentLoaded', () => {
         partnerTaskSaveBtn.textContent = 'Lưu Nhiệm Vụ';
     }
     
+    async function renderAdminPartnerTasks() {
+        if (!adminPartnerTasksList || !db) return;
+        adminPartnerTasksList.innerHTML = skeletonTx;
+        
+        try {
+            const snapshot = await db.collection('partner_tasks').orderBy('createdAt', 'desc').get();
+            if (snapshot.empty) {
+                adminPartnerTasksList.innerHTML = `<p class="text-secondary text-center p-3">Chưa có nhiệm vụ nào.</p>`;
+                return;
+            }
+            
+            let tableHtml = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem; white-space: normal;">
+                <thead><tr>
+                    <th>Ảnh</th><th>Tên dự án</th><th>Loại</th><th>EXP</th><th>Hành động</th>
+                </tr></thead><tbody>`;
+            
+            snapshot.forEach(doc => {
+                const task = doc.data();
+                const typeBadge = task.taskType === 'mandatory'
+                    ? `<span class="badge" style="background-color: var(--gold); color: #000;">Bắt buộc</span>`
+                    : `<span class="badge bg-secondary">Thường</span>`;
+                    
+                tableHtml += `
+                    <tr data-id="${doc.id}">
+                        <td><img src="${task.imageUrl || GENERIC_TASK_ICON}" class="table-img-preview" onerror="this.src='${GENERIC_TASK_ICON}'"></td>
+                        <td style="white-space: normal;"><strong>${task.projectName}</strong><br><small class="text-secondary">${task.description}</small></td>
+                        <td>${typeBadge}</td>
+                        <td class="fw-bold">${task.expReward}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-light admin-edit-partner-task-btn" title="Chỉnh sửa"><i class="fas fa-pencil-alt"></i></button>
+                            <button class="btn btn-sm btn-outline-danger admin-delete-partner-task-btn" title="Xóa"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
             tableHtml += `</tbody></table>`;
             adminPartnerTasksList.innerHTML = tableHtml;
 
@@ -4628,6 +4664,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
+
     </script>
 </body>
 </html>
