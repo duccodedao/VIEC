@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -4180,10 +4181,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!adminPartnerTasksList || !db) return;
         adminPartnerTasksList.innerHTML = skeletonTx;
         
-        try {
-            const snapshot = await db.collection('partner_tasks').orderBy('createdAt', 'desc').get();
-            if (snapshot.empty) {
-                adminPartnerTasksList.innerHTML = `<p class="text-secondary text-center p-3
+
         
         try {
             const snapshot = await db.collection('partner_tasks').orderBy('createdAt', 'desc').get();
@@ -4350,38 +4348,7 @@ document.addEventListener('DOMContentLoaded', () => {
     appSearchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') renderApps(); });
     appFilterControls.addEventListener('click', (e) => { const target = e.target.closest('.app-filter-btn'); if (target) { appFilterControls.querySelector('.active').classList.remove('active'); target.classList.add('active'); renderApps(); } });
     window.addEventListener('hashchange', handleRouteChange);
-
-
-
-
-// [THÊM MỚI]
-// Event listener cho form gửi
-const sendForm = document.getElementById('send-form');
-if (sendForm) {
-    sendForm.addEventListener('submit', handleSendSubmit);
-}
-// Event listener cho nút lưu cài đặt admin
-const saveTransferSettingsBtn = document.getElementById('save-transfer-settings-btn');
-if (saveTransferSettingsBtn) {
-    saveTransferSettingsBtn.addEventListener('click', saveTransferSettings);
-}
-// Event listener cho các nút copy trong tab Receive
-document.getElementById('copy-receive-address').addEventListener('click', (e) => { e.preventDefault(); navigator.clipboard.writeText(e.currentTarget.dataset.code).then(() => showAppToast('Success', 'Address copied!', 'success')); });
-document.getElementById('copy-receive-uid').addEventListener('click', (e) => { e.preventDefault(); navigator.clipboard.writeText(e.currentTarget.dataset.code).then(() => showAppToast('Success', 'UID copied!', 'success')); });
-document.getElementById('copy-receive-memo').addEventListener('click', (e) => { e.preventDefault(); navigator.clipboard.writeText(e.currentTarget.dataset.code).then(() => showAppToast('Success', 'Memo copied!', 'success')); });
-
-
-
-
-
-
-
-
-
-
-
-
-        
+    
     contactAdminBtn.addEventListener('click', () => contactAdminModal.show());
 
     const heroConnectButton = document.createElement('button');
@@ -4396,397 +4363,35 @@ document.getElementById('copy-receive-memo').addEventListener('click', (e) => { 
     initializeApp();
 });
 
-function applyPlatformSpecificStyling() {
-            if (window.Telegram && window.Telegram.WebApp) {
-                const platform = window.Telegram.WebApp.platform;
-                const body = document.body;
-                body.classList.remove('platform-ios', 'platform-android', 'platform-desktop');
-                console.log(`Detected platform: ${platform}`);
-                switch (platform) {
-                    case 'ios': body.classList.add('platform-ios'); break;
-                    case 'android': body.classList.add('platform-android'); break;
-                    default: body.classList.add('platform-desktop'); break;
-                }
-            }
-        }
 
-        async function fetchTransferSettings() {
-            if (transferSettings) return transferSettings;
-            try {
-                const docRef = db.collection('admin_settings').doc('transfer_settings');
-                const doc = await docRef.get();
-                if (doc.exists) {
-                    transferSettings = doc.data();
-                } else {
-                    transferSettings = { isTransferEnabled: false, isBmassTransferEnabled: false };
-                }
-                return transferSettings;
-            } catch (error) {
-                console.error("Error fetching transfer settings:", error);
-                return { isTransferEnabled: false, isBmassTransferEnabled: false };
-            }
-        }
+    function applyPlatformSpecificStyling() {
+        // Chỉ chạy nếu đang ở trong môi trường Telegram Mini App
+        if (window.Telegram && window.Telegram.WebApp) {
+            const platform = window.Telegram.WebApp.platform;
+            const body = document.body;
 
-        async function saveTransferSettings() {
-            const isTransferEnabled = document.getElementById('transfer-enabled-switch').checked;
-            const isBmassTransferEnabled = document.getElementById('transfer-bmass-enabled-switch').checked;
-            const statusEl = document.getElementById('admin-transfer-settings-status');
-            const saveBtn = document.getElementById('save-transfer-settings-btn');
-
-            saveBtn.disabled = true;
-            statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
-
-            try {
-                const settingsRef = db.collection('admin_settings').doc('transfer_settings');
-                const newSettings = { isTransferEnabled, isBmassTransferEnabled };
-                await settingsRef.set(newSettings, { merge: true });
-                transferSettings = newSettings;
-                statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
-                showAppToast('Thành công', 'Đã lưu cài đặt Transfer.', 'success');
-            } catch (error) {
-                console.error("Error saving transfer settings:", error);
-                statusEl.innerHTML = `<span class="text-danger">Lưu thất bại.</span>`;
-                showAppToast('Lỗi', 'Không thể lưu cài đặt.', 'error');
-            } finally {
-                saveBtn.disabled = false;
-                setTimeout(() => { statusEl.innerHTML = ''; }, 3000);
-            }
-        }
-
-        async function renderTransferSection() {
-            const comingSoonEl = document.getElementById('transfer-coming-soon');
-            const contentWrapper = document.getElementById('transfer-content-wrapper');
+            // Xóa các class cũ để tránh bị trùng lặp
+            body.classList.remove('platform-ios', 'platform-android', 'platform-desktop');
             
-            comingSoonEl.style.display = 'none';
-            contentWrapper.style.display = 'none';
+            console.log(`Detected platform: ${platform}`);
 
-            const settings = await fetchTransferSettings();
-            if (!settings.isTransferEnabled) {
-                comingSoonEl.style.display = 'block';
-                return;
-            }
-            contentWrapper.style.display = 'block';
-
-            const receiveAddressEl = document.getElementById('receive-address');
-            const receiveUidEl = document.getElementById('receive-uid');
-            const receiveMemoEl = document.getElementById('receive-memo');
-            const qrCodeContainer = document.getElementById('receive-qr-code');
-
-            if (currentUserData) {
-                receiveAddressEl.value = currentUserData.address;
-                document.getElementById('copy-receive-address').dataset.code = currentUserData.address;
-                
-                receiveUidEl.value = currentUserData.telegramId || 'Not linked';
-                if(currentUserData.telegramId) {
-                    document.getElementById('copy-receive-uid').dataset.code = currentUserData.telegramId;
-                }
-                
-                const uniqueMemo = `bmass-transfer-${currentUserData.telegramId}`;
-                receiveMemoEl.value = uniqueMemo;
-                document.getElementById('copy-receive-memo').dataset.code = uniqueMemo;
-
-                qrCodeContainer.innerHTML = '';
-                if(qrCodeInstance) qrCodeInstance.clear();
-                qrCodeInstance = new QRCode(qrCodeContainer, {
-                    text: currentUserData.address,
-                    width: 160, height: 160, colorDark: "#f1f2f6", colorLight: "transparent",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-            }
-
-            const bmassOption = document.querySelector('#send-asset-type option[value="bmass"]');
-            if (settings.isBmassTransferEnabled) {
-                bmassOption.disabled = false;
-                bmassOption.textContent = '$BMASS Token';
-            } else {
-                bmassOption.disabled = true;
-                bmassOption.textContent = '$BMASS Token (Coming Soon)';
+            switch (platform) {
+                case 'ios':
+                    body.classList.add('platform-ios');
+                    break;
+                case 'android':
+                    body.classList.add('platform-android');
+                    break;
+                // Bạn có thể thêm các trường hợp khác như 'macos', 'windows', 'web' nếu cần
+                default:
+                    body.classList.add('platform-desktop');
+                    break;
             }
         }
+    }
 
-        async function handleSendSubmit(e) {
-            e.preventDefault();
-            if (!db || !currentUserData) return;
-
-            const submitBtn = document.getElementById('send-submit-btn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
-
-            try {
-                const assetType = document.getElementById('send-asset-type').value;
-                const recipientType = document.getElementById('send-recipient-type').value;
-                const recipientValue = document.getElementById('send-recipient-value').value.trim();
-                const amount = parseInt(document.getElementById('send-amount').value, 10);
-                const memo = document.getElementById('send-memo').value.trim();
-
-                if (!recipientValue || isNaN(amount) || amount <= 0 || !memo) {
-                    throw new Error('Please fill in all fields correctly.');
-                }
-                if (assetType === 'exp' && (currentUserData.points || 0) < amount) {
-                    throw new Error('Insufficient EXP balance.');
-                }
-
-                let recipientQuery;
-                if (recipientType === 'uid') {
-                    recipientQuery = db.collection('users').where('telegramId', '==', parseInt(recipientValue, 10));
-                } else {
-                    recipientQuery = db.collection('users').where('address', '==', recipientValue);
-                }
-                const snapshot = await recipientQuery.limit(1).get();
-                if (snapshot.empty) {
-                    throw new Error('Recipient not found.');
-                }
-                const recipientDoc = snapshot.docs[0];
-                const recipientData = recipientDoc.data();
-
-                if (recipientData.address === currentUserData.address) {
-                    throw new Error("You cannot send assets to yourself.");
-                }
-
-                const expectedMemo = `bmass-transfer-${recipientData.telegramId}`;
-                if (memo !== expectedMemo) {
-                    if (assetType === 'exp') {
-                        const senderRef = db.collection('users').doc(currentUserData.address);
-                        await db.runTransaction(async (transaction) => {
-                            const freshSender = await transaction.get(senderRef);
-                            if((freshSender.data().points || 0) < amount) {
-                                throw new Error('Insufficient EXP balance for penalty.');
-                            }
-                            transaction.update(senderRef, {
-                                points: firebase.firestore.FieldValue.increment(-amount)
-                            });
-                            const historyRef = senderRef.collection('task_history').doc();
-                            transaction.set(historyRef, {
-                                taskName: 'Failed Transfer (Wrong Memo)',
-                                exp: -amount,
-                                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                                recipient: recipientValue,
-                                memoUsed: memo
-                            });
-                        });
-                        const updatedUserDoc = await senderRef.get();
-                        currentUserData = updatedUserDoc.data();
-                        updateExpBalances(currentUserData.points);
-                    }
-                    throw new Error(`Incorrect Memo! ${amount} EXP has been deducted as a penalty.`);
-                }
-                
-                if (assetType === 'exp') {
-                    const senderRef = db.collection('users').doc(currentUserData.address);
-                    const recipientRef = recipientDoc.ref;
-                    const liveTransferRef = db.collection('live_transfers').doc();
-                    
-                    await db.runTransaction(async (transaction) => {
-                        const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
-                        
-                        transaction.update(senderRef, { points: firebase.firestore.FieldValue.increment(-amount) });
-                        const senderHistoryRef = senderRef.collection('task_history').doc();
-                        transaction.set(senderHistoryRef, {
-                            taskName: 'Sent EXP', exp: -amount, timestamp: newTimestamp, to: recipientData.fullName || shortenAddress(recipientData.address)
-                        });
-
-                        transaction.update(recipientRef, { points: firebase.firestore.FieldValue.increment(amount) });
-                        const recipientHistoryRef = recipientRef.collection('task_history').doc();
-                        transaction.set(recipientHistoryRef, {
-                            taskName: 'Received EXP', exp: amount, timestamp: newTimestamp, from: currentUserData.fullName || shortenAddress(currentUserData.address)
-                        });
-
-                        transaction.set(liveTransferRef, {
-                            senderName: currentUserData.fullName || `@${currentUserData.username}` || shortenAddress(currentUserData.address),
-                            recipientName: recipientData.fullName || `@${recipientData.username}` || shortenAddress(recipientData.address),
-                            amount: amount,
-                            asset: 'EXP',
-                            timestamp: newTimestamp
-                        });
-                    });
-                    showAppToast('Success', `Successfully sent ${amount} EXP!`, 'success');
-                } else if (assetType === 'bmass') {
-                    showAppToast('Info', '$BMASS transfer is not implemented yet.', 'info');
-                }
-
-                document.getElementById('send-form').reset();
-                const updatedUserDoc = await db.collection('users').doc(currentUserData.address).get();
-                currentUserData = updatedUserDoc.data();
-                updateExpBalances(currentUserData.points);
-
-            } catch (error) {
-                console.error("Send failed:", error);
-                showAppToast('Error', error.message, 'error');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = `<i class="fas fa-paper-plane me-2"></i>Send`;
-            }
-        }
-
-        function listenForLiveTransfers() {
-            const container = document.getElementById('live-feed-container');
-            if (!db || !container) return;
-            
-            if (liveTransfersListener) liveTransfersListener();
-
-            const query = db.collection('live_transfers').orderBy('timestamp', 'desc').limit(20);
-            
-            liveTransfersListener = query.onSnapshot(snapshot => {
-                if (snapshot.empty) {
-                    container.innerHTML = `<p class="text-secondary text-center p-3">No recent transfers.</p>`;
-                    return;
-                }
-
-                let feedHtml = '';
-                snapshot.forEach(doc => {
-                    const transfer = doc.data();
-                    const time = transfer.timestamp ? transfer.timestamp.toDate().toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'}) : '';
-                    feedHtml += `
-                        <div class="live-feed-item">
-                            <i class="fas fa-receipt live-feed-icon"></i>
-                            <div class="flex-grow-1">
-                                <p class="m-0" style="font-size: 0.9rem;">
-                                    <strong style="color:var(--text-primary);">${transfer.senderName}</strong>
-                                    sent to
-                                    <strong style="color:var(--text-primary);">${transfer.recipientName}</strong>
-                                </p>
-                                <p class="m-0 text-secondary" style="font-size: 0.8rem;">${time}</p>
-                            </div>
-                            <strong class="amount-in">${transfer.amount} ${transfer.asset}</strong>
-                        </div>
-                    `;
-                });
-                container.innerHTML = feedHtml;
-            }, error => {
-                console.error("Error listening to live transfers: ", error);
-                container.innerHTML = `<p class="text-danger text-center p-3">Could not load live feed.</p>`;
-            });
-        }
-
-        async function initializeApp() {
-            checkUserSession();
-            captureWebReferral();
-            identifyTelegramUser(); 
-            applyPlatformSpecificStyling();
-            
-            if (window.Telegram && window.Telegram.WebApp) {
-                const tg = window.Telegram.WebApp;
-                tg.BackButton.onClick(() => {
-                    window.location.hash = '#dashboard';
-                });
-            }
-            
-            if (!telegramUserData) {
-                appLogoText.textContent = 'Bmass';
-            }
-            
-            initializeFirebase();
-            await Promise.all([
-                fetchAirdropSettings(), 
-                fetchTransferSettings()
-            ]);
-            listenForLiveTransfers();
-            handleRouteChange(); 
-        }
-
-        const switchView = (viewToShow) => {
-            [dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl, partnerSectionEl, transferSectionEl, accountSectionEl, leaderboardSectionEl, adminSectionEl, referralSectionEl, airdropSectionEl].forEach(section => {
-                if(section) section.style.display = 'none';
-            });
-            [navDashboard, navApps, navTask, navPartner, navTransfer, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(nav => nav.classList.remove('active'));
-
-            const isLoggedIn = !!connectedWalletAddress;
-            [navTask, navPartner, navTransfer, navAccount, navReferral, navAirdrop].forEach(nav => nav.style.display = isLoggedIn ? 'block' : 'none');
-
-            if (viewToShow === 'account' && isLoggedIn) { accountSectionEl.style.display = 'block'; navAccount.classList.add('active'); } 
-            else if (viewToShow === 'apps') { appStoreSection.style.display = 'block'; navApps.classList.add('active'); } 
-            else if (viewToShow === 'task' && isLoggedIn) { taskSectionEl.style.display = 'block'; navTask.classList.add('active'); } 
-            else if (viewToShow === 'partner' && isLoggedIn) { partnerSectionEl.style.display = 'block'; navPartner.classList.add('active'); renderPartnerSection(); }
-            else if (viewToShow === 'transfer' && isLoggedIn) { transferSectionEl.style.display = 'block'; navTransfer.classList.add('active'); renderTransferSection(); }
-            else if (viewToShow === 'referral' && isLoggedIn) { referralSectionEl.style.display = 'block'; navReferral.classList.add('active'); } 
-            else if (viewToShow === 'airdrop') { airdropSectionEl.style.display = 'block'; navAirdrop.classList.add('active'); renderAirdropSection(); } 
-            else if (viewToShow === 'leaderboard') { leaderboardSectionEl.style.display = 'block'; navLeaderboard.classList.add('active'); fetchAndRenderLeaderboard(); } 
-            else if (viewToShow === 'admin' && isLoggedIn && isCurrentUserAdmin()){
-                adminSectionEl.style.display = 'block';
-                navAdmin.classList.add('active');
-                renderAdminPartnerTasks();
-                fetchAndRenderAdminUserList(true); 
-                fetchAirdropSettings().then(settings => {
-                     document.getElementById('airdrop-live-switch').checked = settings.isAirdropLive || false;
-                     document.getElementById('confirmation-enabled-switch').checked = settings.isConfirmationEnabled || false;
-                     document.getElementById('claim-enabled-switch').checked = settings.isClaimingEnabled || false;
-                     document.getElementById('snapshot-active-switch').checked = settings.isSnapshotActive || false;
-                     document.getElementById('min-checkins-input').value = settings.minCheckins || 0;
-                     document.getElementById('min-referrals-input').value = settings.minReferrals || 0;
-                     document.getElementById('min-exp-input').value = settings.minExp || 0;
-                     document.getElementById('ref-multiplier-input').value = settings.refMultiplier ?? 50;
-                     document.getElementById('checkin-multiplier-input').value = settings.checkinMultiplier ?? 30;
-                     document.getElementById('exp-multiplier-input').value = settings.expMultiplier ?? 20;
-                });
-                fetchTransferSettings().then(settings => {
-                    document.getElementById('transfer-enabled-switch').checked = settings.isTransferEnabled || false;
-                    document.getElementById('transfer-bmass-enabled-switch').checked = settings.isBmassTransferEnabled || false;
-                });
-            } else { 
-                if (isLoggedIn) { dashboardEl.style.display = 'block'; } 
-                else { heroEl.style.display = 'flex'; }
-                if (newsSection) newsSection.style.display = 'block';
-                navDashboard.classList.add('active');
-            }
-            if (sidebarMenu.classList.contains('open')) toggleSidebar();
-        };
-        
-        const handleRouteChange = () => {
-            let hash = window.location.hash.substring(1) || 'dashboard';
-            const [path, queryString] = hash.split('?');
-            const tg = window.Telegram?.WebApp;
-            
-            const protectedRoutes = ['task', 'partner', 'transfer', 'account', 'admin', 'referral', 'airdrop', 'leaderboard'];
-            if (!connectedWalletAddress && protectedRoutes.includes(path)) {
-                 showAppToast('Wallet Connection Required', 'This feature requires a connected wallet.', 'warning');
-                 window.location.hash = '#dashboard';
-                 hash = 'dashboard';
-            }
-             
-            if (path === 'admin' && !isCurrentUserAdmin()){
-                 showAppToast('Access Denied', 'You do not have permission to access this page.', 'error');
-                 window.location.hash = '#dashboard';
-                 hash = 'dashboard'; 
-            }
-
-            if (tg) {
-                if (path === 'dashboard' || path === '') {
-                    tg.BackButton.hide();
-                } else {
-                    tg.BackButton.show();
-                }
-            }
-
-            switchView(path);
-
-            if (path === 'apps') {
-                const params = new URLSearchParams(queryString || '');
-                const searchQuery = params.get('search');
-                appSearchInput.value = searchQuery ? decodeURIComponent(searchQuery) : '';
-                renderApps();
-            }
-        };
-
-        // --- Event Listeners ---
-        // ... (all previous event listeners remain) ...
-
-        // [THÊM MỚI] Event Listeners for Transfer Feature
-        const sendForm = document.getElementById('send-form');
-        if (sendForm) {
-            sendForm.addEventListener('submit', handleSendSubmit);
-        }
-        const saveTransferSettingsBtn = document.getElementById('save-transfer-settings-btn');
-        if (saveTransferSettingsBtn) {
-            saveTransferSettingsBtn.addEventListener('click', saveTransferSettings);
-        }
-        document.getElementById('copy-receive-address').addEventListener('click', (e) => { e.preventDefault(); const code = e.currentTarget.dataset.code; if(code) navigator.clipboard.writeText(code).then(() => showAppToast('Success', 'Address copied!', 'success')); });
-        document.getElementById('copy-receive-uid').addEventListener('click', (e) => { e.preventDefault(); const code = e.currentTarget.dataset.code; if(code) navigator.clipboard.writeText(code).then(() => showAppToast('Success', 'UID copied!', 'success')); });
-        document.getElementById('copy-receive-memo').addEventListener('click', (e) => { e.preventDefault(); const code = e.currentTarget.dataset.code; if(code) navigator.clipboard.writeText(code).then(() => showAppToast('Success', 'Memo copied!', 'success')); });
-
-        // --- App Initialization ---
-        fetchCryptoNews();
-        initializeApp();
-    });
+    // --- Core Logic ---
+    // (Phần code cũ của bạn tiếp tục từ đây)
     </script>
 </body>
 </html>
