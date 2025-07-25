@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tính Số Tháng và Ngày</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f2f2f2;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+        input[type="number"] {
+            width: 80px;
+            padding: 5px;
+            margin: 10px;
+            text-align: center;
+            font-size: 16px;
+        }
+        input[type="button"] {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        input[type="button"]:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Tính Tháng và Ngày</h2>
+        <label for="day">Ngày (DD):</label>
+        <input type="number" id="day" min="1" max="31" placeholder="DD">
+        <br>
+        <label for="month">Tháng (MM):</label>
+        <input type="number" id="month" min="1" max="12" placeholder="MM">
+        <br>
+        <label for="year">Năm (YY):</label>
+        <input type="number" id="year" min="0" max="99" placeholder="YY">
+        <br>
+        <input type="button" value="Tính Toán" onclick="calculateDifference()">
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        function calculateDifference() {
+            const day = parseInt(document.getElementById('day').value);
+            const month = parseInt(document.getElementById('month').value);
+            const year = parseInt(document.getElementById('year').value);
+
+            // Convert year if input is 2 digits
+            const currentYear = new Date().getFullYear();
+            const fullYear = year < 50 ? 2000 + year : 1900 + year;
+
+            // Create the date object for the input date
+            const inputDate = new Date(fullYear, month - 1, day);
+
+            if (isNaN(inputDate.getTime())) {
+                document.getElementById('result').innerText = "Ngày tháng không hợp lệ!";
+                return;
+            }
+
+            const currentDate = new Date();
+
+            // Calculate the difference in months and days
+            const diffTime = currentDate - inputDate;
+            const diffDate = new Date(diffTime);
+
+            const yearsDifference = diffDate.getUTCFullYear() - 1970; // Convert from Unix Epoch
+            const monthsDifference = diffDate.getUTCMonth();
+            const daysDifference = diffDate.getUTCDate() - 1; // Adjust days correctly
+
+            // Show the result
+            document.getElementById('result').innerText = `Đã ${yearsDifference} năm, ${monthsDifference} tháng, và ${daysDifference} ngày kể từ ngày bạn nhập.`;
+        }
+    </script>
+</body>
+</html>
