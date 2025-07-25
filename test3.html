@@ -882,10 +882,10 @@ body {
                                             </div>
                                             <div class="form-text">Your balance: <span id="send-form-balance" class="fw-bold">0 EXP</span></div>
                                         </div>
-                                        <!-- ***** FIXED MEMO INPUT ***** -->
                                         <div class="mb-3">
-                                            <label for="send-memo" class="form-label">Message (Optional)</label>
-                                            <input type="text" class="form-control" id="send-memo" placeholder="Add a note for the transaction...">
+                                            <label for="send-memo" class="form-label">Recipient's Memo</label>
+                                            <input type="text" class="form-control" id="send-memo" placeholder="Enter recipient's unique memo" required>
+                                            <div class="form-text text-warning"><i class="fas fa-exclamation-triangle me-1"></i> <strong>Crucial:</strong> Incorrect memo will result in loss of funds.</div>
                                         </div>
                                         <div class="d-grid">
                                             <button type="submit" id="send-exp-submit-btn" class="btn btn-lg" style="background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white;">
@@ -3063,8 +3063,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error("Confirmation transaction failed:", error);
             showAppToast('Transaction Failed', 'Please try again.', 'error');
-            confirmButton.disabled = false;
-            confirmButton.textContent = 'Confirm (Get 100%)';
+            if (confirmButton) {
+                confirmButton.disabled = false;
+                confirmButton.innerHTML = 'Claim 100% of $BMASS';
+            }
         }
     }
     
@@ -3097,8 +3099,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(error) {
              console.error("Airdrop request transaction failed:", error);
             showAppToast('Request Failed', 'Please try again.', 'error');
-            requestButton.disabled = false;
-            requestButton.textContent = 'Request Reward';
+            if (requestButton) {
+                requestButton.disabled = false;
+                requestButton.innerHTML = 'Send Transaction';
+            }
         }
     }
 
@@ -4305,12 +4309,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const recipientType = document.getElementById('send-recipient-type').value;
         const recipientValue = document.getElementById('send-recipient-value').value.trim();
         const amount = parseInt(document.getElementById('send-amount').value, 10);
-        // The memo is now optional, not used for validation
         const memo = document.getElementById('send-memo').value.trim();
         
         // Basic Validations
-        if (!recipientValue || isNaN(amount) || amount <= 0) {
-            showAppToast('Invalid Input', 'Please fill the recipient and amount fields correctly.', 'error');
+        if (!recipientValue || !memo || isNaN(amount) || amount <= 0) {
+            showAppToast('Invalid Input', 'Please fill all fields correctly.', 'error');
             return;
         }
         if (amount > currentUserData.points) {
@@ -4346,11 +4349,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // Perform transaction
             await db.runTransaction(async (transaction) => {
                 const freshSenderDoc = await transaction.get(senderRef);
-                if (!freshSenderDoc.exists) {
+                const freshRecipientDoc = await transaction.get(recipientRef);
+
+                if (!freshSenderDoc.exists || !freshRecipientDoc.exists) {
                     throw new Error("User data is inconsistent. Please try again.");
                 }
 
                 const senderData = freshSenderDoc.data();
+                const currentRecipientData = freshRecipientDoc.data();
 
                 if (senderData.points < amount) {
                     throw new Error("Your EXP balance changed. Insufficient funds.");
@@ -4359,46 +4365,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
                 const liveTransactionRef = db.collection('live_transactions').doc();
 
-                // ******** FIX APPLIED: REMOVED MEMO CHECK ********
-                // The transaction is now always successful if the user exists and has funds.
-                
-                // SUCCESSFUL TRANSACTION
-                transaction.update(senderRef, {
-                    points: firebase.firestore.FieldValue.increment(-amount)
-                });
-                transaction.update(recipientRef, {
-                    points: firebase.firestore.FieldValue.increment(amount)
-                });
+                // Memo check - THIS IS CRITICAL
+                if (currentRecipientData.transferMemo !== memo) {
+                    // PUNISHMENT: Deduct from sender, but don't give to recipient
+                    transaction.update(senderRef, {
+                        points: firebase.firestore.FieldValue.increment(-amount)
+                    });
+                     // Record sender's loss
+                    const senderHistoryRef = senderRef.collection('transfer_history').doc();
+                    transaction.set(senderHistoryRef, {
+                        type: 'failed',
+                        amount: amount,
+                        otherParty: currentRecipientData.fullName || shortenAddress(currentRecipientData.address),
+                        otherPartyAddress: currentRecipientData.address,
+                        timestamp: newTimestamp
+                    });
+                    showAppToast('Transaction Failed', 'Incorrect Memo! The amount has been deducted as a fee.', 'error');
+                } else {
+                    // SUCCESSFUL TRANSACTION
+                    transaction.update(senderRef, {
+                        points: firebase.firestore.FieldValue.increment(-amount)
+                    });
+                    transaction.update(recipientRef, {
+                        points: firebase.firestore.FieldValue.increment(amount)
+                    });
 
-                // Record history for both users
-                const senderHistoryRef = senderRef.collection('transfer_history').doc();
-                transaction.set(senderHistoryRef, {
-                    type: 'sent',
-                    amount: amount,
-                    otherParty: recipientData.fullName || shortenAddress(recipientData.address),
-                    otherPartyAddress: recipientData.address,
-                    timestamp: newTimestamp,
-                    memo: memo // Optionally save the memo as a message
-                });
-
-                const recipientHistoryRef = recipientRef.collection('transfer_history').doc();
-                transaction.set(recipientHistoryRef, {
-                    type: 'received',
-                    amount: amount,
-                    otherParty: senderData.fullName || shortenAddress(senderData.address),
-                    otherPartyAddress: senderData.address,
-                    timestamp: newTimestamp,
-                    memo: memo // Optionally save the memo as a message
-                });
-                
-                // Create live feed entry
-                transaction.set(liveTransactionRef, {
-                    senderName: senderData.fullName || shortenAddress(senderData.address),
-                    recipientName: recipientData.fullName || shortenAddress(recipientData.address),
-                    amount: amount,
-                    timestamp: newTimestamp
-                });
-                showAppToast('Success!', `Successfully sent ${amount.toLocaleString()} EXP.`, 'success');
+                    // Record history for both users
+                                       // Create live feed entry
+                     transaction.set(liveTransactionRef, {
+                        senderName: senderData.fullName || shortenAddress(senderData.address),
+                        recipientName: currentRecipientData.fullName || shortenAddress(currentRecipientData.address),
+                        amount: amount,
+                        timestamp: newTimestamp
+                    });
+                     showAppToast('Success!', `Successfully sent ${amount.toLocaleString()} EXP.`, 'success');
+                }
             });
             
             // UI update after transaction
@@ -4409,7 +4410,8 @@ document.addEventListener('DOMContentLoaded', () => {
             sendExpForm.reset();
             statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Transaction complete.</span>`;
             fetchAndRenderTransferHistory(); // Refresh history tab
-            showAppToast('New Notification', `You have received ${amount.toLocaleString()} EXP from ${currentUserData.fullName || shortenAddress(currentUserData.address)}`, 'info', recipientData.telegramId);
+            // Note: Sending a notification to the recipient would typically be handled server-side via a function.
+            // showAppToast('New Notification', `You have received ${amount.toLocaleString()} EXP from ${currentUserData.fullName || shortenAddress(currentUserData.address)}`, 'info', recipientData.telegramId);
 
         } catch (error) {
             console.error("EXP Transfer failed: ", error);
@@ -4589,10 +4591,6 @@ document.addEventListener('DOMContentLoaded', () => {
             navigator.clipboard.writeText(target.dataset.address).then(() => { const originalText = target.textContent; target.textContent = 'Copied!'; target.classList.add('copied'); setTimeout(() => { target.textContent = originalText; target.classList.remove('copied'); }, 1500); }); 
         } else if (copyCodeTarget?.dataset?.code) {
              const target = copyCodeTarget;
-             navigator.clipboard.writeText(target.dataset.code).then(() => { showAppToast('Success', 'Copied to clipboard!', 'success')
-                                                                            }); 
-        } else if (copyCodeTarget?.dataset?.code) {
-             const target = copyCodeTarget;
              navigator.clipboard.writeText(target.dataset.code).then(() => { showAppToast('Success', 'Copied to clipboard!', 'success') }); 
         }
         
@@ -4652,8 +4650,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 default: body.classList.add('platform-desktop'); break;
             }
         }
-    }
-
+    } 
     </script>
 </body>
 </html>
