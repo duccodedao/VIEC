@@ -3570,10 +3570,12 @@ function listenForLiveTransfers() {
             appLogoText.textContent = 'Bmass';
         }
         
-        initializeFirebase();
-        await fetchAirdropSettings();
-        handleRouteChange(); // Gọi hàm này để kiểm tra route ban đầu và thiết lập nút Back
-    }
+ initializeFirebase();
+    await fetchAirdropSettings();
+    await fetchTransferSettings(); // [THÊM MỚI]
+    listenForLiveTransfers();      // [THÊM MỚI]
+    handleRouteChange(); 
+}
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ 
         manifestUrl: 'https://bmass.vercel.app/tonconnect-manifest.json',
@@ -3681,7 +3683,7 @@ else if (viewToShow === 'transfer' && isLoggedIn) {
         const [path, queryString] = hash.split('?');
         const tg = window.Telegram?.WebApp; // [ĐÃ SỬA] Lấy đối tượng WebApp một cách an toàn
         
-        const protectedRoutes = ['task', 'partner', 'account', 'admin', 'referral', 'airdrop', 'leaderboard'];
+        const protectedRoutes = ['task', 'partner', 'transfer', 'account', 'admin', 'referral', 'airdrop', 'leaderboard'];
         if (!connectedWalletAddress && protectedRoutes.includes(path)) {
              showAppToast('Wallet Connection Required', 'This feature requires a connected wallet.', 'warning');
              window.location.hash = '#dashboard';
@@ -4727,7 +4729,38 @@ else if (viewToShow === 'transfer' && isLoggedIn) {
     appSearchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') renderApps(); });
     appFilterControls.addEventListener('click', (e) => { const target = e.target.closest('.app-filter-btn'); if (target) { appFilterControls.querySelector('.active').classList.remove('active'); target.classList.add('active'); renderApps(); } });
     window.addEventListener('hashchange', handleRouteChange);
-    
+
+
+
+
+// [THÊM MỚI]
+// Event listener cho form gửi
+const sendForm = document.getElementById('send-form');
+if (sendForm) {
+    sendForm.addEventListener('submit', handleSendSubmit);
+}
+// Event listener cho nút lưu cài đặt admin
+const saveTransferSettingsBtn = document.getElementById('save-transfer-settings-btn');
+if (saveTransferSettingsBtn) {
+    saveTransferSettingsBtn.addEventListener('click', saveTransferSettings);
+}
+// Event listener cho các nút copy trong tab Receive
+document.getElementById('copy-receive-address').addEventListener('click', (e) => { e.preventDefault(); navigator.clipboard.writeText(e.currentTarget.dataset.code).then(() => showAppToast('Success', 'Address copied!', 'success')); });
+document.getElementById('copy-receive-uid').addEventListener('click', (e) => { e.preventDefault(); navigator.clipboard.writeText(e.currentTarget.dataset.code).then(() => showAppToast('Success', 'UID copied!', 'success')); });
+document.getElementById('copy-receive-memo').addEventListener('click', (e) => { e.preventDefault(); navigator.clipboard.writeText(e.currentTarget.dataset.code).then(() => showAppToast('Success', 'Memo copied!', 'success')); });
+
+
+
+
+
+
+
+
+
+
+
+
+        
     contactAdminBtn.addEventListener('click', () => contactAdminModal.show());
 
     const heroConnectButton = document.createElement('button');
