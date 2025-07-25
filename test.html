@@ -576,6 +576,33 @@ body {
     .card-glass { padding: 2rem; }
     .main-container { padding: 2rem; }
 }
+
+
+
+.main-container {
+    /* Giữ lại padding mặc định của bạn */
+    padding: 1.5rem 1rem;
+    margin: auto;
+    max-width: 1400px;
+    
+    /* Thêm transition để việc thay đổi padding mượt hơn */
+    transition: padding-top 0.3s ease;
+}
+
+/* 
+  Nếu là iOS, áp dụng padding-top 85px.
+  Sử dụng !important để đảm bảo nó ghi đè lên padding mặc định.
+*/
+.platform-ios .main-container {
+    padding-top: 85px !important;
+}
+
+/* 
+  Nếu là Android, áp dụng padding-top 65px.
+*/
+.platform-android .main-container {
+    padding-top: 65px !important;
+}     
     </style>
 </head>
 <body>
@@ -3001,10 +3028,26 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(e) { console.error("Error capturing web referral:", e); }
     }
 
+        // --- PHIÊN BẢN MỚI ---
     async function initializeApp() {
         checkUserSession();
         captureWebReferral();
         identifyTelegramUser(); 
+
+        // [MỚI] Gọi hàm áp dụng style theo nền tảng
+        applyPlatformSpecificStyling();
+        
+        // [MỚI] Cấu hình chức năng cho nút Back Button
+        if (window.Telegram && window.Telegram.WebApp) {
+            const tg = window.Telegram.WebApp;
+            
+            // Định nghĩa hành động khi người dùng nhấn nút Back
+            tg.BackButton.onClick(() => {
+                // Chuyển hướng về trang chủ
+                window.location.hash = '#dashboard';
+                // Không cần gọi handleRouteChange() ở đây vì sự kiện hashchange sẽ tự động làm điều đó
+            });
+        }
         
         if (!telegramUserData) {
             appLogoText.textContent = 'Bmass';
@@ -3012,7 +3055,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         initializeFirebase();
         await fetchAirdropSettings();
-        handleRouteChange(); 
+        handleRouteChange(); // Gọi hàm này để kiểm tra route ban đầu và thiết lập nút Back
     }
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ 
@@ -3100,9 +3143,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sidebarMenu.classList.contains('open')) toggleSidebar();
     };
     
+        // --- PHIÊN BẢN MỚI ---
     const handleRouteChange = () => {
         let hash = window.location.hash.substring(1) || 'dashboard';
         const [path, queryString] = hash.split('?');
+        const tg = window.Telegram?.WebApp; // [ĐÃ SỬA] Lấy đối tượng WebApp một cách an toàn
         
         const protectedRoutes = ['task', 'partner', 'account', 'admin', 'referral', 'airdrop', 'leaderboard'];
         if (!connectedWalletAddress && protectedRoutes.includes(path)) {
@@ -3115,6 +3160,17 @@ document.addEventListener('DOMContentLoaded', () => {
              showAppToast('Access Denied', 'You do not have permission to access this page.', 'error');
              window.location.hash = '#dashboard';
              hash = 'dashboard'; 
+        }
+
+        // [MỚI] Logic quản lý nút Back Button
+        if (tg) {
+            if (path === 'dashboard' || path === '') {
+                // Nếu đang ở trang chủ, ẩn nút Back
+                tg.BackButton.hide();
+            } else {
+                // Nếu ở các trang khác, hiện nút Back
+                tg.BackButton.show();
+            }
         }
 
         switchView(path);
@@ -4153,6 +4209,38 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchCryptoNews();
     initializeApp();
 });
+
+      
+
+    // [MỚI] Hàm để phát hiện nền tảng và áp dụng style
+    function applyPlatformSpecificStyling() {
+        // Chỉ chạy nếu đang ở trong môi trường Telegram Mini App
+        if (window.Telegram && window.Telegram.WebApp) {
+            const platform = window.Telegram.WebApp.platform;
+            const body = document.body;
+
+            // Xóa các class cũ để tránh bị trùng lặp
+            body.classList.remove('platform-ios', 'platform-android', 'platform-desktop');
+            
+            console.log(`Detected platform: ${platform}`);
+
+            switch (platform) {
+                case 'ios':
+                    body.classList.add('platform-ios');
+                    break;
+                case 'android':
+                    body.classList.add('platform-android');
+                    break;
+                // Bạn có thể thêm các trường hợp khác như 'macos', 'windows', 'web' nếu cần
+                default:
+                    body.classList.add('platform-desktop');
+                    break;
+            }
+        }
+    }
+
+    // --- Core Logic ---
+    // (Phần code cũ của bạn tiếp tục từ đây)
     </script>
 </body>
 </html>
