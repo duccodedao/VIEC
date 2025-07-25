@@ -5,22 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Bmass Experience</title>
 
-    <!-- Meta SEO -->
-    <meta name="description" content="Bmass: The ultimate Web3 experience. Discover top Mini Apps and manage your TON assets intuitively.">
-    <link rel="icon" href="https://bmass.vercel.app/img/bmasslogo.png" type="image/png">
+<!-- Meta SEO -->
+<meta name="description" content="Bmass: The ultimate Web3 experience. Discover top Mini Apps and manage your TON assets intuitively.">
+<link rel="icon" href="https://bmass.vercel.app/img/bmasslogo.png" type="image/png">
 
-    <!-- Thẻ Open Graph (Quan trọng cho việc chia sẻ trên mạng xã hội) -->
-    <meta property="og:title" content="The Bmass Experience" />
-    <meta property="og:description" content="The ultimate Web3 experience. Discover top Mini Apps and manage your TON assets intuitively." />
-    <meta property="og:image" content="https://bmass.vercel.app/img/bmass_nen.png" />
-    <meta property="og:url" content="https://bmass.vercel.app/img/bmass_seo.png" />
-    <meta property="og:type" content="website" />
+<!-- Thẻ Open Graph (Quan trọng cho việc chia sẻ trên mạng xã hội) -->
+<meta property="og:title" content="The Bmass Experience" />
+<meta property="og:description" content="The ultimate Web3 experience. Discover top Mini Apps and manage your TON assets intuitively." />
+<meta property="og:image" content="https://bmass.vercel.app/img/bmass_nen.png" />
+<meta property="og:url" content="https://bmass.vercel.app/img/bmass_seo.png" />
+<meta property="og:type" content="website" />
 
-    <!-- Thẻ Twitter Card (Quan trọng cho việc chia sẻ trên Twitter/X) -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="The Bmass Experience" />
-    <meta name="twitter:description" content="The ultimate Web3 experience. Discover top Mini Apps and manage your TON assets intuitively." />
-    <meta name="twitter:image" content="https://bmass.vercel.app/img/bmasslogo.png" />
+<!-- Thẻ Twitter Card (Quan trọng cho việc chia sẻ trên Twitter/X) -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="The Bmass Experience" />
+<meta name="twitter:description" content="The ultimate Web3 experience. Discover top Mini Apps and manage your TON assets intuitively." />
+<meta name="twitter:image" content="https://bmass.vercel.app/img/bmasslogo.png" />
 
 
     <!-- Libraries -->
@@ -28,9 +28,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-    
-    <!-- [THÊM MỚI] Thư viện tạo QR Code -->
-    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -43,499 +40,592 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
       :root {
-        --bg-color: #050816;
-        --card-color: rgba(23, 27, 48, 0.5);
-        --border-color: rgba(145, 94, 255, 0.2);
-        --accent-primary: #915EFF;
-        --accent-secondary: #2BCBC4;
-        --text-primary: #f1f2f6;
-        --text-secondary: #aaa6c3;
-        --color-in: #2BCBC4;
-        --color-out: #ff6b6b;
-        --color-failed: #ffcc00;
-        --color-verified: #2ecc71;
-        --gold: #FFD700;
-        --silver: #C0C0C0;
-        --bronze: #CD7F32;
-    }
+    --bg-color: #050816;
+    --card-color: rgba(23, 27, 48, 0.5);
+    --border-color: rgba(145, 94, 255, 0.2);
+    --accent-primary: #915EFF;
+    --accent-secondary: #2BCBC4;
+    --text-primary: #f1f2f6;
+    --text-secondary: #aaa6c3;
+    --color-in: #2BCBC4;
+    --color-out: #ff6b6b;
+    --color-failed: #ffcc00;
+    --color-verified: #2ecc71;
+    --gold: #FFD700;
+    --silver: #C0C0C0;
+    --bronze: #CD7F32;
+}
 
-    body {
-        font-family: 'Poppins', sans-serif;
-        background-color: var(--bg-color);
-        color: var(--text-primary);
-        background: linear-gradient(-45deg, #050816, #120e2a, #1a163c, #0d0b1f);
-        background-size: 400% 400%;
-        animation: gradientBG 15s ease infinite;
-        overflow-x: hidden;
-        font-size: 16px;
-    }
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    background: linear-gradient(-45deg, #050816, #120e2a, #1a163c, #0d0b1f);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    overflow-x: hidden;
+    font-size: 16px;
+}
 
-    @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+@keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-    .main-container { max-width: 1400px; padding: 1.5rem 1rem; margin: auto; }
-    .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 2rem; }
-    .header-logo { display: flex; align-items: center; text-decoration: none; color: var(--text-primary); gap: 10px; z-index: 1100; }
-    .header-logo img { height: 40px; width: 40px; object-fit: cover; transition: all 0.3s ease; }
-    .header-logo span { font-size: 1.1rem; font-weight: 600; }
+.main-container { max-width: 1400px; padding: 1.5rem 1rem; margin: auto; }
+.header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 2rem; }
+.header-logo { display: flex; align-items: center; text-decoration: none; color: var(--text-primary); gap: 10px; z-index: 1100; }
+.header-logo img { height: 40px; width: 40px; object-fit: cover; transition: all 0.3s ease; }
+.header-logo span { font-size: 1.1rem; font-weight: 600; }
 
-    .card-glass { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 25px; padding: 1.25rem; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: all 0.3s ease;  }
-    .card-glass:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
-    .card-title { font-weight: 600; margin-bottom: 1.5rem; font-size: 1.25rem; }
+.card-glass { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 25px; padding: 1.25rem; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: all 0.3s ease;  }
+.card-glass:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
+.card-title { font-weight: 600; margin-bottom: 1.5rem; font-size: 1.25rem; }
 
-    .hero-section, .login-section { text-align: center; padding: 4rem 1rem; min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center;}
-    .hero-section h1, .login-section h1 { font-size: 2rem; font-weight: 700; }
-    .hero-section .highlight, .login-section .highlight { color: var(--accent-primary); }
+.hero-section, .login-section { text-align: center; padding: 4rem 1rem; min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center;}
+.hero-section h1, .login-section h1 { font-size: 2rem; font-weight: 700; }
+.hero-section .highlight, .login-section .highlight { color: var(--accent-primary); }
 
-    .skeleton-loader { background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); background-size: 200% 100%; border-radius: 25px; animation: shimmer 1.5s infinite; }
-    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-    .skeleton-line { height: 20px; margin-bottom: 10px; }
+.skeleton-loader { background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); background-size: 200% 100%; border-radius: 25px; animation: shimmer 1.5s infinite; }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.skeleton-line { height: 20px; margin-bottom: 10px; }
 
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
 
-    .activity-item-icon, .jetton-item-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-    .amount-in { color: var(--color-in); }
-    .amount-out { color: var(--color-out); }
-    .status-icon { font-size: 0.7rem; margin-right: 6px; }
-    .status-ok { color: var(--color-in); }
-    .status-failed { color: var(--color-failed); }
-    .verified-tick { color: var(--color-verified); margin-left: 5px; font-size: 0.9em; }
+.activity-item-icon, .jetton-item-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.amount-in { color: var(--color-in); }
+.amount-out { color: var(--color-out); }
+.status-icon { font-size: 0.7rem; margin-right: 6px; }
+.status-ok { color: var(--color-in); }
+.status-failed { color: var(--color-failed); }
+.verified-tick { color: var(--color-verified); margin-left: 5px; font-size: 0.9em; }
 
-    .jetton-item { cursor: pointer; transition: background-color: 0.2s; border-radius: 25px; }
-    .jetton-item:hover { background-color: rgba(145, 94, 255, 0.1); }
+.jetton-item { cursor: pointer; transition: background-color: 0.2s; border-radius: 25px; }
+.jetton-item:hover { background-color: rgba(145, 94, 255, 0.1); }
 
-    #search-results-container { max-height: 40vh; overflow-y: auto; }
-    .search-result-item { cursor: pointer; padding: 10px; border-radius: 25px; transition: background-color: 0.2s ease; }
-    .search-result-item:hover { background-color: rgba(145, 94, 255, 0.1); }
-    .search-result-item img { width: 32px; height: 32px; border-radius: 50%; }
+#search-results-container { max-height: 40vh; overflow-y: auto; }
+.search-result-item { cursor: pointer; padding: 10px; border-radius: 25px; transition: background-color: 0.2s ease; }
+.search-result-item:hover { background-color: rgba(145, 94, 255, 0.1); }
+.search-result-item img { width: 32px; height: 32px; border-radius: 50%; }
 
-    .copyable-address, .copyable-code { cursor: pointer; transition: color 0.2s; font-family: monospace; }
-    .copyable-address:hover, .copyable-code:hover { color: var(--accent-secondary); }
-    .copyable-address.copied, .copyable-code.copied { color: var(--color-verified) !important; font-weight: bold; }
+.copyable-address, .copyable-code { cursor: pointer; transition: color 0.2s; font-family: monospace; }
+.copyable-address:hover, .copyable-code:hover { color: var(--accent-secondary); }
+.copyable-address.copied, .copyable-code.copied { color: var(--color-verified) !important; font-weight: bold; }
 
-    .modal-content { background-color: #0c0f24; border: 1px solid var(--border-color); color: var(--text-primary); }
-    .modal-header { border-bottom: 1px solid var(--border-color); }
-    .modal-footer { border-top: 1px solid var(--border-color); }
-    .modal-backdrop.show { opacity: 0.7; backdrop-filter: blur(5px); }
-    .nav-tabs { border-bottom-color: var(--border-color); }
-    .nav-tabs .nav-link { background: transparent; border-color: transparent; color: var(--text-secondary); }
-    .nav-tabs .nav-link.active { color: var(--accent-primary); background-color: rgba(145, 94, 255, 0.1); border-color: var(--border-color); }
-    .tab-content { max-height: 50vh; overflow-y: auto; padding-top: 1rem; }
-    .metadata-key { color: var(--text-secondary); font-weight: 500; }
-    .tab-content .table {
-        --bs-table-bg: transparent;
-        --bs-table-border-color: var(--border-color);
-        --bs-table-color: var(--text-primary);
-        --bs-table-striped-color: var(--text-primary);
-    }
-    .tab-content .table-hover > tbody > tr:hover > * {
-        --bs-table-accent-bg: rgba(145, 94, 255, 0.15);
-    }
+.modal-content { background-color: #0c0f24; border: 1px solid var(--border-color); color: var(--text-primary); }
+.modal-header { border-bottom: 1px solid var(--border-color); }
+.modal-footer { border-top: 1px solid var(--border-color); }
+.modal-backdrop.show { opacity: 0.7; backdrop-filter: blur(5px); }
+.nav-tabs { border-bottom-color: var(--border-color); }
+.nav-tabs .nav-link { background: transparent; border-color: transparent; color: var(--text-secondary); }
+.nav-tabs .nav-link.active { color: var(--accent-primary); background-color: rgba(145, 94, 255, 0.1); border-color: var(--border-color); }
+.tab-content { max-height: 50vh; overflow-y: auto; padding-top: 1rem; }
+.metadata-key { color: var(--text-secondary); font-weight: 500; }
+.tab-content .table {
+    --bs-table-bg: transparent;
+    --bs-table-border-color: var(--border-color);
+    --bs-table-color: var(--text-primary);
+    --bs-table-striped-color: var(--text-primary);
+}
+.tab-content .table-hover > tbody > tr:hover > * {
+    --bs-table-accent-bg: rgba(145, 94, 255, 0.15);
+}
 
-    .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-    .news-card { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 25px; overflow: hidden; transition: all 0.3s ease; text-decoration: none; color: var(--text-primary); }
-    .news-card:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
-    .news-card-img { width: 100%; height: 180px; object-fit: cover; }
-    .news-card-body { padding: 1rem; }
-    .news-card-title { font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .news-card-source { font-size: 0.8rem; color: var(--text-secondary); }
+.news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+.news-card { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 25px; overflow: hidden; transition: all 0.3s ease; text-decoration: none; color: var(--text-primary); }
+.news-card:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
+.news-card-img { width: 100%; height: 180px; object-fit: cover; }
+.news-card-body { padding: 1rem; }
+.news-card-title { font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.news-card-source { font-size: 0.8rem; color: var(--text-secondary); }
 
-    .hamburger-btn { width: 40px; height: 40px; background: transparent; border: none; padding: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; cursor: pointer; z-index: 1100; }
-    .hamburger-btn span { display: block; width: 24px; height: 2px; background-color: var(--text-primary); border-radius: 2px; transition: all 0.3s ease-in-out; }
-    .hamburger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-    .hamburger-btn.open span:nth-child(2) { opacity: 0; }
-    .hamburger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+.hamburger-btn { width: 40px; height: 40px; background: transparent; border: none; padding: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; cursor: pointer; z-index: 1100; }
+.hamburger-btn span { display: block; width: 24px; height: 2px; background-color: var(--text-primary); border-radius: 2px; transition: all 0.3s ease-in-out; }
+.hamburger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger-btn.open span:nth-child(2) { opacity: 0; }
+.hamburger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-    .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background: var(--bg-color); padding: 6rem 2rem 2rem; transform: translateX(-100%); transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 1050; display: flex; flex-direction: column; }
-    .sidebar.open { transform: translateX(0); box-shadow: 10px 0px 50px -20px rgba(0,0,0,0.5); }
-    .sidebar-nav { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
-    .sidebar-link { color: var(--text-secondary); text-decoration: none; font-size: 1.1rem; font-weight: 500; padding: 10px; border-radius: 12px; transition: color 0.3s, background-color 0.3s; }
-    .sidebar-link:hover, .sidebar-link.active { color: var(--text-primary); background-color: var(--border-color); }
+.sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background: var(--bg-color); padding: 6rem 2rem 2rem; transform: translateX(-100%); transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 1050; display: flex; flex-direction: column; }
+.sidebar.open { transform: translateX(0); box-shadow: 10px 0px 50px -20px rgba(0,0,0,0.5); }
+.sidebar-nav { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+.sidebar-link { color: var(--text-secondary); text-decoration: none; font-size: 1.1rem; font-weight: 500; padding: 10px; border-radius: 12px; transition: color 0.3s, background-color 0.3s; }
+.sidebar-link:hover, .sidebar-link.active { color: var(--text-primary); background-color: var(--border-color); }
 
-    .sidebar-wallet-connect { margin-top: auto; }
-    #custom-wallet-button { background: var(--accent-primary); color: white; border: none; padding: 10px 16px; width: 100%; border-radius: 25px; font-weight: 500; cursor: pointer; text-align: center; }
-    #wallet-dropdown { display: none; position: absolute; right: 0; bottom: calc(100% + 10px); background-color: #171b30; border: 1px solid var(--border-color); border-radius: 25px; z-index: 1056; min-width: 100%; box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
-    #wallet-dropdown a { color: var(--text-primary); padding: 12px 16px; text-decoration: none; display: block; font-size: 0.9rem; }
-    #wallet-dropdown a:hover { background-color: rgba(145, 94, 255, 0.2); }
-    #wallet-dropdown a i { margin-right: 10px; width: 15px; text-align: center; }
+.sidebar-wallet-connect { margin-top: auto; }
+#custom-wallet-button { background: var(--accent-primary); color: white; border: none; padding: 10px 16px; width: 100%; border-radius: 25px; font-weight: 500; cursor: pointer; text-align: center; }
+#wallet-dropdown { display: none; position: absolute; right: 0; bottom: calc(100% + 10px); background-color: #171b30; border: 1px solid var(--border-color); border-radius: 25px; z-index: 1056; min-width: 100%; box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
+#wallet-dropdown a { color: var(--text-primary); padding: 12px 16px; text-decoration: none; display: block; font-size: 0.9rem; }
+#wallet-dropdown a:hover { background-color: rgba(145, 94, 255, 0.2); }
+#wallet-dropdown a i { margin-right: 10px; width: 15px; text-align: center; }
 
-    .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); z-index: 1040; opacity: 0; visibility: hidden; transition: opacity 0.4s, visibility 0.4s; }
-    .sidebar-overlay.open { opacity: 1; visibility: visible; }
+.sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); z-index: 1040; opacity: 0; visibility: hidden; transition: opacity 0.4s, visibility 0.4s; }
+.sidebar-overlay.open { opacity: 1; visibility: visible; }
 
-    .app-menu-container { padding: 1rem 0; }
-    .app-filter-bar { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 2.5rem; }
-    .app-filter-btn { background-color: var(--card-color); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 20px; border-radius: 50px; cursor: pointer; font-weight: 500; transition: all 0.3s ease; }
-    .app-filter-btn:hover { color: var(--text-primary); border-color: var(--accent-secondary); }
-    .app-filter-btn.active { background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white; border-color: transparent; box-shadow: 0 0 15px rgba(145, 94, 255, 0.5); }
+.app-menu-container { padding: 1rem 0; }
+.app-filter-bar { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 2.5rem; }
+.app-filter-btn { background-color: var(--card-color); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 20px; border-radius: 50px; cursor: pointer; font-weight: 500; transition: all 0.3s ease; }
+.app-filter-btn:hover { color: var(--text-primary); border-color: var(--accent-secondary); }
+.app-filter-btn.active { background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white; border-color: transparent; box-shadow: 0 0 15px rgba(145, 94, 255, 0.5); }
 
-    .app-item { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; background: var(--card-color); border: 1px solid var(--border-color); border-radius: 25px; padding: 1rem; transition: all 0.3s ease; height: 100%; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-    .app-item:hover { transform: translateY(-8px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
-    .app-item-img-wrapper { width: 64px; height: 64px; border-radius: 15px; overflow: hidden; flex-shrink: 0; }
-    .app-item-img { width: 100%; height: 100%; object-fit: cover; }
-    .app-item-name { display: block; font-weight: 500; font-size: 0.9rem; color: var(--text-primary); line-height: 1.3; margin-top: 0.75rem; text-align: center; }
+.app-item { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; background: var(--card-color); border: 1px solid var(--border-color); border-radius: 25px; padding: 1rem; transition: all 0.3s ease; height: 100%; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.app-item:hover { transform: translateY(-8px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
+.app-item-img-wrapper { width: 64px; height: 64px; border-radius: 15px; overflow: hidden; flex-shrink: 0; }
+.app-item-img { width: 100%; height: 100%; object-fit: cover; }
+.app-item-name { display: block; font-weight: 500; font-size: 0.9rem; color: var(--text-primary); line-height: 1.3; margin-top: 0.75rem; text-align: center; }
 
-    .toast-notification {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background-color: #171b30;
-        color: var(--text-primary);
-        border: 1px solid var(--accent-primary);
-        border-radius: 12px;
-        padding: 1.5rem;
-        z-index: 9999;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        opacity: 0;
-        transform: translateY(-20px) scale(0.95);
-        transition: opacity 0.4s ease, transform 0.4s ease;
-        max-width: 400px;
-        cursor: pointer;
-    }
-    .toast-notification.show {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-    .toast-notification-header {
-        font-weight: 600;
-        font-size: 1.1rem;
-        margin-bottom: 0.75rem;
-        color: var(--accent-secondary);
-    }
-    .toast-notification p { font-size: 0.95rem; }
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #171b30;
+    color: var(--text-primary);
+    border: 1px solid var(--accent-primary);
+    border-radius: 12px;
+    padding: 1.5rem;
+    z-index: 9999;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    max-width: 400px;
+    cursor: pointer;
+}
+.toast-notification.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+.toast-notification-header {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+    color: var(--accent-secondary);
+}
+.toast-notification p { font-size: 0.95rem; }
 
-    #total-value-usd {
-        font-size: 2.2rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        line-height: 1.2;
-    }
-    #total-value-vnd {
-        font-size: 1.2rem;
-        color: var(--accent-secondary);
-        font-weight: 500;
-    }
+#total-value-usd {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+#total-value-vnd {
+    font-size: 1.2rem;
+    color: var(--accent-secondary);
+    font-weight: 500;
+}
 
-    #checkin-button:disabled, #referral-code-submit:disabled, #send-submit-btn:disabled {
-        background-color: #3a3f5a !important;
-        cursor: not-allowed;
-    }
+#checkin-button:disabled, #referral-code-submit:disabled {
+    background-color: #3a3f5a !important;
+    cursor: not-allowed;
+}
 
-    .task-history-item {
-        display: flex;
-        align-items: center;
-        padding: 0.75rem 0;
-        border-bottom: 1px solid var(--border-color);
-    }
-    .task-history-item:last-child {
-        border-bottom: none;
-    }
-    .task-history-icon {
-        font-size: 1.2rem;
-        width: 30px;
-        text-align: center;
-        margin-right: 1rem;
-        color: var(--accent-secondary);
-    }
+.task-history-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+.task-history-item:last-child {
+    border-bottom: none;
+}
+.task-history-icon {
+    font-size: 1.2rem;
+    width: 30px;
+    text-align: center;
+    margin-right: 1rem;
+    color: var(--accent-secondary);
+}
 
-    /* Leaderboard Styles */
-    .leaderboard-list {
-        max-width: 800px;
-        margin: auto;
-    }
-    .leaderboard-item {
-        display: flex;
-        align-items: center;
-        background: var(--card-color);
-        border: 1px solid var(--border-color);
-        padding: 12px 20px;
-        border-radius: 12px;
-        margin-bottom: 10px;
-        transition: all 0.2s ease;
-    }
-    .leaderboard-item:hover {
-        transform: scale(1.02);
-        border-color: var(--accent-secondary);
-    }
-    .leaderboard-rank {
-        font-size: 1.2rem;
-        font-weight: 700;
-        width: 50px;
-        color: var(--text-secondary);
-        text-align: center;
-        flex-shrink: 0;
-        margin-right: 10px;
-    }
-    .leaderboard-avatar {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-right: 15px;
-        border: 3px solid var(--border-color);
-        transition: all 0.3s ease;
-    }
-    .leaderboard-name {
-        font-weight: 600;
-        flex-grow: 1;
-        min-width: 0;
-    }
-    .leaderboard-exp {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--accent-secondary);
-    }
-    .leaderboard-item.rank-1 .rank-icon { color: var(--gold); }
-    .leaderboard-item.rank-2 .rank-icon { color: var(--silver); }
-    .leaderboard-item.rank-3 .rank-icon { color: var(--bronze); }
-    .leaderboard-item.rank-1 .leaderboard-avatar { border-color: var(--gold); }
-    .leaderboard-item.rank-2 .leaderboard-avatar { border-color: var(--silver); }
-    .leaderboard-item.rank-3 .leaderboard-avatar { border-color: var(--bronze); }
-    .rank-icon { font-size: 1.8rem; }
-    .leaderboard-item.current-user {
-        border-color: var(--accent-primary);
-        box-shadow: 0 0 20px rgba(145, 94, 255, 0.4);
-        transform: scale(1.03);
-    }
+/* Leaderboard Styles */
+.leaderboard-list {
+    max-width: 800px;
+    margin: auto;
+}
+.leaderboard-item {
+    display: flex;
+    align-items: center;
+    background: var(--card-color);
+    border: 1px solid var(--border-color);
+    padding: 12px 20px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    transition: all 0.2s ease;
+}
+.leaderboard-item:hover {
+    transform: scale(1.02);
+    border-color: var(--accent-secondary);
+}
+.leaderboard-rank {
+    font-size: 1.2rem;
+    font-weight: 700;
+    width: 50px;
+    color: var(--text-secondary);
+    text-align: center;
+    flex-shrink: 0;
+    margin-right: 10px;
+}
+.leaderboard-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 15px;
+    border: 3px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+.leaderboard-name {
+    font-weight: 600;
+    flex-grow: 1;
+    min-width: 0;
+}
+.leaderboard-exp {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent-secondary);
+}
+.leaderboard-item.rank-1 .rank-icon { color: var(--gold); }
+.leaderboard-item.rank-2 .rank-icon { color: var(--silver); }
+.leaderboard-item.rank-3 .rank-icon { color: var(--bronze); }
+.leaderboard-item.rank-1 .leaderboard-avatar { border-color: var(--gold); }
+.leaderboard-item.rank-2 .leaderboard-avatar { border-color: var(--silver); }
+.leaderboard-item.rank-3 .leaderboard-avatar { border-color: var(--bronze); }
+.rank-icon { font-size: 1.8rem; }
+.leaderboard-item.current-user {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 20px rgba(145, 94, 255, 0.4);
+    transform: scale(1.03);
+}
 
-    /* Form Styles */
-    .form-control, .form-select {
-        background-color: rgba(23, 27, 48, 0.8);
-        border-color: var(--border-color);
-        color: var(--text-primary);
-    }
-    .form-control:focus, .form-select:focus {
-        background-color: rgba(23, 27, 48, 1);
-        border-color: var(--accent-primary);
-        color: var(--text-primary);
-        box-shadow: 0 0 0 0.25rem rgba(145, 94, 255, 0.25);
-    }
-    .form-control::placeholder { color: var(--text-secondary); }
-    .form-select {
-         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23915EFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
-    }
-    .input-group-text {
-         background-color: rgba(23, 27, 48, 0.8);
-         border-color: var(--border-color);
-         color: var(--accent-secondary);
-    }
+/* Form Styles */
+.form-control, .form-select {
+    background-color: rgba(23, 27, 48, 0.8);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+.form-control:focus, .form-select:focus {
+    background-color: rgba(23, 27, 48, 1);
+    border-color: var(--accent-primary);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 0.25rem rgba(145, 94, 255, 0.25);
+}
+.form-control::placeholder { color: var(--text-secondary); }
+.form-select {
+     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23915EFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+.input-group-text {
+     background-color: rgba(23, 27, 48, 0.8);
+     border-color: var(--border-color);
+     color: var(--accent-secondary);
+}
 
-    /* Admin Table Styles */
-    #admin-section .table {
-        --bs-table-bg: transparent;
-        --bs-table-border-color: var(--border-color);
-        --bs-table-color: var(--text-primary);
-        --bs-table-hover-bg: rgba(145, 94, 255, 0.1);
-        white-space: nowrap;
-    }
-    #admin-section thead th {
-        color: var(--text-secondary);
-        background-color: rgba(145, 94, 255, 0.05);
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 0.5px;
-        padding-top: 0.75rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 2px solid var(--border-color);
-    }
-    #admin-section tbody tr {
-        transition: background-color 0.2s ease;
-    }
-    #admin-section tbody td {
-        padding: 0.75rem;
-        vertical-align: middle;
-        border-bottom: 1px solid var(--border-color);
-    }
-    #admin-section tbody tr:last-child td {
-        border-bottom: none;
-    }
-    #admin-section tbody img.table-img-preview {
-        width: 40px;
-        height: 40px;
-        border-radius: 20px;
-        border: 2px solid var(--border-color);
-        object-fit: cover;
-    }
-    #admin-section .text-truncate {
-        max-width: 150px;
-    }
-    #admin-load-more-btn {
-        border-color: var(--accent-secondary);
-        color: var(--accent-secondary);
-        font-weight: 600;
-    }
-    #admin-load-more-btn:hover {
-        background-color: var(--accent-secondary);
-        color: white;
-    }
-    /* Style for the transaction status switch in admin panel */
-    #admin-user-list-container .form-check-input:checked {
-        background-color: var(--color-verified);
-        border-color: var(--color-verified);
-    }
-    #admin-user-list-container .form-switch .form-check-input {
-        height: 1.25em;
-        width: 2.25em;
-    }
+/* Admin Table Styles */
+#admin-section .table {
+    --bs-table-bg: transparent;
+    --bs-table-border-color: var(--border-color);
+    --bs-table-color: var(--text-primary);
+    --bs-table-hover-bg: rgba(145, 94, 255, 0.1);
+    white-space: nowrap;
+}
+#admin-section thead th {
+    color: var(--text-secondary);
+    background-color: rgba(145, 94, 255, 0.05);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--border-color);
+}
+#admin-section tbody tr {
+    transition: background-color 0.2s ease;
+}
+#admin-section tbody td {
+    padding: 0.75rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border-color);
+}
+#admin-section tbody tr:last-child td {
+    border-bottom: none;
+}
+#admin-section tbody img.table-img-preview {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    border: 2px solid var(--border-color);
+    object-fit: cover;
+}
+#admin-section .text-truncate {
+    max-width: 150px;
+}
+#admin-load-more-btn {
+    border-color: var(--accent-secondary);
+    color: var(--accent-secondary);
+    font-weight: 600;
+}
+#admin-load-more-btn:hover {
+    background-color: var(--accent-secondary);
+    color: white;
+}
+/* Style for the transaction status switch in admin panel */
+#admin-user-list-container .form-check-input:checked {
+    background-color: var(--color-verified);
+    border-color: var(--color-verified);
+}
+#admin-user-list-container .form-switch .form-check-input {
+    height: 1.25em;
+    width: 2.25em;
+}
 
-    /* Airdrop Page Styles */
-    .airdrop-stat-card {
-        background: linear-gradient(135deg, rgba(145, 94, 255, 0.1), rgba(43, 203, 196, 0.1));
-        padding: 1.5rem;
-        border-radius: 16px;
-        text-align: center;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-    .airdrop-stat-icon {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-        color: var(--accent-secondary);
-    }
-    .airdrop-stat-value {
-        font-size: 2rem;
-        font-weight: 700;
-    }
-    .airdrop-stat-label {
-        color: var(--text-secondary);
-    }
-    #airdrop-reward-card {
-        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-        color: white;
-        padding: 2rem;
-    }
-    #airdrop-reward-logo {
-        width: 32px;
-        height: 32px;
-        margin-left: 10px;
-        vertical-align: middle;
-    }
-    #airdrop-eligibility-status.eligible { color: var(--color-verified); }
-    #airdrop-eligibility-status.ineligible { color: var(--color-out); }
-    .airdrop-action-btn {
-        background: white;
-        color: var(--accent-primary);
-        font-weight: 700;
-        border: none;
-        padding: 10px 30px;
-        border-radius: 50px;
-        transition: all 0.3s ease;
-        width: 100%;
-        margin-top: 0.75rem;
-    }
-    .airdrop-action-btn:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 20px rgba(255,255,255,0.3);
-    }
-    .airdrop-action-btn:disabled {
-        background: #ccc;
-        color: #666;
-        cursor: not-allowed;
-        transform: scale(1);
-        box-shadow: none;
-    }
+/* Airdrop Page Styles */
+.airdrop-stat-card {
+    background: linear-gradient(135deg, rgba(145, 94, 255, 0.1), rgba(43, 203, 196, 0.1));
+    padding: 1.5rem;
+    border-radius: 16px;
+    text-align: center;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.airdrop-stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--accent-secondary);
+}
+.airdrop-stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+}
+.airdrop-stat-label {
+    color: var(--text-secondary);
+}
+#airdrop-reward-card {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: white;
+    padding: 2rem;
+}
+#airdrop-reward-logo {
+    width: 32px;
+    height: 32px;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+#airdrop-eligibility-status.eligible { color: var(--color-verified); }
+#airdrop-eligibility-status.ineligible { color: var(--color-out); }
+.airdrop-action-btn {
+    background: white;
+    color: var(--accent-primary);
+    font-weight: 700;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 0.75rem;
+}
+.airdrop-action-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255,255,255,0.3);
+}
+.airdrop-action-btn:disabled {
+    background: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    transform: scale(1);
+    box-shadow: none;
+}
 
-    #loading-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(5, 8, 22, 0.9);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        z-index: 9999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        color: var(--text-secondary);
-        visibility: hidden;
-        opacity: 0;
-        transition: visibility 0s 0.3s, opacity 0.3s ease;
-    }
-    #loading-overlay.visible {
-        visibility: visible;
-        opacity: 1;
-        transition: opacity 0.3s ease;
-    }
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(5, 8, 22, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: var(--text-secondary);
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s 0.3s, opacity 0.3s ease;
+}
+#loading-overlay.visible {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
 
-    /* CSS FOR PARTNER TASK */
-    .partner-task-card { display: flex; flex-direction: column; gap: 0.75rem; background: var(--card-color); border: 1px solid var(--border-color); padding: 1rem; border-radius: 16px; transition: all 0.3s ease; text-decoration: none; color: var(--text-primary); }
-    .partner-task-card:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
-    .partner-task-card.mandatory { border-left: 4px solid var(--gold); }
-    .partner-task-card.completed { opacity: 0.7; pointer-events: none; }
-    .partner-task-top { display: flex; align-items: center; gap: 1rem; }
-    .partner-task-img { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; flex-shrink: 0; border: 2px solid var(--border-color); }
-    .partner-task-body { flex-grow: 1; min-width: 0; }
-    .partner-task-title { font-weight: 600; font-size: 1.1rem; margin: 0; color: var(--text-primary); }
-    .partner-task-desc { color: var(--text-secondary); font-size: 0.9rem; margin: 0.25rem 0 0.5rem; white-space: normal; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-    .partner-task-desc.expanded { -webkit-line-clamp: unset; }
-    .task-details-toggle { background: none; border: none; color: var(--accent-secondary); font-size: 0.85rem; font-weight: 600; padding: 0; cursor: pointer; z-index: 2; position: relative; }
-    .task-details-toggle:hover { text-decoration: underline; }
-    .partner-task-action-bar { width: 100%; text-align: center; padding: 10px; font-weight: 700; border-radius: 25px; background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white; transition: all 0.3s ease; }
-    .partner-task-card.completed .partner-task-action-bar { background: rgba(46, 204, 113, 0.25); color: var(--color-verified); }
+/* ============================================= */
+/* CSS FOR PARTNER TASK - FULL-WIDTH BUTTON LAYOUT */
+/* ============================================= */
 
-    /* [THÊM MỚI] CSS FOR LIVE FEED */
-    .live-feed-item {
-        display: flex;
-        align-items: center;
-        padding: 0.75rem 0.5rem;
-        border-bottom: 1px solid var(--border-color);
-        opacity: 0;
-        transform: translateX(-20px);
-        animation: slideIn 0.5s forwards;
-    }
-    .live-feed-item:last-child { border-bottom: none; }
-    @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
-    .live-feed-icon {
-        font-size: 1.2rem;
-        width: 30px;
-        text-align: center;
-        margin-right: 1rem;
-        color: var(--accent-primary);
-    }
+/* Parent card: Now stacks items vertically (top and button) */
+.partner-task-card {
+    display: flex;
+    flex-direction: column; /* << MOST IMPORTANT CHANGE */
+    gap: 0.75rem; /* Space between the top block and the button below */
+    
+    /* Old styles remain the same */
+    background: var(--card-color);
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: var(--text-primary);
+}
+.partner-task-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 25px rgba(145, 94, 255, 0.3);
+    border-color: var(--accent-primary);
+}
+.partner-task-card.mandatory {
+    border-left: 4px solid var(--gold);
+}
+.partner-task-card.completed {
+    opacity: 0.7;
+    pointer-events: none; /* Disable the entire card when completed */
+}
+
+/* Top block: Contains image and text, stacked horizontally */
+.partner-task-top {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.partner-task-img {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 2px solid var(--border-color);
+}
+
+.partner-task-body {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.partner-task-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.partner-task-desc {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0.25rem 0 0.5rem;
+    white-space: normal;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+.partner-task-desc.expanded {
+    -webkit-line-clamp: unset;
+}
+
+.task-details-toggle {
+    background: none;
+    border: none;
+    color: var(--accent-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0;
+    cursor: pointer;
+    z-index: 2; /* Ensure this button is always clickable */
+    position: relative;
+}
+.task-details-toggle:hover {
+    text-decoration: underline;
+}
+
+/* Action button/bar below, spans 100% width */
+.partner-task-action-bar {
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+    font-weight: 700;
+    border-radius: 25px;
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.partner-task-card.completed .partner-task-action-bar {
+    background: rgba(46, 204, 113, 0.25);
+    color: var(--color-verified);
+}
 
 
-    /* Responsive Adjustments */
-    @media (min-width: 768px) {
-        .hero-section h1, .login-section h1 { font-size: 3.5rem; }
-        .card-glass { padding: 2rem; }
-        .main-container { padding: 2rem; }
-    }
+/* Responsive Adjustments */
+@media (min-width: 768px) {
+    .hero-section h1, .login-section h1 { font-size: 3.5rem; }
+    .card-glass { padding: 2rem; }
+    .main-container { padding: 2rem; }
+}
 
-    /* =================================================================== */
-    /* [PHIÊN BẢN CUỐI CÙNG] CSS ĐIỀU CHỈNH SAFE AREA CHO TẤT CẢ PHẦN TỬ */
-    /* =================================================================== */
-    .platform-ios .main-container,
-    .platform-ios #loading-overlay {
-        padding-top: 85px !important;
-    }
-    .platform-android .main-container,
-    .platform-android #loading-overlay {
-        padding-top: 65px !important;
-    }
-    .platform-ios .toast-notification {
-        top: 85px !important;
-    }
-    .platform-android .toast-notification {
-        top: 65px !important;
-    }
-    .platform-ios #sidebar-menu {
-        padding-top: 110px !important; 
-    }
-    .platform-android #sidebar-menu {
-        padding-top: 65px !important;
-    }
 
+
+        /* =================================================================== */
+/* [PHIÊN BẢN CUỐI CÙNG] CSS ĐIỀU CHỈNH SAFE AREA CHO TẤT CẢ PHẦN TỬ */
+/* =================================================================== */
+
+/*
+  PHẦN 1: Áp dụng PADDING cho các container nội dung chính và lớp phủ.
+  - .main-container: Nội dung các trang.
+  - #loading-overlay: Màn hình chờ.
+*/
+.platform-ios .main-container,
+.platform-ios #loading-overlay {
+    padding-top: 90px !important;
+}
+
+.platform-android .main-container,
+.platform-android #loading-overlay {
+    padding-top: 65px !important;
+}
+
+/*
+  PHẦN 2: Điều chỉnh VỊ TRÍ cho các phần tử cố định đặc biệt.
+  - .toast-notification: Thông báo nhanh ở góc.
+*/
+.platform-ios .toast-notification {
+    top: 9090px !important;
+}
+
+.platform-android .toast-notification {
+    top: 65px !important;
+}
+
+/*
+  PHẦN 3: SỬA LỖI CHO SIDEBAR - THEO YÊU CẦU.
+  Giữ nguyên background của sidebar (top: 0),
+  chỉ đẩy NỘI DUNG BÊN TRONG nó xuống bằng padding-top.
+*/
+.platform-ios #sidebar-menu {
+    /* Đây là giá trị bạn yêu cầu, nó sẽ ghi đè lên padding-top: 6rem gốc */
+    padding-top: 150px !important; 
+}
+
+.platform-android #sidebar-menu {
+    /* Giữ giá trị an toàn cho Android */
+    padding-top: 140px !important;
+}
     </style>
 </head>
-   <body>
+<body>
     <div id="loading-overlay">
         <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
           <span class="visually-hidden">Loading...</span>
@@ -548,9 +638,9 @@
         <div class="sidebar-nav">
             <a href="#dashboard" class="sidebar-link active" id="nav-dashboard">Wallet</a>
             <a href="#apps" class="sidebar-link" id="nav-apps">Apps</a>
+            <a href="#transfer" class="sidebar-link" id="nav-transfer" style="display: none;">Send/Receive</a>
             <a href="#task" class="sidebar-link" id="nav-task">History</a>
             <a href="#partner" class="sidebar-link" id="nav-partner">Tasks</a>
-            <a href="#transfer" class="sidebar-link" id="nav-transfer">Transfer</a>
             <a href="#referral" class="sidebar-link" id="nav-referral">Referral</a>
             <a href="#airdrop" class="sidebar-link" id="nav-airdrop">Airdrop</a>
             <a href="#leaderboard" class="sidebar-link" id="nav-leaderboard">Leaderboard</a>
@@ -590,19 +680,6 @@
                 </button>
             </div>
         </header>
-
-
-
-
-
-
-
-
-
-
-
-
-        
         
         <main id="account-section" style="display: none;">
             <div class="container">
@@ -745,6 +822,124 @@
             </div>
         </main>
 
+        <!-- ============================================= -->
+        <!-- NEW: SEND/RECEIVE SECTION                     -->
+        <!-- ============================================= -->
+        <main id="transfer-section" style="display: none;">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h1 class="mb-2" style="font-weight: 700;">Transfer Assets</h1>
+                    <p class="lead text-secondary col-md-8 mx-auto">Send and receive EXP with other users instantly. More assets coming soon.</p>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-12 col-md-10 col-lg-8">
+                        <div class="card-glass">
+                            <ul class="nav nav-tabs" id="transferTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="send-tab" data-bs-toggle="tab" data-bs-target="#send-pane" type="button" role="tab"><i class="fas fa-paper-plane me-2"></i>Send</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="receive-tab" data-bs-toggle="tab" data-bs-target="#receive-pane" type="button" role="tab"><i class="fas fa-qrcode me-2"></i>Receive</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="transfer-history-tab" data-bs-toggle="tab" data-bs-target="#transfer-history-pane" type="button" role="tab"><i class="fas fa-history me-2"></i>History</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="live-feed-tab" data-bs-toggle="tab" data-bs-target="#live-feed-pane" type="button" role="tab"><i class="fas fa-broadcast-tower me-2"></i>Live</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content pt-4">
+                                <!-- Send Pane -->
+                                <div class="tab-pane fade show active" id="send-pane" role="tabpanel">
+                                    <form id="send-exp-form">
+                                        <div class="mb-3">
+                                            <label for="send-asset-type" class="form-label">Asset</label>
+                                            <select class="form-select" id="send-asset-type">
+                                                <option value="EXP" selected>EXP</option>
+                                                <option value="BMASS" id="send-bmass-option" disabled>Soon: $BMASS</option>
+                                            </select>
+                                        </div>
+                                        <div class="row g-3 mb-3">
+                                            <div class="col-md-6">
+                                                <label for="send-recipient-type" class="form-label">Recipient ID Type</label>
+                                                <select class="form-select" id="send-recipient-type">
+                                                    <option value="address" selected>Wallet Address</option>
+                                                    <option value="uid">Telegram UID</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="send-recipient-value" class="form-label">Recipient ID</label>
+                                                <input type="text" class="form-control" id="send-recipient-value" placeholder="Paste Address or UID..." required>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="send-amount" class="form-label">Amount</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control" id="send-amount" placeholder="e.g., 100" required min="1">
+                                                <span class="input-group-text" id="send-asset-label">EXP</span>
+                                            </div>
+                                            <div class="form-text">Your balance: <span id="send-form-balance" class="fw-bold">0 EXP</span></div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="send-memo" class="form-label">Recipient's Memo</label>
+                                            <input type="text" class="form-control" id="send-memo" placeholder="Enter recipient's unique memo" required>
+                                            <div class="form-text text-warning"><i class="fas fa-exclamation-triangle me-1"></i> <strong>Crucial:</strong> Incorrect memo will result in loss of funds.</div>
+                                        </div>
+                                        <div class="d-grid">
+                                            <button type="submit" id="send-exp-submit-btn" class="btn btn-lg" style="background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white;">
+                                                <i class="fas fa-paper-plane me-2"></i>Send Now
+                                            </button>
+                                        </div>
+                                        <div id="send-exp-status" class="mt-3 text-center fw-bold"></div>
+                                    </form>
+                                </div>
+                                <!-- Receive Pane -->
+                                <div class="tab-pane fade" id="receive-pane" role="tabpanel">
+                                    <div class="text-center">
+                                        <p class="text-secondary">Share your details below to receive assets from other users.</p>
+                                        <div id="receive-qr-code" class="mb-3 d-flex justify-content-center">
+                                            <!-- QR Code will be injected here -->
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Your Wallet Address</label>
+                                            <div class="input-group">
+                                                <input id="receive-address-input" type="text" class="form-control" value="Loading..." readonly>
+                                                <button class="btn btn-outline-secondary copyable-code" id="receive-address-copy-btn" data-code="" title="Copy"><i class="fas fa-copy"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Your Telegram UID</label>
+                                            <div class="input-group">
+                                                <input id="receive-uid-input" type="text" class="form-control" value="Loading..." readonly>
+                                                <button class="btn btn-outline-secondary copyable-code" id="receive-uid-copy-btn" data-code="" title="Copy"><i class="fas fa-copy"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 p-3" style="border: 2px dashed var(--accent-primary); border-radius: 25px; background: rgba(145, 94, 255, 0.05);">
+                                            <label class="form-label fw-bold" style="color: var(--accent-primary);">Your Unique Memo (Required for receiving)</label>
+                                            <div class="input-group">
+                                                <input id="receive-memo-input" type="text" class="form-control" value="Loading..." readonly>
+                                                <button class="btn btn-outline-secondary copyable-code" id="receive-memo-copy-btn" data-code="" title="Copy"><i class="fas fa-copy"></i></button>
+                                            </div>
+                                            <p class="small text-warning mt-2 mb-0">The sender MUST use this exact memo for the transaction to succeed.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- History Pane -->
+                                <div class="tab-pane fade" id="transfer-history-pane" role="tabpanel" style="max-height: 400px; overflow-y: auto; padding-right:10px;">
+                                    <!-- History will be rendered here -->
+                                </div>
+                                 <!-- Live Feed Pane -->
+                                <div class="tab-pane fade" id="live-feed-pane" role="tabpanel" style="max-height: 400px; overflow-y: auto; padding-right:10px;">
+                                    <!-- Live feed will be rendered here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
         <main id="task-section" style="display: none;">
             <div class="container">
                 <div class="text-center mb-5">
@@ -801,127 +996,6 @@
                 </div>
             </div>
         </main>
-
-
-
-
-
-        <!-- [THÊM MỚI] SECTION TRANSFER -->
-        <main id="transfer-section" style="display: none;">
-            <div class="container">
-                <!-- Coming Soon Message -->
-                <div id="transfer-coming-soon" style="display: none;" class="text-center p-5 card-glass col-md-8 mx-auto">
-                    <i class="fas fa-exchange-alt fa-3x text-secondary mb-3"></i>
-                    <h2 class="mb-2" style="font-weight: 700;">Transfer Feature Coming Soon!</h2>
-                    <p class="lead text-secondary">This feature is currently disabled by the administrator.</p>
-                </div>
-
-                <!-- Main Content -->
-                <div id="transfer-content-wrapper">
-                    <div class="text-center mb-5">
-                        <h1 class="mb-2" style="font-weight: 700;">Send & Receive</h1>
-                        <p class="lead text-secondary col-md-8 mx-auto">Transfer EXP or $BMASS to your friends securely.</p>
-                    </div>
-
-                    <div class="row justify-content-center g-4">
-                        <!-- Send/Receive Card -->
-                        <div class="col-12 col-md-10 col-lg-7">
-                            <div class="card-glass">
-                                <ul class="nav nav-tabs" id="transferTab" role="tablist">
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link active" id="send-tab" data-bs-toggle="tab" data-bs-target="#send-pane" type="button"><i class="fas fa-arrow-up me-2"></i>Send</button>
-                                    </li>
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link" id="receive-tab" data-bs-toggle="tab" data-bs-target="#receive-pane" type="button"><i class="fas fa-arrow-down me-2"></i>Receive</button>
-                                    </li>
-                                </ul>
-                                <div class="tab-content pt-4">
-                                    <!-- Send Pane -->
-                                    <div class="tab-pane fade show active" id="send-pane" role="tabpanel">
-                                        <form id="send-form">
-                                            <div class="mb-3">
-                                                <label for="send-asset-type" class="form-label">Asset</label>
-                                                <select class="form-select" id="send-asset-type">
-                                                    <option value="exp" selected>EXP Points</option>
-                                                    <option value="bmass" disabled>$BMASS Token (Coming Soon)</option>
-                                                </select>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="send-recipient-type" class="form-label">Recipient Identifier</label>
-                                                <select class="form-select" id="send-recipient-type">
-                                                    <option value="address" selected>Wallet Address</option>
-                                                    <option value="uid">Telegram UID</option>
-                                                </select>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="send-recipient-value" class="form-label">Recipient</label>
-                                                <input type="text" class="form-control" id="send-recipient-value" placeholder="Enter Address or UID..." required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="send-amount" class="form-label">Amount</label>
-                                                <input type="number" class="form-control" id="send-amount" placeholder="e.g., 100" required min="1">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="send-memo" class="form-label">Memo (Required)</label>
-                                                <input type="text" class="form-control" id="send-memo" placeholder="Enter recipient's unique memo..." required>
-                                                <div class="form-text text-warning"><i class="fas fa-exclamation-triangle me-1"></i> You must enter the correct memo from the recipient. Incorrect memo will result in loss of assets.</div>
-                                            </div>
-                                            <button type="submit" id="send-submit-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;">
-                                                <i class="fas fa-paper-plane me-2"></i>Send
-                                            </button>
-                                        </form>
-                                    </div>
-                                    <!-- Receive Pane -->
-                                    <div class="tab-pane fade" id="receive-pane" role="tabpanel">
-                                        <div class="text-center">
-                                            <p class="text-secondary">Share your details below to receive assets.</p>
-                                            <div id="receive-qr-code" class="p-3 bg-white d-inline-block rounded-4 mb-3">
-                                                <!-- QR Code will be rendered here -->
-                                            </div>
-                                        </div>
-                                        <div class="mb-2">
-                                            <label class="form-label small text-secondary">Your Wallet Address:</label>
-                                            <div class="input-group">
-                                                <input type="text" id="receive-address" class="form-control" readonly>
-                                                <button class="btn btn-outline-secondary copyable-code" id="copy-receive-address"><i class="fas fa-copy"></i></button>
-                                            </div>
-                                        </div>
-                                        <div class="mb-2">
-                                            <label class="form-label small text-secondary">Your Telegram UID:</label>
-                                            <div class="input-group">
-                                                <input type="text" id="receive-uid" class="form-control" readonly>
-                                                <button class="btn btn-outline-secondary copyable-code" id="copy-receive-uid"><i class="fas fa-copy"></i></button>
-                                            </div>
-                                        </div>
-                                        <div class="mb-2">
-                                            <label class="form-label small text-secondary">Your Unique Memo (Required for Sender):</label>
-                                            <div class="input-group">
-                                                <input type="text" id="receive-memo" class="form-control" readonly>
-                                                <button class="btn btn-outline-secondary copyable-code" id="copy-receive-memo"><i class="fas fa-copy"></i></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Live Feed Card -->
-                        <div class="col-12 col-md-10 col-lg-5">
-                            <div class="card-glass">
-                                <h5 class="card-title"><i class="fas fa-satellite-dish me-2" style="color: var(--color-out);"></i>Live Feed</h5>
-                                <div id="live-feed-container" style="max-height: 450px; overflow-y: auto; padding-right: 10px;">
-                                    <!-- Live feed items will be rendered here -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-
-
-
-        
         
         <main id="referral-section" style="display: none;">
              <div class="container">
@@ -1086,38 +1160,57 @@
                     <p class="lead text-secondary col-md-8 mx-auto">Công cụ quản lý người dùng và sự kiện.</p>
                 </div>
                 <div class="row justify-content-center g-4">
-
-
-
-
-<!-- [THÊM MỚI] CARD CẤU HÌNH TRANSFER -->
-                    <div class="col-12 col-lg-10 col-xl-8">
+                    <!-- ============================================= -->
+                    <!-- NEW: FEATURE TOGGLES PANEL                    -->
+                    <!-- ============================================= -->
+                     <div class="col-12 col-lg-10 col-xl-8">
                         <div class="card-glass">
-                            <h5 class="card-title">Cấu hình Chuyển Khoản (Transfer)</h5>
-                            <div id="admin-transfer-settings-form">
-                                <div class="form-check form-switch fs-5">
-                                    <input class="form-check-input" type="checkbox" role="switch" id="transfer-enabled-switch">
-                                    <label class="form-check-label" for="transfer-enabled-switch">Bật tính năng Gửi/Nhận cho người dùng</label>
+                            <h5 class="card-title">Feature Toggles</h5>
+                            <div id="admin-main-settings-form">
+                                <div class="form-check form-switch fs-5 mb-2">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="exp-transfer-enabled-switch">
+                                    <label class="form-check-label" for="exp-transfer-enabled-switch">Enable EXP Send/Receive</label>
                                 </div>
-                                 <div class="form-check form-switch fs-5 mt-3">
-                                    <input class="form-check-input" type="checkbox" role="switch" id="transfer-bmass-enabled-switch">
-                                    <label class="form-check-label" for="transfer-bmass-enabled-switch">Bật chuyển khoản $BMASS (On-chain)</label>
+                                <div class="form-check form-switch fs-5 mb-3">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="bmass-transfer-enabled-switch">
+                                    <label class="form-check-label" for="bmass-transfer-enabled-switch">Enable $BMASS Send/Receive</label>
                                 </div>
-                                <div id="admin-transfer-settings-status" class="mt-3"></div>
-                                <div class="d-grid mt-3">
-                                    <button type="button" id="save-transfer-settings-btn" class="btn" style="background-color: var(--accent-secondary); color: white;">Lưu Cài Đặt Transfer</button>
+                                <hr style="border-color: var(--border-color); opacity: 0.5;">
+                                <h6 class="text-secondary text-uppercase mt-3 mb-3">Airdrop Control</h6>
+                                <div class="row text-center g-3 mb-4">
+                                    <div class="col-6 col-sm-3">
+                                        <div class="form-check form-switch fs-5 d-inline-block">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="airdrop-live-switch">
+                                            <label class="form-check-label" for="airdrop-live-switch">Live</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-sm-3">
+                                        <div class="form-check form-switch fs-5 d-inline-block">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="confirmation-enabled-switch">
+                                            <label class="form-check-label" for="confirmation-enabled-switch">Xác nhận</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-sm-3">
+                                        <div class="form-check form-switch fs-5 d-inline-block">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="claim-enabled-switch">
+                                            <label class="form-check-label" for="claim-enabled-switch">Yêu cầu</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-sm-3">
+                                        <div class="form-check form-switch fs-5 d-inline-block">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="snapshot-active-switch">
+                                            <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snap</label>
+                                        </div>
+                                    </div>
                                 </div>
+                                <div class="d-grid">
+                                    <button type="button" id="save-main-settings-btn" class="btn btn-primary mt-3">Save All Settings</button>
+                                </div>
+                                <div id="main-settings-status" class="mt-3 text-center fw-bold"></div>
                             </div>
                         </div>
                     </div>
 
-
-
-
-
-
-
-                    
                     <!-- ============================================= -->
                     <!-- NEW: TELEGRAM BULK MESSENGER PANEL            -->
                     <!-- ============================================= -->
@@ -1223,37 +1316,9 @@
 
                      <div class="col-12 col-lg-10 col-xl-8">
                         <div class="card-glass">
-                            <h5 class="card-title">Cấu hình Airdrop & Xuất dữ liệu</h5>
+                            <h5 class="card-title">Cấu hình & Xuất dữ liệu Airdrop</h5>
                             <div id="admin-airdrop-settings-form">
-                                <div class="row text-center g-3 mb-4">
-                                    <div class="col-6 col-sm-3">
-                                        <div class="form-check form-switch fs-5 d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="airdrop-live-switch">
-                                            <label class="form-check-label" for="airdrop-live-switch">Live</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-sm-3">
-                                        <div class="form-check form-switch fs-5 d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="confirmation-enabled-switch">
-                                            <label class="form-check-label" for="confirmation-enabled-switch">Xác nhận</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-sm-3">
-                                        <div class="form-check form-switch fs-5 d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="claim-enabled-switch">
-                                            <label class="form-check-label" for="claim-enabled-switch">Yêu cầu</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-sm-3">
-                                        <div class="form-check form-switch fs-5 d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="snapshot-active-switch">
-                                            <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snap</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <hr style="border-color: var(--border-color); opacity: 0.5;">
+                                
                                 <h6 class="text-secondary text-center my-3">CÔNG THỨC TÍNH ĐIỂM</h6>
                                 <div class="row g-3 mb-4">
                                      <div class="col-md-4">
@@ -1287,11 +1352,11 @@
                                     </div>
                                 </div>
                                 <div class="mt-3">
-                                     <label for="min-exp-input" class="form-label fw-bold" style="color: var(--gold);">ĐIỀU KIỆN NHIỆM VỤ BẮT BUỘC (Tự động áp dụng)</label>
+                                     <label class="form-label fw-bold" style="color: var(--gold);">ĐIỀU KIỆN NHIỆM VỤ BẮT BUỘC (Tự động áp dụng)</label>
                                 </div>
                                 <div id="admin-settings-status" class="mt-3"></div>
                                 <div class="d-flex gap-3 mt-3">
-                                    <button type="button" id="save-settings-btn" class="btn w-100" style="background-color: var(--accent-secondary); color: white;">Lưu Cài Đặt</button>
+                                    <button type="button" id="save-airdrop-criteria-btn" class="btn w-100" style="background-color: var(--accent-secondary); color: white;">Lưu Tiêu chí</button>
                                     <button type="button" id="export-csv-btn" class="btn btn-outline-light w-100">Xuất File Excel (CSV)</button>
                                 </div>
                             </div>
@@ -1494,608 +1559,603 @@
 <script src="/apps-data.js"></script>
     
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const TON_API_BASE = 'https://tonapi.io/v2';
-        const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
-        const USER_SESSION_KEY = 'BmassUserSession';
-        const REFERRAL_SESSION_KEY = 'BmassReferralCode';
+document.addEventListener('DOMContentLoaded', () => {
+    const TON_API_BASE = 'https://tonapi.io/v2';
+    const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
+    const USER_SESSION_KEY = 'BmassUserSession';
+    const REFERRAL_SESSION_KEY = 'BmassReferralCode';
+    
+    // --- CONFIGURATION ---
+    const YOUR_TELEGRAM_BOT_NAME = "bmassk3_bot"; 
+    const YOUR_MINI_APP_NAME = "BmassK3"; 
+    const YOUR_WEB_APP_URL = "https://bmass.vercel.app/";
+    
+    // Admin Credentials
+    const ADMIN_ADDRESS = '0:eef2fc994996c062f45143f8d6e3fd048811a26c01aaef6c126636164663401a';
+    const ADMIN_UID = 5387725104;
+
+    // Element Selectors
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const accountSectionEl = document.getElementById('account-section');
+    const dashboardEl = document.getElementById('dashboard');
+    const heroEl = document.getElementById('hero-section');
+    const mainAssetsContent = document.getElementById('main-assets-content');
+    const activityFeedContent = document.getElementById('activity-feed-content');
+    const otherTokensContent = document.getElementById('other-tokens-content');
+    const nftGalleryContent = document.getElementById('nft-gallery-content');
+    const searchInput = document.getElementById('account-search-input');
+    const searchButton = document.getElementById('account-search-button');
+    const searchResultsContainer = document.getElementById('search-results-container');
+    const backToMyWalletBtn = document.getElementById('back-to-my-wallet-btn');
+    const newsSection = document.getElementById('crypto-news-feed');
+    const newsContentArea = document.getElementById('news-content-area');
+    const hamburgerBtn = document.getElementById('hamburger-menu-btn');
+    const sidebarMenu = document.getElementById('sidebar-menu');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    const navDashboard = document.getElementById('nav-dashboard');
+    const navApps = document.getElementById('nav-apps');
+    const navTransfer = document.getElementById('nav-transfer');
+    const navTask = document.getElementById('nav-task');
+    const navPartner = document.getElementById('nav-partner');
+    const navReferral = document.getElementById('nav-referral');
+    const navAirdrop = document.getElementById('nav-airdrop');
+    const navLeaderboard = document.getElementById('nav-leaderboard');
+    const navAccount = document.getElementById('nav-account'); 
+    const navAdmin = document.getElementById('nav-admin');
+    const tonConnectButtonRoot = document.getElementById('ton-connect-button-root');
+    const connectWalletHeroBtnContainer = document.getElementById('connect-wallet-hero-btn-container');
+    const customWalletContainer = document.getElementById('custom-wallet-button-container');
+    const customWalletButton = document.getElementById('custom-wallet-button');
+    const walletDropdown = document.getElementById('wallet-dropdown');
+    const copyAddressBtn = document.getElementById('copy-address-btn');
+    const disconnectWalletBtn = document.getElementById('disconnect-wallet-btn');
+    const fullLogoutBtn = document.getElementById('full-logout-btn');
+    const myAccountBtn = document.getElementById('my-account-btn');
+    const appLogoImg = document.getElementById('app-logo-img');
+    const appLogoText = document.getElementById('app-logo-text');
+    const appStoreSection = document.getElementById('app-store-section');
+    const taskSectionEl = document.getElementById('task-section');
+    const partnerSectionEl = document.getElementById('partner-section');
+    const leaderboardSectionEl = document.getElementById('leaderboard-section');
+    const adminSectionEl = document.getElementById('admin-section');
+    const referralSectionEl = document.getElementById('referral-section');
+    const airdropSectionEl = document.getElementById('airdrop-section');
+    const transferSectionEl = document.getElementById('transfer-section');
+    const appGrid = document.getElementById('app-grid');
+    const appSearchInput = document.getElementById('app-search-input');
+    const appSearchButton = document.getElementById('app-search-button');
+    const appFilterControls = document.getElementById('app-filter-controls');
+    const jettonDetailModalEl = document.getElementById('jettonDetailModal');
+    const jettonDetailModal = new bootstrap.Modal(jettonDetailModalEl);
+    const portfolioContent = document.getElementById('portfolio-overview-content');
+    const portfolioSkeleton = document.getElementById('portfolio-overview-skeleton');
+    const totalValueUsdEl = document.getElementById('total-value-usd');
+    const totalValueVndEl = document.getElementById('total-value-vnd');
+    const taskExpBalanceEl = document.getElementById('task-exp-balance');
+    const headerExpDisplay = document.getElementById('header-exp-display');
+    const headerExpBalanceEl = document.getElementById('header-exp-balance');
+    const checkinButton = document.getElementById('checkin-button');
+    const popupCheckinButton = document.getElementById('popup-checkin-button');
+    const checkinPopupModalEl = document.getElementById('checkinPopupModal');
+    const checkinPopupModal = new bootstrap.Modal(checkinPopupModalEl);
+    const taskHistoryContent = document.getElementById('task-history-content');
+    const adminExpForm = document.getElementById('admin-exp-form');
+    const adminSubmitBtn = document.getElementById('admin-submit-btn');
+    const adminDisableForm = document.getElementById('admin-disable-form');
+    const adminDisableBtn = document.getElementById('admin-disable-btn');
+    const adminEnableBtn = document.getElementById('admin-enable-btn');
+    const adminUserListContainer = document.getElementById('admin-user-list-container');
+    const adminUserSearchInput = document.getElementById('admin-user-search-input');
+    const adminLoadMoreBtn = document.getElementById('admin-load-more-btn');
+    const referralInputContainer = document.getElementById('referral-input-container');
+    const referralCodeInput = document.getElementById('referral-code-input');
+    const referralCodeSubmit = document.getElementById('referral-code-submit');
+    const referralInputContainerHero = document.getElementById('referral-input-container-hero');
+    const referralCodeInputHero = document.getElementById('referral-code-input-hero');
+    const referralCodeSubmitHero = document.getElementById('referral-code-submit-hero');
+    const saveMainSettingsBtn = document.getElementById('save-main-settings-btn');
+    const saveAirdropCriteriaBtn = document.getElementById('save-airdrop-criteria-btn');
+    const exportCsvBtn = document.getElementById('export-csv-btn');
+    const adminSettingsStatusEl = document.getElementById('admin-settings-status');
+    const contactAdminBtn = document.getElementById('contact-admin-btn');
+    const contactAdminModal = new bootstrap.Modal(document.getElementById('contactAdminModal'));
+    const sendExpForm = document.getElementById('send-exp-form');
+    
+    // Mass Award Form Elements
+    const adminMassAwardForm = document.getElementById('admin-mass-award-form');
+    const adminMassConditionType = document.getElementById('admin-mass-condition-type');
+    const adminMassConditionWrapper = document.getElementById('admin-mass-condition-wrapper');
+    const adminMassAwardSubmitBtn = document.getElementById('admin-mass-award-submit-btn');
+    const adminMassAwardStatus = document.getElementById('admin-mass-award-status');
+    
+    // Partner Task Elements
+    const partnerTasksContainer = document.getElementById('partner-tasks-container');
+    const adminPartnerTaskForm = document.getElementById('admin-partner-task-form');
+    const partnerTaskIdInput = document.getElementById('partner-task-id-input');
+    const partnerTaskSaveBtn = document.getElementById('partner-task-save-btn');
+    const partnerTaskClearBtn = document.getElementById('partner-task-clear-btn');
+    const adminPartnerTaskStatus = document.getElementById('admin-partner-task-status');
+    const adminPartnerTasksList = document.getElementById('admin-partner-tasks-list');
+
+    // Telegram Sender Elements
+    const sendBulkTelegramMessageBtn = document.getElementById('send-bulk-telegram-message-btn');
+    const telegramSenderStatus = document.getElementById('telegram-sender-status');
+
+
+    const DEFAULT_LOGO_SRC = 'https://bmass.vercel.app/img/logo_viewc.png';
+    const GENERIC_WALLET_ICON = 'https://ton.org/download/ton_symbol.png';
+    const GENERIC_TASK_ICON = 'https://bmass.vercel.app/img/bmass.png';
+
+    // State Variables
+    let telegramUserData = null;
+    let connectedWalletAddress = null; // Raw address from wallet
+    let currentUserData = null; // Full user profile from Firestore
+    let mainSettings = null; // Will hold all admin settings
+    let lastFetchedAddress = null;
+    let currentActivityLogs = [];
+    let activityRefreshInterval = null;
+    let liveFeedListener = null; // To unsubscribe from the live feed listener
+    const addressCache = {};
+    let searchTimeout;
+    let db = null;
+    let storage = null; // Firebase Storage
+    let checkinInterval = null;
+    let lastVisibleAdminUser = null; // For admin pagination
+
+    // Constants
+    const REFERRAL_REWARD = 200;
+    const CHECKIN_REWARD = 10;
+    const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000;
+    const ADMIN_USERS_PER_PAGE = 50;
+    const BATCH_SIZE = 200; // For mass award processing
+    const FIRESTORE_FETCH_BATCH_SIZE = 500; // For fetching all users
+    const TELEGRAM_SEND_DELAY_MS = 150; // Delay between each message to avoid rate limits
+    
+    const CONFIRM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
+    const CONFIRM_AMOUNT_NANOTONS = "10000"; // 0.00001 TON
+    const REQUEST_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD"; 
+    const REQUEST_AMOUNT_NANOTONS = "20000"; // 0.00002 TON
+
+    const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
+    const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
+
+    // --- Core Logic ---
+
+    function initializeFirebase() {
+        if (db) return;
+        const firebaseConfig = {
+            apiKey: "AIzaSyCHjgJkqVmgpZ6s5HRobpqB6XT--Sa2_zY",
+            authDomain: "tgapp-30a28.firebaseapp.com",
+            projectId: "tgapp-30a28",
+            storageBucket: "tgapp-30a28.firebasestorage.app",
+            messagingSenderId: "329047273664",
+            appId: "1:329047273664:web:c9e1bfe367afb54953fd25",
+            measurementId: "G-68P4PT49B0"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        db = firebase.firestore();
+        storage = firebase.storage();
+    }
+    
+    function showLoadingOverlay(message = 'Please wait...') {
+        loadingOverlay.querySelector('p').textContent = message;
+        loadingOverlay.classList.add('visible');
+    }
+
+    function hideLoadingOverlay() {
+        loadingOverlay.classList.remove('visible');
+    }
+
+    async function onUserAuthenticated() {
+        hideLoadingOverlay();
         
-        // --- CONFIGURATION ---
-        const YOUR_TELEGRAM_BOT_NAME = "bmassk3_bot"; 
-        const YOUR_MINI_APP_NAME = "BmassK3"; 
-        const YOUR_WEB_APP_URL = "https://bmass.vercel.app/";
+        updateUIAfterLogin();
+        await fetchAndDisplayAccountData(connectedWalletAddress);
+        activityRefreshInterval = setInterval(() => {
+            if (lastFetchedAddress === connectedWalletAddress) {
+                fetchAndDisplayAccountData(connectedWalletAddress);
+            }
+        }, 30000);
+    }
+    
+    function isCurrentUserAdmin() {
+        if (!currentUserData) return false;
+        const isAdminByAddress = currentUserData.address === ADMIN_ADDRESS;
+        const isAdminByUID = currentUserData.telegramId === ADMIN_UID;
+        return isAdminByAddress || isAdminByUID;
+    }
+
+    async function checkMandatoryTasksCompletion(userAddress) {
+        if (!db) return true; // Fail open if db is not ready
+
+        const mandatoryTasksSnapshot = await db.collection('partner_tasks').where('taskType', '==', 'mandatory').get();
+        if (mandatoryTasksSnapshot.empty) {
+            return true; // No mandatory tasks exist
+        }
         
-        // Admin Credentials
-        const ADMIN_ADDRESS = '0:eef2fc994996c062f45143f8d6e3fd048811a26c01aaef6c126636164663401a';
-        const ADMIN_UID = 5387725104;
-
-        // Element Selectors
-        const loadingOverlay = document.getElementById('loading-overlay');
-        const accountSectionEl = document.getElementById('account-section');
-        const dashboardEl = document.getElementById('dashboard');
-        const heroEl = document.getElementById('hero-section');
-        const mainAssetsContent = document.getElementById('main-assets-content');
-        const activityFeedContent = document.getElementById('activity-feed-content');
-        const otherTokensContent = document.getElementById('other-tokens-content');
-        const nftGalleryContent = document.getElementById('nft-gallery-content');
-        const searchInput = document.getElementById('account-search-input');
-        const searchButton = document.getElementById('account-search-button');
-        const searchResultsContainer = document.getElementById('search-results-container');
-        const backToMyWalletBtn = document.getElementById('back-to-my-wallet-btn');
-        const newsSection = document.getElementById('crypto-news-feed');
-        const newsContentArea = document.getElementById('news-content-area');
-        const hamburgerBtn = document.getElementById('hamburger-menu-btn');
-        const sidebarMenu = document.getElementById('sidebar-menu');
-        const sidebarOverlay = document.getElementById('sidebar-overlay');
-        const navDashboard = document.getElementById('nav-dashboard');
-        const navApps = document.getElementById('nav-apps');
-        const navTask = document.getElementById('nav-task');
-        const navPartner = document.getElementById('nav-partner');
-        const navTransfer = document.getElementById('nav-transfer');
-        const navReferral = document.getElementById('nav-referral');
-        const navAirdrop = document.getElementById('nav-airdrop');
-        const navLeaderboard = document.getElementById('nav-leaderboard');
-        const navAccount = document.getElementById('nav-account'); 
-        const navAdmin = document.getElementById('nav-admin');
-        const tonConnectButtonRoot = document.getElementById('ton-connect-button-root');
-        const connectWalletHeroBtnContainer = document.getElementById('connect-wallet-hero-btn-container');
-        const customWalletContainer = document.getElementById('custom-wallet-button-container');
-        const customWalletButton = document.getElementById('custom-wallet-button');
-        const walletDropdown = document.getElementById('wallet-dropdown');
-        const copyAddressBtn = document.getElementById('copy-address-btn');
-        const disconnectWalletBtn = document.getElementById('disconnect-wallet-btn');
-        const fullLogoutBtn = document.getElementById('full-logout-btn');
-        const myAccountBtn = document.getElementById('my-account-btn');
-        const appLogoImg = document.getElementById('app-logo-img');
-        const appLogoText = document.getElementById('app-logo-text');
-        const appStoreSection = document.getElementById('app-store-section');
-        const taskSectionEl = document.getElementById('task-section');
-        const partnerSectionEl = document.getElementById('partner-section');
-        const transferSectionEl = document.getElementById('transfer-section');
-        const leaderboardSectionEl = document.getElementById('leaderboard-section');
-        const adminSectionEl = document.getElementById('admin-section');
-        const referralSectionEl = document.getElementById('referral-section');
-        const airdropSectionEl = document.getElementById('airdrop-section');
-        const appGrid = document.getElementById('app-grid');
-        const appSearchInput = document.getElementById('app-search-input');
-        const appSearchButton = document.getElementById('app-search-button');
-        const appFilterControls = document.getElementById('app-filter-controls');
-        const jettonDetailModalEl = document.getElementById('jettonDetailModal');
-        const jettonDetailModal = new bootstrap.Modal(jettonDetailModalEl);
-        const portfolioContent = document.getElementById('portfolio-overview-content');
-        const portfolioSkeleton = document.getElementById('portfolio-overview-skeleton');
-        const totalValueUsdEl = document.getElementById('total-value-usd');
-        const totalValueVndEl = document.getElementById('total-value-vnd');
-        const taskExpBalanceEl = document.getElementById('task-exp-balance');
-        const headerExpDisplay = document.getElementById('header-exp-display');
-        const headerExpBalanceEl = document.getElementById('header-exp-balance');
-        const checkinButton = document.getElementById('checkin-button');
-        const popupCheckinButton = document.getElementById('popup-checkin-button');
-        const checkinPopupModalEl = document.getElementById('checkinPopupModal');
-        const checkinPopupModal = new bootstrap.Modal(checkinPopupModalEl);
-        const taskHistoryContent = document.getElementById('task-history-content');
-        const adminExpForm = document.getElementById('admin-exp-form');
-        const adminSubmitBtn = document.getElementById('admin-submit-btn');
-        const adminDisableForm = document.getElementById('admin-disable-form');
-        const adminDisableBtn = document.getElementById('admin-disable-btn');
-        const adminEnableBtn = document.getElementById('admin-enable-btn');
-        const adminUserListContainer = document.getElementById('admin-user-list-container');
-        const adminUserSearchInput = document.getElementById('admin-user-search-input');
-        const adminLoadMoreBtn = document.getElementById('admin-load-more-btn');
-        const referralInputContainer = document.getElementById('referral-input-container');
-        const referralCodeInput = document.getElementById('referral-code-input');
-        const referralCodeSubmit = document.getElementById('referral-code-submit');
-        const referralInputContainerHero = document.getElementById('referral-input-container-hero');
-        const referralCodeInputHero = document.getElementById('referral-code-input-hero');
-        const referralCodeSubmitHero = document.getElementById('referral-code-submit-hero');
-        const saveSettingsBtn = document.getElementById('save-settings-btn');
-        const exportCsvBtn = document.getElementById('export-csv-btn');
-        const adminSettingsStatusEl = document.getElementById('admin-settings-status');
-        const contactAdminBtn = document.getElementById('contact-admin-btn');
-        const contactAdminModal = new bootstrap.Modal(document.getElementById('contactAdminModal'));
+        const mandatoryTaskIds = new Set(mandatoryTasksSnapshot.docs.map(doc => doc.id));
         
-        // Mass Award Form Elements
-        const adminMassAwardForm = document.getElementById('admin-mass-award-form');
-        const adminMassConditionType = document.getElementById('admin-mass-condition-type');
-        const adminMassConditionWrapper = document.getElementById('admin-mass-condition-wrapper');
-        const adminMassAwardSubmitBtn = document.getElementById('admin-mass-award-submit-btn');
-        const adminMassAwardStatus = document.getElementById('admin-mass-award-status');
+        const completedTasksSnapshot = await db.collection('users').doc(userAddress).collection('completed_partner_tasks').get();
+        const completedTaskIds = new Set(completedTasksSnapshot.docs.map(doc => doc.id));
+
+        for (const taskId of mandatoryTaskIds) {
+            if (!completedTaskIds.has(taskId)) {
+                return false; // Found a mandatory task that is not completed
+            }
+        }
+
+        return true; // All mandatory tasks are completed
+    }
+
+    async function calculateBmassReward(user, settings) {
+        if (!user || !settings) return 0;
         
-        // Partner Task Elements
-        const partnerTasksContainer = document.getElementById('partner-tasks-container');
-        const adminPartnerTaskForm = document.getElementById('admin-partner-task-form');
-        const partnerTaskIdInput = document.getElementById('partner-task-id-input');
-        const partnerTaskSaveBtn = document.getElementById('partner-task-save-btn');
-        const partnerTaskClearBtn = document.getElementById('partner-task-clear-btn');
-        const adminPartnerTaskStatus = document.getElementById('admin-partner-task-status');
-        const adminPartnerTasksList = document.getElementById('admin-partner-tasks-list');
-
-        // Telegram Sender Elements
-        const sendBulkTelegramMessageBtn = document.getElementById('send-bulk-telegram-message-btn');
-        const telegramSenderStatus = document.getElementById('telegram-sender-status');
-
-
-        const DEFAULT_LOGO_SRC = 'https://bmass.vercel.app/img/logo_viewc.png';
-        const GENERIC_WALLET_ICON = 'https://ton.org/download/ton_symbol.png';
-        const GENERIC_TASK_ICON = 'https://bmass.vercel.app/img/bmass.png';
-
-        // State Variables
-        let telegramUserData = null;
-        let connectedWalletAddress = null; // Raw address from wallet
-        let currentUserData = null; // Full user profile from Firestore
-        let airdropSettings = null; // Will hold all airdrop settings from admin
-        let transferSettings = null; // Will hold transfer settings from admin
-        let qrCodeInstance = null; // To hold the QR code object
-        let liveTransfersListener = null; // To detach the Firestore listener
-        let lastFetchedAddress = null;
-        let currentActivityLogs = [];
-        let activityRefreshInterval = null;
-        const addressCache = {};
-        let searchTimeout;
-        let db = null;
-        let storage = null; // Firebase Storage
-        let checkinInterval = null;
-        let lastVisibleAdminUser = null; // For admin pagination
-
-        // Constants
-        const REFERRAL_REWARD = 200;
-        const CHECKIN_REWARD = 10;
-        const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000;
-        const ADMIN_USERS_PER_PAGE = 50;
-        const BATCH_SIZE = 200; // For mass award processing
-        const FIRESTORE_FETCH_BATCH_SIZE = 500; // For fetching all users
-        const TELEGRAM_SEND_DELAY_MS = 150; // Delay between each message to avoid rate limits
+        const refCount = user.referralCount || 0;
+        const checkinCount = user.checkinCount || 0;
+        const expCount = user.points || 0;
         
-        const CONFIRM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
-        const CONFIRM_AMOUNT_NANOTONS = "10000"; // 0.00001 TON
-        const REQUEST_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD"; 
-        const REQUEST_AMOUNT_NANOTONS = "20000"; // 0.00002 TON
+        const refMultiplier = settings.refMultiplier ?? 50;
+        const checkinMultiplier = settings.checkinMultiplier ?? 30;
+        const expMultiplier = settings.expMultiplier ?? 20;
 
-        const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
-        const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
+        const baseReward = (refCount * refMultiplier) + (checkinCount * checkinMultiplier) + (expCount * expMultiplier);
 
-        // --- Core Logic ---
+        if (user.hasSentConfirmationTx) {
+            return baseReward;
+        } else {
+            return Math.floor(baseReward * 0.5);
+        }
+    }
+    
+    async function loadOrCreateUserByAddress(address) {
+        if (!address || !db) return;
 
-        function initializeFirebase() {
-            if (db) return;
-            const firebaseConfig = {
-                apiKey: "AIzaSyCHjgJkqVmgpZ6s5HRobpqB6XT--Sa2_zY",
-                authDomain: "tgapp-30a28.firebaseapp.com",
-                projectId: "tgapp-30a28",
-                storageBucket: "tgapp-30a28.firebasestorage.app",
-                messagingSenderId: "329047273664",
-                appId: "1:329047273664:web:c9e1bfe367afb54953fd25",
-                measurementId: "G-68P4PT49B0"
+        showLoadingOverlay('Authenticating and syncing...');
+
+        if (telegramUserData) {
+            const uidQuery = db.collection('users').where('telegramId', '==', telegramUserData.id).limit(1);
+            const uidSnapshot = await uidQuery.get();
+
+            if (!uidSnapshot.empty) {
+                const existingUserDoc = uidSnapshot.docs[0];
+                const existingUserData = existingUserDoc.data();
+                
+                if (existingUserData.address !== address) {
+                    hideLoadingOverlay();
+                    showAppToast('Link Error', `This Telegram account is already linked with another wallet. Please use the correct connected wallet.`, 'error');
+                    handleFullLogout();
+                    return;
+                }
+            }
+        }
+        
+        const userRef = db.collection('users').doc(address);
+        const doc = await userRef.get();
+
+        if (!doc.exists) {
+            console.log(`Creating new user profile for address: ${address}`);
+            const newUser = {
+                address: address, points: 0, lastCheckin: null, checkinCount: 0,
+                referralCount: 0, referredBy: null, partnerTasksCompletedCount: 0,
+                hasSentConfirmationTx: false, hasRequestedAirdrop: false,
+                disabledUntil: null, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                telegramId: telegramUserData ? telegramUserData.id : null,
+                username: telegramUserData ? (telegramUserData.username || `user${telegramUserData.id}`) : null,
+                fullName: telegramUserData ? `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim() : null,
+                photoUrl: telegramUserData ? (telegramUserData.photo_url || DEFAULT_LOGO_SRC) : null,
+                transferMemo: `bmass-${telegramUserData ? telegramUserData.id : address.slice(-8)}`
             };
-
-            if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-            }
-            db = firebase.firestore();
-            storage = firebase.storage();
-        }
-        
-        function showLoadingOverlay(message = 'Please wait...') {
-            loadingOverlay.querySelector('p').textContent = message;
-            loadingOverlay.classList.add('visible');
-        }
-
-        function hideLoadingOverlay() {
-            loadingOverlay.classList.remove('visible');
-        }
-
-        async function onUserAuthenticated() {
-            hideLoadingOverlay();
+            await userRef.set(newUser);
+            currentUserData = newUser;
             
-            updateUIAfterLogin();
-            await fetchAndDisplayAccountData(connectedWalletAddress);
-            activityRefreshInterval = setInterval(() => {
-                if (lastFetchedAddress === connectedWalletAddress) {
-                    fetchAndDisplayAccountData(connectedWalletAddress);
-                }
-            }, 30000);
-        }
-        
-        function isCurrentUserAdmin() {
-            if (!currentUserData) return false;
-            const isAdminByAddress = currentUserData.address === ADMIN_ADDRESS;
-            const isAdminByUID = currentUserData.telegramId === ADMIN_UID;
-            return isAdminByAddress || isAdminByUID;
-        }
-
-        async function checkMandatoryTasksCompletion(userAddress) {
-            if (!db) return true; // Fail open if db is not ready
-
-            const mandatoryTasksSnapshot = await db.collection('partner_tasks').where('taskType', '==', 'mandatory').get();
-            if (mandatoryTasksSnapshot.empty) {
-                return true; // No mandatory tasks exist
-            }
-            
-            const mandatoryTaskIds = new Set(mandatoryTasksSnapshot.docs.map(doc => doc.id));
-            
-            const completedTasksSnapshot = await db.collection('users').doc(userAddress).collection('completed_partner_tasks').get();
-            const completedTaskIds = new Set(completedTasksSnapshot.docs.map(doc => doc.id));
-
-            for (const taskId of mandatoryTaskIds) {
-                if (!completedTaskIds.has(taskId)) {
-                    return false; // Found a mandatory task that is not completed
-                }
+            const referrerCode = sessionStorage.getItem(REFERRAL_SESSION_KEY);
+            if (referrerCode) {
+                await applyReferral(referrerCode, address);
+                sessionStorage.removeItem(REFERRAL_SESSION_KEY);
             }
 
-            return true; // All mandatory tasks are completed
-        }
+        } else {
+            let userData = doc.data();
 
-        async function calculateBmassReward(user, settings) {
-            if (!user || !settings) return 0;
-            
-            const refCount = user.referralCount || 0;
-            const checkinCount = user.checkinCount || 0;
-            const expCount = user.points || 0;
-            
-            const refMultiplier = settings.refMultiplier ?? 50;
-            const checkinMultiplier = settings.checkinMultiplier ?? 30;
-            const expMultiplier = settings.expMultiplier ?? 20;
-
-            const baseReward = (refCount * refMultiplier) + (checkinCount * checkinMultiplier) + (expCount * expMultiplier);
-
-            if (user.hasSentConfirmationTx) {
-                return baseReward;
-            } else {
-                return Math.floor(baseReward * 0.5);
-            }
-        }
-        
-        async function loadOrCreateUserByAddress(address) {
-            if (!address || !db) return;
-
-            showLoadingOverlay('Authenticating and syncing...');
-
-            if (telegramUserData) {
-                const uidQuery = db.collection('users').where('telegramId', '==', telegramUserData.id).limit(1);
-                const uidSnapshot = await uidQuery.get();
-
-                if (!uidSnapshot.empty) {
-                    const existingUserDoc = uidSnapshot.docs[0];
-                    const existingUserData = existingUserDoc.data();
-                    
-                    if (existingUserData.address !== address) {
-                        hideLoadingOverlay();
-                        showAppToast('Link Error', `This Telegram account is already linked with another wallet. Please use the correct connected wallet.`, 'error');
-                        handleFullLogout();
-                        return;
-                    }
-                }
-            }
-            
-            const userRef = db.collection('users').doc(address);
-            const doc = await userRef.get();
-
-            if (!doc.exists) {
-                console.log(`Creating new user profile for address: ${address}`);
-                const newUser = {
-                    address: address, points: 0, lastCheckin: null, checkinCount: 0,
-                    referralCount: 0, referredBy: null, partnerTasksCompletedCount: 0,
-                    hasSentConfirmationTx: false, hasRequestedAirdrop: false,
-                    disabledUntil: null, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    telegramId: telegramUserData ? telegramUserData.id : null,
-                    username: telegramUserData ? (telegramUserData.username || `user${telegramUserData.id}`) : null,
-                    fullName: telegramUserData ? `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim() : null,
-                    photoUrl: telegramUserData ? (telegramUserData.photo_url || DEFAULT_LOGO_SRC) : null,
-                };
-                await userRef.set(newUser);
-                currentUserData = newUser;
-                
-                const referrerCode = sessionStorage.getItem(REFERRAL_SESSION_KEY);
-                if (referrerCode) {
-                    await applyReferral(referrerCode, address);
-                    sessionStorage.removeItem(REFERRAL_SESSION_KEY);
-                }
-
-            } else {
-                let userData = doc.data();
-
-                if (userData.disabledUntil && userData.disabledUntil.toDate() > new Date()) {
-                    hideLoadingOverlay();
-                    showAppToast('Account Disabled', `Your account is temporarily disabled until ${userData.disabledUntil.toDate().toLocaleString('en-US')}.`, 'error');
-                    handleFullLogout();
-                    return;
-                }
-
-                if (telegramUserData && userData.telegramId && userData.telegramId !== telegramUserData.id) {
-                    hideLoadingOverlay();
-                    const ownerUsername = userData.username ? `@${userData.username}` : 'another user';
-                    showAppToast('Ownership Error', `This wallet already belongs to ${ownerUsername}. Please connect with your own wallet.`, 'error');
-                    handleFullLogout();
-                    return;
-                }
-
-                const updates = {};
-                if (telegramUserData && !userData.telegramId) {
-                    Object.assign(updates, {
-                        telegramId: telegramUserData.id,
-                        username: telegramUserData.username || `user${telegramUserData.id}`,
-                        fullName: `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim(),
-                        photoUrl: telegramUserData.photo_url || DEFAULT_LOGO_SRC,
-                    });
-                }
-                
-                if (typeof userData.hasRequestedAirdrop === 'undefined') { updates.hasRequestedAirdrop = false; }
-                if (typeof userData.hasSentConfirmationTx === 'undefined') { updates.hasSentConfirmationTx = false; }
-                if (typeof userData.partnerTasksCompletedCount === 'undefined') { updates.partnerTasksCompletedCount = 0; }
-
-                if (Object.keys(updates).length > 0) {
-                     console.log(`Updating existing user profile with Telegram data:`, updates);
-                     await userRef.update(updates);
-                     userData = { ...userData, ...updates };
-                }
-                
-                currentUserData = userData;
-            }
-            
-            await onUserAuthenticated();
-        }
-        
-        async function applyReferral(referrerCode, newAddress) {
-            if (airdropSettings?.isSnapshotActive) {
-                showAppToast('Halted', 'Point-earning activities are paused due to the snapshot.', 'warning');
+            if (userData.disabledUntil && userData.disabledUntil.toDate() > new Date()) {
+                hideLoadingOverlay();
+                showAppToast('Account Disabled', `Your account is temporarily disabled until ${userData.disabledUntil.toDate().toLocaleString('en-US')}.`, 'error');
+                handleFullLogout();
                 return;
             }
-            if (!referrerCode || !newAddress) return;
 
-            if (referrerCode === newAddress || (telegramUserData && referrerCode === String(telegramUserData.id))) {
-                 showAppToast('Error', 'You cannot refer yourself.', 'warning');
-                 return;
+            if (telegramUserData && userData.telegramId && userData.telegramId !== telegramUserData.id) {
+                hideLoadingOverlay();
+                const ownerUsername = userData.username ? `@${userData.username}` : 'another user';
+                showAppToast('Ownership Error', `This wallet already belongs to ${ownerUsername}. Please connect with your own wallet.`, 'error');
+                handleFullLogout();
+                return;
             }
 
-            console.log(`Attempting to apply referral code "${referrerCode}" for new user ${newAddress}`);
-
-            let referrerQuery;
-            if (!isNaN(referrerCode)) {
-                referrerQuery = db.collection('users').where('telegramId', '==', parseInt(referrerCode, 10));
-            } else {
-                referrerQuery = db.collection('users').where('address', '==', referrerCode);
+            const updates = {};
+            if (telegramUserData && !userData.telegramId) {
+                Object.assign(updates, {
+                    telegramId: telegramUserData.id,
+                    username: telegramUserData.username || `user${telegramUserData.id}`,
+                    fullName: `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim(),
+                    photoUrl: telegramUserData.photo_url || DEFAULT_LOGO_SRC,
+                });
+            }
+            
+            if (typeof userData.hasRequestedAirdrop === 'undefined') { updates.hasRequestedAirdrop = false; }
+            if (typeof userData.hasSentConfirmationTx === 'undefined') { updates.hasSentConfirmationTx = false; }
+            if (typeof userData.partnerTasksCompletedCount === 'undefined') { updates.partnerTasksCompletedCount = 0; }
+            if (typeof userData.transferMemo === 'undefined') { 
+                updates.transferMemo = `bmass-${userData.telegramId ? userData.telegramId : userData.address.slice(-8)}`;
             }
 
-            try {
-                const snapshot = await referrerQuery.get();
-                if (snapshot.empty) {
-                    showAppToast('Error', 'Invalid referral code.', 'error');
-                    return;
-                }
+            if (Object.keys(updates).length > 0) {
+                 console.log(`Updating existing user profile:`, updates);
+                 await userRef.update(updates);
+                 userData = { ...userData, ...updates };
+            }
+            
+            currentUserData = userData;
+        }
+        
+        await onUserAuthenticated();
+    }
+    
+    async function applyReferral(referrerCode, newAddress) {
+        if (mainSettings?.isSnapshotActive) {
+            showAppToast('Halted', 'Point-earning activities are paused due to the snapshot.', 'warning');
+            return;
+        }
+        if (!referrerCode || !newAddress) return;
 
-                const referrerDoc = snapshot.docs[0];
-                const referrerRef = referrerDoc.ref;
-                const referrerData = referrerDoc.data();
+        if (referrerCode === newAddress || (telegramUserData && referrerCode === String(telegramUserData.id))) {
+             showAppToast('Error', 'You cannot refer yourself.', 'warning');
+             return;
+        }
+
+        console.log(`Attempting to apply referral code "${referrerCode}" for new user ${newAddress}`);
+
+        let referrerQuery;
+        if (!isNaN(referrerCode)) {
+            referrerQuery = db.collection('users').where('telegramId', '==', parseInt(referrerCode, 10));
+        } else {
+            referrerQuery = db.collection('users').where('address', '==', referrerCode);
+        }
+
+        try {
+            const snapshot = await referrerQuery.get();
+            if (snapshot.empty) {
+                showAppToast('Error', 'Invalid referral code.', 'error');
+                return;
+            }
+
+            const referrerDoc = snapshot.docs[0];
+            const referrerRef = referrerDoc.ref;
+            const referrerData = referrerDoc.data();
+            
+            if (referrerData.address === newAddress) {
+                showAppToast('Error', 'You cannot refer yourself.', 'warning');
+                return;
+            }
+
+            const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+            
+            await db.runTransaction(async (transaction) => {
+                const freshReferrerDoc = await transaction.get(referrerRef);
+                if (!freshReferrerDoc.exists) throw "Referrer does not exist in the transaction";
                 
-                if (referrerData.address === newAddress) {
-                    showAppToast('Error', 'You cannot refer yourself.', 'warning');
+                transaction.update(referrerRef, {
+                    points: firebase.firestore.FieldValue.increment(REFERRAL_REWARD),
+                    referralCount: firebase.firestore.FieldValue.increment(1)
+                });
+                
+                const referrerHistoryRef = referrerRef.collection('task_history').doc();
+                transaction.set(referrerHistoryRef, {
+                    taskName: 'Invited a friend',
+                    exp: REFERRAL_REWARD,
+                    timestamp: newTimestamp,
+                    referredUser: newAddress 
+                });
+                
+                const newUserRef = db.collection('users').doc(newAddress);
+                transaction.update(newUserRef, { 
+                    referredBy: String(referrerCode),
+                    points: firebase.firestore.FieldValue.increment(REFERRAL_REWARD)
+                });
+
+                const newUserHistoryRef = newUserRef.collection('task_history').doc();
+                transaction.set(newUserHistoryRef, {
+                    taskName: 'Entered referral code',
+                    exp: REFERRAL_REWARD,
+                    timestamp: newTimestamp,
+                    referrer: String(referrerCode)
+                });
+            });
+            
+            showAppToast(`Referral Bonus!`, `You and your referrer both received ${REFERRAL_REWARD} EXP.`, 'success');
+
+        } catch (error) {
+            console.error("Failed to apply referral:", error);
+            showAppToast('Error', 'Could not apply referral code. Please try again.', 'error');
+        }
+    }
+
+    function updateUIAfterLogin() {
+        if (!currentUserData) return;
+        
+        headerExpDisplay.classList.remove('d-none');
+        updateExpBalances(currentUserData.points || 0);
+        updateCheckinUI(currentUserData);
+        fetchTaskHistory();
+        renderAccountSection();
+        renderReferralSection();
+        
+        handleRouteChange(); 
+        
+        if (isCurrentUserAdmin()) {
+            navAdmin.style.display = 'block';
+        } else {
+            navAdmin.style.display = 'none';
+        }
+    }
+    
+     function updateExpBalances(newExp) {
+        taskExpBalanceEl.textContent = newExp.toLocaleString();
+        headerExpBalanceEl.textContent = newExp.toLocaleString();
+    }
+
+    function updateCheckinUI(userData) {
+        if (!userData) return;
+
+        if (mainSettings?.isSnapshotActive) {
+            checkinButton.disabled = true;
+            checkinButton.innerHTML = `<i class="fas fa-pause-circle me-2"></i>Snapshot Taken`;
+            if (checkinInterval) clearInterval(checkinInterval);
+            return;
+        }
+
+        if (checkinInterval) clearInterval(checkinInterval);
+        
+        const { lastCheckin } = userData;
+        const isEligible = !lastCheckin || (Date.now() - lastCheckin.toDate().getTime() >= CHECKIN_COOLDOWN);
+
+        if (isEligible) {
+            checkinButton.disabled = false;
+            checkinButton.innerHTML = `<i class="fas fa-calendar-check me-2"></i> Claim Reward`;
+        } else {
+            checkinButton.disabled = true;
+            const lastCheckinTime = lastCheckin.toDate().getTime();
+
+            const updateCountdown = () => {
+                const now = Date.now();
+                const newRemaining = CHECKIN_COOLDOWN - (now - lastCheckinTime);
+                if (newRemaining <= 0) {
+                    clearInterval(checkinInterval);
+                    checkinButton.disabled = false;
+                    checkinButton.innerHTML = `<i class="fas fa-calendar-check me-2"></i> Claim Reward`;
+                } else {
+                    const hours = Math.floor((newRemaining / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
+                    const minutes = Math.floor((newRemaining / 1000 / 60) % 60).toString().padStart(2, '0');
+                    const seconds = Math.floor((newRemaining / 1000) % 60).toString().padStart(2, '0');
+                    checkinButton.innerHTML = `<i class="fas fa-hourglass-half me-2"></i> ${hours}:${minutes}:${seconds}`;
+                }
+            };
+            updateCountdown();
+            checkinInterval = setInterval(updateCountdown, 1000);
+        }
+    }
+
+    async function handleCheckin() {
+        if (mainSettings?.isSnapshotActive) {
+            showAppToast('Halted', 'Point-earning activities are paused due to the snapshot.', 'warning');
+            return;
+        }
+        if (!connectedWalletAddress || !db) {
+            showAppToast('Error', 'Please connect your wallet to check in.', 'error');
+            return;
+        };
+        
+        checkinPopupModal.hide();
+        checkinButton.disabled = true;
+        popupCheckinButton.disabled = true;
+        checkinButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
+        
+        const userRef = db.collection('users').doc(connectedWalletAddress);
+        
+        try {
+            await db.runTransaction(async (transaction) => {
+                const userDoc = await transaction.get(userRef);
+                if (!userDoc.exists) throw "User document not found!";
+
+                const userData = userDoc.data();
+                const lastCheckin = userData.lastCheckin;
+
+                if (lastCheckin && (Date.now() - lastCheckin.toDate().getTime() < CHECKIN_COOLDOWN)) {
+                    showAppToast('Notice', 'You have already checked in today. Please come back later.', 'warning');
                     return;
                 }
 
                 const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
-                
-                await db.runTransaction(async (transaction) => {
-                    const freshReferrerDoc = await transaction.get(referrerRef);
-                    if (!freshReferrerDoc.exists) throw "Referrer does not exist in the transaction";
-                    
-                    transaction.update(referrerRef, {
-                        points: firebase.firestore.FieldValue.increment(REFERRAL_REWARD),
-                        referralCount: firebase.firestore.FieldValue.increment(1)
-                    });
-                    
-                    const referrerHistoryRef = referrerRef.collection('task_history').doc();
-                    transaction.set(referrerHistoryRef, {
-                        taskName: 'Invited a friend',
-                        exp: REFERRAL_REWARD,
-                        timestamp: newTimestamp,
-                        referredUser: newAddress 
-                    });
-                    
-                    const newUserRef = db.collection('users').doc(newAddress);
-                    transaction.update(newUserRef, { 
-                        referredBy: String(referrerCode),
-                        points: firebase.firestore.FieldValue.increment(REFERRAL_REWARD)
-                    });
-
-                    const newUserHistoryRef = newUserRef.collection('task_history').doc();
-                    transaction.set(newUserHistoryRef, {
-                        taskName: 'Entered referral code',
-                        exp: REFERRAL_REWARD,
-                        timestamp: newTimestamp,
-                        referrer: String(referrerCode)
-                    });
+                transaction.update(userRef, {
+                    points: firebase.firestore.FieldValue.increment(CHECKIN_REWARD),
+                    lastCheckin: newTimestamp,
+                    checkinCount: firebase.firestore.FieldValue.increment(1)
                 });
                 
-                showAppToast(`Referral Bonus!`, `You and your referrer both received ${REFERRAL_REWARD} EXP.`, 'success');
-
-            } catch (error) {
-                console.error("Failed to apply referral:", error);
-                showAppToast('Error', 'Could not apply referral code. Please try again.', 'error');
-            }
-        }
-
-        function updateUIAfterLogin() {
-            if (!currentUserData) return;
-            
-            headerExpDisplay.classList.remove('d-none');
-            updateExpBalances(currentUserData.points || 0);
-            updateCheckinUI(currentUserData);
-            fetchTaskHistory();
-            renderAccountSection();
-            renderReferralSection();
-            
-            handleRouteChange(); 
-            
-            if (isCurrentUserAdmin()) {
-                navAdmin.style.display = 'block';
-            } else {
-                navAdmin.style.display = 'none';
-            }
-        }
-        
-        function updateExpBalances(newExp) {
-            taskExpBalanceEl.textContent = newExp;
-            headerExpBalanceEl.textContent = newExp;
-        }
-
-        function updateCheckinUI(userData) {
-            if (!userData) return;
-
-            if (airdropSettings?.isSnapshotActive) {
-                checkinButton.disabled = true;
-                checkinButton.innerHTML = `<i class="fas fa-pause-circle me-2"></i>Snapshot Taken`;
-                if (checkinInterval) clearInterval(checkinInterval);
-                return;
-            }
-
-            if (checkinInterval) clearInterval(checkinInterval);
-            
-            const { lastCheckin } = userData;
-            const isEligible = !lastCheckin || (Date.now() - lastCheckin.toDate().getTime() >= CHECKIN_COOLDOWN);
-
-            if (isEligible) {
-                checkinButton.disabled = false;
-                checkinButton.innerHTML = `<i class="fas fa-calendar-check me-2"></i> Claim Reward`;
-            } else {
-                checkinButton.disabled = true;
-                const lastCheckinTime = lastCheckin.toDate().getTime();
-
-                const updateCountdown = () => {
-                    const now = Date.now();
-                    const newRemaining = CHECKIN_COOLDOWN - (now - lastCheckinTime);
-                    if (newRemaining <= 0) {
-                        clearInterval(checkinInterval);
-                        checkinButton.disabled = false;
-                        checkinButton.innerHTML = `<i class="fas fa-calendar-check me-2"></i> Claim Reward`;
-                    } else {
-                        const hours = Math.floor((newRemaining / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
-                        const minutes = Math.floor((newRemaining / 1000 / 60) % 60).toString().padStart(2, '0');
-                        const seconds = Math.floor((newRemaining / 1000) % 60).toString().padStart(2, '0');
-                        checkinButton.innerHTML = `<i class="fas fa-hourglass-half me-2"></i> ${hours}:${minutes}:${seconds}`;
-                    }
-                };
-                updateCountdown();
-                checkinInterval = setInterval(updateCountdown, 1000);
-            }
-        }
-
-        async function handleCheckin() {
-            if (airdropSettings?.isSnapshotActive) {
-                showAppToast('Halted', 'Point-earning activities are paused due to the snapshot.', 'warning');
-                return;
-            }
-            if (!connectedWalletAddress || !db) {
-                showAppToast('Error', 'Please connect your wallet to check in.', 'error');
-                return;
-            };
-            
-            checkinPopupModal.hide();
-            checkinButton.disabled = true;
-            popupCheckinButton.disabled = true;
-            checkinButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
-            
-            const userRef = db.collection('users').doc(connectedWalletAddress);
-            
-            try {
-                await db.runTransaction(async (transaction) => {
-                    const userDoc = await transaction.get(userRef);
-                    if (!userDoc.exists) throw "User document not found!";
-
-                    const userData = userDoc.data();
-                    const lastCheckin = userData.lastCheckin;
-
-                    if (lastCheckin && (Date.now() - lastCheckin.toDate().getTime() < CHECKIN_COOLDOWN)) {
-                        showAppToast('Notice', 'You have already checked in today. Please come back later.', 'warning');
-                        return;
-                    }
-
-                    const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
-                    transaction.update(userRef, {
-                        points: firebase.firestore.FieldValue.increment(CHECKIN_REWARD),
-                        lastCheckin: newTimestamp,
-                        checkinCount: firebase.firestore.FieldValue.increment(1)
-                    });
-                    
-                    const historyRef = userRef.collection('task_history').doc();
-                    transaction.set(historyRef, {
-                        taskName: 'Daily Check-in',
-                        exp: CHECKIN_REWARD,
-                        timestamp: newTimestamp
-                    });
+                const historyRef = userRef.collection('task_history').doc();
+                transaction.set(historyRef, {
+                    taskName: 'Daily Check-in',
+                    exp: CHECKIN_REWARD,
+                    timestamp: newTimestamp
                 });
-                showAppToast('Success!', `You've received ${CHECKIN_REWARD} EXP.`, 'success');
-            } catch (error) {
-                console.error("Check-in failed: ", error);
-                showAppToast('Failed', 'An error occurred. Please try again.', 'error');
-            } finally {
-                const updatedDoc = await userRef.get();
-                if(updatedDoc.exists) {
-                    currentUserData = updatedDoc.data();
-                    updateUIAfterLogin();
-                }
-                popupCheckinButton.disabled = false;
+            });
+            showAppToast('Success!', `You've received ${CHECKIN_REWARD} EXP.`, 'success');
+        } catch (error) {
+            console.error("Check-in failed: ", error);
+            showAppToast('Failed', 'An error occurred. Please try again.', 'error');
+        } finally {
+            const updatedDoc = await userRef.get();
+            if(updatedDoc.exists) {
+                currentUserData = updatedDoc.data();
+                updateUIAfterLogin();
             }
+            popupCheckinButton.disabled = false;
         }
-        
-        async function fetchTaskHistory() {
-            if (!connectedWalletAddress || !db) return;
+    }
+    
+    async function fetchTaskHistory() {
+        if (!connectedWalletAddress || !db) return;
 
-            const historyRef = db.collection('users').doc(connectedWalletAddress).collection('task_history').orderBy('timestamp', 'desc').limit(20);
+        const historyRef = db.collection('users').doc(connectedWalletAddress).collection('task_history').orderBy('timestamp', 'desc').limit(20);
 
-            try {
-                const snapshot = await historyRef.get();
-                if (snapshot.empty) {
-                    taskHistoryContent.innerHTML = `<p class="text-secondary text-center p-3">No activity yet.</p>`;
-                    return;
-                }
+        try {
+            const snapshot = await historyRef.get();
+            if (snapshot.empty) {
+                taskHistoryContent.innerHTML = `<p class="text-secondary text-center p-3">No activity yet.</p>`;
+                return;
+            }
+            
+            let historyHtml = '';
+            snapshot.forEach(doc => {
+                const item = doc.data();
+                const date = item.timestamp ? item.timestamp.toDate().toLocaleString('en-US') : 'N/A';
                 
-                let historyHtml = '';
-                snapshot.forEach(doc => {
-                    const item = doc.data();
-                    const date = item.timestamp ? item.timestamp.toDate().toLocaleString('en-US') : 'N/A';
-                    
-                    let iconClass;
-                    // Extended switch case for new transaction types
-                    switch (item.taskName) {
-                        case 'Daily Check-in': iconClass = 'fa-calendar-check'; break;
-                        case 'Invited a friend': iconClass = 'fa-user-group'; break;
-                        case 'Entered referral code': iconClass = 'fa-gift'; break;
-                        case 'Partner Task': iconClass = 'fa-handshake'; break;
-                        case 'Sent EXP': iconClass = 'fa-arrow-up'; break;
-                        case 'Received EXP': iconClass = 'fa-arrow-down'; break;
-                        case 'Failed Transfer (Wrong Memo)': iconClass = 'fa-exclamation-triangle'; break;
-                        default: iconClass = item.exp >= 0 ? 'fa-user-plus' : 'fa-user-minus';
-                    }
+                let iconClass;
+                switch (item.taskName) {
+                    case 'Daily Check-in': iconClass = 'fa-calendar-check'; break;
+                    case 'Invited a friend': iconClass = 'fa-user-group'; break;
+                    case 'Entered referral code': iconClass = 'fa-gift'; break;
+                    case 'Partner Task': iconClass = 'fa-handshake'; break;
+                    default: iconClass = item.exp >= 0 ? 'fa-user-plus' : 'fa-user-minus';
+                }
 
-                    const expAmount = item.exp;
-                    const expClass = expAmount >= 0 ? 'amount-in' : 'amount-out';
-                    const expSign = expAmount > 0 ? '+' : '';
-                    const expDisplay = `<strong class="${expClass}">${expSign}${expAmount} EXP</strong>`;
-                    let taskTitle = item.taskName === 'Partner Task' ? `${item.taskName}: ${item.projectName}` : item.taskName;
-                    
-                    if(item.taskName === 'Sent EXP') taskTitle += ` to ${item.to}`;
-                    if(item.taskName === 'Received EXP') taskTitle += ` from ${item.from}`;
+                const expAmount = item.exp;
+                const expClass = expAmount >= 0 ? 'amount-in' : 'amount-out';
+                const expSign = expAmount > 0 ? '+' : '';
+                const expDisplay = `<strong class="${expClass}">${expSign}${expAmount.toLocaleString()} EXP</strong>`;
+                const taskTitle = item.taskName === 'Partner Task' ? `${item.taskName}: ${item.projectName}` : item.taskName;
 
-
-                    historyHtml += `
-                        <div class="task-history-item">
-                            <i class="fas ${iconClass} task-history-icon" style="color: ${expAmount < 0 ? 'var(--color-out)' : 'var(--accent-secondary)'};"></i>
-                            <div class="flex-grow-1">
-                                <p class="m-0 fw-bold">${taskTitle}</p>
-                                <p class="m-0 text-secondary" style="font-size: 0.8rem;">${date}</p>
-                            </div>
-                            ${expDisplay}
+                historyHtml += `
+                    <div class="task-history-item">
+                        <i class="fas ${iconClass} task-history-icon" style="color: ${expAmount < 0 ? 'var(--color-out)' : 'var(--accent-secondary)'};"></i>
+                        <div class="flex-grow-1">
+                            <p class="m-0 fw-bold">${taskTitle}</p>
+                            <p class="m-0 text-secondary" style="font-size: 0.8rem;">${date}</p>
                         </div>
-                    `;
-                });
-                taskHistoryContent.innerHTML = historyHtml;
-            } catch(error) {
-                console.error("Error fetching task history:", error);
-                taskHistoryContent.innerHTML = `<p class="text-danger text-center p-3">Error loading history.</p>`;
-            }
+                        ${expDisplay}
+                    </div>
+                `;
+            });
+            taskHistoryContent.innerHTML = historyHtml;
+        } catch(error) {
+            console.error("Error fetching task history:", error);
+            taskHistoryContent.innerHTML = `<p class="text-danger text-center p-3">Error loading history.</p>`;
         }
+    }
 
-        
     async function fetchAndRenderLeaderboard() {
         if (!db) initializeFirebase();
 
@@ -2349,7 +2409,7 @@
 
     async function handleAdminExpUpdate(e) {
         e.preventDefault();
-        if (airdropSettings?.isSnapshotActive) {
+        if (mainSettings?.isSnapshotActive) {
             showAppToast('Đã dừng', 'Không thể chỉnh sửa EXP sau khi Snapshot.', 'error');
             return;
         }
@@ -2419,7 +2479,7 @@
     async function handleMassAward(e) {
         e.preventDefault();
         if (!db) { showAppToast('Lỗi', 'Chưa kết nối cơ sở dữ liệu.', 'error'); return; }
-        if (airdropSettings?.isSnapshotActive) {
+        if (mainSettings?.isSnapshotActive) {
             showAppToast('Đã dừng', 'Không thể thưởng EXP sau khi Snapshot.', 'error');
             return;
         }
@@ -2573,72 +2633,45 @@
         }
     }
     
-    // =============================================
-    // NEW: TELEGRAM BULK SENDER FUNCTION
-    // =============================================
     async function sendBulkTelegramMessage() {
-        // Helper function for delay
         const delay = ms => new Promise(res => setTimeout(res, ms));
 
-        // 1. Get Inputs from Form
         const apiToken = document.getElementById('telegram-api-token-input').value.trim();
         const text = document.getElementById('telegram-message-text-input').value.trim();
         const imageUrl = document.getElementById('telegram-image-url-input').value.trim();
         const buttonText = document.getElementById('telegram-button-text-input').value.trim();
         const buttonUrl = document.getElementById('telegram-button-url-input').value.trim();
         
-        // 2. Validation
-        if (!apiToken) {
-            showAppToast('Lỗi', 'Vui lòng nhập API Token của bot.', 'error');
-            return;
-        }
-        if (!text && !imageUrl) {
-            showAppToast('Lỗi', 'Vui lòng nhập văn bản tin nhắn hoặc URL hình ảnh.', 'error');
-            return;
-        }
-        if ((buttonText && !buttonUrl) || (!buttonText && buttonUrl)) {
-            showAppToast('Lỗi', 'Để tạo nút, vui lòng nhập cả Văn bản và URL cho nút.', 'warning');
-            return;
-        }
-        
-        // 3. Confirmation
-        if (!confirm("CẢNH BÁO: Bạn sắp gửi tin nhắn này cho TẤT CẢ người dùng có UID trong hệ thống. Hành động này KHÔNG THỂ hoàn tác và có thể mất nhiều thời gian. Bạn có chắc chắn muốn tiếp tục?")) {
-            return;
-        }
+        if (!apiToken) { showAppToast('Lỗi', 'Vui lòng nhập API Token của bot.', 'error'); return; }
+        if (!text && !imageUrl) { showAppToast('Lỗi', 'Vui lòng nhập văn bản tin nhắn hoặc URL hình ảnh.', 'error'); return; }
+        if ((buttonText && !buttonUrl) || (!buttonText && buttonUrl)) { showAppToast('Lỗi', 'Để tạo nút, vui lòng nhập cả Văn bản và URL cho nút.', 'warning'); return; }
+        if (!confirm("CẢNH BÁO: Bạn sắp gửi tin nhắn này cho TẤT CẢ người dùng có UID trong hệ thống. Hành động này KHÔNG THỂ hoàn tác và có thể mất nhiều thời gian. Bạn có chắc chắn muốn tiếp tục?")) return;
 
-        // 4. Start Process & UI Feedback
         sendBulkTelegramMessageBtn.disabled = true;
         telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lấy danh sách người dùng từ cơ sở dữ liệu...`;
 
         try {
-            // 5. Fetch all users from Firestore
             const allUsers = [];
             let lastVisible = null;
             while (true) {
                 let query = db.collection('users').orderBy(firebase.firestore.FieldPath.documentId()).limit(FIRESTORE_FETCH_BATCH_SIZE);
-                if (lastVisible) {
-                    query = query.startAfter(lastVisible);
-                }
+                if (lastVisible) query = query.startAfter(lastVisible);
+                
                 const snapshot = await query.get();
-                if (snapshot.empty) {
-                    break;
-                }
+                if (snapshot.empty) break;
+                
                 snapshot.forEach(doc => allUsers.push(doc.data()));
                 lastVisible = snapshot.docs[snapshot.docs.length - 1];
                 telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã lấy được ${allUsers.length} người dùng...`;
             }
 
-            // 6. Filter for users with a UID
             const usersWithUid = allUsers.filter(user => user.telegramId);
-
             if (usersWithUid.length === 0) {
                 telegramSenderStatus.innerHTML = `<span class="text-warning">Không tìm thấy người dùng nào có UID để gửi.</span>`;
                 return;
             }
 
-            // 7. Prepare the sending loop
-            let sentCount = 0;
-            let failedCount = 0;
+            let sentCount = 0, failedCount = 0;
             const totalUsers = usersWithUid.length;
             const baseUrl = `https://api.telegram.org/bot${apiToken}/`;
             
@@ -2650,9 +2683,7 @@
                 let method;
 
                 if (buttonText && buttonUrl) {
-                    body.reply_markup = JSON.stringify({
-                        inline_keyboard: [[{ text: buttonText, url: buttonUrl }]]
-                    });
+                    body.reply_markup = JSON.stringify({ inline_keyboard: [[{ text: buttonText, url: buttonUrl }]] });
                 }
                 
                 if (imageUrl) {
@@ -2664,7 +2695,6 @@
                     body.text = text;
                 }
                 
-                // Send to one user
                 try {
                     const response = await fetch(baseUrl + method, {
                         method: 'POST',
@@ -2672,22 +2702,13 @@
                         body: JSON.stringify(body),
                     });
                     const result = await response.json();
-                    if (result.ok) {
-                        sentCount++;
-                    } else {
-                        failedCount++;
-                        console.error(`Failed to send to UID ${user.telegramId}: ${result.description}`);
-                    }
-                } catch (error) {
-                    failedCount++;
-                    console.error(`Network error sending to UID ${user.telegramId}:`, error);
-                }
+                    if (result.ok) sentCount++;
+                    else { failedCount++; console.error(`Failed to send to UID ${user.telegramId}: ${result.description}`); }
+                } catch (error) { failedCount++; console.error(`Network error sending to UID ${user.telegramId}:`, error); }
 
-                // Wait before sending the next one
                 await delay(TELEGRAM_SEND_DELAY_MS);
             }
 
-            // 8. Final Report
             telegramSenderStatus.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Hoàn tất! Đã gửi: ${sentCount}. Thất bại: ${failedCount}.</span>`;
             showAppToast('Hoàn tất gửi hàng loạt', `Thành công: ${sentCount}, Thất bại: ${failedCount}`, 'success');
 
@@ -2884,7 +2905,7 @@
 
         } else {
             referredByContainer.style.display = 'none';
-            if (!airdropSettings?.isSnapshotActive) {
+            if (!mainSettings?.isSnapshotActive) {
                 referralInputContainer.style.display = 'block';
             }
         }
@@ -2893,319 +2914,27 @@
         fetchAndRenderInvitedUsers();
     }
 
-    async function fetchAirdropSettings() {
-        if (airdropSettings) return airdropSettings;
+    async function fetchMainSettings() {
+        if (mainSettings) return mainSettings;
         try {
-            const docRef = db.collection('admin_settings').doc('airdrop_criteria');
+            const docRef = db.collection('admin_settings').doc('main_settings');
             const doc = await docRef.get();
-            if (doc.exists) { airdropSettings = doc.data(); } 
-            else {
-                airdropSettings = { 
+            if (doc.exists) { 
+                mainSettings = doc.data(); 
+            } else {
+                mainSettings = { 
+                    isExpTransferEnabled: false, isBmassTransferEnabled: false,
                     isAirdropLive: false, isConfirmationEnabled: false, isClaimingEnabled: false, isSnapshotActive: false,
                     minCheckins: 0, minReferrals: 0, minExp: 0,
                     refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 20
                 };
             }
-            return airdropSettings;
+            return mainSettings;
         } catch (error) {
-            console.error("Error fetching airdrop settings:", error);
-            return { 
-                isAirdropLive: false, isConfirmationEnabled: false, isClaimingEnabled: false, isSnapshotActive: false,
-                minCheckins: 0, minReferrals: 0, minExp: 0,
-                refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 20
-            };
+            console.error("Error fetching main settings:", error);
+            return null; // Return null on error
         }
     }
-
-
-
-
-
-
-// [THÊM MỚI]
-async function fetchTransferSettings() {
-    if (transferSettings) return transferSettings;
-    try {
-        const docRef = db.collection('admin_settings').doc('transfer_settings');
-        const doc = await docRef.get();
-        if (doc.exists) {
-            transferSettings = doc.data();
-        } else {
-            // Giá trị mặc định nếu chưa có cài đặt
-            transferSettings = { 
-                isTransferEnabled: false,
-                isBmassTransferEnabled: false
-            };
-        }
-        return transferSettings;
-    } catch (error) {
-        console.error("Error fetching transfer settings:", error);
-        return { isTransferEnabled: false, isBmassTransferEnabled: false };
-    }
-}
-
-// [THÊM MỚI]
-async function saveTransferSettings() {
-    const isTransferEnabled = document.getElementById('transfer-enabled-switch').checked;
-    const isBmassTransferEnabled = document.getElementById('transfer-bmass-enabled-switch').checked;
-    const statusEl = document.getElementById('admin-transfer-settings-status');
-    const saveBtn = document.getElementById('save-transfer-settings-btn');
-
-    saveBtn.disabled = true;
-    statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
-
-    try {
-        const settingsRef = db.collection('admin_settings').doc('transfer_settings');
-        const newSettings = { isTransferEnabled, isBmassTransferEnabled };
-        await settingsRef.set(newSettings, { merge: true });
-        transferSettings = newSettings; // Cập nhật state
-        statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
-        showAppToast('Thành công', 'Đã lưu cài đặt Transfer.', 'success');
-    } catch (error) {
-        console.error("Error saving transfer settings:", error);
-        statusEl.innerHTML = `<span class="text-danger">Lưu thất bại.</span>`;
-        showAppToast('Lỗi', 'Không thể lưu cài đặt.', 'error');
-    } finally {
-        saveBtn.disabled = false;
-        setTimeout(() => { statusEl.innerHTML = ''; }, 3000);
-    }
-}
-
-
-
-
-
-// [THÊM MỚI]
-async function renderTransferSection() {
-    const comingSoonEl = document.getElementById('transfer-coming-soon');
-    const contentWrapper = document.getElementById('transfer-content-wrapper');
-    
-    // Ẩn tất cả trước
-    comingSoonEl.style.display = 'none';
-    contentWrapper.style.display = 'none';
-
-    // 1. Kiểm tra xem admin có bật tính năng không
-    const settings = await fetchTransferSettings();
-    if (!settings.isTransferEnabled) {
-        comingSoonEl.style.display = 'block';
-        return;
-    }
-    contentWrapper.style.display = 'block';
-
-    // 2. Render tab "Receive"
-    const receiveAddressEl = document.getElementById('receive-address');
-    const receiveUidEl = document.getElementById('receive-uid');
-    const receiveMemoEl = document.getElementById('receive-memo');
-    const qrCodeContainer = document.getElementById('receive-qr-code');
-
-    if (currentUserData) {
-        receiveAddressEl.value = currentUserData.address;
-        document.getElementById('copy-receive-address').dataset.code = currentUserData.address;
-        
-        receiveUidEl.value = currentUserData.telegramId || 'Not linked';
-        document.getElementById('copy-receive-uid').dataset.code = currentUserData.telegramId || '';
-
-        // Tạo memo duy nhất và không thể thay đổi
-        const uniqueMemo = `bmass-transfer-${currentUserData.telegramId}`;
-        receiveMemoEl.value = uniqueMemo;
-        document.getElementById('copy-receive-memo').dataset.code = uniqueMemo;
-
-        // Tạo QR Code
-        qrCodeContainer.innerHTML = ''; // Xóa QR cũ
-        qrCodeInstance = new QRCode(qrCodeContainer, {
-            text: currentUserData.address,
-            width: 160,
-            height: 160,
-            colorDark : "#000000",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
-        });
-    }
-
-    // 3. Kích hoạt/Vô hiệu hóa tùy chọn $BMASS dựa trên cài đặt của admin
-    const bmassOption = document.querySelector('#send-asset-type option[value="bmass"]');
-    if (settings.isBmassTransferEnabled) {
-        bmassOption.disabled = false;
-        bmassOption.textContent = '$BMASS Token';
-    } else {
-        bmassOption.disabled = true;
-        bmassOption.textContent = '$BMASS Token (Coming Soon)';
-    }
-}
-
-// [THÊM MỚI]
-async function handleSendSubmit(e) {
-    e.preventDefault();
-    if (!db || !currentUserData) return;
-
-    const submitBtn = document.getElementById('send-submit-btn');
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
-
-    try {
-        // 1. Lấy dữ liệu từ form
-        const assetType = document.getElementById('send-asset-type').value;
-        const recipientType = document.getElementById('send-recipient-type').value;
-        const recipientValue = document.getElementById('send-recipient-value').value.trim();
-        const amount = parseInt(document.getElementById('send-amount').value, 10);
-        const memo = document.getElementById('send-memo').value.trim();
-
-        // 2. Validation cơ bản
-        if (!recipientValue || isNaN(amount) || amount <= 0 || !memo) {
-            throw new Error('Please fill in all fields correctly.');
-        }
-        if (assetType === 'exp' && (currentUserData.points || 0) < amount) {
-            throw new Error('Insufficient EXP balance.');
-        }
-        // TODO: Thêm kiểm tra số dư $BMASS khi tích hợp on-chain
-
-        // 3. Tìm người nhận trong DB
-        let recipientQuery;
-        if (recipientType === 'uid') {
-            recipientQuery = db.collection('users').where('telegramId', '==', parseInt(recipientValue, 10));
-        } else {
-            recipientQuery = db.collection('users').where('address', '==', recipientValue);
-        }
-        const snapshot = await recipientQuery.limit(1).get();
-        if (snapshot.empty) {
-            throw new Error('Recipient not found.');
-        }
-        const recipientDoc = snapshot.docs[0];
-        const recipientData = recipientDoc.data();
-
-        // Không cho phép tự gửi
-        if (recipientData.address === currentUserData.address) {
-            throw new Error("You cannot send assets to yourself.");
-        }
-
-        // 4. *** XÁC THỰC MEMO QUAN TRỌNG ***
-        const expectedMemo = `bmass-transfer-${recipientData.telegramId}`;
-        if (memo !== expectedMemo) {
-            // Ghi lại lịch sử giao dịch thất bại và trừ điểm
-            const senderRef = db.collection('users').doc(currentUserData.address);
-            await db.runTransaction(async (transaction) => {
-                transaction.update(senderRef, {
-                    points: firebase.firestore.FieldValue.increment(-amount)
-                });
-                const historyRef = senderRef.collection('task_history').doc();
-                transaction.set(historyRef, {
-                    taskName: 'Failed Transfer (Wrong Memo)',
-                    exp: -amount,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    recipient: recipientValue,
-                    memoUsed: memo
-                });
-            });
-            throw new Error(`Incorrect Memo! ${amount} EXP has been deducted as a penalty.`);
-        }
-        
-        // 5. Xử lý chuyển khoản
-        if (assetType === 'exp') {
-            // Giao dịch off-chain cho EXP
-            const senderRef = db.collection('users').doc(currentUserData.address);
-            const recipientRef = recipientDoc.ref;
-            const liveTransferRef = db.collection('live_transfers').doc();
-            
-            await db.runTransaction(async (transaction) => {
-                const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
-                
-                // Trừ điểm người gửi, thêm vào lịch sử
-                transaction.update(senderRef, { points: firebase.firestore.FieldValue.increment(-amount) });
-                const senderHistoryRef = senderRef.collection('task_history').doc();
-                transaction.set(senderHistoryRef, {
-                    taskName: 'Sent EXP', exp: -amount, timestamp: newTimestamp, to: recipientData.fullName || shortenAddress(recipientData.address)
-                });
-
-                // Cộng điểm người nhận, thêm vào lịch sử
-                transaction.update(recipientRef, { points: firebase.firestore.FieldValue.increment(amount) });
-                const recipientHistoryRef = recipientRef.collection('task_history').doc();
-                transaction.set(recipientHistoryRef, {
-                    taskName: 'Received EXP', exp: amount, timestamp: newTimestamp, from: currentUserData.fullName || shortenAddress(currentUserData.address)
-                });
-
-                // Ghi vào Live Feed
-                transaction.set(liveTransferRef, {
-                    senderName: currentUserData.fullName || `@${currentUserData.username}` || shortenAddress(currentUserData.address),
-                    recipientName: recipientData.fullName || `@${recipientData.username}` || shortenAddress(recipientData.address),
-                    amount: amount,
-                    asset: 'EXP',
-                    timestamp: newTimestamp
-                });
-            });
-            showAppToast('Success', `Successfully sent ${amount} EXP!`, 'success');
-        } else if (assetType === 'bmass') {
-            // TODO: Logic giao dịch on-chain cho $BMASS
-            showAppToast('Info', '$BMASS transfer is not implemented yet.', 'info');
-        }
-
-        // Reset form và cập nhật UI
-        document.getElementById('send-form').reset();
-        const updatedUserDoc = await db.collection('users').doc(currentUserData.address).get();
-        currentUserData = updatedUserDoc.data();
-        updateExpBalances(currentUserData.points);
-
-    } catch (error) {
-        console.error("Send failed:", error);
-        showAppToast('Error', error.message, 'error');
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = `<i class="fas fa-paper-plane me-2"></i>Send`;
-    }
-}
-
-// [THÊM MỚI]
-function listenForLiveTransfers() {
-    const container = document.getElementById('live-feed-container');
-    if (!db || !container) return;
-    
-    // Hủy listener cũ nếu có để tránh duplicate
-    if (liveTransfersListener) {
-        liveTransfersListener();
-    }
-
-    const query = db.collection('live_transfers').orderBy('timestamp', 'desc').limit(20);
-    
-    liveTransfersListener = query.onSnapshot(snapshot => {
-        if (snapshot.empty) {
-            container.innerHTML = `<p class="text-secondary text-center p-3">No recent transfers.</p>`;
-            return;
-        }
-
-        let feedHtml = '';
-        snapshot.forEach(doc => {
-            const transfer = doc.data();
-            const time = transfer.timestamp ? transfer.timestamp.toDate().toLocaleTimeString('en-US') : '';
-            feedHtml += `
-                <div class="live-feed-item">
-                    <i class="fas fa-receipt live-feed-icon"></i>
-                    <div class="flex-grow-1">
-                        <p class="m-0" style="font-size: 0.9rem;">
-                            <strong style="color:var(--text-primary);">${transfer.senderName}</strong>
-                            sent to
-                            <strong style="color:var(--text-primary);">${transfer.recipientName}</strong>
-                        </p>
-                        <p class="m-0 text-secondary" style="font-size: 0.8rem;">${time}</p>
-                    </div>
-                    <strong class="amount-in">${transfer.amount} ${transfer.asset}</strong>
-                </div>
-            `;
-        });
-        container.innerHTML = feedHtml;
-    }, error => {
-        console.error("Error listening to live transfers: ", error);
-        container.innerHTML = `<p class="text-danger text-center p-3">Could not load live feed.</p>`;
-    });
-}
-
-
-
-
-
-    
-
-
-
-    
     
     async function renderAirdropSection() {
         const airdropWrapper = document.getElementById('airdrop-content-wrapper');
@@ -3217,9 +2946,9 @@ function listenForLiveTransfers() {
         loadingEl.style.display = 'block';
         [loggedInContent, loggedOutContent, airdropWrapper, comingSoonEl].forEach(el => el.style.display = 'none');
 
-        const settings = await fetchAirdropSettings();
+        const settings = await fetchMainSettings();
 
-        if (!settings.isAirdropLive) {
+        if (!settings || !settings.isAirdropLive) {
             loadingEl.style.display = 'none';
             comingSoonEl.style.display = 'block';
             return;
@@ -3429,37 +3158,23 @@ function listenForLiveTransfers() {
         } catch(e) { console.error("Error capturing web referral:", e); }
     }
 
-        // --- PHIÊN BẢN MỚI ---
     async function initializeApp() {
         checkUserSession();
         captureWebReferral();
         identifyTelegramUser(); 
-
-        // [MỚI] Gọi hàm áp dụng style theo nền tảng
         applyPlatformSpecificStyling();
         
-        // [MỚI] Cấu hình chức năng cho nút Back Button
         if (window.Telegram && window.Telegram.WebApp) {
             const tg = window.Telegram.WebApp;
-            
-            // Định nghĩa hành động khi người dùng nhấn nút Back
-            tg.BackButton.onClick(() => {
-                // Chuyển hướng về trang chủ
-                window.location.hash = '#dashboard';
-                // Không cần gọi handleRouteChange() ở đây vì sự kiện hashchange sẽ tự động làm điều đó
-            });
+            tg.BackButton.onClick(() => { window.location.hash = '#dashboard'; });
         }
         
-        if (!telegramUserData) {
-            appLogoText.textContent = 'Bmass';
-        }
+        if (!telegramUserData) appLogoText.textContent = 'Bmass';
         
- initializeFirebase();
-    await fetchAirdropSettings();
-    await fetchTransferSettings(); // [THÊM MỚI]
-    listenForLiveTransfers();      // [THÊM MỚI]
-    handleRouteChange(); 
-}
+        initializeFirebase();
+        await fetchMainSettings();
+        handleRouteChange();
+    }
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ 
         manifestUrl: 'https://bmass.vercel.app/tonconnect-manifest.json',
@@ -3494,6 +3209,8 @@ function listenForLiveTransfers() {
             customWalletContainer.style.display = 'none';
             headerExpDisplay.classList.add('d-none');
             navAdmin.style.display = 'none';
+            navTransfer.style.display = 'none';
+            if(liveFeedListener) { liveFeedListener(); liveFeedListener = null; }
             
             if (!sessionStorage.getItem(REFERRAL_SESSION_KEY)){
                  referralInputContainerHero.style.display = 'block';
@@ -3504,20 +3221,24 @@ function listenForLiveTransfers() {
         }
     });
     
-const switchView = (viewToShow) => {
-    // [ĐÃ SỬA] Thêm transferSectionEl vào danh sách
-    [dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl, partnerSectionEl, transferSectionEl, accountSectionEl, leaderboardSectionEl, adminSectionEl, referralSectionEl, airdropSectionEl].forEach(section => {
-        if(section) section.style.display = 'none';
-    });
-    // [ĐÃ SỬA] Thêm navTransfer
-    [navDashboard, navApps, navTask, navPartner, navTransfer, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(nav => nav.classList.remove('active'));
+    const switchView = (viewToShow) => {
+        [dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl, partnerSectionEl, accountSectionEl, leaderboardSectionEl, adminSectionEl, referralSectionEl, airdropSectionEl, transferSectionEl].forEach(section => {
+            if(section) section.style.display = 'none';
+        });
+        [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop, navTransfer].forEach(nav => nav.classList.remove('active'));
 
-    const isLoggedIn = !!connectedWalletAddress;
-    // [ĐÃ SỬA] Thêm navTransfer
-    [navTask, navPartner, navTransfer, navAccount, navReferral, navAirdrop].forEach(nav => nav.style.display = isLoggedIn ? 'block' : 'none');
+        const isLoggedIn = !!connectedWalletAddress;
+        [navTask, navPartner, navAccount, navReferral, navAirdrop, navTransfer].forEach(nav => {
+            if (nav.id === 'nav-transfer') {
+                nav.style.display = (mainSettings?.isExpTransferEnabled && isLoggedIn) ? 'block' : 'none';
+            } else {
+                nav.style.display = isLoggedIn ? 'block' : 'none';
+            }
+        });
 
         if (viewToShow === 'account' && isLoggedIn) { accountSectionEl.style.display = 'block'; navAccount.classList.add('active'); } 
         else if (viewToShow === 'apps') { appStoreSection.style.display = 'block'; navApps.classList.add('active'); } 
+        else if (viewToShow === 'transfer' && mainSettings?.isExpTransferEnabled && isLoggedIn) { transferSectionEl.style.display = 'block'; navTransfer.classList.add('active'); renderTransferSection(); }
         else if (viewToShow === 'task' && isLoggedIn) { taskSectionEl.style.display = 'block'; navTask.classList.add('active'); } 
         else if (viewToShow === 'partner' && isLoggedIn) { partnerSectionEl.style.display = 'block'; navPartner.classList.add('active'); renderPartnerSection(); }
         else if (viewToShow === 'referral' && isLoggedIn) { referralSectionEl.style.display = 'block'; navReferral.classList.add('active'); } 
@@ -3528,7 +3249,10 @@ const switchView = (viewToShow) => {
             navAdmin.classList.add('active');
             renderAdminPartnerTasks();
             fetchAndRenderAdminUserList(true); 
-            fetchAirdropSettings().then(settings => {
+            fetchMainSettings().then(settings => {
+                 if (!settings) return;
+                 document.getElementById('exp-transfer-enabled-switch').checked = settings.isExpTransferEnabled || false;
+                 document.getElementById('bmass-transfer-enabled-switch').checked = settings.isBmassTransferEnabled || false;
                  document.getElementById('airdrop-live-switch').checked = settings.isAirdropLive || false;
                  document.getElementById('confirmation-enabled-switch').checked = settings.isConfirmationEnabled || false;
                  document.getElementById('claim-enabled-switch').checked = settings.isClaimingEnabled || false;
@@ -3548,26 +3272,13 @@ const switchView = (viewToShow) => {
         }
         if (sidebarMenu.classList.contains('open')) toggleSidebar();
     };
-
-else if (viewToShow === 'transfer' && isLoggedIn) {
-        transferSectionEl.style.display = 'block';
-        navTransfer.classList.add('active');
-        renderTransferSection(); // Gọi hàm render chính
-    }
-    else if (viewToShow === 'referral' && isLoggedIn) { /* ... */ } 
-    // ...
-};
-
-
     
-    
-        // --- PHIÊN BẢN MỚI ---
     const handleRouteChange = () => {
         let hash = window.location.hash.substring(1) || 'dashboard';
         const [path, queryString] = hash.split('?');
-        const tg = window.Telegram?.WebApp; // [ĐÃ SỬA] Lấy đối tượng WebApp một cách an toàn
+        const tg = window.Telegram?.WebApp; 
         
-        const protectedRoutes = ['task', 'partner', 'transfer', 'account', 'admin', 'referral', 'airdrop', 'leaderboard'];
+        const protectedRoutes = ['task', 'partner', 'account', 'admin', 'referral', 'airdrop', 'leaderboard', 'transfer'];
         if (!connectedWalletAddress && protectedRoutes.includes(path)) {
              showAppToast('Wallet Connection Required', 'This feature requires a connected wallet.', 'warning');
              window.location.hash = '#dashboard';
@@ -3579,14 +3290,16 @@ else if (viewToShow === 'transfer' && isLoggedIn) {
              window.location.hash = '#dashboard';
              hash = 'dashboard'; 
         }
+        
+        if (path === 'transfer' && !mainSettings?.isExpTransferEnabled) {
+             window.location.hash = '#dashboard';
+             hash = 'dashboard';
+        }
 
-        // [MỚI] Logic quản lý nút Back Button
         if (tg) {
             if (path === 'dashboard' || path === '') {
-                // Nếu đang ở trang chủ, ẩn nút Back
                 tg.BackButton.hide();
             } else {
-                // Nếu ở các trang khác, hiện nút Back
                 tg.BackButton.show();
             }
         }
@@ -4087,48 +3800,74 @@ else if (viewToShow === 'transfer' && isLoggedIn) {
         sidebarOverlay.classList.toggle('open');
     };
 
-    async function saveAirdropSettings() {
-        const isAirdropLive = document.getElementById('airdrop-live-switch').checked;
-        const isConfirmationEnabled = document.getElementById('confirmation-enabled-switch').checked; 
-        const isClaimingEnabled = document.getElementById('claim-enabled-switch').checked;
-        const isSnapshotActive = document.getElementById('snapshot-active-switch').checked;
+    async function saveMainSettings() {
+        const settingsToSave = {
+            isExpTransferEnabled: document.getElementById('exp-transfer-enabled-switch').checked,
+            isBmassTransferEnabled: document.getElementById('bmass-transfer-enabled-switch').checked,
+            isAirdropLive: document.getElementById('airdrop-live-switch').checked,
+            isConfirmationEnabled: document.getElementById('confirmation-enabled-switch').checked, 
+            isClaimingEnabled: document.getElementById('claim-enabled-switch').checked,
+            isSnapshotActive: document.getElementById('snapshot-active-switch').checked,
+        };
 
-        if (isSnapshotActive && !airdropSettings?.isSnapshotActive) {
+        if (settingsToSave.isSnapshotActive && !mainSettings?.isSnapshotActive) {
             if (!confirm("CẢNH BÁO: Bạn sắp kích hoạt Snapshot. Hành động này sẽ DỪNG tất cả các hoạt động kiếm điểm và CHỐT dữ liệu. Hành động này không thể hoàn tác. Bạn có chắc chắn muốn tiếp tục không?")) {
                 document.getElementById('snapshot-active-switch').checked = false;
                 return;
             }
         }
+        
+        const statusEl = document.getElementById('main-settings-status');
+        saveMainSettingsBtn.disabled = true;
+        statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
 
-        const minCheckins = parseInt(document.getElementById('min-checkins-input').value, 10);
-        const minReferrals = parseInt(document.getElementById('min-referrals-input').value, 10);
-        const minExp = parseInt(document.getElementById('min-exp-input').value, 10);
-        const refMultiplier = parseFloat(document.getElementById('ref-multiplier-input').value) || 0;
-        const checkinMultiplier = parseFloat(document.getElementById('checkin-multiplier-input').value) || 0;
-        const expMultiplier = parseFloat(document.getElementById('exp-multiplier-input').value) || 0;
+        try {
+            const settingsRef = db.collection('admin_settings').doc('main_settings');
+            await settingsRef.set(settingsToSave, { merge: true });
+            mainSettings = { ...mainSettings, ...settingsToSave }; 
+            statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu cài đặt chính!</span>`;
+            showAppToast('Thành công', 'Đã lưu cài đặt chính.', 'success');
+            updateUIAfterLogin();
+        } catch (error) {
+            console.error("Error saving main settings:", error);
+            statusEl.innerHTML = `<span class="text-danger">Lưu thất bại.</span>`;
+            showAppToast('Lỗi', 'Không thể lưu cài đặt.', 'error');
+        } finally {
+            saveMainSettingsBtn.disabled = false;
+             setTimeout(() => { statusEl.innerHTML = ''; }, 3000);
+        }
+    }
 
-        if (isNaN(minCheckins) || isNaN(minReferrals) || isNaN(minExp) || isNaN(refMultiplier) || isNaN(checkinMultiplier) || isNaN(expMultiplier)) {
-            showAppToast('Lỗi', 'Vui lòng nhập giá trị số hợp lệ.', 'error');
+    async function saveAirdropCriteria() {
+        const settingsToSave = {
+            minCheckins: parseInt(document.getElementById('min-checkins-input').value, 10),
+            minReferrals: parseInt(document.getElementById('min-referrals-input').value, 10),
+            minExp: parseInt(document.getElementById('min-exp-input').value, 10),
+            refMultiplier: parseFloat(document.getElementById('ref-multiplier-input').value) || 0,
+            checkinMultiplier: parseFloat(document.getElementById('checkin-multiplier-input').value) || 0,
+            expMultiplier: parseFloat(document.getElementById('exp-multiplier-input').value) || 0,
+        }
+
+        if (Object.values(settingsToSave).some(v => isNaN(v))) {
+             showAppToast('Lỗi', 'Vui lòng nhập giá trị số hợp lệ cho tất cả các trường.', 'error');
             return;
         }
         
-        saveSettingsBtn.disabled = true;
-        adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
+        saveAirdropCriteriaBtn.disabled = true;
+        adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu tiêu chí...`;
 
         try {
-            const settingsRef = db.collection('admin_settings').doc('airdrop_criteria');
-            const newSettings = { isAirdropLive, isConfirmationEnabled, isClaimingEnabled, isSnapshotActive, minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier };
-            await settingsRef.set(newSettings, { merge: true });
-            airdropSettings = newSettings; 
-            adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
-            showAppToast('Thành công', 'Đã lưu cài đặt Airdrop.', 'success');
-            updateUIAfterLogin();
+            const settingsRef = db.collection('admin_settings').doc('main_settings');
+            await settingsRef.set(settingsToSave, { merge: true });
+            mainSettings = { ...mainSettings, ...settingsToSave }; 
+            adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu tiêu chí airdrop!</span>`;
+            showAppToast('Thành công', 'Đã lưu tiêu chí Airdrop.', 'success');
         } catch (error) {
-            console.error("Error saving airdrop settings:", error);
+            console.error("Error saving airdrop criteria:", error);
             adminSettingsStatusEl.innerHTML = `<span class="text-danger">Lưu thất bại.</span>`;
-            showAppToast('Lỗi', 'Không thể lưu cài đặt.', 'error');
+            showAppToast('Lỗi', 'Không thể lưu tiêu chí.', 'error');
         } finally {
-            saveSettingsBtn.disabled = false;
+            saveAirdropCriteriaBtn.disabled = false;
              setTimeout(() => { adminSettingsStatusEl.innerHTML = ''; }, 3000);
         }
     }
@@ -4138,24 +3877,23 @@ else if (viewToShow === 'transfer' && isLoggedIn) {
         adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang chuẩn bị dữ liệu...`;
         
         try {
-            const settings = await fetchAirdropSettings();
-            
+            const settings = await fetchMainSettings();
+            if(!settings) throw new Error("Could not fetch settings.");
+
             const finalAirdropList = [];
             let lastVisible = null;
             let processedCount = 0;
 
             while (true) {
                 let query = db.collection('users').orderBy(firebase.firestore.FieldPath.documentId()).limit(500);
-                if(lastVisible) {
-                    query = query.startAfter(lastVisible);
-                }
+                if(lastVisible) query = query.startAfter(lastVisible);
+                
                 const snapshot = await query.get();
                 if (snapshot.empty) break;
 
                 const userDocs = snapshot.docs;
                 const eligibilityPromises = userDocs.map(doc => {
                     const user = doc.data();
-                    
                     const processUser = async () => {
                         const isEligibleByStats = (user.referralCount || 0) >= settings.minReferrals &&
                                                 (user.checkinCount || 0) >= settings.minCheckins &&
@@ -4165,9 +3903,7 @@ else if (viewToShow === 'transfer' && isLoggedIn) {
                             const mandatoryTasksCompleted = await checkMandatoryTasksCompletion(user.address);
                             if (mandatoryTasksCompleted) {
                                 const finalReward = await calculateBmassReward(user, settings);
-                                if (finalReward > 0) {
-                                    return { address: user.address, reward: finalReward };
-                                }
+                                if (finalReward > 0) return { address: user.address, reward: finalReward };
                             }
                         }
                         return null;
@@ -4176,11 +3912,7 @@ else if (viewToShow === 'transfer' && isLoggedIn) {
                 });
 
                 const results = await Promise.all(eligibilityPromises);
-                results.forEach(result => {
-                    if (result) {
-                        finalAirdropList.push(result);
-                    }
-                });
+                results.forEach(result => { if (result) finalAirdropList.push(result); });
 
                 processedCount += userDocs.length;
                 adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã xử lý ${processedCount} người dùng...`;
@@ -4309,7 +4041,7 @@ else if (viewToShow === 'transfer' && isLoggedIn) {
     }
 
     async function handlePartnerTaskCompletion(e, taskCard) {
-        if (airdropSettings?.isSnapshotActive) {
+        if (mainSettings?.isSnapshotActive) {
             showAppToast('Halted', 'Point-earning activities are paused due to the snapshot.', 'warning');
             e.preventDefault();
             return;
@@ -4447,6 +4179,11 @@ else if (viewToShow === 'transfer' && isLoggedIn) {
     async function renderAdminPartnerTasks() {
         if (!adminPartnerTasksList || !db) return;
         adminPartnerTasksList.innerHTML = skeletonTx;
+        
+        try {
+            const snapshot = await db.collection('partner_tasks').orderBy('createdAt', 'desc').get();
+            if (snapshot.empty) {
+                adminPartnerTasksList.innerHTML = `<p class="text-secondary text-center p-3
         
         try {
             const snapshot = await db.collection('partner_tasks').orderBy('createdAt', 'desc').get();
