@@ -578,31 +578,45 @@ body {
 }
 
 
-
-.main-container {
-    /* Giữ lại padding mặc định của bạn */
-    padding: 1.5rem 1rem;
-    margin: auto;
-    max-width: 1400px;
-    
-    /* Thêm transition để việc thay đổi padding mượt hơn */
-    transition: padding-top 0.3s ease;
-}
+/* [MỚI VÀ HOÀN CHỈNH] CSS điều chỉnh khoảng cách cho các nền tảng khác nhau */
 
 /* 
-  Nếu là iOS, áp dụng padding-top 85px.
-  Sử dụng !important để đảm bảo nó ghi đè lên padding mặc định.
+  1. Áp dụng padding cho các container chính và các lớp phủ toàn màn hình.
+  Chúng ta nhóm các selector lại để áp dụng cùng một style.
+  - .main-container: Nội dung chính.
+  - #sidebar-menu: Menu trượt từ bên trái.
+  - #loading-overlay: Màn hình chờ.
 */
-.platform-ios .main-container {
-    padding-top: 85px !important;
+.platform-ios .main-container,
+.platform-ios #sidebar-menu,
+.platform-ios #loading-overlay {
+    /* Sử dụng biến CSS nếu bạn muốn, hoặc giá trị cứng */
+    padding-top: 85px !important; 
 }
 
-/* 
-  Nếu là Android, áp dụng padding-top 65px.
-*/
-.platform-android .main-container {
+.platform-android .main-container,
+.platform-android #sidebar-menu,
+.platform-android #loading-overlay {
     padding-top: 65px !important;
-}     
+}
+
+/* 
+  2. Điều chỉnh vị trí cho các phần tử position: fixed đặc biệt.
+  Toast notification có 'top: 20px', chúng ta cần ghi đè nó.
+*/
+.platform-ios .toast-notification {
+    top: 85px !important;
+}
+
+.platform-android .toast-notification {
+    top: 65px !important;
+}
+
+/*
+  LƯU Ý: Tại sao dùng !important?
+  - Style gốc của bạn đã định nghĩa padding và top cho các phần tử này. 
+  - !important đảm bảo rằng các quy tắc ưu tiên cho iOS/Android này sẽ luôn được áp dụng và ghi đè lên các style gốc, tránh xung đột.
+*/   
     </style>
 </head>
 <body>
