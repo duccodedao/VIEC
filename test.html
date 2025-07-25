@@ -3091,6 +3091,233 @@ async function saveTransferSettings() {
 
 
 
+// [THÊM MỚI]
+async function renderTransferSection() {
+    const comingSoonEl = document.getElementById('transfer-coming-soon');
+    const contentWrapper = document.getElementById('transfer-content-wrapper');
+    
+    // Ẩn tất cả trước
+    comingSoonEl.style.display = 'none';
+    contentWrapper.style.display = 'none';
+
+    // 1. Kiểm tra xem admin có bật tính năng không
+    const settings = await fetchTransferSettings();
+    if (!settings.isTransferEnabled) {
+        comingSoonEl.style.display = 'block';
+        return;
+    }
+    contentWrapper.style.display = 'block';
+
+    // 2. Render tab "Receive"
+    const receiveAddressEl = document.getElementById('receive-address');
+    const receiveUidEl = document.getElementById('receive-uid');
+    const receiveMemoEl = document.getElementById('receive-memo');
+    const qrCodeContainer = document.getElementById('receive-qr-code');
+
+    if (currentUserData) {
+        receiveAddressEl.value = currentUserData.address;
+        document.getElementById('copy-receive-address').dataset.code = currentUserData.address;
+        
+        receiveUidEl.value = currentUserData.telegramId || 'Not linked';
+        document.getElementById('copy-receive-uid').dataset.code = currentUserData.telegramId || '';
+
+        // Tạo memo duy nhất và không thể thay đổi
+        const uniqueMemo = `bmass-transfer-${currentUserData.telegramId}`;
+        receiveMemoEl.value = uniqueMemo;
+        document.getElementById('copy-receive-memo').dataset.code = uniqueMemo;
+
+        // Tạo QR Code
+        qrCodeContainer.innerHTML = ''; // Xóa QR cũ
+        qrCodeInstance = new QRCode(qrCodeContainer, {
+            text: currentUserData.address,
+            width: 160,
+            height: 160,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+    }
+
+    // 3. Kích hoạt/Vô hiệu hóa tùy chọn $BMASS dựa trên cài đặt của admin
+    const bmassOption = document.querySelector('#send-asset-type option[value="bmass"]');
+    if (settings.isBmassTransferEnabled) {
+        bmassOption.disabled = false;
+        bmassOption.textContent = '$BMASS Token';
+    } else {
+        bmassOption.disabled = true;
+        bmassOption.textContent = '$BMASS Token (Coming Soon)';
+    }
+}
+
+// [THÊM MỚI]
+async function handleSendSubmit(e) {
+    e.preventDefault();
+    if (!db || !currentUserData) return;
+
+    const submitBtn = document.getElementById('send-submit-btn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
+
+    try {
+        // 1. Lấy dữ liệu từ form
+        const assetType = document.getElementById('send-asset-type').value;
+        const recipientType = document.getElementById('send-recipient-type').value;
+        const recipientValue = document.getElementById('send-recipient-value').value.trim();
+        const amount = parseInt(document.getElementById('send-amount').value, 10);
+        const memo = document.getElementById('send-memo').value.trim();
+
+        // 2. Validation cơ bản
+        if (!recipientValue || isNaN(amount) || amount <= 0 || !memo) {
+            throw new Error('Please fill in all fields correctly.');
+        }
+        if (assetType === 'exp' && (currentUserData.points || 0) < amount) {
+            throw new Error('Insufficient EXP balance.');
+        }
+        // TODO: Thêm kiểm tra số dư $BMASS khi tích hợp on-chain
+
+        // 3. Tìm người nhận trong DB
+        let recipientQuery;
+        if (recipientType === 'uid') {
+            recipientQuery = db.collection('users').where('telegramId', '==', parseInt(recipientValue, 10));
+        } else {
+            recipientQuery = db.collection('users').where('address', '==', recipientValue);
+        }
+        const snapshot = await recipientQuery.limit(1).get();
+        if (snapshot.empty) {
+            throw new Error('Recipient not found.');
+        }
+        const recipientDoc = snapshot.docs[0];
+        const recipientData = recipientDoc.data();
+
+        // Không cho phép tự gửi
+        if (recipientData.address === currentUserData.address) {
+            throw new Error("You cannot send assets to yourself.");
+        }
+
+        // 4. *** XÁC THỰC MEMO QUAN TRỌNG ***
+        const expectedMemo = `bmass-transfer-${recipientData.telegramId}`;
+        if (memo !== expectedMemo) {
+            // Ghi lại lịch sử giao dịch thất bại và trừ điểm
+            const senderRef = db.collection('users').doc(currentUserData.address);
+            await db.runTransaction(async (transaction) => {
+                transaction.update(senderRef, {
+                    points: firebase.firestore.FieldValue.increment(-amount)
+                });
+                const historyRef = senderRef.collection('task_history').doc();
+                transaction.set(historyRef, {
+                    taskName: 'Failed Transfer (Wrong Memo)',
+                    exp: -amount,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    recipient: recipientValue,
+                    memoUsed: memo
+                });
+            });
+            throw new Error(`Incorrect Memo! ${amount} EXP has been deducted as a penalty.`);
+        }
+        
+        // 5. Xử lý chuyển khoản
+        if (assetType === 'exp') {
+            // Giao dịch off-chain cho EXP
+            const senderRef = db.collection('users').doc(currentUserData.address);
+            const recipientRef = recipientDoc.ref;
+            const liveTransferRef = db.collection('live_transfers').doc();
+            
+            await db.runTransaction(async (transaction) => {
+                const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+                
+                // Trừ điểm người gửi, thêm vào lịch sử
+                transaction.update(senderRef, { points: firebase.firestore.FieldValue.increment(-amount) });
+                const senderHistoryRef = senderRef.collection('task_history').doc();
+                transaction.set(senderHistoryRef, {
+                    taskName: 'Sent EXP', exp: -amount, timestamp: newTimestamp, to: recipientData.fullName || shortenAddress(recipientData.address)
+                });
+
+                // Cộng điểm người nhận, thêm vào lịch sử
+                transaction.update(recipientRef, { points: firebase.firestore.FieldValue.increment(amount) });
+                const recipientHistoryRef = recipientRef.collection('task_history').doc();
+                transaction.set(recipientHistoryRef, {
+                    taskName: 'Received EXP', exp: amount, timestamp: newTimestamp, from: currentUserData.fullName || shortenAddress(currentUserData.address)
+                });
+
+                // Ghi vào Live Feed
+                transaction.set(liveTransferRef, {
+                    senderName: currentUserData.fullName || `@${currentUserData.username}` || shortenAddress(currentUserData.address),
+                    recipientName: recipientData.fullName || `@${recipientData.username}` || shortenAddress(recipientData.address),
+                    amount: amount,
+                    asset: 'EXP',
+                    timestamp: newTimestamp
+                });
+            });
+            showAppToast('Success', `Successfully sent ${amount} EXP!`, 'success');
+        } else if (assetType === 'bmass') {
+            // TODO: Logic giao dịch on-chain cho $BMASS
+            showAppToast('Info', '$BMASS transfer is not implemented yet.', 'info');
+        }
+
+        // Reset form và cập nhật UI
+        document.getElementById('send-form').reset();
+        const updatedUserDoc = await db.collection('users').doc(currentUserData.address).get();
+        currentUserData = updatedUserDoc.data();
+        updateExpBalances(currentUserData.points);
+
+    } catch (error) {
+        console.error("Send failed:", error);
+        showAppToast('Error', error.message, 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<i class="fas fa-paper-plane me-2"></i>Send`;
+    }
+}
+
+// [THÊM MỚI]
+function listenForLiveTransfers() {
+    const container = document.getElementById('live-feed-container');
+    if (!db || !container) return;
+    
+    // Hủy listener cũ nếu có để tránh duplicate
+    if (liveTransfersListener) {
+        liveTransfersListener();
+    }
+
+    const query = db.collection('live_transfers').orderBy('timestamp', 'desc').limit(20);
+    
+    liveTransfersListener = query.onSnapshot(snapshot => {
+        if (snapshot.empty) {
+            container.innerHTML = `<p class="text-secondary text-center p-3">No recent transfers.</p>`;
+            return;
+        }
+
+        let feedHtml = '';
+        snapshot.forEach(doc => {
+            const transfer = doc.data();
+            const time = transfer.timestamp ? transfer.timestamp.toDate().toLocaleTimeString('en-US') : '';
+            feedHtml += `
+                <div class="live-feed-item">
+                    <i class="fas fa-receipt live-feed-icon"></i>
+                    <div class="flex-grow-1">
+                        <p class="m-0" style="font-size: 0.9rem;">
+                            <strong style="color:var(--text-primary);">${transfer.senderName}</strong>
+                            sent to
+                            <strong style="color:var(--text-primary);">${transfer.recipientName}</strong>
+                        </p>
+                        <p class="m-0 text-secondary" style="font-size: 0.8rem;">${time}</p>
+                    </div>
+                    <strong class="amount-in">${transfer.amount} ${transfer.asset}</strong>
+                </div>
+            `;
+        });
+        container.innerHTML = feedHtml;
+    }, error => {
+        console.error("Error listening to live transfers: ", error);
+        container.innerHTML = `<p class="text-danger text-center p-3">Could not load live feed.</p>`;
+    });
+}
+
+
+
+
+
+    
 
 
 
@@ -3391,14 +3618,17 @@ async function saveTransferSettings() {
         }
     });
     
-    const switchView = (viewToShow) => {
-        [dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl, partnerSectionEl, accountSectionEl, leaderboardSectionEl, adminSectionEl, referralSectionEl, airdropSectionEl].forEach(section => {
-            if(section) section.style.display = 'none';
-        });
-        [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(nav => nav.classList.remove('active'));
+const switchView = (viewToShow) => {
+    // [ĐÃ SỬA] Thêm transferSectionEl vào danh sách
+    [dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl, partnerSectionEl, transferSectionEl, accountSectionEl, leaderboardSectionEl, adminSectionEl, referralSectionEl, airdropSectionEl].forEach(section => {
+        if(section) section.style.display = 'none';
+    });
+    // [ĐÃ SỬA] Thêm navTransfer
+    [navDashboard, navApps, navTask, navPartner, navTransfer, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(nav => nav.classList.remove('active'));
 
-        const isLoggedIn = !!connectedWalletAddress;
-        [navTask, navPartner, navAccount, navReferral, navAirdrop].forEach(nav => nav.style.display = isLoggedIn ? 'block' : 'none');
+    const isLoggedIn = !!connectedWalletAddress;
+    // [ĐÃ SỬA] Thêm navTransfer
+    [navTask, navPartner, navTransfer, navAccount, navReferral, navAirdrop].forEach(nav => nav.style.display = isLoggedIn ? 'block' : 'none');
 
         if (viewToShow === 'account' && isLoggedIn) { accountSectionEl.style.display = 'block'; navAccount.classList.add('active'); } 
         else if (viewToShow === 'apps') { appStoreSection.style.display = 'block'; navApps.classList.add('active'); } 
@@ -3432,6 +3662,18 @@ async function saveTransferSettings() {
         }
         if (sidebarMenu.classList.contains('open')) toggleSidebar();
     };
+
+else if (viewToShow === 'transfer' && isLoggedIn) {
+        transferSectionEl.style.display = 'block';
+        navTransfer.classList.add('active');
+        renderTransferSection(); // Gọi hàm render chính
+    }
+    else if (viewToShow === 'referral' && isLoggedIn) { /* ... */ } 
+    // ...
+};
+
+
+    
     
         // --- PHIÊN BẢN MỚI ---
     const handleRouteChange = () => {
