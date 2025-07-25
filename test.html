@@ -1710,6 +1710,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminSettingsStatusEl = document.getElementById('admin-settings-status');
     const contactAdminBtn = document.getElementById('contact-admin-btn');
     const contactAdminModal = new bootstrap.Modal(document.getElementById('contactAdminModal'));
+
+    const navTransfer = document.getElementById('nav-transfer');
+const transferSectionEl = document.getElementById('transfer-section');
     
     // Mass Award Form Elements
     const adminMassAwardForm = document.getElementById('admin-mass-award-form');
@@ -1736,6 +1739,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const GENERIC_WALLET_ICON = 'https://ton.org/download/ton_symbol.png';
     const GENERIC_TASK_ICON = 'https://bmass.vercel.app/img/bmass.png';
 
+
+// [THÊM MỚI] State Variables
+let transferSettings = null; // Sẽ giữ cài đặt transfer từ admin
+let qrCodeInstance = null; // Để giữ đối tượng QR code
+let liveTransfersListener = null; // Để có thể hủy lắng nghe khi cần``
+
+
+    
     // State Variables
     let telegramUserData = null;
     let connectedWalletAddress = null; // Raw address from wallet
@@ -3021,6 +3032,69 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         }
     }
+
+
+
+
+
+
+// [THÊM MỚI]
+async function fetchTransferSettings() {
+    if (transferSettings) return transferSettings;
+    try {
+        const docRef = db.collection('admin_settings').doc('transfer_settings');
+        const doc = await docRef.get();
+        if (doc.exists) {
+            transferSettings = doc.data();
+        } else {
+            // Giá trị mặc định nếu chưa có cài đặt
+            transferSettings = { 
+                isTransferEnabled: false,
+                isBmassTransferEnabled: false
+            };
+        }
+        return transferSettings;
+    } catch (error) {
+        console.error("Error fetching transfer settings:", error);
+        return { isTransferEnabled: false, isBmassTransferEnabled: false };
+    }
+}
+
+// [THÊM MỚI]
+async function saveTransferSettings() {
+    const isTransferEnabled = document.getElementById('transfer-enabled-switch').checked;
+    const isBmassTransferEnabled = document.getElementById('transfer-bmass-enabled-switch').checked;
+    const statusEl = document.getElementById('admin-transfer-settings-status');
+    const saveBtn = document.getElementById('save-transfer-settings-btn');
+
+    saveBtn.disabled = true;
+    statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
+
+    try {
+        const settingsRef = db.collection('admin_settings').doc('transfer_settings');
+        const newSettings = { isTransferEnabled, isBmassTransferEnabled };
+        await settingsRef.set(newSettings, { merge: true });
+        transferSettings = newSettings; // Cập nhật state
+        statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
+        showAppToast('Thành công', 'Đã lưu cài đặt Transfer.', 'success');
+    } catch (error) {
+        console.error("Error saving transfer settings:", error);
+        statusEl.innerHTML = `<span class="text-danger">Lưu thất bại.</span>`;
+        showAppToast('Lỗi', 'Không thể lưu cài đặt.', 'error');
+    } finally {
+        saveBtn.disabled = false;
+        setTimeout(() => { statusEl.innerHTML = ''; }, 3000);
+    }
+}
+
+
+
+
+
+
+
+
+    
     
     async function renderAirdropSection() {
         const airdropWrapper = document.getElementById('airdrop-content-wrapper');
