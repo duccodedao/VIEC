@@ -30,6 +30,9 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
+
+
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
@@ -624,6 +627,36 @@ body {
     /* Giữ giá trị an toàn cho Android */
     padding-top: 140px !important;
 }
+
+
+
+
+        /* [THÊM MỚI] */
+.live-feed-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+    opacity: 0;
+    transform: translateX(-20px);
+    animation: slideIn 0.5s forwards;
+}
+.live-feed-item:last-child {
+    border-bottom: none;
+}
+@keyframes slideIn {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+.live-feed-icon {
+    font-size: 1.2rem;
+    width: 30px;
+    text-align: center;
+    margin-right: 1rem;
+    color: var(--accent-primary);
+}
     </style>
 </head>
 <body>
@@ -638,6 +671,7 @@ body {
     <nav id="sidebar-menu" class="sidebar">
         <div class="sidebar-nav">
             <a href="#dashboard" class="sidebar-link active" id="nav-dashboard">Wallet</a>
+            <a href="#transfer" class="sidebar-link" id="nav-transfer">Transfer</a> <!-- [THÊM MỚI] -->
             <a href="#apps" class="sidebar-link" id="nav-apps">Apps</a>
             <a href="#task" class="sidebar-link" id="nav-task">History</a>
             <a href="#partner" class="sidebar-link" id="nav-partner">Tasks</a>
@@ -680,6 +714,129 @@ body {
                 </button>
             </div>
         </header>
+
+
+
+
+
+
+<!-- [THÊM MỚI TOÀN BỘ] -->
+<main id="transfer-section" style="display: none;">
+    <div class="container">
+        <!-- Coming Soon Message -->
+        <div id="transfer-coming-soon" style="display: none;" class="text-center p-5 card-glass col-md-8 mx-auto">
+            <i class="fas fa-exchange-alt fa-3x text-secondary mb-3"></i>
+            <h2 class="mb-2" style="font-weight: 700;">Transfer Feature Coming Soon!</h2>
+            <p class="lead text-secondary">This feature is currently disabled by the administrator.</p>
+        </div>
+
+        <!-- Main Content -->
+        <div id="transfer-content-wrapper">
+            <div class="text-center mb-5">
+                <h1 class="mb-2" style="font-weight: 700;">Send & Receive</h1>
+                <p class="lead text-secondary col-md-8 mx-auto">Transfer EXP or $BMASS to your friends securely.</p>
+            </div>
+
+            <div class="row justify-content-center g-4">
+                <!-- Send/Receive Card -->
+                <div class="col-12 col-md-10 col-lg-7">
+                    <div class="card-glass">
+                        <ul class="nav nav-tabs" id="transferTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="send-tab" data-bs-toggle="tab" data-bs-target="#send-pane" type="button"><i class="fas fa-arrow-up me-2"></i>Send</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="receive-tab" data-bs-toggle="tab" data-bs-target="#receive-pane" type="button"><i class="fas fa-arrow-down me-2"></i>Receive</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content pt-4">
+                            <!-- Send Pane -->
+                            <div class="tab-pane fade show active" id="send-pane" role="tabpanel">
+                                <form id="send-form">
+                                    <div class="mb-3">
+                                        <label for="send-asset-type" class="form-label">Asset</label>
+                                        <select class="form-select" id="send-asset-type">
+                                            <option value="exp" selected>EXP Points</option>
+                                            <option value="bmass" disabled>$BMASS Token (Coming Soon)</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="send-recipient-type" class="form-label">Recipient Identifier</label>
+                                        <select class="form-select" id="send-recipient-type">
+                                            <option value="address" selected>Wallet Address</option>
+                                            <option value="uid">Telegram UID</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="send-recipient-value" class="form-label">Recipient</label>
+                                        <input type="text" class="form-control" id="send-recipient-value" placeholder="Enter Address or UID..." required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="send-amount" class="form-label">Amount</label>
+                                        <input type="number" class="form-control" id="send-amount" placeholder="e.g., 100" required min="1">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="send-memo" class="form-label">Memo (Required)</label>
+                                        <input type="text" class="form-control" id="send-memo" placeholder="Enter recipient's unique memo..." required>
+                                        <div class="form-text text-warning"><i class="fas fa-exclamation-triangle me-1"></i> You must enter the correct memo from the recipient. Incorrect memo will result in loss of assets.</div>
+                                    </div>
+                                    <button type="submit" id="send-submit-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;">
+                                        <i class="fas fa-paper-plane me-2"></i>Send
+                                    </button>
+                                </form>
+                            </div>
+                            <!-- Receive Pane -->
+                            <div class="tab-pane fade" id="receive-pane" role="tabpanel">
+                                <div class="text-center">
+                                    <p class="text-secondary">Share your details below to receive assets.</p>
+                                    <div id="receive-qr-code" class="p-3 bg-white d-inline-block rounded-4 mb-3">
+                                        <!-- QR Code will be rendered here -->
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small text-secondary">Your Wallet Address:</label>
+                                    <div class="input-group">
+                                        <input type="text" id="receive-address" class="form-control" readonly>
+                                        <button class="btn btn-outline-secondary copyable-code" id="copy-receive-address"><i class="fas fa-copy"></i></button>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small text-secondary">Your Telegram UID:</label>
+                                    <div class="input-group">
+                                        <input type="text" id="receive-uid" class="form-control" readonly>
+                                        <button class="btn btn-outline-secondary copyable-code" id="copy-receive-uid"><i class="fas fa-copy"></i></button>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small text-secondary">Your Unique Memo (Required for Sender):</label>
+                                    <div class="input-group">
+                                        <input type="text" id="receive-memo" class="form-control" readonly>
+                                        <button class="btn btn-outline-secondary copyable-code" id="copy-receive-memo"><i class="fas fa-copy"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Live Feed Card -->
+                <div class="col-12 col-md-10 col-lg-5">
+                    <div class="card-glass">
+                        <h5 class="card-title"><i class="fas fa-satellite-dish me-2" style="color: var(--color-out);"></i>Live Feed</h5>
+                        <div id="live-feed-container" style="max-height: 450px; overflow-y: auto; padding-right: 10px;">
+                            <!-- Live feed items will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+
+
+
+
+        
         
         <main id="account-section" style="display: none;">
             <div class="container">
@@ -1042,6 +1199,44 @@ body {
                     <p class="lead text-secondary col-md-8 mx-auto">Công cụ quản lý người dùng và sự kiện.</p>
                 </div>
                 <div class="row justify-content-center g-4">
+
+
+
+
+<!-- Bên trong #admin-section, ví dụ: đặt ngay trên card Airdrop -->
+
+<!-- ... card "Quản lý Nhiệm vụ Partner" ... -->
+
+<!-- [THÊM MỚI] CARD CẤU HÌNH TRANSFER -->
+<div class="col-12 col-lg-10 col-xl-8">
+    <div class="card-glass">
+        <h5 class="card-title">Cấu hình Chuyển Khoản (Transfer)</h5>
+        <div id="admin-transfer-settings-form">
+            <div class="form-check form-switch fs-5">
+                <input class="form-check-input" type="checkbox" role="switch" id="transfer-enabled-switch">
+                <label class="form-check-label" for="transfer-enabled-switch">Bật tính năng Gửi/Nhận cho người dùng</label>
+            </div>
+             <div class="form-check form-switch fs-5 mt-3">
+                <input class="form-check-input" type="checkbox" role="switch" id="transfer-bmass-enabled-switch">
+                <label class="form-check-label" for="transfer-bmass-enabled-switch">Bật chuyển khoản $BMASS (On-chain)</label>
+            </div>
+            <div id="admin-transfer-settings-status" class="mt-3"></div>
+            <div class="d-grid mt-3">
+                <button type="button" id="save-transfer-settings-btn" class="btn" style="background-color: var(--accent-secondary); color: white;">Lưu Cài Đặt Transfer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ... card "Cấu hình Airdrop & Xuất dữ liệu" ... -->
+
+
+
+
+
+
+
+                    
                     <!-- ============================================= -->
                     <!-- NEW: TELEGRAM BULK MESSENGER PANEL            -->
                     <!-- ============================================= -->
