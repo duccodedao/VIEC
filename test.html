@@ -613,14 +613,14 @@ body {
   PHẦN 3: SỬA LỖI CHO SIDEBAR.
   Đây là cách tiếp cận đúng: thay đổi vị trí 'top' và 'height' của chính sidebar.
 */
-.platform-ios #sidebar-nav {
+.platform-ios #sidebar-menu {
     top: 85px !important; /* Đẩy toàn bộ sidebar xuống dưới vùng tai thỏ */
     height: calc(100% - 85px) !important; /* Giảm chiều cao để không bị tràn */
     /* Đồng thời, giảm padding bên trong để nội dung không bị đẩy xuống quá xa */
     padding-top: 2rem !important; 
 }
 
-.platform-android #sidebar-nav {
+.platform-android #sidebar-menu {
     top: 65px !important; /* Đẩy toàn bộ sidebar xuống */
     height: calc(100% - 65px) !important; /* Giảm chiều cao */
     padding-top: 2rem !important;
