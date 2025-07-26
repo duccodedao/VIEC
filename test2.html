@@ -40,647 +40,750 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+      /* =================================================================== */
+      /* [NEW VERSION] ROOT VARIABLES & KEYFRAME ANIMATIONS
+      /* =================================================================== */
       :root {
-    --bg-color: #050816;
-    --card-color: rgba(23, 27, 48, 0.5);
-    --border-color: rgba(145, 94, 255, 0.2);
-    --accent-primary: #915EFF;
-    --accent-secondary: #2BCBC4;
-    --text-primary: #f1f2f6;
-    --text-secondary: #aaa6c3;
-    --color-in: #2BCBC4;
-    --color-out: #ff6b6b;
-    --color-failed: #ffcc00;
-    --color-verified: #2ecc71;
-    --gold: #FFD700;
-    --silver: #C0C0C0;
-    --bronze: #CD7F32;
-}
+          --bg-color: #050816;
+          --card-color: rgba(23, 27, 48, 0.5);
+          --border-color: rgba(145, 94, 255, 0.2);
+          --accent-primary: #915EFF;
+          --accent-secondary: #2BCBC4;
+          --text-primary: #f1f2f6;
+          --text-secondary: #aaa6c3;
+          --color-in: #2BCBC4;
+          --color-out: #ff6b6b;
+          --color-failed: #ffcc00;
+          --color-verified: #2ecc71;
+          --gold: #FFD700;
+          --silver: #C0C0C0;
+          --bronze: #CD7F32;
+          --transition-smooth: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      }
 
-body {
-    font-family: 'Poppins', sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-primary);
-    background: linear-gradient(-45deg, #050816, #120e2a, #1a163c, #0d0b1f);
-    background-size: 400% 400%;
-    animation: gradientBG 15s ease infinite;
-    overflow-x: hidden;
-    font-size: 16px;
-}
+      @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+      @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+      
+      /* New Animations */
+      @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(25px); }
+          to { opacity: 1; transform: translateY(0); }
+      }
 
-@keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+      @keyframes pulse {
+          0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(43, 203, 196, 0.4); }
+          50% { transform: scale(1.05); box-shadow: 0 0 25px rgba(43, 203, 196, 0.7); }
+      }
+      
+      @keyframes spin {
+          to { transform: rotate(360deg); }
+      }
+      
+      @keyframes subtleShine {
+          from { background-position: 200% center; }
+          to { background-position: -200% center; }
+      }
 
-.main-container { max-width: 1400px; padding: 1.5rem 1rem; margin: auto; }
-.header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 2rem; }
-.header-logo { display: flex; align-items: center; text-decoration: none; color: var(--text-primary); gap: 10px; z-index: 1100; }
-.header-logo img { height: 40px; width: 40px; object-fit: cover; transition: all 0.3s ease; }
-.header-logo span { font-size: 1.1rem; font-weight: 600; }
 
-.card-glass { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 25px; padding: 1.25rem; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: all 0.3s ease;  }
-.card-glass:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
-.card-title { font-weight: 600; margin-bottom: 1.5rem; font-size: 1.25rem; }
+      /* =================================================================== */
+      /* GENERAL STYLES & ENHANCEMENTS
+      /* =================================================================== */
+      body {
+          font-family: 'Poppins', sans-serif;
+          background-color: var(--bg-color);
+          color: var(--text-primary);
+          background: linear-gradient(-45deg, #050816, #120e2a, #1a163c, #0d0b1f);
+          background-size: 400% 400%;
+          animation: gradientBG 15s ease infinite;
+          overflow-x: hidden;
+          font-size: 16px;
+      }
 
-.hero-section, .login-section { text-align: center; padding: 4rem 1rem; min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center;}
-.hero-section h1, .login-section h1 { font-size: 2rem; font-weight: 700; }
-.hero-section .highlight, .login-section .highlight { color: var(--accent-primary); }
+      .main-container { 
+          max-width: 1400px; 
+          padding: 1.5rem 1rem; 
+          margin: auto;
+          /* Add animation for page content */
+          animation: fadeInUp 0.6s ease-out forwards;
+      }
+      
+      .header { 
+          display: flex; 
+          justify-content: space-between; 
+          align-items: center; 
+          padding-bottom: 1rem; 
+          margin-bottom: 2rem; 
+      }
+      
+      .header-logo { 
+          display: flex; 
+          align-items: center; 
+          text-decoration: none; 
+          color: var(--text-primary); 
+          gap: 10px; 
+          z-index: 1100; 
+      }
+      
+      .header-logo img { 
+          height: 40px; 
+          width: 40px; 
+          object-fit: cover; 
+          transition: transform 0.4s ease;
+      }
+      .header-logo:hover img {
+          transform: rotate(360deg);
+      }
+      
+      .header-logo span { font-size: 1.1rem; font-weight: 600; }
 
-.skeleton-loader { background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); background-size: 200% 100%; border-radius: 25px; animation: shimmer 1.5s infinite; }
-@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-.skeleton-line { height: 20px; margin-bottom: 10px; }
+      .card-glass { 
+          background: var(--card-color); 
+          border: 1px solid var(--border-color); 
+          border-radius: 25px; 
+          padding: 1.25rem; 
+          backdrop-filter: blur(15px); 
+          -webkit-backdrop-filter: blur(15px); 
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); 
+          transition: var(--transition-smooth);
+      }
+      
+      .card-glass:hover { 
+          transform: translateY(-8px) scale(1.02); 
+          box-shadow: 0 0 35px rgba(145, 94, 255, 0.35); 
+          border-color: var(--accent-primary); 
+      }
+      
+      .card-title { 
+          font-weight: 600; 
+          margin-bottom: 1.5rem; 
+          font-size: 1.25rem; 
+          background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--text-primary));
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-size: 200%;
+          animation: gradientShine 5s linear infinite reverse;
+      }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
+      .skeleton-loader { 
+          background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); 
+          background-size: 200% 100%; 
+          border-radius: 25px; 
+          animation: shimmer 1.5s infinite; 
+      }
+      
+      .skeleton-line { height: 20px; margin-bottom: 10px; }
 
-.activity-item-icon, .jetton-item-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-.amount-in { color: var(--color-in); }
-.amount-out { color: var(--color-out); }
-.status-icon { font-size: 0.7rem; margin-right: 6px; }
-.status-ok { color: var(--color-in); }
-.status-failed { color: var(--color-failed); }
-.verified-tick { color: var(--color-verified); margin-left: 5px; font-size: 0.9em; }
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+      ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
 
-.jetton-item { cursor: pointer; transition: background-color: 0.2s; border-radius: 25px; }
-.jetton-item:hover { background-color: rgba(145, 94, 255, 0.1); }
 
-#search-results-container { max-height: 40vh; overflow-y: auto; }
-.search-result-item { cursor: pointer; padding: 10px; border-radius: 25px; transition: background-color: 0.2s ease; }
-.search-result-item:hover { background-color: rgba(145, 94, 255, 0.1); }
-.search-result-item img { width: 32px; height: 32px; border-radius: 50%; }
+      /* =================================================================== */
+      /* HERO SECTION & LOGIN
+      /* =================================================================== */
+      .hero-section, .login-section { 
+          text-align: center; 
+          padding: 4rem 1rem; 
+          min-height: 70vh; 
+          display: flex; 
+          flex-direction: column; 
+          align-items: center; 
+          justify-content: center;
+      }
+      
+      /* Animate hero text on load */
+      .hero-section h1, .login-section h1 { 
+          font-size: 2rem; 
+          font-weight: 700;
+          animation: fadeInUp 0.8s ease-out 0.2s backwards; 
+      }
+      
+      .hero-section p, .login-section p {
+           animation: fadeInUp 0.8s ease-out 0.4s backwards;
+      }
 
-.copyable-address, .copyable-code { cursor: pointer; transition: color 0.2s; font-family: monospace; }
-.copyable-address:hover, .copyable-code:hover { color: var(--accent-secondary); }
-.copyable-address.copied, .copyable-code.copied { color: var(--color-verified) !important; font-weight: bold; }
+      .hero-section .btn, .login-section .btn {
+           animation: fadeInUp 0.8s ease-out 0.6s backwards;
+      }
+      
+      .hero-section .highlight, .login-section .highlight { color: var(--accent-primary); }
 
-.modal-content { background-color: #0c0f24; border: 1px solid var(--border-color); color: var(--text-primary); }
-.modal-header { border-bottom: 1px solid var(--border-color); }
-.modal-footer { border-top: 1px solid var(--border-color); }
-.modal-backdrop.show { opacity: 0.7; backdrop-filter: blur(5px); }
-.nav-tabs { border-bottom-color: var(--border-color); }
-.nav-tabs .nav-link { background: transparent; border-color: transparent; color: var(--text-secondary); }
-.nav-tabs .nav-link.active { color: var(--accent-primary); background-color: rgba(145, 94, 255, 0.1); border-color: var(--border-color); }
-.tab-content { max-height: 50vh; overflow-y: auto; padding-top: 1rem; }
-.metadata-key { color: var(--text-secondary); font-weight: 500; }
-.tab-content .table {
-    --bs-table-bg: transparent;
-    --bs-table-border-color: var(--border-color);
-    --bs-table-color: var(--text-primary);
-    --bs-table-striped-color: var(--text-primary);
-}
-.tab-content .table-hover > tbody > tr:hover > * {
-    --bs-table-accent-bg: rgba(145, 94, 255, 0.15);
-}
+      
+      /* =================================================================== */
+      /* UI COMPONENTS & WIDGETS
+      /* =================================================================== */
+      .activity-item-icon, .jetton-item-img { 
+          width: 40px; 
+          height: 40px; 
+          border-radius: 50%; 
+          object-fit: cover; 
+          flex-shrink: 0;
+          transition: transform 0.3s ease;
+      }
+      .d-flex:hover .activity-item-icon, .d-flex:hover .jetton-item-img {
+          transform: scale(1.1);
+      }
 
-.news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-.news-card { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 25px; overflow: hidden; transition: all 0.3s ease; text-decoration: none; color: var(--text-primary); }
-.news-card:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
-.news-card-img { width: 100%; height: 180px; object-fit: cover; }
-.news-card-body { padding: 1rem; }
-.news-card-title { font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.news-card-source { font-size: 0.8rem; color: var(--text-secondary); }
+      .amount-in { color: var(--color-in); }
+      .amount-out { color: var(--color-out); }
+      .status-icon { font-size: 0.7rem; margin-right: 6px; }
+      .status-ok { color: var(--color-in); }
+      .status-failed { color: var(--color-failed); }
+      .verified-tick { color: var(--color-verified); margin-left: 5px; font-size: 0.9em; }
 
-.hamburger-btn { width: 40px; height: 40px; background: transparent; border: none; padding: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; cursor: pointer; z-index: 1100; }
-.hamburger-btn span { display: block; width: 24px; height: 2px; background-color: var(--text-primary); border-radius: 2px; transition: all 0.3s ease-in-out; }
-.hamburger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-.hamburger-btn.open span:nth-child(2) { opacity: 0; }
-.hamburger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+      .jetton-item { cursor: pointer; transition: background-color: 0.2s; border-radius: 25px; }
+      .jetton-item:hover { background-color: rgba(145, 94, 255, 0.1); }
 
-.sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background: var(--bg-color); padding: 6rem 2rem 2rem; transform: translateX(-100%); transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 1050; display: flex; flex-direction: column; }
-.sidebar.open { transform: translateX(0); box-shadow: 10px 0px 50px -20px rgba(0,0,0,0.5); }
-.sidebar-nav { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
-.sidebar-link { color: var(--text-secondary); text-decoration: none; font-size: 1.1rem; font-weight: 500; padding: 10px; border-radius: 12px; transition: color 0.3s, background-color 0.3s; }
-.sidebar-link:hover, .sidebar-link.active { color: var(--text-primary); background-color: var(--border-color); }
+      #search-results-container { max-height: 40vh; overflow-y: auto; }
+      .search-result-item { cursor: pointer; padding: 10px; border-radius: 25px; transition: background-color 0.2s ease; }
+      .search-result-item:hover { background-color: rgba(145, 94, 255, 0.1); }
+      .search-result-item img { width: 32px; height: 32px; border-radius: 50%; }
 
-.sidebar-wallet-connect { margin-top: auto; }
-#custom-wallet-button { background: var(--accent-primary); color: white; border: none; padding: 10px 16px; width: 100%; border-radius: 25px; font-weight: 500; cursor: pointer; text-align: center; }
-#wallet-dropdown { display: none; position: absolute; right: 0; bottom: calc(100% + 10px); background-color: #171b30; border: 1px solid var(--border-color); border-radius: 25px; z-index: 1056; min-width: 100%; box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
-#wallet-dropdown a { color: var(--text-primary); padding: 12px 16px; text-decoration: none; display: block; font-size: 0.9rem; }
-#wallet-dropdown a:hover { background-color: rgba(145, 94, 255, 0.2); }
-#wallet-dropdown a i { margin-right: 10px; width: 15px; text-align: center; }
+      .copyable-address, .copyable-code { cursor: pointer; transition: color 0.2s; font-family: monospace; }
+      .copyable-address:hover, .copyable-code:hover { color: var(--accent-secondary); }
+      .copyable-address.copied, .copyable-code.copied { color: var(--color-verified) !important; font-weight: bold; }
 
-.sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); z-index: 1040; opacity: 0; visibility: hidden; transition: opacity 0.4s, visibility 0.4s; }
-.sidebar-overlay.open { opacity: 1; visibility: visible; }
+      /* Modal and Tabs */
+      .modal-content { background-color: #0c0f24; border: 1px solid var(--border-color); color: var(--text-primary); }
+      .modal-header { border-bottom: 1px solid var(--border-color); }
+      .modal-footer { border-top: 1px solid var(--border-color); }
+      .modal-backdrop.show { opacity: 0.7; backdrop-filter: blur(5px); }
+      .nav-tabs { border-bottom-color: var(--border-color); }
+      .nav-tabs .nav-link { background: transparent; border-color: transparent; color: var(--text-secondary); transition: var(--transition-smooth); }
+      .nav-tabs .nav-link.active { color: var(--accent-primary); background-color: rgba(145, 94, 255, 0.1); border-color: var(--border-color); }
+      .nav-tabs .nav-link:not(.active):hover { color: var(--text-primary); transform: translateY(-3px); }
+      .tab-content { max-height: 50vh; overflow-y: auto; padding-top: 1rem; }
+      .metadata-key { color: var(--text-secondary); font-weight: 500; }
+      
+      .tab-content .table {
+          --bs-table-bg: transparent;
+          --bs-table-border-color: var(--border-color);
+          --bs-table-color: var(--text-primary);
+          --bs-table-striped-color: var(--text-primary);
+      }
+      .tab-content .table-hover > tbody > tr:hover > * {
+          --bs-table-accent-bg: rgba(145, 94, 255, 0.15);
+      }
 
-.app-menu-container { padding: 1rem 0; }
-.app-filter-bar { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 2.5rem; }
-.app-filter-btn { background-color: var(--card-color); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 20px; border-radius: 50px; cursor: pointer; font-weight: 500; transition: all 0.3s ease; }
-.app-filter-btn:hover { color: var(--text-primary); border-color: var(--accent-secondary); }
-.app-filter-btn.active { background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white; border-color: transparent; box-shadow: 0 0 15px rgba(145, 94, 255, 0.5); }
+      /* News Feed */
+      .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+      .news-card { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 25px; overflow: hidden; transition: var(--transition-smooth); text-decoration: none; color: var(--text-primary); }
+      .news-card:hover { transform: translateY(-8px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
+      .news-card-img { width: 100%; height: 180px; object-fit: cover; transition: transform 0.4s ease; }
+      .news-card:hover .news-card-img { transform: scale(1.05); }
+      .news-card-body { padding: 1rem; }
+      .news-card-title { font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+      .news-card-source { font-size: 0.8rem; color: var(--text-secondary); }
 
-.app-item { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; background: var(--card-color); border: 1px solid var(--border-color); border-radius: 25px; padding: 1rem; transition: all 0.3s ease; height: 100%; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-.app-item:hover { transform: translateY(-8px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
-.app-item-img-wrapper { width: 64px; height: 64px; border-radius: 15px; overflow: hidden; flex-shrink: 0; }
-.app-item-img { width: 100%; height: 100%; object-fit: cover; }
-.app-item-name { display: block; font-weight: 500; font-size: 0.9rem; color: var(--text-primary); line-height: 1.3; margin-top: 0.75rem; text-align: center; }
+      /* Sidebar & Hamburger Menu */
+      .hamburger-btn { width: 40px; height: 40px; background: transparent; border: none; padding: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; cursor: pointer; z-index: 1100; }
+      .hamburger-btn span { display: block; width: 24px; height: 2px; background-color: var(--text-primary); border-radius: 2px; transition: all 0.3s ease-in-out; }
+      .hamburger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+      .hamburger-btn.open span:nth-child(2) { opacity: 0; }
+      .hamburger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-.toast-notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background-color: #171b30;
-    color: var(--text-primary);
-    border: 1px solid var(--accent-primary);
-    border-radius: 12px;
-    padding: 1.5rem;
-    z-index: 9999;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    opacity: 0;
-    transform: translateY(-20px) scale(0.95);
-    transition: opacity 0.4s ease, transform 0.4s ease;
-    max-width: 400px;
-    cursor: pointer;
-}
-.toast-notification.show {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-}
-.toast-notification-header {
-    font-weight: 600;
-    font-size: 1.1rem;
-    margin-bottom: 0.75rem;
-    color: var(--accent-secondary);
-}
-.toast-notification p { font-size: 0.95rem; }
-
-#total-value-usd {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    line-height: 1.2;
-}
-#total-value-vnd {
-    font-size: 1.2rem;
-    color: var(--accent-secondary);
-    font-weight: 500;
-}
-
-#checkin-button:disabled, #referral-code-submit:disabled {
-    background-color: #3a3f5a !important;
-    cursor: not-allowed;
-}
-
-.task-history-item {
-    display: flex;
-    align-items: center;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--border-color);
-}
-.task-history-item:last-child {
-    border-bottom: none;
-}
-.task-history-icon {
-    font-size: 1.2rem;
-    width: 30px;
-    text-align: center;
-    margin-right: 1rem;
-    color: var(--accent-secondary);
-}
-
-/* Leaderboard Styles */
-.leaderboard-list {
-    max-width: 800px;
-    margin: auto;
-}
-.leaderboard-item {
-    display: flex;
-    align-items: center;
-    background: var(--card-color);
-    border: 1px solid var(--border-color);
-    padding: 12px 20px;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    transition: all 0.2s ease;
-}
-.leaderboard-item:hover {
-    transform: scale(1.02);
-    border-color: var(--accent-secondary);
-}
-.leaderboard-rank {
-    font-size: 1.2rem;
-    font-weight: 700;
-    width: 50px;
+      .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background: var(--bg-color); padding: 6rem 2rem 2rem; transform: translateX(-100%); transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 1050; display: flex; flex-direction: column; }
+      .sidebar.open { transform: translateX(0); box-shadow: 10px 0px 50px -20px rgba(0,0,0,0.5); }
+      .sidebar-nav { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+.sidebar-link {
+    /* Các thuộc tính hiện có của bạn */
     color: var(--text-secondary);
-    text-align: center;
-    flex-shrink: 0;
-    margin-right: 10px;
-}
-.leaderboard-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 15px;
-    border: 3px solid var(--border-color);
-    transition: all 0.3s ease;
-}
-.leaderboard-name {
-    font-weight: 600;
-    flex-grow: 1;
-    min-width: 0;
-}
-.leaderboard-exp {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--accent-secondary);
-}
-.leaderboard-item.rank-1 .rank-icon { color: var(--gold); }
-.leaderboard-item.rank-2 .rank-icon { color: var(--silver); }
-.leaderboard-item.rank-3 .rank-icon { color: var(--bronze); }
-.leaderboard-item.rank-1 .leaderboard-avatar { border-color: var(--gold); }
-.leaderboard-item.rank-2 .leaderboard-avatar { border-color: var(--silver); }
-.leaderboard-item.rank-3 .leaderboard-avatar { border-color: var(--bronze); }
-.rank-icon { font-size: 1.8rem; }
-.leaderboard-item.current-user {
-    border-color: var(--accent-primary);
-    box-shadow: 0 0 20px rgba(145, 94, 255, 0.4);
-    transform: scale(1.03);
-}
-
-/* Form Styles */
-.form-control, .form-select {
-    background-color: rgba(23, 27, 48, 0.8);
-    border-color: var(--border-color);
-    color: var(--text-primary);
-}
-.form-control:focus, .form-select:focus {
-    background-color: rgba(23, 27, 48, 1);
-    border-color: var(--accent-primary);
-    color: var(--text-primary);
-    box-shadow: 0 0 0 0.25rem rgba(145, 94, 255, 0.25);
-}
-.form-control::placeholder { color: var(--text-secondary); }
-.form-select {
-     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23915EFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
-}
-.input-group-text {
-     background-color: rgba(23, 27, 48, 0.8);
-     border-color: var(--border-color);
-     color: var(--accent-secondary);
-}
-
-/* Admin Table Styles */
-#admin-section .table {
-    --bs-table-bg: transparent;
-    --bs-table-border-color: var(--border-color);
-    --bs-table-color: var(--text-primary);
-    --bs-table-hover-bg: rgba(145, 94, 255, 0.1);
-    white-space: nowrap;
-}
-#admin-section thead th {
-    color: var(--text-secondary);
-    background-color: rgba(145, 94, 255, 0.05);
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.5px;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 2px solid var(--border-color);
-}
-#admin-section tbody tr {
-    transition: background-color 0.2s ease;
-}
-#admin-section tbody td {
-    padding: 0.75rem;
-    vertical-align: middle;
-    border-bottom: 1px solid var(--border-color);
-}
-#admin-section tbody tr:last-child td {
-    border-bottom: none;
-}
-#admin-section tbody img.table-img-preview {
-    width: 40px;
-    height: 40px;
-    border-radius: 20px;
-    border: 2px solid var(--border-color);
-    object-fit: cover;
-}
-#admin-section .text-truncate {
-    max-width: 150px;
-}
-#admin-load-more-btn {
-    border-color: var(--accent-secondary);
-    color: var(--accent-secondary);
-    font-weight: 600;
-}
-#admin-load-more-btn:hover {
-    background-color: var(--accent-secondary);
-    color: white;
-}
-/* Style for the transaction status switch in admin panel */
-#admin-user-list-container .form-check-input:checked {
-    background-color: var(--color-verified);
-    border-color: var(--color-verified);
-}
-#admin-user-list-container .form-switch .form-check-input {
-    height: 1.25em;
-    width: 2.25em;
-}
-
-/* Airdrop Page Styles */
-.airdrop-stat-card {
-    background: linear-gradient(135deg, rgba(145, 94, 255, 0.1), rgba(43, 203, 196, 0.1));
-    padding: 1.5rem;
-    border-radius: 16px;
-    text-align: center;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-.airdrop-stat-icon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    color: var(--accent-secondary);
-}
-.airdrop-stat-value {
-    font-size: 2rem;
-    font-weight: 700;
-}
-.airdrop-stat-label {
-    color: var(--text-secondary);
-}
-#airdrop-reward-card {
-    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-    color: white;
-    padding: 2rem;
-}
-#airdrop-reward-logo {
-    width: 32px;
-    height: 32px;
-    margin-left: 10px;
-    vertical-align: middle;
-}
-#airdrop-eligibility-status.eligible { color: var(--color-verified); }
-#airdrop-eligibility-status.ineligible { color: var(--color-out); }
-.airdrop-action-btn {
-    background: white;
-    color: var(--accent-primary);
-    font-weight: 700;
-    border: none;
-    padding: 10px 30px;
-    border-radius: 50px;
-    transition: all 0.3s ease;
-    width: 100%;
-    margin-top: 0.75rem;
-}
-.airdrop-action-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(255,255,255,0.3);
-}
-.airdrop-action-btn:disabled {
-    background: #ccc;
-    color: #666;
-    cursor: not-allowed;
-    transform: scale(1);
-    box-shadow: none;
-}
-
-#loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(5, 8, 22, 0.9);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    color: var(--text-secondary);
-    visibility: hidden;
-    opacity: 0;
-    transition: visibility 0s 0.3s, opacity 0.3s ease;
-}
-#loading-overlay.visible {
-    visibility: visible;
-    opacity: 1;
-    transition: opacity 0.3s ease;
-}
-
-/* ============================================= */
-/* CSS FOR PARTNER TASK - FULL-WIDTH BUTTON LAYOUT */
-/* ============================================= */
-
-/* Parent card: Now stacks items vertically (top and button) */
-.partner-task-card {
-    display: flex;
-    flex-direction: column; /* << MOST IMPORTANT CHANGE */
-    gap: 0.75rem; /* Space between the top block and the button below */
-    
-    /* Old styles remain the same */
-    background: var(--card-color);
-    border: 1px solid var(--border-color);
-    padding: 1rem;
-    border-radius: 16px;
-    transition: all 0.3s ease;
     text-decoration: none;
-    color: var(--text-primary);
-}
-.partner-task-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 25px rgba(145, 94, 255, 0.3);
-    border-color: var(--accent-primary);
-}
-.partner-task-card.mandatory {
-    border-left: 4px solid var(--gold);
-}
-.partner-task-card.completed {
-    opacity: 0.7;
-    pointer-events: none; /* Disable the entire card when completed */
-}
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 10px;
+    border-radius: 12px;
+    transition: color 0.3s, background-color 0.3s, transform 0.3s;
 
-/* Top block: Contains image and text, stacked horizontally */
-.partner-task-top {
+    /* Thêm các thuộc tính này */
     display: flex;
     align-items: center;
-    gap: 1rem;
-}
+}      .sidebar-link:hover, .sidebar-link.active { color: var(--text-primary); background-color: var(--border-color); transform: translateX(5px); }
 
-.partner-task-img {
-    width: 64px;
-    height: 64px;
-    border-radius: 12px;
-    object-fit: cover;
-    flex-shrink: 0;
-    border: 2px solid var(--border-color);
-}
+      .sidebar-wallet-connect { margin-top: auto; }
+      #custom-wallet-button { background: var(--accent-primary); color: white; border: none; padding: 10px 16px; width: 100%; border-radius: 25px; font-weight: 500; cursor: pointer; text-align: center; transition: var(--transition-smooth); }
+      #custom-wallet-button:hover { transform: scale(1.03); background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); }
 
-.partner-task-body {
-    flex-grow: 1;
-    min-width: 0;
-}
+      #wallet-dropdown { display: none; position: absolute; right: 0; bottom: calc(100% + 10px); background-color: #171b30; border: 1px solid var(--border-color); border-radius: 25px; z-index: 1056; min-width: 100%; box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
+      #wallet-dropdown a { color: var(--text-primary); padding: 12px 16px; text-decoration: none; display: block; font-size: 0.9rem; }
+      #wallet-dropdown a:hover { background-color: rgba(145, 94, 255, 0.2); }
+      #wallet-dropdown a i { margin-right: 10px; width: 15px; text-align: center; }
 
-.partner-task-title {
-    font-weight: 600;
-    font-size: 1.1rem;
-    margin: 0;
-    color: var(--text-primary);
-}
-
-.partner-task-desc {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    margin: 0.25rem 0 0.5rem;
-    white-space: normal;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-}
-.partner-task-desc.expanded {
-    -webkit-line-clamp: unset;
-}
-
-.task-details-toggle {
-    background: none;
-    border: none;
-    color: var(--accent-secondary);
-    font-size: 0.85rem;
-    font-weight: 600;
-    padding: 0;
-    cursor: pointer;
-    z-index: 2; /* Ensure this button is always clickable */
-    position: relative;
-}
-.task-details-toggle:hover {
-    text-decoration: underline;
-}
-
-/* Action button/bar below, spans 100% width */
-.partner-task-action-bar {
-    width: 100%;
-    text-align: center;
-    padding: 10px;
-    font-weight: 700;
-    border-radius: 25px;
-    background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-    color: white;
-    transition: all 0.3s ease;
-}
-
-.partner-task-card.completed .partner-task-action-bar {
-    background: rgba(46, 204, 113, 0.25);
-    color: var(--color-verified);
-}
+      .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); z-index: 1040; opacity: 0; visibility: hidden; transition: opacity 0.4s, visibility 0.4s; }
+      .sidebar-overlay.open { opacity: 1; visibility: visible; }
+      
+      /* Toast Notification */
+      .toast-notification {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background-color: #171b30;
+          color: var(--text-primary);
+          border: 1px solid var(--accent-primary);
+          border-radius: 12px;
+          padding: 1.5rem;
+          z-index: 9999;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          opacity: 0;
+          transform: translateY(-20px) scale(0.95);
+          transition: opacity 0.4s ease, transform 0.4s ease;
+          max-width: 400px;
+          cursor: pointer;
+      }
+      .toast-notification.show {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+      }
+      .toast-notification-header {
+          font-weight: 600;
+          font-size: 1.1rem;
+          margin-bottom: 0.75rem;
+          color: var(--accent-secondary);
+      }
+      .toast-notification p { font-size: 0.95rem; }
 
 
-/* Responsive Adjustments */
-@media (min-width: 768px) {
-    .hero-section h1, .login-section h1 { font-size: 3.5rem; }
-    .card-glass { padding: 2rem; }
-    .main-container { padding: 2rem; }
-}
+      /* =================================================================== */
+      /* PAGE-SPECIFIC SECTIONS
+      /* =================================================================== */
+      
+      /* App Store */
+      .app-menu-container { padding: 1rem 0; }
+      .app-filter-bar { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 2.5rem; }
+      .app-filter-btn { background-color: var(--card-color); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 20px; border-radius: 50px; cursor: pointer; font-weight: 500; transition: all 0.3s ease; }
+      .app-filter-btn:hover { color: var(--text-primary); border-color: var(--accent-secondary); transform: translateY(-3px); }
+      .app-filter-btn.active { background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white; border-color: transparent; box-shadow: 0 0 15px rgba(145, 94, 255, 0.5); }
+
+      .app-item { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; background: var(--card-color); border: 1px solid var(--border-color); border-radius: 25px; padding: 1rem; transition: var(--transition-smooth); height: 100%; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+      .app-item:hover { transform: translateY(-8px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
+      .app-item-img-wrapper { width: 64px; height: 64px; border-radius: 15px; overflow: hidden; flex-shrink: 0; transition: transform 0.3s ease; }
+      .app-item:hover .app-item-img-wrapper { transform: scale(1.1); }
+      .app-item-img { width: 100%; height: 100%; object-fit: cover; }
+      .app-item-name { display: block; font-weight: 500; font-size: 0.9rem; color: var(--text-primary); line-height: 1.3; margin-top: 0.75rem; text-align: center; }
+
+      /* Portfolio / Dashboard */
+      #total-value-usd {
+          font-size: 2.2rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          line-height: 1.2;
+      }
+      #total-value-vnd {
+          font-size: 1.2rem;
+          color: var(--accent-secondary);
+          font-weight: 500;
+      }
+
+      /* Task Section */
+      #checkin-button:disabled, #referral-code-submit:disabled {
+          background-color: #3a3f5a !important;
+          cursor: not-allowed;
+          animation: none !important;
+      }
+      #checkin-button:not(:disabled) {
+          animation: pulse 2.5s infinite ease-in-out;
+      }
+      .task-history-item {
+          display: flex;
+          align-items: center;
+          padding: 0.75rem 0;
+          border-bottom: 1px solid var(--border-color);
+          opacity: 0;
+          animation: fadeInUp 0.5s ease-out forwards;
+      }
+      .task-history-item:last-child { border-bottom: none; }
+      .task-history-icon {
+          font-size: 1.2rem;
+          width: 30px;
+          text-align: center;
+          margin-right: 1rem;
+          color: var(--accent-secondary);
+      }
+
+      /* Leaderboard Styles */
+      .leaderboard-list { max-width: 800px; margin: auto; }
+      .leaderboard-item {
+          display: flex;
+          align-items: center;
+          background: var(--card-color);
+          border: 1px solid var(--border-color);
+          padding: 12px 20px;
+          border-radius: 12px;
+          margin-bottom: 10px;
+          transition: var(--transition-smooth);
+          opacity: 0; /* Initially hidden for animation */
+          animation: fadeInUp 0.5s ease-out forwards;
+      }
+      /* Staggered animation for leaderboard items */
+      .leaderboard-item:nth-child(1) { animation-delay: 0.1s; }
+      .leaderboard-item:nth-child(2) { animation-delay: 0.15s; }
+      .leaderboard-item:nth-child(3) { animation-delay: 0.2s; }
+      .leaderboard-item:nth-child(4) { animation-delay: 0.25s; }
+      .leaderboard-item:nth-child(5) { animation-delay: 0.3s; }
+      .leaderboard-item:nth-child(6) { animation-delay: 0.35s; }
+      .leaderboard-item:nth-child(7) { animation-delay: 0.4s; }
+
+      .leaderboard-item:hover {
+          transform: scale(1.03);
+          border-color: var(--accent-secondary);
+          box-shadow: 0 0 20px rgba(43, 203, 196, 0.3);
+      }
+      .leaderboard-rank {
+          font-size: 1.2rem;
+          font-weight: 700;
+          width: 50px;
+          color: var(--text-secondary);
+          text-align: center;
+          flex-shrink: 0;
+          margin-right: 10px;
+      }
+      .leaderboard-avatar {
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          object-fit: cover;
+          margin-right: 15px;
+          border: 3px solid var(--border-color);
+          transition: all 0.3s ease;
+      }
+      .leaderboard-name { font-weight: 600; flex-grow: 1; min-width: 0; }
+      .leaderboard-exp {
+          font-size: 1.1rem;
+          font-weight: 700;
+          color: var(--accent-secondary);
+      }
+      .leaderboard-item.rank-1 .rank-icon, .leaderboard-item.rank-1 .leaderboard-avatar { color: var(--gold); border-color: var(--gold); }
+      .leaderboard-item.rank-2 .rank-icon, .leaderboard-item.rank-2 .leaderboard-avatar { color: var(--silver); border-color: var(--silver); }
+      .leaderboard-item.rank-3 .rank-icon, .leaderboard-item.rank-3 .leaderboard-avatar { color: var(--bronze); border-color: var(--bronze); }
+      .rank-icon { font-size: 1.8rem; }
+      .leaderboard-item.current-user {
+          border-color: var(--accent-primary);
+          box-shadow: 0 0 20px rgba(145, 94, 255, 0.4);
+          transform: scale(1.03);
+      }
+
+      /* Form Styles */
+      .form-control, .form-select {
+          background-color: rgba(23, 27, 48, 0.8);
+          border-color: var(--border-color);
+          color: var(--text-primary);
+          transition: var(--transition-smooth);
+      }
+      .form-control:focus, .form-select:focus {
+          background-color: rgba(23, 27, 48, 1);
+          border-color: var(--accent-primary);
+          color: var(--text-primary);
+          box-shadow: 0 0 0 0.25rem rgba(145, 94, 255, 0.25);
+      }
+      .form-control::placeholder { color: var(--text-secondary); }
+      .form-select { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23915EFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e"); }
+      .input-group-text {
+          background-color: rgba(23, 27, 48, 0.8);
+          border-color: var(--border-color);
+          color: var(--accent-secondary);
+      }
+
+      /* Admin Panel */
+      #admin-section .table {
+          --bs-table-bg: transparent;
+          --bs-table-border-color: var(--border-color);
+          --bs-table-color: var(--text-primary);
+          --bs-table-hover-bg: rgba(145, 94, 255, 0.1);
+          white-space: nowrap;
+      }
+      #admin-section thead th {
+          color: var(--text-secondary);
+          background-color: rgba(145, 94, 255, 0.05);
+          text-transform: uppercase;
+          font-size: 0.75rem;
+          letter-spacing: 0.5px;
+          padding-top: 0.75rem;
+          padding-bottom: 0.75rem;
+          border-bottom: 2px solid var(--border-color);
+      }
+      #admin-section tbody tr { transition: background-color 0.2s ease; }
+      #admin-section tbody td { padding: 0.75rem; vertical-align: middle; border-bottom: 1px solid var(--border-color); }
+      #admin-section tbody tr:last-child td { border-bottom: none; }
+      #admin-section tbody img.table-img-preview {
+          width: 40px;
+          height: 40px;
+          border-radius: 20px;
+          border: 2px solid var(--border-color);
+          object-fit: cover;
+      }
+      #admin-section .text-truncate { max-width: 150px; }
+      #admin-load-more-btn {
+          border-color: var(--accent-secondary);
+          color: var(--accent-secondary);
+          font-weight: 600;
+          transition: var(--transition-smooth);
+      }
+      #admin-load-more-btn:hover { background-color: var(--accent-secondary); color: white; transform: scale(1.05); }
+      #admin-user-list-container .form-check-input:checked { background-color: var(--color-verified); border-color: var(--color-verified); }
+      #admin-user-list-container .form-switch .form-check-input { height: 1.25em; width: 2.25em; }
+
+      /* Airdrop Page */
+      .airdrop-stat-card {
+          background: linear-gradient(135deg, rgba(145, 94, 255, 0.1), rgba(43, 203, 196, 0.1));
+          padding: 1.5rem;
+          border-radius: 16px;
+          text-align: center;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          transition: var(--transition-smooth);
+      }
+      .airdrop-stat-card:hover { transform: translateY(-5px); }
+      .airdrop-stat-icon { font-size: 2.5rem; margin-bottom: 1rem; color: var(--accent-secondary); transition: transform 0.3s ease; }
+      .airdrop-stat-card:hover .airdrop-stat-icon { transform: scale(1.1); }
+      .airdrop-stat-value { font-size: 2rem; font-weight: 700; }
+      .airdrop-stat-label { color: var(--text-secondary); }
+      #airdrop-reward-card {
+          background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+          color: white;
+          padding: 2rem;
+          transform: scale(1);
+          transition: transform 0.4s ease, box-shadow 0.4s ease;
+      }
+      #airdrop-reward-card:hover {
+          transform: scale(1.03);
+          box-shadow: 0 10px 40px rgba(145, 94, 255, 0.4);
+      }
+      #airdrop-reward-logo { width: 32px; height: 32px; margin-left: 10px; vertical-align: middle; }
+      #airdrop-eligibility-status.eligible { color: var(--color-verified); }
+      #airdrop-eligibility-status.ineligible { color: var(--color-out); }
+      .airdrop-action-btn {
+          background: white;
+          color: var(--accent-primary);
+          font-weight: 700;
+          border: none;
+          padding: 10px 30px;
+          border-radius: 50px;
+          transition: all 0.3s ease;
+          width: 100%;
+          margin-top: 0.75rem;
+      }
+      .airdrop-action-btn:hover {
+          transform: scale(1.05);
+          box-shadow: 0 0 20px rgba(255,255,255,0.3);
+      }
+      .airdrop-action-btn:disabled {
+          background: #ccc;
+          color: #666;
+          cursor: not-allowed;
+          transform: scale(1);
+          box-shadow: none;
+      }
+
+      /* Loading Overlay */
+      #loading-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(5, 8, 22, 0.9);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          z-index: 9999;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          flex-direction: column;
+          color: var(--text-secondary);
+          visibility: hidden;
+          opacity: 0;
+          transition: visibility 0s 0.3s, opacity 0.3s ease;
+      }
+      #loading-overlay.visible {
+          visibility: visible;
+          opacity: 1;
+          transition: opacity 0.3s ease;
+      }
+      #loading-overlay .spinner-border {
+          animation: spin 1s linear infinite; /* Use custom spin */
+      }
 
 
+      /* Partner Task Card */
+      .partner-task-card {
+          display: flex;
+          flex-direction: column; 
+          gap: 0.75rem; 
+          background: var(--card-color);
+          border: 1px solid var(--border-color);
+          padding: 1rem;
+          border-radius: 16px;
+          transition: var(--transition-smooth);
+          text-decoration: none;
+          color: var(--text-primary);
+          opacity: 0;
+          animation: fadeInUp 0.5s ease-out forwards;
+      }
+      .partner-task-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 0 25px rgba(145, 94, 255, 0.3);
+          border-color: var(--accent-primary);
+      }
+      .partner-task-card.mandatory { border-left: 4px solid var(--gold); }
+      .partner-task-card.completed {
+          opacity: 0.7;
+          pointer-events: none;
+          background: linear-gradient(45deg, rgba(46, 204, 113, 0.05), rgba(46, 204, 113, 0.15));
+      }
 
-        /* =================================================================== */
-/* [PHIÊN BẢN CUỐI CÙNG] CSS ĐIỀU CHỈNH SAFE AREA CHO TẤT CẢ PHẦN TỬ */
-/* =================================================================== */
+      .partner-task-top { display: flex; align-items: center; gap: 1rem; }
+      .partner-task-img {
+          width: 64px;
+          height: 64px;
+          border-radius: 12px;
+          object-fit: cover;
+          flex-shrink: 0;
+          border: 2px solid var(--border-color);
+      }
+      .partner-task-body { flex-grow: 1; min-width: 0; }
+      .partner-task-title { font-weight: 600; font-size: 1.1rem; margin: 0; color: var(--text-primary); }
+      .partner-task-desc {
+          color: var(--text-secondary);
+          font-size: 0.9rem;
+          margin: 0.25rem 0 0.5rem;
+          white-space: normal;
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          transition: all 0.3s ease-in-out;
+      }
+      .partner-task-desc.expanded { -webkit-line-clamp: 10; max-height: 200px; }
+      .task-details-toggle {
+          background: none;
+          border: none;
+          color: var(--accent-secondary);
+          font-size: 0.85rem;
+          font-weight: 600;
+          padding: 0;
+          cursor: pointer;
+          z-index: 2;
+          position: relative;
+      }
+      .task-details-toggle:hover { text-decoration: underline; }
+      .partner-task-action-bar {
+          width: 100%;
+          text-align: center;
+          padding: 10px;
+          font-weight: 700;
+          border-radius: 25px;
+          background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+          color: white;
+          transition: all 0.3s ease;
+      }
+      .partner-task-card:not(.completed):hover .partner-task-action-bar {
+          transform: scale(1.03);
+          box-shadow: 0 0 15px rgba(145, 94, 255, 0.5);
+      }
+      .partner-task-card.completed .partner-task-action-bar {
+          background: rgba(46, 204, 113, 0.25);
+          color: var(--color-verified);
+      }
 
-/*
-  PHẦN 1: Áp dụng PADDING cho các container nội dung chính và lớp phủ.
-  - .main-container: Nội dung các trang.
-  - #loading-overlay: Màn hình chờ.
-*/
-.platform-ios .main-container,
-.platform-ios #loading-overlay {
-    padding-top: 90px !important;
-}
 
-.platform-android .main-container,
-.platform-android #loading-overlay {
-    padding-top: 65px !important;
-}
+      /* Responsive & Platform-Specific */
+      @media (min-width: 768px) {
+          .hero-section h1, .login-section h1 { font-size: 3.5rem; }
+          .card-glass { padding: 2rem; }
+          .main-container { padding: 2rem; }
+      }
+      
+      .platform-ios .main-container,
+      .platform-ios #loading-overlay { padding-top: 90px !important; }
 
-/*
-  PHẦN 2: Điều chỉnh VỊ TRÍ cho các phần tử cố định đặc biệt.
-  - .toast-notification: Thông báo nhanh ở góc.
-*/
-.platform-ios .toast-notification {
-    top: 9090px !important;
-}
+      .platform-android .main-container,
+      .platform-android #loading-overlay { padding-top: 65px !important; }
 
-.platform-android .toast-notification {
-    top: 65px !important;
-}
-
-/*
-  PHẦN 3: SỬA LỖI CHO SIDEBAR - THEO YÊU CẦU.
-  Giữ nguyên background của sidebar (top: 0),
-  chỉ đẩy NỘI DUNG BÊN TRONG nó xuống bằng padding-top.
-*/
-.platform-ios #sidebar-menu {
-    /* Đây là giá trị bạn yêu cầu, nó sẽ ghi đè lên padding-top: 6rem gốc */
-    padding-top: 150px !important; 
-}
-
-.platform-android #sidebar-menu {
-    /* Giữ giá trị an toàn cho Android */
-    padding-top: 140px !important;
-}
+      .platform-ios .toast-notification { top: 90px !important; }
+      .platform-android .toast-notification { top: 65px !important; }
+      
+      .platform-ios #sidebar-menu { padding-top: 150px !important; }
+      .platform-android #sidebar-menu { padding-top: 140px !important; }
     </style>
 </head>
 <body>
-<div id="loading-overlay">
-    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-    <p class="mt-3">Please wait...</p>
-</div>
-
-<div id="sidebar-overlay"></div>
-<nav id="sidebar-menu" class="sidebar">
-    <div class="sidebar-nav">
-        <a href="#dashboard" class="sidebar-link active" id="nav-dashboard">Wallet</a>
-        <a href="#apps" class="sidebar-link" id="nav-apps">Apps</a>
-        <a href="#transfer" class="sidebar-link" id="nav-transfer">Send/Receive</a>
-        <a href="#task" class="sidebar-link" id="nav-task">History</a>
-        <a href="#partner" class="sidebar-link" id="nav-partner">Tasks</a>
-        <a href="#referral" class="sidebar-link" id="nav-referral">Referral</a>
-        <a href="#airdrop" class="sidebar-link" id="nav-airdrop">Airdrop</a>
-        <a href="#leaderboard" class="sidebar-link" id="nav-leaderboard">Leaderboard</a>
-        <a href="#account" class="sidebar-link" id="nav-account">Account</a>
-        <a href="#admin" class="sidebar-link" id="nav-admin" style="display: none;">Admin</a>
+    <!-- The rest of your HTML body remains exactly the same. -->
+    <div id="loading-overlay">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3">Please wait...</p>
     </div>
     
-    <div class="sidebar-wallet-connect">
-        <div class="position-relative">
-            <div id="ton-connect-button-root"></div>
-            <div id="custom-wallet-button-container" style="display: none;">
-                <button id="custom-wallet-button"></button>
-                <div id="wallet-dropdown">
-                    <a href="#" id="my-account-btn" target="_blank" rel="noopener noreferrer"><i class="fas fa-user-circle"></i><span>My Account</span></a>
-                    <a href="#" id="copy-address-btn"><i class="fas fa-copy"></i><span>Copy Address</span></a>
-                    <a href="#" id="disconnect-wallet-btn"><i class="fas fa-unlink"></i><span>Disconnect Wallet</span></a>
+    <div id="sidebar-overlay"></div>
+    <nav id="sidebar-menu" class="sidebar">
+<div class="sidebar-nav">
+    <a href="#dashboard" class="sidebar-link active" id="nav-dashboard">
+        <i class="fas fa-wallet fa-fw me-3"></i>Wallet
+    </a>
+    <a href="#apps" class="sidebar-link" id="nav-apps">
+        <i class="fas fa-th-large fa-fw me-3"></i>Apps
+    </a>
+    <a href="#task" class="sidebar-link" id="nav-task">
+        <i class="fas fa-history fa-fw me-3"></i>History
+    </a>
+    <a href="#partner" class="sidebar-link" id="nav-partner">
+        <i class="fas fa-list-check fa-fw me-3"></i>Tasks
+    </a>
+    <a href="#referral" class="sidebar-link" id="nav-referral">
+        <i class="fas fa-users fa-fw me-3"></i>Referral
+    </a>
+    <a href="#airdrop" class="sidebar-link" id="nav-airdrop">
+        <i class="fas fa-parachute-box fa-fw me-3"></i>Airdrop
+    </a>
+    <a href="#leaderboard" class="sidebar-link" id="nav-leaderboard">
+        <i class="fas fa-trophy fa-fw me-3"></i>Leaderboard
+    </a>
+    <a href="#account" class="sidebar-link" id="nav-account">
+        <i class="fas fa-user-circle fa-fw me-3"></i>Account
+    </a>
+    <a href="#admin" class="sidebar-link" id="nav-admin" style="display: none;">
+        <i class="fas fa-user-shield fa-fw me-3"></i>Admin
+    </a>
+</div>
+        
+        <div class="sidebar-wallet-connect">
+            <div class="position-relative">
+                <div id="ton-connect-button-root"></div>
+                <div id="custom-wallet-button-container" style="display: none;">
+                    <button id="custom-wallet-button"></button>
+                    <div id="wallet-dropdown">
+                        <a href="#" id="my-account-btn" target="_blank" rel="noopener noreferrer"><i class="fas fa-user-circle"></i><span>My Account</span></a>
+                        <a href="#" id="copy-address-btn"><i class="fas fa-copy"></i><span>Copy Address</span></a>
+                        <a href="#" id="disconnect-wallet-btn"><i class="fas fa-unlink"></i><span>Disconnect Wallet</span></a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</nav>
-
-<div class="main-container">
-    <header class="header">
-        <a href="#" class="header-logo" id="app-logo-container">
-            <img id="app-logo-img" src="https://bmass.vercel.app/img/bmasslogo.png" alt="App Logo">
-            <span id="app-logo-text"></span>
-        </a>
-        <div class="d-flex align-items-center gap-3">
-            <div id="header-exp-display" class="d-none" style="color: var(--accent-secondary); font-weight: 600;">
-                EXP: <span id="header-exp-balance">0</span>
+    </nav>
+    
+    <div class="main-container">
+        <header class="header">
+            <a href="#" class="header-logo" id="app-logo-container">
+                <img id="app-logo-img" src="https://bmass.vercel.app/img/bmasslogo.png" alt="App Logo">
+                <span id="app-logo-text"></span>
+            </a>
+            <div class="d-flex align-items-center gap-3">
+                <div id="header-exp-display" class="d-none" style="color: var(--accent-secondary); font-weight: 600;">
+                    EXP: <span id="header-exp-balance">0</span>
+                </div>
+                <button id="hamburger-menu-btn" class="hamburger-btn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
-            <button id="hamburger-menu-btn" class="hamburger-btn">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-        </div>
-    </header>
+        </header>
         
         <main id="account-section" style="display: none;">
             <div class="container">
@@ -822,95 +925,6 @@ body {
                 </div>
             </div>
         </main>
-   <main id="transfer-section" style="display: none;">
-        <div class="container">
-            <div class="text-center mb-5">
-                <h1 class="mb-2" style="font-weight: 700;">Transfer EXP</h1>
-                <p class="lead text-secondary col-md-8 mx-auto">Send and receive EXP with other users instantly.</p>
-            </div>
-
-            <!-- NEW: "Coming Soon" / Disabled Container -->
-            <div id="transfer-coming-soon" style="display: none;" class="text-center p-5 card-glass col-md-8 mx-auto">
-                <i class="fas fa-toggle-off fa-3x text-secondary mb-3"></i>
-                <h2 class="mb-2" style="font-weight: 700;">Feature Not Available</h2>
-                <p class="lead text-secondary">The EXP transfer feature is currently disabled by the administrator. Please check back later.</p>
-            </div>
-
-            <!-- Main Content Wrapper (shown when feature is enabled) -->
-            <div id="transfer-content-wrapper" style="display: none;">
-                <div class="row justify-content-center">
-                    <div class="col-12 col-md-10 col-lg-8">
-                        <div class="card-glass">
-                            <ul class="nav nav-tabs" id="transferTab" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="send-tab" data-bs-toggle="tab" data-bs-target="#send-pane" type="button" role="tab"><i class="fas fa-paper-plane me-2"></i>Send</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="receive-tab" data-bs-toggle="tab" data-bs-target="#receive-pane" type="button" role="tab"><i class="fas fa-qrcode me-2"></i>Receive</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="transfer-history-tab" data-bs-toggle="tab" data-bs-target="#transfer-history-pane" type="button" role="tab"><i class="fas fa-history me-2"></i>History</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="live-feed-tab" data-bs-toggle="tab" data-bs-target="#live-feed-pane" type="button" role="tab"><i class="fas fa-broadcast-tower me-2"></i>Live</button>
-                                </li>
-                            </ul>
-                            <div class="tab-content pt-4" id="transfer-tab-content">
-                                <!-- Send Pane -->
-                                <div class="tab-pane fade show active" id="send-pane" role="tabpanel">
-                                    <form id="send-exp-form">
-                                        <!-- Asset Selection Removed -->
-                                        <div class="mb-3">
-                                            <label for="send-recipient-type" class="form-label">Recipient ID Type</label>
-                                            <select class="form-select" id="send-recipient-type">
-                                                <option value="address" selected>Wallet Address</option>
-                                                <option value="uid">Telegram UID</option>
-                                            </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="send-recipient-value" class="form-label">Recipient ID</label>
-                                            <input type="text" class="form-control" id="send-recipient-value" placeholder="Paste Address or UID..." required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="send-amount" class="form-label">Amount</label>
-                                            <div class="input-group">
-                                                <input type="number" class="form-control" id="send-amount" placeholder="e.g., 100" required min="1">
-                                                <span class="input-group-text">EXP</span>
-                                            </div>
-                                            <div class="form-text">Your balance: <span id="send-form-balance" class="fw-bold">0 EXP</span></div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="send-memo" class="form-label">Recipient's Memo</label>
-                                            <input type="text" class="form-control" id="send-memo" placeholder="Enter recipient's unique memo" required>
-                                            <div class="form-text text-warning"><i class="fas fa-exclamation-triangle me-1"></i> <strong>Crucial:</strong> Incorrect memo will result in loss of funds.</div>
-                                        </div>
-                                        <div class="d-grid">
-                                            <button type="submit" id="send-exp-submit-btn" class="btn btn-lg" style="background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white;">
-                                                <i class="fas fa-paper-plane me-2"></i>Send Now
-                                            </button>
-                                        </div>
-                                        <div id="send-exp-status" class="mt-3 text-center fw-bold"></div>
-                                    </form>
-                                </div>
-                                <!-- Receive Pane -->
-                                <div class="tab-pane fade" id="receive-pane" role="tabpanel">
-                                    <!-- Receive Pane Content không đổi -->
-                                </div>
-                                <!-- History Pane -->
-                                <div class="tab-pane fade" id="transfer-history-pane" role="tabpanel" style="max-height: 400px; overflow-y: auto; padding-right:10px;">
-                                    <!-- History will be rendered here -->
-                                </div>
-                                 <!-- Live Feed Pane -->
-                                <div class="tab-pane fade" id="live-feed-pane" role="tabpanel" style="max-height: 400px; overflow-y: auto; padding-right:10px;">
-                                    <!-- Live feed will be rendered here -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
 
         <main id="task-section" style="display: none;">
             <div class="container">
@@ -1133,57 +1147,6 @@ body {
                 </div>
                 <div class="row justify-content-center g-4">
                     <!-- ============================================= -->
-                    <!-- NEW: FEATURE TOGGLES PANEL                    -->
-                    <!-- ============================================= -->
-                     <div class="col-12 col-lg-10 col-xl-8">
-                        <div class="card-glass">
-                            <h5 class="card-title">Feature Toggles</h5>
-                            <div id="admin-main-settings-form">
-                                <div class="form-check form-switch fs-5 mb-2">
-                                    <input class="form-check-input" type="checkbox" role="switch" id="exp-transfer-enabled-switch">
-                                    <label class="form-check-label" for="exp-transfer-enabled-switch">Enable EXP Send/Receive</label>
-                                </div>
-                                <div class="form-check form-switch fs-5 mb-3">
-                                    <input class="form-check-input" type="checkbox" role="switch" id="bmass-transfer-enabled-switch">
-                                    <label class="form-check-label" for="bmass-transfer-enabled-switch">Enable $BMASS Send/Receive</label>
-                                </div>
-                                <hr style="border-color: var(--border-color); opacity: 0.5;">
-                                <h6 class="text-secondary text-uppercase mt-3 mb-3">Airdrop Control</h6>
-                                <div class="row text-center g-3 mb-4">
-                                    <div class="col-6 col-sm-3">
-                                        <div class="form-check form-switch fs-5 d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="airdrop-live-switch">
-                                            <label class="form-check-label" for="airdrop-live-switch">Live</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-sm-3">
-                                        <div class="form-check form-switch fs-5 d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="confirmation-enabled-switch">
-                                            <label class="form-check-label" for="confirmation-enabled-switch">Xác nhận</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-sm-3">
-                                        <div class="form-check form-switch fs-5 d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="claim-enabled-switch">
-                                            <label class="form-check-label" for="claim-enabled-switch">Yêu cầu</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-sm-3">
-                                        <div class="form-check form-switch fs-5 d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="snapshot-active-switch">
-                                            <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snap</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-grid">
-                                    <button type="button" id="save-main-settings-btn" class="btn btn-primary mt-3">Save All Settings</button>
-                                </div>
-                                <div id="main-settings-status" class="mt-3 text-center fw-bold"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ============================================= -->
                     <!-- NEW: TELEGRAM BULK MESSENGER PANEL            -->
                     <!-- ============================================= -->
                      <div class="col-12 col-lg-10 col-xl-8">
@@ -1288,9 +1251,37 @@ body {
 
                      <div class="col-12 col-lg-10 col-xl-8">
                         <div class="card-glass">
-                            <h5 class="card-title">Cấu hình & Xuất dữ liệu Airdrop</h5>
+                            <h5 class="card-title">Cấu hình Airdrop & Xuất dữ liệu</h5>
                             <div id="admin-airdrop-settings-form">
-                                
+                                <div class="row text-center g-3 mb-4">
+                                    <div class="col-6 col-sm-3">
+                                        <div class="form-check form-switch fs-5 d-inline-block">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="airdrop-live-switch">
+                                            <label class="form-check-label" for="airdrop-live-switch">Live</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-sm-3">
+                                        <div class="form-check form-switch fs-5 d-inline-block">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="confirmation-enabled-switch">
+                                            <label class="form-check-label" for="confirmation-enabled-switch">Xác nhận</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-sm-3">
+                                        <div class="form-check form-switch fs-5 d-inline-block">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="claim-enabled-switch">
+                                            <label class="form-check-label" for="claim-enabled-switch">Yêu cầu</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-sm-3">
+                                        <div class="form-check form-switch fs-5 d-inline-block">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="snapshot-active-switch">
+                                            <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snap</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <hr style="border-color: var(--border-color); opacity: 0.5;">
                                 <h6 class="text-secondary text-center my-3">CÔNG THỨC TÍNH ĐIỂM</h6>
                                 <div class="row g-3 mb-4">
                                      <div class="col-md-4">
@@ -1324,11 +1315,11 @@ body {
                                     </div>
                                 </div>
                                 <div class="mt-3">
-                                     <label class="form-label fw-bold" style="color: var(--gold);">ĐIỀU KIỆN NHIỆM VỤ BẮT BUỘC (Tự động áp dụng)</label>
+                                     <label for="min-exp-input" class="form-label fw-bold" style="color: var(--gold);">ĐIỀU KIỆN NHIỆM VỤ BẮT BUỘC (Tự động áp dụng)</label>
                                 </div>
                                 <div id="admin-settings-status" class="mt-3"></div>
                                 <div class="d-flex gap-3 mt-3">
-                                    <button type="button" id="save-airdrop-criteria-btn" class="btn w-100" style="background-color: var(--accent-secondary); color: white;">Lưu Tiêu chí</button>
+                                    <button type="button" id="save-settings-btn" class="btn w-100" style="background-color: var(--accent-secondary); color: white;">Lưu Cài Đặt</button>
                                     <button type="button" id="export-csv-btn" class="btn btn-outline-light w-100">Xuất File Excel (CSV)</button>
                                 </div>
                             </div>
@@ -1566,7 +1557,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarOverlay = document.getElementById('sidebar-overlay');
     const navDashboard = document.getElementById('nav-dashboard');
     const navApps = document.getElementById('nav-apps');
-    const navTransfer = document.getElementById('nav-transfer');
     const navTask = document.getElementById('nav-task');
     const navPartner = document.getElementById('nav-partner');
     const navReferral = document.getElementById('nav-referral');
@@ -1592,7 +1582,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminSectionEl = document.getElementById('admin-section');
     const referralSectionEl = document.getElementById('referral-section');
     const airdropSectionEl = document.getElementById('airdrop-section');
-    const transferSectionEl = document.getElementById('transfer-section');
     const appGrid = document.getElementById('app-grid');
     const appSearchInput = document.getElementById('app-search-input');
     const appSearchButton = document.getElementById('app-search-button');
@@ -1625,13 +1614,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const referralInputContainerHero = document.getElementById('referral-input-container-hero');
     const referralCodeInputHero = document.getElementById('referral-code-input-hero');
     const referralCodeSubmitHero = document.getElementById('referral-code-submit-hero');
-    const saveMainSettingsBtn = document.getElementById('save-main-settings-btn');
-    const saveAirdropCriteriaBtn = document.getElementById('save-airdrop-criteria-btn');
+    const saveSettingsBtn = document.getElementById('save-settings-btn');
     const exportCsvBtn = document.getElementById('export-csv-btn');
     const adminSettingsStatusEl = document.getElementById('admin-settings-status');
     const contactAdminBtn = document.getElementById('contact-admin-btn');
     const contactAdminModal = new bootstrap.Modal(document.getElementById('contactAdminModal'));
-    const sendExpForm = document.getElementById('send-exp-form');
     
     // Mass Award Form Elements
     const adminMassAwardForm = document.getElementById('admin-mass-award-form');
@@ -1662,11 +1649,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let telegramUserData = null;
     let connectedWalletAddress = null; // Raw address from wallet
     let currentUserData = null; // Full user profile from Firestore
-    let mainSettings = null; // Will hold all admin settings
+    let airdropSettings = null; // Will hold all airdrop settings from admin
     let lastFetchedAddress = null;
     let currentActivityLogs = [];
     let activityRefreshInterval = null;
-    let liveFeedListener = null; // To unsubscribe from the live feed listener
     const addressCache = {};
     let searchTimeout;
     let db = null;
@@ -1818,7 +1804,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 username: telegramUserData ? (telegramUserData.username || `user${telegramUserData.id}`) : null,
                 fullName: telegramUserData ? `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim() : null,
                 photoUrl: telegramUserData ? (telegramUserData.photo_url || DEFAULT_LOGO_SRC) : null,
-                transferMemo: `bmass-${telegramUserData ? telegramUserData.id : address.slice(-8)}`
             };
             await userRef.set(newUser);
             currentUserData = newUser;
@@ -1860,12 +1845,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof userData.hasRequestedAirdrop === 'undefined') { updates.hasRequestedAirdrop = false; }
             if (typeof userData.hasSentConfirmationTx === 'undefined') { updates.hasSentConfirmationTx = false; }
             if (typeof userData.partnerTasksCompletedCount === 'undefined') { updates.partnerTasksCompletedCount = 0; }
-            if (typeof userData.transferMemo === 'undefined') { 
-                updates.transferMemo = `bmass-${userData.telegramId ? userData.telegramId : userData.address.slice(-8)}`;
-            }
 
             if (Object.keys(updates).length > 0) {
-                 console.log(`Updating existing user profile:`, updates);
+                 console.log(`Updating existing user profile with Telegram data:`, updates);
                  await userRef.update(updates);
                  userData = { ...userData, ...updates };
             }
@@ -1877,7 +1859,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     async function applyReferral(referrerCode, newAddress) {
-        if (mainSettings?.isSnapshotActive) {
+        if (airdropSettings?.isSnapshotActive) {
             showAppToast('Halted', 'Point-earning activities are paused due to the snapshot.', 'warning');
             return;
         }
@@ -1975,14 +1957,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
      function updateExpBalances(newExp) {
-        taskExpBalanceEl.textContent = newExp.toLocaleString();
-        headerExpBalanceEl.textContent = newExp.toLocaleString();
+        taskExpBalanceEl.textContent = newExp;
+        headerExpBalanceEl.textContent = newExp;
     }
 
     function updateCheckinUI(userData) {
         if (!userData) return;
 
-        if (mainSettings?.isSnapshotActive) {
+        if (airdropSettings?.isSnapshotActive) {
             checkinButton.disabled = true;
             checkinButton.innerHTML = `<i class="fas fa-pause-circle me-2"></i>Snapshot Taken`;
             if (checkinInterval) clearInterval(checkinInterval);
@@ -2021,7 +2003,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function handleCheckin() {
-        if (mainSettings?.isSnapshotActive) {
+        if (airdropSettings?.isSnapshotActive) {
             showAppToast('Halted', 'Point-earning activities are paused due to the snapshot.', 'warning');
             return;
         }
@@ -2091,7 +2073,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             let historyHtml = '';
-            snapshot.forEach(doc => {
+            snapshot.forEach((doc, index) => {
                 const item = doc.data();
                 const date = item.timestamp ? item.timestamp.toDate().toLocaleString('en-US') : 'N/A';
                 
@@ -2107,11 +2089,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const expAmount = item.exp;
                 const expClass = expAmount >= 0 ? 'amount-in' : 'amount-out';
                 const expSign = expAmount > 0 ? '+' : '';
-                const expDisplay = `<strong class="${expClass}">${expSign}${expAmount.toLocaleString()} EXP</strong>`;
+                const expDisplay = `<strong class="${expClass}">${expSign}${expAmount} EXP</strong>`;
                 const taskTitle = item.taskName === 'Partner Task' ? `${item.taskName}: ${item.projectName}` : item.taskName;
 
                 historyHtml += `
-                    <div class="task-history-item">
+                    <div class="task-history-item" style="animation-delay: ${index * 50}ms">
                         <i class="fas ${iconClass} task-history-icon" style="color: ${expAmount < 0 ? 'var(--color-out)' : 'var(--accent-secondary)'};"></i>
                         <div class="flex-grow-1">
                             <p class="m-0 fw-bold">${taskTitle}</p>
@@ -2381,7 +2363,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleAdminExpUpdate(e) {
         e.preventDefault();
-        if (mainSettings?.isSnapshotActive) {
+        if (airdropSettings?.isSnapshotActive) {
             showAppToast('Đã dừng', 'Không thể chỉnh sửa EXP sau khi Snapshot.', 'error');
             return;
         }
@@ -2451,7 +2433,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleMassAward(e) {
         e.preventDefault();
         if (!db) { showAppToast('Lỗi', 'Chưa kết nối cơ sở dữ liệu.', 'error'); return; }
-        if (mainSettings?.isSnapshotActive) {
+        if (airdropSettings?.isSnapshotActive) {
             showAppToast('Đã dừng', 'Không thể thưởng EXP sau khi Snapshot.', 'error');
             return;
         }
@@ -2605,45 +2587,72 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    // =============================================
+    // NEW: TELEGRAM BULK SENDER FUNCTION
+    // =============================================
     async function sendBulkTelegramMessage() {
+        // Helper function for delay
         const delay = ms => new Promise(res => setTimeout(res, ms));
 
+        // 1. Get Inputs from Form
         const apiToken = document.getElementById('telegram-api-token-input').value.trim();
         const text = document.getElementById('telegram-message-text-input').value.trim();
         const imageUrl = document.getElementById('telegram-image-url-input').value.trim();
         const buttonText = document.getElementById('telegram-button-text-input').value.trim();
         const buttonUrl = document.getElementById('telegram-button-url-input').value.trim();
         
-        if (!apiToken) { showAppToast('Lỗi', 'Vui lòng nhập API Token của bot.', 'error'); return; }
-        if (!text && !imageUrl) { showAppToast('Lỗi', 'Vui lòng nhập văn bản tin nhắn hoặc URL hình ảnh.', 'error'); return; }
-        if ((buttonText && !buttonUrl) || (!buttonText && buttonUrl)) { showAppToast('Lỗi', 'Để tạo nút, vui lòng nhập cả Văn bản và URL cho nút.', 'warning'); return; }
-        if (!confirm("CẢNH BÁO: Bạn sắp gửi tin nhắn này cho TẤT CẢ người dùng có UID trong hệ thống. Hành động này KHÔNG THỂ hoàn tác và có thể mất nhiều thời gian. Bạn có chắc chắn muốn tiếp tục?")) return;
+        // 2. Validation
+        if (!apiToken) {
+            showAppToast('Lỗi', 'Vui lòng nhập API Token của bot.', 'error');
+            return;
+        }
+        if (!text && !imageUrl) {
+            showAppToast('Lỗi', 'Vui lòng nhập văn bản tin nhắn hoặc URL hình ảnh.', 'error');
+            return;
+        }
+        if ((buttonText && !buttonUrl) || (!buttonText && buttonUrl)) {
+            showAppToast('Lỗi', 'Để tạo nút, vui lòng nhập cả Văn bản và URL cho nút.', 'warning');
+            return;
+        }
+        
+        // 3. Confirmation
+        if (!confirm("CẢNH BÁO: Bạn sắp gửi tin nhắn này cho TẤT CẢ người dùng có UID trong hệ thống. Hành động này KHÔNG THỂ hoàn tác và có thể mất nhiều thời gian. Bạn có chắc chắn muốn tiếp tục?")) {
+            return;
+        }
 
+        // 4. Start Process & UI Feedback
         sendBulkTelegramMessageBtn.disabled = true;
         telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lấy danh sách người dùng từ cơ sở dữ liệu...`;
 
         try {
+            // 5. Fetch all users from Firestore
             const allUsers = [];
             let lastVisible = null;
             while (true) {
                 let query = db.collection('users').orderBy(firebase.firestore.FieldPath.documentId()).limit(FIRESTORE_FETCH_BATCH_SIZE);
-                if (lastVisible) query = query.startAfter(lastVisible);
-                
+                if (lastVisible) {
+                    query = query.startAfter(lastVisible);
+                }
                 const snapshot = await query.get();
-                if (snapshot.empty) break;
-                
+                if (snapshot.empty) {
+                    break;
+                }
                 snapshot.forEach(doc => allUsers.push(doc.data()));
                 lastVisible = snapshot.docs[snapshot.docs.length - 1];
                 telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã lấy được ${allUsers.length} người dùng...`;
             }
 
+            // 6. Filter for users with a UID
             const usersWithUid = allUsers.filter(user => user.telegramId);
+
             if (usersWithUid.length === 0) {
                 telegramSenderStatus.innerHTML = `<span class="text-warning">Không tìm thấy người dùng nào có UID để gửi.</span>`;
                 return;
             }
 
-            let sentCount = 0, failedCount = 0;
+            // 7. Prepare the sending loop
+            let sentCount = 0;
+            let failedCount = 0;
             const totalUsers = usersWithUid.length;
             const baseUrl = `https://api.telegram.org/bot${apiToken}/`;
             
@@ -2655,7 +2664,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 let method;
 
                 if (buttonText && buttonUrl) {
-                    body.reply_markup = JSON.stringify({ inline_keyboard: [[{ text: buttonText, url: buttonUrl }]] });
+                    body.reply_markup = JSON.stringify({
+                        inline_keyboard: [[{ text: buttonText, url: buttonUrl }]]
+                    });
                 }
                 
                 if (imageUrl) {
@@ -2667,6 +2678,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     body.text = text;
                 }
                 
+                // Send to one user
                 try {
                     const response = await fetch(baseUrl + method, {
                         method: 'POST',
@@ -2674,13 +2686,22 @@ document.addEventListener('DOMContentLoaded', () => {
                         body: JSON.stringify(body),
                     });
                     const result = await response.json();
-                    if (result.ok) sentCount++;
-                    else { failedCount++; console.error(`Failed to send to UID ${user.telegramId}: ${result.description}`); }
-                } catch (error) { failedCount++; console.error(`Network error sending to UID ${user.telegramId}:`, error); }
+                    if (result.ok) {
+                        sentCount++;
+                    } else {
+                        failedCount++;
+                        console.error(`Failed to send to UID ${user.telegramId}: ${result.description}`);
+                    }
+                } catch (error) {
+                    failedCount++;
+                    console.error(`Network error sending to UID ${user.telegramId}:`, error);
+                }
 
+                // Wait before sending the next one
                 await delay(TELEGRAM_SEND_DELAY_MS);
             }
 
+            // 8. Final Report
             telegramSenderStatus.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Hoàn tất! Đã gửi: ${sentCount}. Thất bại: ${failedCount}.</span>`;
             showAppToast('Hoàn tất gửi hàng loạt', `Thành công: ${sentCount}, Thất bại: ${failedCount}`, 'success');
 
@@ -2792,6 +2813,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    /**
+     * [THAY ĐỔI] Thêm hàm mới để chia sẻ trên Telegram
+     */
+    function shareOnTelegram(linkToShare, shareText) {
+        const encodedUrl = encodeURIComponent(linkToShare);
+        const encodedText = encodeURIComponent(shareText);
+        const telegramShareUrl = `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`;
+
+        if (window.Telegram && window.Telegram.WebApp) {
+            // Sử dụng phương thức gốc của Mini App để có trải nghiệm mượt mà nhất
+            window.Telegram.WebApp.openTelegramLink(telegramShareUrl);
+        } else {
+            // Fallback cho trình duyệt web thông thường
+            window.open(telegramShareUrl, '_blank');
+        }
+    }
+
+    /**
+     * [THAY ĐỔI] Cập nhật hàm này để thêm các nút chia sẻ
+     */
     async function renderReferralSection() {
         if (!currentUserData) return;
         const linksContainer = document.getElementById('referral-links-container');
@@ -2804,6 +2845,8 @@ document.addEventListener('DOMContentLoaded', () => {
         codesContainer.innerHTML = '';
 
         const webLink = `${YOUR_WEB_APP_URL}?ref=${currentUserData.address}`;
+        const shareMessage = `Mời bạn tham gia The Bmass Experience! Kết nối ví, khám phá hệ sinh thái và nhận phần thưởng hấp dẫn.`;
+
         linksContainer.innerHTML = `
             <h6 class="mb-2"><i class="fas fa-link me-2"></i>Your Referral Link</h6>
             <div class="mb-3">
@@ -2811,8 +2854,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="input-group">
                     <input type="text" class="form-control" value="${webLink}" readonly>
                     <button class="btn btn-outline-secondary copyable-code" data-code="${webLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
+                    <button class="btn" onclick="shareOnTelegram('${webLink}', '${shareMessage}')" title="Share on Telegram" style="background-color: #0088cc; color: white;"><i class="fab fa-telegram-plane"></i></button>
                 </div>
             </div>`;
+        
         codesContainer.innerHTML = `
             <h6 class="mb-2"><i class="fas fa-barcode me-2"></i>Your Referral Code</h6>
              <div class="mb-2">
@@ -2831,6 +2876,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="input-group">
                         <input type="text" class="form-control" value="${miniAppLink}" readonly>
                         <button class="btn btn-outline-secondary copyable-code" data-code="${miniAppLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
+                        <button class="btn" onclick="shareOnTelegram('${miniAppLink}', '${shareMessage}')" title="Share on Telegram" style="background-color: #0088cc; color: white;"><i class="fab fa-telegram-plane"></i></button>
                     </div>
                 </div>`;
             codesContainer.innerHTML += `
@@ -2877,7 +2923,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } else {
             referredByContainer.style.display = 'none';
-            if (!mainSettings?.isSnapshotActive) {
+            if (!airdropSettings?.isSnapshotActive) {
                 referralInputContainer.style.display = 'block';
             }
         }
@@ -2886,25 +2932,27 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchAndRenderInvitedUsers();
     }
 
-    async function fetchMainSettings() {
-        if (mainSettings) return mainSettings;
+    async function fetchAirdropSettings() {
+        if (airdropSettings) return airdropSettings;
         try {
-            const docRef = db.collection('admin_settings').doc('main_settings');
+            const docRef = db.collection('admin_settings').doc('airdrop_criteria');
             const doc = await docRef.get();
-            if (doc.exists) { 
-                mainSettings = doc.data(); 
-            } else {
-                mainSettings = { 
-                    isExpTransferEnabled: false,
+            if (doc.exists) { airdropSettings = doc.data(); } 
+            else {
+                airdropSettings = { 
                     isAirdropLive: false, isConfirmationEnabled: false, isClaimingEnabled: false, isSnapshotActive: false,
                     minCheckins: 0, minReferrals: 0, minExp: 0,
                     refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 20
                 };
             }
-            return mainSettings;
+            return airdropSettings;
         } catch (error) {
-            console.error("Error fetching main settings:", error);
-            return null; // Return null on error
+            console.error("Error fetching airdrop settings:", error);
+            return { 
+                isAirdropLive: false, isConfirmationEnabled: false, isClaimingEnabled: false, isSnapshotActive: false,
+                minCheckins: 0, minReferrals: 0, minExp: 0,
+                refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 20
+            };
         }
     }
     
@@ -2918,9 +2966,9 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingEl.style.display = 'block';
         [loggedInContent, loggedOutContent, airdropWrapper, comingSoonEl].forEach(el => el.style.display = 'none');
 
-        const settings = await fetchMainSettings();
+        const settings = await fetchAirdropSettings();
 
-        if (!settings || !settings.isAirdropLive) {
+        if (!settings.isAirdropLive) {
             loadingEl.style.display = 'none';
             comingSoonEl.style.display = 'block';
             return;
@@ -3130,22 +3178,34 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(e) { console.error("Error capturing web referral:", e); }
     }
 
+        // --- PHIÊN BẢN MỚI ---
     async function initializeApp() {
         checkUserSession();
         captureWebReferral();
         identifyTelegramUser(); 
+
+        // [MỚI] Gọi hàm áp dụng style theo nền tảng
         applyPlatformSpecificStyling();
         
+        // [MỚI] Cấu hình chức năng cho nút Back Button
         if (window.Telegram && window.Telegram.WebApp) {
             const tg = window.Telegram.WebApp;
-            tg.BackButton.onClick(() => { window.location.hash = '#dashboard'; });
+            
+            // Định nghĩa hành động khi người dùng nhấn nút Back
+            tg.BackButton.onClick(() => {
+                // Chuyển hướng về trang chủ
+                window.location.hash = '#dashboard';
+                // Không cần gọi handleRouteChange() ở đây vì sự kiện hashchange sẽ tự động làm điều đó
+            });
         }
         
-        if (!telegramUserData) appLogoText.textContent = 'Bmass';
+        if (!telegramUserData) {
+            appLogoText.textContent = 'Bmass';
+        }
         
         initializeFirebase();
-        await fetchMainSettings();
-        handleRouteChange();
+        await fetchAirdropSettings();
+        handleRouteChange(); // Gọi hàm này để kiểm tra route ban đầu và thiết lập nút Back
     }
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ 
@@ -3182,8 +3242,6 @@ document.addEventListener('DOMContentLoaded', () => {
             headerExpDisplay.classList.add('d-none');
             navAdmin.style.display = 'none';
             
-            if(liveFeedListener) { liveFeedListener(); liveFeedListener = null; }
-            
             if (!sessionStorage.getItem(REFERRAL_SESSION_KEY)){
                  referralInputContainerHero.style.display = 'block';
             }
@@ -3194,21 +3252,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     const switchView = (viewToShow) => {
-        [dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl, partnerSectionEl, accountSectionEl, leaderboardSectionEl, adminSectionEl, referralSectionEl, airdropSectionEl, transferSectionEl].forEach(section => {
+        [dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl, partnerSectionEl, accountSectionEl, leaderboardSectionEl, adminSectionEl, referralSectionEl, airdropSectionEl].forEach(section => {
             if(section) section.style.display = 'none';
         });
-        [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop, navTransfer].forEach(nav => nav.classList.remove('active'));
+        [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(nav => nav.classList.remove('active'));
 
         const isLoggedIn = !!connectedWalletAddress;
-        
-        // Show all protected links if logged in, content will be controlled later
-        [navTask, navPartner, navAccount, navReferral, navAirdrop, navTransfer].forEach(nav => {
-            nav.style.display = isLoggedIn ? 'block' : 'none';
-        });
+        [navTask, navPartner, navAccount, navReferral, navAirdrop].forEach(nav => nav.style.display = isLoggedIn ? 'block' : 'none');
 
         if (viewToShow === 'account' && isLoggedIn) { accountSectionEl.style.display = 'block'; navAccount.classList.add('active'); } 
         else if (viewToShow === 'apps') { appStoreSection.style.display = 'block'; navApps.classList.add('active'); } 
-        else if (viewToShow === 'transfer' && isLoggedIn) { transferSectionEl.style.display = 'block'; navTransfer.classList.add('active'); renderTransferSection(); }
         else if (viewToShow === 'task' && isLoggedIn) { taskSectionEl.style.display = 'block'; navTask.classList.add('active'); } 
         else if (viewToShow === 'partner' && isLoggedIn) { partnerSectionEl.style.display = 'block'; navPartner.classList.add('active'); renderPartnerSection(); }
         else if (viewToShow === 'referral' && isLoggedIn) { referralSectionEl.style.display = 'block'; navReferral.classList.add('active'); } 
@@ -3219,9 +3272,7 @@ document.addEventListener('DOMContentLoaded', () => {
             navAdmin.classList.add('active');
             renderAdminPartnerTasks();
             fetchAndRenderAdminUserList(true); 
-            fetchMainSettings().then(settings => {
-                 if (!settings) return;
-                 document.getElementById('exp-transfer-enabled-switch').checked = settings.isExpTransferEnabled || false;
+            fetchAirdropSettings().then(settings => {
                  document.getElementById('airdrop-live-switch').checked = settings.isAirdropLive || false;
                  document.getElementById('confirmation-enabled-switch').checked = settings.isConfirmationEnabled || false;
                  document.getElementById('claim-enabled-switch').checked = settings.isClaimingEnabled || false;
@@ -3242,12 +3293,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sidebarMenu.classList.contains('open')) toggleSidebar();
     };
     
+        // --- PHIÊN BẢN MỚI ---
     const handleRouteChange = () => {
         let hash = window.location.hash.substring(1) || 'dashboard';
         const [path, queryString] = hash.split('?');
-        const tg = window.Telegram?.WebApp; 
+        const tg = window.Telegram?.WebApp; // [ĐÃ SỬA] Lấy đối tượng WebApp một cách an toàn
         
-        const protectedRoutes = ['task', 'partner', 'account', 'admin', 'referral', 'airdrop', 'leaderboard', 'transfer'];
+        const protectedRoutes = ['task', 'partner', 'account', 'admin', 'referral', 'airdrop', 'leaderboard'];
         if (!connectedWalletAddress && protectedRoutes.includes(path)) {
              showAppToast('Wallet Connection Required', 'This feature requires a connected wallet.', 'warning');
              window.location.hash = '#dashboard';
@@ -3260,10 +3312,13 @@ document.addEventListener('DOMContentLoaded', () => {
              hash = 'dashboard'; 
         }
 
+        // [MỚI] Logic quản lý nút Back Button
         if (tg) {
             if (path === 'dashboard' || path === '') {
+                // Nếu đang ở trang chủ, ẩn nút Back
                 tg.BackButton.hide();
             } else {
+                // Nếu ở các trang khác, hiện nút Back
                 tg.BackButton.show();
             }
         }
@@ -3764,74 +3819,48 @@ document.addEventListener('DOMContentLoaded', () => {
         sidebarOverlay.classList.toggle('open');
     };
 
-    async function saveMainSettings() {
-        const settingsToSave = {
-            isExpTransferEnabled: document.getElementById('exp-transfer-enabled-switch').checked,
-            // isBmassTransferEnabled is removed
-            isAirdropLive: document.getElementById('airdrop-live-switch').checked,
-            isConfirmationEnabled: document.getElementById('confirmation-enabled-switch').checked, 
-            isClaimingEnabled: document.getElementById('claim-enabled-switch').checked,
-            isSnapshotActive: document.getElementById('snapshot-active-switch').checked,
-        };
+    async function saveAirdropSettings() {
+        const isAirdropLive = document.getElementById('airdrop-live-switch').checked;
+        const isConfirmationEnabled = document.getElementById('confirmation-enabled-switch').checked; 
+        const isClaimingEnabled = document.getElementById('claim-enabled-switch').checked;
+        const isSnapshotActive = document.getElementById('snapshot-active-switch').checked;
 
-        if (settingsToSave.isSnapshotActive && !mainSettings?.isSnapshotActive) {
+        if (isSnapshotActive && !airdropSettings?.isSnapshotActive) {
             if (!confirm("CẢNH BÁO: Bạn sắp kích hoạt Snapshot. Hành động này sẽ DỪNG tất cả các hoạt động kiếm điểm và CHỐT dữ liệu. Hành động này không thể hoàn tác. Bạn có chắc chắn muốn tiếp tục không?")) {
                 document.getElementById('snapshot-active-switch').checked = false;
                 return;
             }
         }
-        
-        const statusEl = document.getElementById('main-settings-status');
-        saveMainSettingsBtn.disabled = true;
-        statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
 
-        try {
-            const settingsRef = db.collection('admin_settings').doc('main_settings');
-            await settingsRef.set(settingsToSave, { merge: true });
-            mainSettings = { ...mainSettings, ...settingsToSave }; 
-            statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu cài đặt chính!</span>`;
-            showAppToast('Thành công', 'Đã lưu cài đặt chính.', 'success');
-            updateUIAfterLogin();
-        } catch (error) {
-            console.error("Error saving main settings:", error);
-            statusEl.innerHTML = `<span class="text-danger">Lưu thất bại.</span>`;
-            showAppToast('Lỗi', 'Không thể lưu cài đặt.', 'error');
-        } finally {
-            saveMainSettingsBtn.disabled = false;
-             setTimeout(() => { statusEl.innerHTML = ''; }, 3000);
-        }
-    }
+        const minCheckins = parseInt(document.getElementById('min-checkins-input').value, 10);
+        const minReferrals = parseInt(document.getElementById('min-referrals-input').value, 10);
+        const minExp = parseInt(document.getElementById('min-exp-input').value, 10);
+        const refMultiplier = parseFloat(document.getElementById('ref-multiplier-input').value) || 0;
+        const checkinMultiplier = parseFloat(document.getElementById('checkin-multiplier-input').value) || 0;
+        const expMultiplier = parseFloat(document.getElementById('exp-multiplier-input').value) || 0;
 
-    async function saveAirdropCriteria() {
-        const settingsToSave = {
-            minCheckins: parseInt(document.getElementById('min-checkins-input').value, 10),
-            minReferrals: parseInt(document.getElementById('min-referrals-input').value, 10),
-            minExp: parseInt(document.getElementById('min-exp-input').value, 10),
-            refMultiplier: parseFloat(document.getElementById('ref-multiplier-input').value) || 0,
-            checkinMultiplier: parseFloat(document.getElementById('checkin-multiplier-input').value) || 0,
-            expMultiplier: parseFloat(document.getElementById('exp-multiplier-input').value) || 0,
-        }
-
-        if (Object.values(settingsToSave).some(v => isNaN(v))) {
-             showAppToast('Lỗi', 'Vui lòng nhập giá trị số hợp lệ cho tất cả các trường.', 'error');
+        if (isNaN(minCheckins) || isNaN(minReferrals) || isNaN(minExp) || isNaN(refMultiplier) || isNaN(checkinMultiplier) || isNaN(expMultiplier)) {
+            showAppToast('Lỗi', 'Vui lòng nhập giá trị số hợp lệ.', 'error');
             return;
         }
         
-        saveAirdropCriteriaBtn.disabled = true;
-        adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu tiêu chí...`;
+        saveSettingsBtn.disabled = true;
+        adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
 
         try {
-            const settingsRef = db.collection('admin_settings').doc('main_settings');
-            await settingsRef.set(settingsToSave, { merge: true });
-            mainSettings = { ...mainSettings, ...settingsToSave }; 
-            adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu tiêu chí airdrop!</span>`;
-            showAppToast('Thành công', 'Đã lưu tiêu chí Airdrop.', 'success');
+            const settingsRef = db.collection('admin_settings').doc('airdrop_criteria');
+            const newSettings = { isAirdropLive, isConfirmationEnabled, isClaimingEnabled, isSnapshotActive, minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier };
+            await settingsRef.set(newSettings, { merge: true });
+            airdropSettings = newSettings; 
+            adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
+            showAppToast('Thành công', 'Đã lưu cài đặt Airdrop.', 'success');
+            updateUIAfterLogin();
         } catch (error) {
-            console.error("Error saving airdrop criteria:", error);
+            console.error("Error saving airdrop settings:", error);
             adminSettingsStatusEl.innerHTML = `<span class="text-danger">Lưu thất bại.</span>`;
-            showAppToast('Lỗi', 'Không thể lưu tiêu chí.', 'error');
+            showAppToast('Lỗi', 'Không thể lưu cài đặt.', 'error');
         } finally {
-            saveAirdropCriteriaBtn.disabled = false;
+            saveSettingsBtn.disabled = false;
              setTimeout(() => { adminSettingsStatusEl.innerHTML = ''; }, 3000);
         }
     }
@@ -3841,23 +3870,24 @@ document.addEventListener('DOMContentLoaded', () => {
         adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang chuẩn bị dữ liệu...`;
         
         try {
-            const settings = await fetchMainSettings();
-            if(!settings) throw new Error("Could not fetch settings.");
-
+            const settings = await fetchAirdropSettings();
+            
             const finalAirdropList = [];
             let lastVisible = null;
             let processedCount = 0;
 
             while (true) {
                 let query = db.collection('users').orderBy(firebase.firestore.FieldPath.documentId()).limit(500);
-                if(lastVisible) query = query.startAfter(lastVisible);
-                
+                if(lastVisible) {
+                    query = query.startAfter(lastVisible);
+                }
                 const snapshot = await query.get();
                 if (snapshot.empty) break;
 
                 const userDocs = snapshot.docs;
                 const eligibilityPromises = userDocs.map(doc => {
                     const user = doc.data();
+                    
                     const processUser = async () => {
                         const isEligibleByStats = (user.referralCount || 0) >= settings.minReferrals &&
                                                 (user.checkinCount || 0) >= settings.minCheckins &&
@@ -3867,7 +3897,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             const mandatoryTasksCompleted = await checkMandatoryTasksCompletion(user.address);
                             if (mandatoryTasksCompleted) {
                                 const finalReward = await calculateBmassReward(user, settings);
-                                if (finalReward > 0) return { address: user.address, reward: finalReward };
+                                if (finalReward > 0) {
+                                    return { address: user.address, reward: finalReward };
+                                }
                             }
                         }
                         return null;
@@ -3876,7 +3908,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 const results = await Promise.all(eligibilityPromises);
-                results.forEach(result => { if (result) finalAirdropList.push(result); });
+                results.forEach(result => {
+                    if (result) {
+                        finalAirdropList.push(result);
+                    }
+                });
 
                 processedCount += userDocs.length;
                 adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã xử lý ${processedCount} người dùng...`;
@@ -3940,7 +3976,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let mandatoryHtml = '';
             let normalHtml = '';
             
-            tasksSnapshot.forEach(doc => {
+            tasksSnapshot.forEach((doc, index) => {
                 const task = doc.data();
                 task.id = doc.id;
                 const isCompleted = completedTaskIds.has(task.id);
@@ -3949,7 +3985,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cardHtml = `
                     <a href="${task.taskLink}" target="_blank" rel="noopener noreferrer" 
                        class="partner-task-card ${task.taskType === 'mandatory' ? 'mandatory' : ''} ${isCompleted ? 'completed' : ''}"
-                       data-task-id="${task.id}" data-exp="${task.expReward}" data-name="${task.projectName}">
+                       data-task-id="${task.id}" data-exp="${task.expReward}" data-name="${task.projectName}" style="animation-delay: ${index * 70}ms">
                         
                         <div class="partner-task-top">
                             <img src="${task.imageUrl || GENERIC_TASK_ICON}" class="partner-task-img" onerror="this.src='${GENERIC_TASK_ICON}'">
@@ -4005,7 +4041,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function handlePartnerTaskCompletion(e, taskCard) {
-        if (mainSettings?.isSnapshotActive) {
+        if (airdropSettings?.isSnapshotActive) {
             showAppToast('Halted', 'Point-earning activities are paused due to the snapshot.', 'warning');
             e.preventDefault();
             return;
@@ -4176,7 +4212,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
             });
             
-            tableHtml += `</tbody></table>`;
+            tableHtml += '</tbody></table>';
             adminPartnerTasksList.innerHTML = tableHtml;
 
         } catch (error) {
@@ -4228,283 +4264,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-    
-    // --- NEW: TRANSFER SECTION LOGIC ---
-
-    function renderTransferSection() {
-        const comingSoonEl = document.getElementById('transfer-coming-soon');
-        const contentWrapper = document.getElementById('transfer-content-wrapper');
-
-        if (!mainSettings?.isExpTransferEnabled) {
-            comingSoonEl.style.display = 'block';
-            contentWrapper.style.display = 'none';
-            return; // Stop execution here if feature is disabled
-        }
-
-        comingSoonEl.style.display = 'none';
-        contentWrapper.style.display = 'block';
-
-        if (!currentUserData) return;
-        
-        // Populate Receive Tab
-        const receiveAddressInput = document.getElementById('receive-address-input');
-        const receiveUidInput = document.getElementById('receive-uid-input');
-        const receiveMemoInput = document.getElementById('receive-memo-input');
-        const receiveAddressCopyBtn = document.getElementById('receive-address-copy-btn');
-        const receiveUidCopyBtn = document.getElementById('receive-uid-copy-btn');
-        const receiveMemoCopyBtn = document.getElementById('receive-memo-copy-btn');
-        const qrCodeContainer = document.getElementById('receive-qr-code');
-
-        receiveAddressInput.value = currentUserData.address;
-        receiveAddressCopyBtn.dataset.code = currentUserData.address;
-        receiveUidInput.value = currentUserData.telegramId || 'Not linked';
-        receiveUidCopyBtn.dataset.code = currentUserData.telegramId || '';
-        receiveMemoInput.value = currentUserData.transferMemo || 'N/A';
-        receiveMemoCopyBtn.dataset.code = currentUserData.transferMemo || '';
-        
-        qrCodeContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(currentUserData.address)}" alt="Wallet QR Code">`;
-        
-        // Populate Send Tab
-        document.getElementById('send-form-balance').textContent = `${(currentUserData.points || 0).toLocaleString()} EXP`;
-        
-        // Initial call for history
-        fetchAndRenderTransferHistory();
-    }
-    
-    async function handleSendExp(e) {
-        e.preventDefault();
-        const statusEl = document.getElementById('send-exp-status');
-        const submitBtn = document.getElementById('send-exp-submit-btn');
-        
-        const recipientType = document.getElementById('send-recipient-type').value;
-        const recipientValue = document.getElementById('send-recipient-value').value.trim();
-        const amount = parseInt(document.getElementById('send-amount').value, 10);
-        const memo = document.getElementById('send-memo').value.trim();
-        
-        if (!recipientValue || !memo || isNaN(amount) || amount <= 0) {
-            showAppToast('Invalid Input', 'Please fill all fields correctly.', 'error');
-            return;
-        }
-        if (amount > currentUserData.points) {
-            showAppToast('Insufficient Funds', 'You do not have enough EXP to make this transfer.', 'error');
-            return;
-        }
-
-        submitBtn.disabled = true;
-        statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing transaction...`;
-
-        try {
-            let recipientQuery;
-            if (recipientType === 'uid') {
-                recipientQuery = db.collection('users').where('telegramId', '==', parseInt(recipientValue, 10));
-            } else {
-                recipientQuery = db.collection('users').where('address', '==', recipientValue);
-            }
-            const recipientSnapshot = await recipientQuery.limit(1).get();
-
-            if (recipientSnapshot.empty) {
-                throw new Error("Recipient not found.");
-            }
-            const recipientDoc = recipientSnapshot.docs[0];
-            const recipientData = recipientDoc.data();
-            const recipientRef = recipientDoc.ref;
-            const senderRef = db.collection('users').doc(currentUserData.address);
-
-            if (recipientData.address === currentUserData.address) {
-                throw new Error("You cannot send EXP to yourself.");
-            }
-
-            await db.runTransaction(async (transaction) => {
-                const freshSenderDoc = await transaction.get(senderRef);
-                const freshRecipientDoc = await transaction.get(recipientRef);
-
-                if (!freshSenderDoc.exists || !freshRecipientDoc.exists) {
-                    throw new Error("User data is inconsistent. Please try again.");
-                }
-
-                const senderData = freshSenderDoc.data();
-                const currentRecipientData = freshRecipientDoc.data();
-
-                if (senderData.points < amount) {
-                    throw new Error("Your EXP balance changed. Insufficient funds.");
-                }
-                
-                const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
-                const liveTransactionRef = db.collection('live_transactions').doc();
-
-                if (currentRecipientData.transferMemo !== memo) {
-                    transaction.update(senderRef, {
-                        points: firebase.firestore.FieldValue.increment(-amount)
-                    });
-                    const senderHistoryRef = senderRef.collection('transfer_history').doc();
-                    transaction.set(senderHistoryRef, {
-                        type: 'failed',
-                        amount: amount,
-                        otherParty: currentRecipientData.fullName || shortenAddress(currentRecipientData.address),
-                        otherPartyAddress: currentRecipientData.address,
-                        timestamp: newTimestamp
-                    });
-                    showAppToast('Transaction Failed', 'Incorrect Memo! The amount has been deducted as a fee.', 'error');
-                } else {
-                    transaction.update(senderRef, {
-                        points: firebase.firestore.FieldValue.increment(-amount)
-                    });
-                    transaction.update(recipientRef, {
-                        points: firebase.firestore.FieldValue.increment(amount)
-                    });
-
-                    const senderHistoryRef = senderRef.collection('transfer_history').doc();
-                    transaction.set(senderHistoryRef, {
-                        type: 'sent',
-                        amount: amount,
-                        otherParty: currentRecipientData.fullName || shortenAddress(currentRecipientData.address),
-                        otherPartyAddress: currentRecipientData.address,
-                        timestamp: newTimestamp
-                    });
-
-                    const recipientHistoryRef = recipientRef.collection('transfer_history').doc();
-                    transaction.set(recipientHistoryRef, {
-                        type: 'received',
-                        amount: amount,
-                        otherParty: senderData.fullName || shortenAddress(senderData.address),
-                        otherPartyAddress: senderData.address,
-                        timestamp: newTimestamp
-                    });
-                    
-                     transaction.set(liveTransactionRef, {
-                        senderName: senderData.fullName || shortenAddress(senderData.address),
-                        recipientName: currentRecipientData.fullName || shortenAddress(currentRecipientData.address),
-                        amount: amount,
-                        timestamp: newTimestamp
-                    });
-                     showAppToast('Success!', `Successfully sent ${amount.toLocaleString()} EXP.`, 'success');
-                }
-            });
-            
-            const updatedUserDoc = await senderRef.get();
-            currentUserData = updatedUserDoc.data();
-            updateExpBalances(currentUserData.points);
-            document.getElementById('send-form-balance').textContent = `${(currentUserData.points || 0).toLocaleString()} EXP`;
-            sendExpForm.reset();
-            statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Transaction complete.</span>`;
-            fetchAndRenderTransferHistory();
-            if (recipientData.telegramId) {
-                // In a real scenario, you'd trigger a bot notification here.
-                // For now, we'll log it.
-                console.log(`Notification sent to UID ${recipientData.telegramId}`);
-            }
-
-        } catch (error) {
-            console.error("EXP Transfer failed: ", error);
-            statusEl.innerHTML = `<span class="text-danger">${error.message}</span>`;
-            showAppToast('Transaction Failed', error.message, 'error');
-        } finally {
-            submitBtn.disabled = false;
-            setTimeout(() => { statusEl.innerHTML = ''; }, 5000);
-        }
-    }
-    
-    async function fetchAndRenderTransferHistory() {
-        const historyContainer = document.getElementById('transfer-history-pane');
-        if (!currentUserData || !db) return;
-
-        historyContainer.innerHTML = skeletonTx.repeat(4);
-        
-        try {
-            const snapshot = await db.collection('users').doc(currentUserData.address).collection('transfer_history').orderBy('timestamp', 'desc').limit(50).get();
-
-            if (snapshot.empty) {
-                historyContainer.innerHTML = `<p class="text-secondary text-center p-3">You have no transfer history yet.</p>`;
-                return;
-            }
-            
-            let html = '';
-            snapshot.forEach(doc => {
-                const tx = doc.data();
-                const date = tx.timestamp ? tx.timestamp.toDate().toLocaleString('en-US') : 'N/A';
-                
-                let iconClass, colorClass, title, sign;
-                if (tx.type === 'sent') {
-                    iconClass = 'fa-arrow-up'; colorClass = 'amount-out'; title = `Sent to ${tx.otherParty}`; sign = '-';
-                } else if (tx.type === 'received') {
-                    iconClass = 'fa-arrow-down'; colorClass = 'amount-in'; title = `Received from ${tx.otherParty}`; sign = '+';
-                } else { // failed
-                    iconClass = 'fa-exclamation-triangle'; colorClass = 'text-warning'; title = `Failed transfer to ${tx.otherParty}`; sign = '-';
-                }
-                
-                html += `
-                    <div class="d-flex align-items-center justify-content-between p-2 border-bottom" style="border-color: var(--border-color) !important;">
-                        <div class="d-flex align-items-center">
-                            <i class="fas ${iconClass} me-3" style="font-size: 1.2rem; color: var(--${colorClass.replace('text-', 'color-')});"></i>
-                            <div>
-                                <p class="m-0 fw-bold">${title}</p>
-                                <p class="m-0 text-secondary" style="font-size: 0.8rem;">${date}</p>
-                            </div>
-                        </div>
-                        <strong class="${colorClass}">${sign}${tx.amount.toLocaleString()} EXP</strong>
-                    </div>
-                `;
-            });
-            historyContainer.innerHTML = html;
-        } catch (error) {
-            console.error("Error fetching transfer history:", error);
-            historyContainer.innerHTML = `<p class="text-danger text-center p-3">Could not load history.</p>`;
-        }
-    }
-    
-    function listenForLiveTransfers() {
-        const liveFeedContainer = document.getElementById('live-feed-pane');
-        liveFeedContainer.innerHTML = skeletonTx.repeat(4);
-        
-        if (liveFeedListener) liveFeedListener();
-
-        const query = db.collection('live_transactions').orderBy('timestamp', 'desc').limit(20);
-        
-        liveFeedListener = query.onSnapshot(snapshot => {
-            if (snapshot.empty) {
-                liveFeedContainer.innerHTML = `<p class="text-secondary text-center p-3">No live transactions right now.</p>`;
-                return;
-            }
-            let html = '';
-            snapshot.forEach(doc => {
-                const tx = doc.data();
-                const timeAgo = tx.timestamp ? formatTimeAgo(tx.timestamp.toDate()) : 'just now';
-                
-                html += `
-                    <div class="d-flex align-items-center p-2 border-bottom" style="border-color: var(--border-color) !important; opacity: 1; transition: opacity 0.5s;" onload="this.style.opacity=1">
-                        <i class="fas fa-exchange-alt me-3" style="color: var(--accent-primary);"></i>
-                        <div class="flex-grow-1">
-                            <p class="m-0">
-                                <strong style="color:var(--accent-secondary);">${tx.senderName}</strong> sent 
-                                <strong style="color:var(--gold);">${tx.amount.toLocaleString()} EXP</strong> to 
-                                <strong style="color:var(--accent-secondary);">${tx.recipientName}</strong>
-                            </p>
-                            <p class="m-0 text-secondary" style="font-size: 0.8rem;">${timeAgo}</p>
-                        </div>
-                    </div>
-                `;
-            });
-            liveFeedContainer.innerHTML = html;
-        }, error => {
-            console.error("Live feed listener error: ", error);
-            liveFeedContainer.innerHTML = `<p class="text-danger text-center p-3">Live feed disconnected.</p>`;
-        });
-    }
-
-    function formatTimeAgo(date) {
-        const seconds = Math.floor((new Date() - date) / 1000);
-        let interval = seconds / 31536000;
-        if (interval > 1) return Math.floor(interval) + " years ago";
-        interval = seconds / 2592000;
-        if (interval > 1) return Math.floor(interval) + " months ago";
-        interval = seconds / 86400;
-        if (interval > 1) return Math.floor(interval) + " days ago";
-        interval = seconds / 3600;
-        if (interval > 1) return Math.floor(interval) + " hours ago";
-        interval = seconds / 60;
-        if (interval > 1) return Math.floor(interval) + " minutes ago";
-        return Math.floor(seconds) + " seconds ago";
-    }
 
     // --- Event Listeners ---
     hamburgerBtn.addEventListener('click', toggleSidebar);
@@ -4515,12 +4274,15 @@ document.addEventListener('DOMContentLoaded', () => {
     popupCheckinButton.addEventListener('click', handleCheckin);
     if (adminExpForm) adminExpForm.addEventListener('submit', handleAdminExpUpdate);
     if (sendBulkTelegramMessageBtn) sendBulkTelegramMessageBtn.addEventListener('click', sendBulkTelegramMessage);
-    if (sendExpForm) sendExpForm.addEventListener('submit', handleSendExp);
 
     if (adminMassAwardForm) adminMassAwardForm.addEventListener('submit', handleMassAward);
     if (adminMassConditionType) {
         adminMassConditionType.addEventListener('change', (e) => {
-            adminMassConditionWrapper.style.display = (e.target.value === 'all') ? 'none' : 'block';
+            if (e.target.value === 'all') {
+                adminMassConditionWrapper.style.display = 'none';
+            } else {
+                adminMassConditionWrapper.style.display = 'block';
+            }
         });
     }
 
@@ -4538,8 +4300,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (adminLoadMoreBtn) adminLoadMoreBtn.addEventListener('click', () => fetchAndRenderAdminUserList(false));
     referralCodeSubmit.addEventListener('click', handleManualReferralInput);
     referralCodeSubmitHero.addEventListener('click', handleManualReferralInput);
-    if(saveMainSettingsBtn) saveMainSettingsBtn.addEventListener('click', saveMainSettings);
-    if(saveAirdropCriteriaBtn) saveAirdropCriteriaBtn.addEventListener('click', saveAirdropCriteria);
+    if(saveSettingsBtn) saveSettingsBtn.addEventListener('click', saveAirdropSettings);
     if(exportCsvBtn) exportCsvBtn.addEventListener('click', exportAirdropData);
     if (adminUserSearchInput) {
         adminUserSearchInput.addEventListener('input', () => {
@@ -4578,24 +4339,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none'; 
     });
     
-    const transferTab = document.getElementById('transferTab');
-    if (transferTab) {
-        transferTab.addEventListener('show.bs.tab', function (event) {
-            if (event.target.id === 'live-feed-tab') {
-                listenForLiveTransfers();
-            } else {
-                if(liveFeedListener) {
-                    liveFeedListener(); // Unsubscribe
-                    liveFeedListener = null;
-                }
-            }
-             if (event.target.id === 'transfer-history-tab') {
-                fetchAndRenderTransferHistory();
-            }
-        });
-    }
-
-    [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop, navTransfer].forEach(link => link.addEventListener('click', (e) => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
+    [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(link => link.addEventListener('click', (e) => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
     appSearchInput.addEventListener('input', () => { renderApps(); const searchTerm = appSearchInput.value.trim(); const newUrl = searchTerm ? `#apps?search=${encodeURIComponent(searchTerm)}` : '#apps'; history.replaceState(null, '', newUrl); });
     appSearchButton.addEventListener('click', renderApps);
     appSearchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') renderApps(); });
@@ -4618,18 +4362,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function applyPlatformSpecificStyling() {
+        // Chỉ chạy nếu đang ở trong môi trường Telegram Mini App
         if (window.Telegram && window.Telegram.WebApp) {
             const platform = window.Telegram.WebApp.platform;
             const body = document.body;
+
+            // Xóa các class cũ để tránh bị trùng lặp
             body.classList.remove('platform-ios', 'platform-android', 'platform-desktop');
+            
             console.log(`Detected platform: ${platform}`);
+
             switch (platform) {
-                case 'ios': body.classList.add('platform-ios'); break;
-                case 'android': body.classList.add('platform-android'); break;
-                default: body.classList.add('platform-desktop'); break;
+                case 'ios':
+                    body.classList.add('platform-ios');
+                    break;
+                case 'android':
+                    body.classList.add('platform-android');
+                    break;
+                // Bạn có thể thêm các trường hợp khác như 'macos', 'windows', 'web' nếu cần
+                default:
+                    body.classList.add('platform-desktop');
+                    break;
             }
         }
     }
+
+    // --- Core Logic ---
+    // (Phần code cũ của bạn tiếp tục từ đây)
     </script>
 </body>
 </html>
