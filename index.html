@@ -3096,7 +3096,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function identifyTelegramUser() {
+        function identifyTelegramUser() {
         try {
              if (window.Telegram && window.Telegram.WebApp) {
                 const tg = window.Telegram.WebApp;
@@ -3111,9 +3111,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     appLogoImg.style.borderRadius = '50%';
                     appLogoText.textContent = `@${telegramUserData.username}` || telegramUserData.first_name || 'Telegram User';
                     
-                    if (tg.initDataUnsafe.start_param) {
-                        sessionStorage.setItem(REFERRAL_SESSION_KEY, tg.initDataUnsafe.start_param);
+                    // [THAY ĐỔI] - BẮT ĐẦU LOGIC XỬ LÝ DEEP LINK
+                    const startParam = tg.initDataUnsafe.start_param;
+                    if (startParam) {
+                        // Ưu tiên xử lý deep link cho route
+                        if (startParam.startsWith('route-')) {
+                            const route = startParam.split('-')[1]; // Lấy ra 'task' từ 'route-task'
+                            if (route) {
+                                console.log(`Deep link to route: #${route}`);
+                                // Đặt hash để kích hoạt handleRouteChange()
+                                window.location.hash = route; 
+                            }
+                        } 
+                        // Nếu không phải route, thì đó là mã giới thiệu (logic cũ)
+                        else {
+                            console.log(`Referral code found: ${startParam}`);
+                            sessionStorage.setItem(REFERRAL_SESSION_KEY, startParam);
+                        }
                     }
+                    // [THAY ĐỔI] - KẾT THÚC LOGIC XỬ LÝ DEEP LINK
                     
                     if(tonConnectUI.connected) {
                         loadOrCreateUserByAddress(tonConnectUI.account.address);
