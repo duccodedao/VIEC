@@ -40,545 +40,768 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+      /* =================================================================== */
+      /* [NEW VERSION] ROOT VARIABLES & KEYFRAME ANIMATIONS
+      /* =================================================================== */
       :root {
-    --bg-color: #050816;
-    --card-color: rgba(23, 27, 48, 0.5);
-    --border-color: rgba(145, 94, 255, 0.2);
-    --accent-primary: #915EFF;
-    --accent-secondary: #2BCBC4;
-    --text-primary: #f1f2f6;
-    --text-secondary: #aaa6c3;
-    --color-in: #2BCBC4;
-    --color-out: #ff6b6b;
-    --color-failed: #ffcc00;
-    --color-verified: #2ecc71;
-    --gold: #FFD700;
-    --silver: #C0C0C0;
-    --bronze: #CD7F32;
-}
+          --bg-color: #050816;
+          --card-color: rgba(23, 27, 48, 0.5);
+          --border-color: rgba(145, 94, 255, 0.2);
+          --accent-primary: #915EFF;
+          --accent-secondary: #2BCBC4;
+          --text-primary: #f1f2f6;
+          --text-secondary: #aaa6c3;
+          --color-in: #2BCBC4;
+          --color-out: #ff6b6b;
+          --color-failed: #ffcc00;
+          --color-verified: #2ecc71;
+          --gold: #FFD700;
+          --silver: #C0C0C0;
+          --bronze: #CD7F32;
+          --transition-smooth: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      }
 
-body {
-    font-family: 'Poppins', sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-primary);
-    background: linear-gradient(-45deg, #050816, #120e2a, #1a163c, #0d0b1f);
-    background-size: 400% 400%;
-    animation: gradientBG 15s ease infinite;
-    overflow-x: hidden;
-    font-size: 16px;
-}
+      @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+      @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+      
+      /* New Animations */
+      @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(25px); }
+          to { opacity: 1; transform: translateY(0); }
+      }
 
-@keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+      @keyframes pulse {
+          0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(43, 203, 196, 0.4); }
+          50% { transform: scale(1.05); box-shadow: 0 0 25px rgba(43, 203, 196, 0.7); }
+      }
+      
+      @keyframes spin {
+          to { transform: rotate(360deg); }
+      }
+      
+      @keyframes subtleShine {
+          from { background-position: 200% center; }
+          to { background-position: -200% center; }
+      }
 
-.main-container { max-width: 1400px; padding: 1.5rem 1rem; margin: auto; }
-.header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 2rem; }
-.header-logo { display: flex; align-items: center; text-decoration: none; color: var(--text-primary); gap: 10px; z-index: 1100; }
-.header-logo img { height: 40px; width: 40px; object-fit: cover; transition: all 0.3s ease; }
-.header-logo span { font-size: 1.1rem; font-weight: 600; }
 
-.card-glass { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 25px; padding: 1.25rem; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: all 0.3s ease;  }
-.card-glass:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
-.card-title { font-weight: 600; margin-bottom: 1.5rem; font-size: 1.25rem; }
+      /* =================================================================== */
+      /* GENERAL STYLES & ENHANCEMENTS
+      /* =================================================================== */
+      body {
+          font-family: 'Poppins', sans-serif;
+          background-color: var(--bg-color);
+          color: var(--text-primary);
+          background: linear-gradient(-45deg, #050816, #120e2a, #1a163c, #0d0b1f);
+          background-size: 400% 400%;
+          animation: gradientBG 15s ease infinite;
+          overflow-x: hidden;
+          font-size: 16px;
+      }
 
-.hero-section, .login-section { text-align: center; padding: 4rem 1rem; min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center;}
-.hero-section h1, .login-section h1 { font-size: 2rem; font-weight: 700; }
-.hero-section .highlight, .login-section .highlight { color: var(--accent-primary); }
+      .main-container { 
+          max-width: 1400px; 
+          padding: 1.5rem 1rem; 
+          margin: auto;
+          /* Add animation for page content */
+          animation: fadeInUp 0.6s ease-out forwards;
+      }
+      
+      .header { 
+          display: flex; 
+          justify-content: space-between; 
+          align-items: center; 
+          padding-bottom: 1rem; 
+          margin-bottom: 2rem; 
+      }
+      
+      .header-logo { 
+          display: flex; 
+          align-items: center; 
+          text-decoration: none; 
+          color: var(--text-primary); 
+          gap: 10px; 
+          z-index: 1100; 
+      }
+      
+      .header-logo img { 
+          height: 40px; 
+          width: 40px; 
+          object-fit: cover; 
+          transition: transform 0.4s ease;
+      }
+      .header-logo:hover img {
+          transform: rotate(360deg);
+      }
+      
+      .header-logo span { font-size: 1.1rem; font-weight: 600; }
 
-.skeleton-loader { background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); background-size: 200% 100%; border-radius: 25px; animation: shimmer 1.5s infinite; }
-@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-.skeleton-line { height: 20px; margin-bottom: 10px; }
+      .card-glass { 
+          background: var(--card-color); 
+          border: 1px solid var(--border-color); 
+          border-radius: 25px; 
+          padding: 1.25rem; 
+          backdrop-filter: blur(15px); 
+          -webkit-backdrop-filter: blur(15px); 
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); 
+          transition: var(--transition-smooth);
+      }
+      
+      .card-glass:hover { 
+          transform: translateY(-8px) scale(1.02); 
+          box-shadow: 0 0 35px rgba(145, 94, 255, 0.35); 
+          border-color: var(--accent-primary); 
+      }
+      
+      .card-title { 
+          font-weight: 600; 
+          margin-bottom: 1.5rem; 
+          font-size: 1.25rem; 
+          background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--text-primary));
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-size: 200%;
+          animation: gradientShine 5s linear infinite reverse;
+      }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
+      .skeleton-loader { 
+          background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); 
+          background-size: 200% 100%; 
+          border-radius: 25px; 
+          animation: shimmer 1.5s infinite; 
+      }
+      
+      .skeleton-line { height: 20px; margin-bottom: 10px; }
 
-.activity-item-icon, .jetton-item-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-.amount-in { color: var(--color-in); }
-.amount-out { color: var(--color-out); }
-.status-icon { font-size: 0.7rem; margin-right: 6px; }
-.status-ok { color: var(--color-in); }
-.status-failed { color: var(--color-failed); }
-.verified-tick { color: var(--color-verified); margin-left: 5px; font-size: 0.9em; }
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+      ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
 
-.jetton-item { cursor: pointer; transition: background-color: 0.2s; border-radius: 25px; }
-.jetton-item:hover { background-color: rgba(145, 94, 255, 0.1); }
 
-#search-results-container { max-height: 40vh; overflow-y: auto; }
-.search-result-item { cursor: pointer; padding: 10px; border-radius: 25px; transition: background-color: 0.2s ease; }
-.search-result-item:hover { background-color: rgba(145, 94, 255, 0.1); }
-.search-result-item img { width: 32px; height: 32px; border-radius: 50%; }
+      /* =================================================================== */
+      /* HERO SECTION & LOGIN
+      /* =================================================================== */
+      .hero-section, .login-section { 
+          text-align: center; 
+          padding: 4rem 1rem; 
+          min-height: 70vh; 
+          display: flex; 
+          flex-direction: column; 
+          align-items: center; 
+          justify-content: center;
+      }
+      
+      /* Animate hero text on load */
+      .hero-section h1, .login-section h1 { 
+          font-size: 2rem; 
+          font-weight: 700;
+          animation: fadeInUp 0.8s ease-out 0.2s backwards; 
+      }
+      
+      .hero-section p, .login-section p {
+           animation: fadeInUp 0.8s ease-out 0.4s backwards;
+      }
 
-.copyable-address, .copyable-code { cursor: pointer; transition: color 0.2s; font-family: monospace; }
-.copyable-address:hover, .copyable-code:hover { color: var(--accent-secondary); }
-.copyable-address.copied, .copyable-code.copied { color: var(--color-verified) !important; font-weight: bold; }
+      .hero-section .btn, .login-section .btn {
+           animation: fadeInUp 0.8s ease-out 0.6s backwards;
+      }
+      
+      .hero-section .highlight, .login-section .highlight { color: var(--accent-primary); }
 
-.modal-content { background-color: #0c0f24; border: 1px solid var(--border-color); color: var(--text-primary); }
-.modal-header { border-bottom: 1px solid var(--border-color); }
-.modal-footer { border-top: 1px solid var(--border-color); }
-.modal-backdrop.show { opacity: 0.7; backdrop-filter: blur(5px); }
-.nav-tabs { border-bottom-color: var(--border-color); }
-.nav-tabs .nav-link { background: transparent; border-color: transparent; color: var(--text-secondary); }
-.nav-tabs .nav-link.active { color: var(--accent-primary); background-color: rgba(145, 94, 255, 0.1); border-color: var(--border-color); }
-.tab-content { max-height: 50vh; overflow-y: auto; padding-top: 1rem; }
-.metadata-key { color: var(--text-secondary); font-weight: 500; }
-.tab-content .table {
-    --bs-table-bg: transparent;
-    --bs-table-border-color: var(--border-color);
-    --bs-table-color: var(--text-primary);
-    --bs-table-striped-color: var(--text-primary);
-}
-.tab-content .table-hover > tbody > tr:hover > * {
-    --bs-table-accent-bg: rgba(145, 94, 255, 0.15);
-}
+      
+      /* =================================================================== */
+      /* UI COMPONENTS & WIDGETS
+      /* =================================================================== */
+      .activity-item-icon, .jetton-item-img { 
+          width: 40px; 
+          height: 40px; 
+          border-radius: 50%; 
+          object-fit: cover; 
+          flex-shrink: 0;
+          transition: transform 0.3s ease;
+      }
+      .d-flex:hover .activity-item-icon, .d-flex:hover .jetton-item-img {
+          transform: scale(1.1);
+      }
 
-.news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-.news-card { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 25px; overflow: hidden; transition: all 0.3s ease; text-decoration: none; color: var(--text-primary); }
-.news-card:hover { transform: translateY(-5px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
-.news-card-img { width: 100%; height: 180px; object-fit: cover; }
-.news-card-body { padding: 1rem; }
-.news-card-title { font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.news-card-source { font-size: 0.8rem; color: var(--text-secondary); }
+      .amount-in { color: var(--color-in); }
+      .amount-out { color: var(--color-out); }
+      .status-icon { font-size: 0.7rem; margin-right: 6px; }
+      .status-ok { color: var(--color-in); }
+      .status-failed { color: var(--color-failed); }
+      .verified-tick { color: var(--color-verified); margin-left: 5px; font-size: 0.9em; }
 
-.hamburger-btn { width: 40px; height: 40px; background: transparent; border: none; padding: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; cursor: pointer; z-index: 1100; }
-.hamburger-btn span { display: block; width: 24px; height: 2px; background-color: var(--text-primary); border-radius: 2px; transition: all 0.3s ease-in-out; }
-.hamburger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-.hamburger-btn.open span:nth-child(2) { opacity: 0; }
-.hamburger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+      .jetton-item { cursor: pointer; transition: background-color: 0.2s; border-radius: 25px; }
+      .jetton-item:hover { background-color: rgba(145, 94, 255, 0.1); }
 
-.sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background: var(--bg-color); padding: 6rem 2rem 2rem; transform: translateX(-100%); transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 1050; display: flex; flex-direction: column; }
-.sidebar.open { transform: translateX(0); box-shadow: 10px 0px 50px -20px rgba(0,0,0,0.5); }
-.sidebar-nav { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
-.sidebar-link { color: var(--text-secondary); text-decoration: none; font-size: 1.1rem; font-weight: 500; padding: 10px; border-radius: 12px; transition: color 0.3s, background-color 0.3s; }
-.sidebar-link:hover, .sidebar-link.active { color: var(--text-primary); background-color: var(--border-color); }
+      #search-results-container { max-height: 40vh; overflow-y: auto; }
+      .search-result-item { cursor: pointer; padding: 10px; border-radius: 25px; transition: background-color 0.2s ease; }
+      .search-result-item:hover { background-color: rgba(145, 94, 255, 0.1); }
+      .search-result-item img { width: 32px; height: 32px; border-radius: 50%; }
 
-.sidebar-wallet-connect { margin-top: auto; }
-#custom-wallet-button { background: var(--accent-primary); color: white; border: none; padding: 10px 16px; width: 100%; border-radius: 25px; font-weight: 500; cursor: pointer; text-align: center; }
-#wallet-dropdown { display: none; position: absolute; right: 0; bottom: calc(100% + 10px); background-color: #171b30; border: 1px solid var(--border-color); border-radius: 25px; z-index: 1056; min-width: 100%; box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
-#wallet-dropdown a { color: var(--text-primary); padding: 12px 16px; text-decoration: none; display: block; font-size: 0.9rem; }
-#wallet-dropdown a:hover { background-color: rgba(145, 94, 255, 0.2); }
-#wallet-dropdown a i { margin-right: 10px; width: 15px; text-align: center; }
+      .copyable-address, .copyable-code { cursor: pointer; transition: color 0.2s; font-family: monospace; }
+      .copyable-address:hover, .copyable-code:hover { color: var(--accent-secondary); }
+      .copyable-address.copied, .copyable-code.copied { color: var(--color-verified) !important; font-weight: bold; }
 
-.sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); z-index: 1040; opacity: 0; visibility: hidden; transition: opacity 0.4s, visibility 0.4s; }
-.sidebar-overlay.open { opacity: 1; visibility: visible; }
+      /* Modal and Tabs */
+      .modal-content { background-color: #0c0f24; border: 1px solid var(--border-color); color: var(--text-primary); }
+      .modal-header { border-bottom: 1px solid var(--border-color); }
+      .modal-footer { border-top: 1px solid var(--border-color); }
+      .modal-backdrop.show { opacity: 0.7; backdrop-filter: blur(5px); }
+      .nav-tabs { border-bottom-color: var(--border-color); }
+      .nav-tabs .nav-link { background: transparent; border-color: transparent; color: var(--text-secondary); transition: var(--transition-smooth); }
+      .nav-tabs .nav-link.active { color: var(--accent-primary); background-color: rgba(145, 94, 255, 0.1); border-color: var(--border-color); }
+      .nav-tabs .nav-link:not(.active):hover { color: var(--text-primary); transform: translateY(-3px); }
+      .tab-content { max-height: 50vh; overflow-y: auto; padding-top: 1rem; }
+      .metadata-key { color: var(--text-secondary); font-weight: 500; }
+      
+      .tab-content .table {
+          --bs-table-bg: transparent;
+          --bs-table-border-color: var(--border-color);
+          --bs-table-color: var(--text-primary);
+          --bs-table-striped-color: var(--text-primary);
+      }
+      .tab-content .table-hover > tbody > tr:hover > * {
+          --bs-table-accent-bg: rgba(145, 94, 255, 0.15);
+      }
 
-.app-menu-container { padding: 1rem 0; }
-.app-filter-bar { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 2.5rem; }
-.app-filter-btn { background-color: var(--card-color); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 20px; border-radius: 50px; cursor: pointer; font-weight: 500; transition: all 0.3s ease; }
-.app-filter-btn:hover { color: var(--text-primary); border-color: var(--accent-secondary); }
-.app-filter-btn.active { background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white; border-color: transparent; box-shadow: 0 0 15px rgba(145, 94, 255, 0.5); }
+      /* News Feed */
+      .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+      .news-card { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 25px; overflow: hidden; transition: var(--transition-smooth); text-decoration: none; color: var(--text-primary); }
+      .news-card:hover { transform: translateY(-8px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
+      .news-card-img { width: 100%; height: 180px; object-fit: cover; transition: transform 0.4s ease; }
+      .news-card:hover .news-card-img { transform: scale(1.05); }
+      .news-card-body { padding: 1rem; }
+      .news-card-title { font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+      .news-card-source { font-size: 0.8rem; color: var(--text-secondary); }
 
-.app-item { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; background: var(--card-color); border: 1px solid var(--border-color); border-radius: 25px; padding: 1rem; transition: all 0.3s ease; height: 100%; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-.app-item:hover { transform: translateY(-8px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
-.app-item-img-wrapper { width: 64px; height: 64px; border-radius: 15px; overflow: hidden; flex-shrink: 0; }
-.app-item-img { width: 100%; height: 100%; object-fit: cover; }
-.app-item-name { display: block; font-weight: 500; font-size: 0.9rem; color: var(--text-primary); line-height: 1.3; margin-top: 0.75rem; text-align: center; }
+      /* Sidebar & Hamburger Menu */
+      .hamburger-btn { width: 40px; height: 40px; background: transparent; border: none; padding: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; cursor: pointer; z-index: 1100; }
+      .hamburger-btn span { display: block; width: 24px; height: 2px; background-color: var(--text-primary); border-radius: 2px; transition: all 0.3s ease-in-out; }
+      .hamburger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+      .hamburger-btn.open span:nth-child(2) { opacity: 0; }
+      .hamburger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-.toast-notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background-color: #171b30;
-    color: var(--text-primary);
-    border: 1px solid var(--accent-primary);
-    border-radius: 12px;
-    padding: 1.5rem;
-    z-index: 9999;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    opacity: 0;
-    transform: translateY(-20px) scale(0.95);
-    transition: opacity 0.4s ease, transform 0.4s ease;
-    max-width: 400px;
-    cursor: pointer;
-}
-.toast-notification.show {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-}
-.toast-notification-header {
-    font-weight: 600;
-    font-size: 1.1rem;
-    margin-bottom: 0.75rem;
-    color: var(--accent-secondary);
-}
-.toast-notification p { font-size: 0.95rem; }
-
-#total-value-usd {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    line-height: 1.2;
-}
-#total-value-vnd {
-    font-size: 1.2rem;
-    color: var(--accent-secondary);
-    font-weight: 500;
-}
-
-#checkin-button:disabled, #referral-code-submit:disabled {
-    background-color: #3a3f5a !important;
-    cursor: not-allowed;
-}
-
-.task-history-item {
-    display: flex;
-    align-items: center;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--border-color);
-}
-.task-history-item:last-child {
-    border-bottom: none;
-}
-.task-history-icon {
-    font-size: 1.2rem;
-    width: 30px;
-    text-align: center;
-    margin-right: 1rem;
-    color: var(--accent-secondary);
-}
-
-/* Leaderboard Styles */
-.leaderboard-list {
-    max-width: 800px;
-    margin: auto;
-}
-.leaderboard-item {
-    display: flex;
-    align-items: center;
-    background: var(--card-color);
-    border: 1px solid var(--border-color);
-    padding: 12px 20px;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    transition: all 0.2s ease;
-}
-.leaderboard-item:hover {
-    transform: scale(1.02);
-    border-color: var(--accent-secondary);
-}
-.leaderboard-rank {
-    font-size: 1.2rem;
-    font-weight: 700;
-    width: 50px;
+      .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background: var(--bg-color); padding: 6rem 2rem 2rem; transform: translateX(-100%); transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 1050; display: flex; flex-direction: column; }
+      .sidebar.open { transform: translateX(0); box-shadow: 10px 0px 50px -20px rgba(0,0,0,0.5); }
+      .sidebar-nav { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+.sidebar-link {
+    /* Các thuộc tính hiện có của bạn */
     color: var(--text-secondary);
-    text-align: center;
-    flex-shrink: 0;
-    margin-right: 10px;
-}
-.leaderboard-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 15px;
-    border: 3px solid var(--border-color);
-    transition: all 0.3s ease;
-}
-.leaderboard-name {
-    font-weight: 600;
-    flex-grow: 1;
-    min-width: 0;
-}
-.leaderboard-exp {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--accent-secondary);
-}
-.leaderboard-item.rank-1 .rank-icon { color: var(--gold); }
-.leaderboard-item.rank-2 .rank-icon { color: var(--silver); }
-.leaderboard-item.rank-3 .rank-icon { color: var(--bronze); }
-.leaderboard-item.rank-1 .leaderboard-avatar { border-color: var(--gold); }
-.leaderboard-item.rank-2 .leaderboard-avatar { border-color: var(--silver); }
-.leaderboard-item.rank-3 .leaderboard-avatar { border-color: var(--bronze); }
-.rank-icon { font-size: 1.8rem; }
-.leaderboard-item.current-user {
-    border-color: var(--accent-primary);
-    box-shadow: 0 0 20px rgba(145, 94, 255, 0.4);
-    transform: scale(1.03);
-}
-
-/* Form Styles */
-.form-control, .form-select {
-    background-color: rgba(23, 27, 48, 0.8);
-    border-color: var(--border-color);
-    color: var(--text-primary);
-}
-.form-control:focus, .form-select:focus {
-    background-color: rgba(23, 27, 48, 1);
-    border-color: var(--accent-primary);
-    color: var(--text-primary);
-    box-shadow: 0 0 0 0.25rem rgba(145, 94, 255, 0.25);
-}
-.form-control::placeholder { color: var(--text-secondary); }
-.form-select {
-     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23915EFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
-}
-.input-group-text {
-     background-color: rgba(23, 27, 48, 0.8);
-     border-color: var(--border-color);
-     color: var(--accent-secondary);
-}
-
-/* Admin Table Styles */
-#admin-section .table {
-    --bs-table-bg: transparent;
-    --bs-table-border-color: var(--border-color);
-    --bs-table-color: var(--text-primary);
-    --bs-table-hover-bg: rgba(145, 94, 255, 0.1);
-    white-space: nowrap;
-}
-#admin-section thead th {
-    color: var(--text-secondary);
-    background-color: rgba(145, 94, 255, 0.05);
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.5px;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 2px solid var(--border-color);
-}
-#admin-section tbody tr {
-    transition: background-color 0.2s ease;
-}
-#admin-section tbody td {
-    padding: 0.75rem;
-    vertical-align: middle;
-    border-bottom: 1px solid var(--border-color);
-}
-#admin-section tbody tr:last-child td {
-    border-bottom: none;
-}
-#admin-section tbody img.table-img-preview {
-    width: 40px;
-    height: 40px;
-    border-radius: 20px;
-    border: 2px solid var(--border-color);
-    object-fit: cover;
-}
-#admin-section .text-truncate {
-    max-width: 150px;
-}
-#admin-load-more-btn {
-    border-color: var(--accent-secondary);
-    color: var(--accent-secondary);
-    font-weight: 600;
-}
-#admin-load-more-btn:hover {
-    background-color: var(--accent-secondary);
-    color: white;
-}
-/* Style for the transaction status switch in admin panel */
-#admin-user-list-container .form-check-input:checked {
-    background-color: var(--color-verified);
-    border-color: var(--color-verified);
-}
-#admin-user-list-container .form-switch .form-check-input {
-    height: 1.25em;
-    width: 2.25em;
-}
-
-/* Airdrop Page Styles */
-.airdrop-stat-card {
-    background: linear-gradient(135deg, rgba(145, 94, 255, 0.1), rgba(43, 203, 196, 0.1));
-    padding: 1.5rem;
-    border-radius: 16px;
-    text-align: center;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-.airdrop-stat-icon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    color: var(--accent-secondary);
-}
-.airdrop-stat-value {
-    font-size: 2rem;
-    font-weight: 700;
-}
-.airdrop-stat-label {
-    color: var(--text-secondary);
-}
-#airdrop-reward-card {
-    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-    color: white;
-    padding: 2rem;
-}
-#airdrop-reward-logo {
-    width: 32px;
-    height: 32px;
-    margin-left: 10px;
-    vertical-align: middle;
-}
-#airdrop-eligibility-status.eligible { color: var(--color-verified); }
-#airdrop-eligibility-status.ineligible { color: var(--color-out); }
-.airdrop-action-btn {
-    background: white;
-    color: var(--accent-primary);
-    font-weight: 700;
-    border: none;
-    padding: 10px 30px;
-    border-radius: 50px;
-    transition: all 0.3s ease;
-    width: 100%;
-    margin-top: 0.75rem;
-}
-.airdrop-action-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(255,255,255,0.3);
-}
-.airdrop-action-btn:disabled {
-    background: #ccc;
-    color: #666;
-    cursor: not-allowed;
-    transform: scale(1);
-    box-shadow: none;
-}
-
-#loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(5, 8, 22, 0.9);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    color: var(--text-secondary);
-    visibility: hidden;
-    opacity: 0;
-    transition: visibility 0s 0.3s, opacity 0.3s ease;
-}
-#loading-overlay.visible {
-    visibility: visible;
-    opacity: 1;
-    transition: opacity 0.3s ease;
-}
-
-/* ============================================= */
-/* CSS FOR PARTNER TASK - FULL-WIDTH BUTTON LAYOUT */
-/* ============================================= */
-
-/* Parent card: Now stacks items vertically (top and button) */
-.partner-task-card {
-    display: flex;
-    flex-direction: column; /* << MOST IMPORTANT CHANGE */
-    gap: 0.75rem; /* Space between the top block and the button below */
-    
-    /* Old styles remain the same */
-    background: var(--card-color);
-    border: 1px solid var(--border-color);
-    padding: 1rem;
-    border-radius: 16px;
-    transition: all 0.3s ease;
     text-decoration: none;
-    color: var(--text-primary);
-}
-.partner-task-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 25px rgba(145, 94, 255, 0.3);
-    border-color: var(--accent-primary);
-}
-.partner-task-card.mandatory {
-    border-left: 4px solid var(--gold);
-}
-.partner-task-card.completed {
-    opacity: 0.7;
-    pointer-events: none; /* Disable the entire card when completed */
-}
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 10px;
+    border-radius: 12px;
+    transition: color 0.3s, background-color 0.3s, transform 0.3s;
 
-/* Top block: Contains image and text, stacked horizontally */
-.partner-task-top {
+    /* Thêm các thuộc tính này */
     display: flex;
     align-items: center;
-    gap: 1rem;
-}
+}      .sidebar-link:hover, .sidebar-link.active { color: var(--text-primary); background-color: var(--border-color); transform: translateX(5px); }
 
-.partner-task-img {
-    width: 64px;
-    height: 64px;
-    border-radius: 12px;
-    object-fit: cover;
-    flex-shrink: 0;
-    border: 2px solid var(--border-color);
-}
+      .sidebar-wallet-connect { margin-top: auto; }
+      #custom-wallet-button { background: var(--accent-primary); color: white; border: none; padding: 10px 16px; width: 100%; border-radius: 25px; font-weight: 500; cursor: pointer; text-align: center; transition: var(--transition-smooth); }
+      #custom-wallet-button:hover { transform: scale(1.03); background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); }
 
-.partner-task-body {
-    flex-grow: 1;
-    min-width: 0;
-}
+      #wallet-dropdown { display: none; position: absolute; right: 0; bottom: calc(100% + 10px); background-color: #171b30; border: 1px solid var(--border-color); border-radius: 25px; z-index: 1056; min-width: 100%; box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
+      #wallet-dropdown a { color: var(--text-primary); padding: 12px 16px; text-decoration: none; display: block; font-size: 0.9rem; }
+      #wallet-dropdown a:hover { background-color: rgba(145, 94, 255, 0.2); }
+      #wallet-dropdown a i { margin-right: 10px; width: 15px; text-align: center; }
 
-.partner-task-title {
-    font-weight: 600;
-    font-size: 1.1rem;
-    margin: 0;
-    color: var(--text-primary);
-}
-
-.partner-task-desc {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    margin: 0.25rem 0 0.5rem;
-    white-space: normal;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-}
-.partner-task-desc.expanded {
-    -webkit-line-clamp: unset;
-}
-
-.task-details-toggle {
-    background: none;
-    border: none;
-    color: var(--accent-secondary);
-    font-size: 0.85rem;
-    font-weight: 600;
-    padding: 0;
-    cursor: pointer;
-    z-index: 2; /* Ensure this button is always clickable */
-    position: relative;
-}
-.task-details-toggle:hover {
-    text-decoration: underline;
-}
-
-/* Action button/bar below, spans 100% width */
-.partner-task-action-bar {
-    width: 100%;
-    text-align: center;
-    padding: 10px;
-    font-weight: 700;
-    border-radius: 25px;
-    background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-    color: white;
-    transition: all 0.3s ease;
-}
-
-.partner-task-card.completed .partner-task-action-bar {
-    background: rgba(46, 204, 113, 0.25);
-    color: var(--color-verified);
-}
+      .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); z-index: 1040; opacity: 0; visibility: hidden; transition: opacity 0.4s, visibility 0.4s; }
+      .sidebar-overlay.open { opacity: 1; visibility: visible; }
+      
+      /* Toast Notification */
+      .toast-notification {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background-color: #171b30;
+          color: var(--text-primary);
+          border: 1px solid var(--accent-primary);
+          border-radius: 12px;
+          padding: 1.5rem;
+          z-index: 9999;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          opacity: 0;
+          transform: translateY(-20px) scale(0.95);
+          transition: opacity 0.4s ease, transform 0.4s ease;
+          max-width: 400px;
+          cursor: pointer;
+      }
+      .toast-notification.show {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+      }
+      .toast-notification-header {
+          font-weight: 600;
+          font-size: 1.1rem;
+          margin-bottom: 0.75rem;
+          color: var(--accent-secondary);
+      }
+      .toast-notification p { font-size: 0.95rem; }
 
 
-/* Responsive Adjustments */
-@media (min-width: 768px) {
-    .hero-section h1, .login-section h1 { font-size: 3.5rem; }
-    .card-glass { padding: 2rem; }
-    .main-container { padding: 2rem; }
-}
+      /* =================================================================== */
+      /* PAGE-SPECIFIC SECTIONS
+      /* =================================================================== */
+      
+      /* App Store */
+      .app-menu-container { padding: 1rem 0; }
+      .app-filter-bar { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 2.5rem; }
+      .app-filter-btn { background-color: var(--card-color); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 20px; border-radius: 50px; cursor: pointer; font-weight: 500; transition: all 0.3s ease; }
+      .app-filter-btn:hover { color: var(--text-primary); border-color: var(--accent-secondary); transform: translateY(-3px); }
+      .app-filter-btn.active { background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white; border-color: transparent; box-shadow: 0 0 15px rgba(145, 94, 255, 0.5); }
+
+      .app-item { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; background: var(--card-color); border: 1px solid var(--border-color); border-radius: 25px; padding: 1rem; transition: var(--transition-smooth); height: 100%; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+      .app-item:hover { transform: translateY(-8px); box-shadow: 0 0 25px rgba(145, 94, 255, 0.3); border-color: var(--accent-primary); }
+      .app-item-img-wrapper { width: 64px; height: 64px; border-radius: 15px; overflow: hidden; flex-shrink: 0; transition: transform 0.3s ease; }
+      .app-item:hover .app-item-img-wrapper { transform: scale(1.1); }
+      .app-item-img { width: 100%; height: 100%; object-fit: cover; }
+      .app-item-name { display: block; font-weight: 500; font-size: 0.9rem; color: var(--text-primary); line-height: 1.3; margin-top: 0.75rem; text-align: center; }
+
+      /* Portfolio / Dashboard */
+      #total-value-usd {
+          font-size: 2.2rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          line-height: 1.2;
+      }
+      #total-value-vnd {
+          font-size: 1.2rem;
+          color: var(--accent-secondary);
+          font-weight: 500;
+      }
+
+      /* Task Section */
+      #checkin-button:disabled, #referral-code-submit:disabled {
+          background-color: #3a3f5a !important;
+          cursor: not-allowed;
+          animation: none !important;
+      }
+      #checkin-button:not(:disabled) {
+          animation: pulse 2.5s infinite ease-in-out;
+      }
+      .task-history-item {
+          display: flex;
+          align-items: center;
+          padding: 0.75rem 0;
+          border-bottom: 1px solid var(--border-color);
+          opacity: 0;
+          animation: fadeInUp 0.5s ease-out forwards;
+      }
+      .task-history-item:last-child { border-bottom: none; }
+      .task-history-icon {
+          font-size: 1.2rem;
+          width: 30px;
+          text-align: center;
+          margin-right: 1rem;
+          color: var(--accent-secondary);
+      }
+
+      /* Leaderboard Styles */
+      .leaderboard-list { max-width: 800px; margin: auto; }
+      .leaderboard-item {
+          display: flex;
+          align-items: center;
+          background: var(--card-color);
+          border: 1px solid var(--border-color);
+          padding: 12px 20px;
+          border-radius: 12px;
+          margin-bottom: 10px;
+          transition: var(--transition-smooth);
+          opacity: 0; /* Initially hidden for animation */
+          animation: fadeInUp 0.5s ease-out forwards;
+      }
+      /* Staggered animation for leaderboard items */
+      .leaderboard-item:nth-child(1) { animation-delay: 0.1s; }
+      .leaderboard-item:nth-child(2) { animation-delay: 0.15s; }
+      .leaderboard-item:nth-child(3) { animation-delay: 0.2s; }
+      .leaderboard-item:nth-child(4) { animation-delay: 0.25s; }
+      .leaderboard-item:nth-child(5) { animation-delay: 0.3s; }
+      .leaderboard-item:nth-child(6) { animation-delay: 0.35s; }
+      .leaderboard-item:nth-child(7) { animation-delay: 0.4s; }
+
+      .leaderboard-item:hover {
+          transform: scale(1.03);
+          border-color: var(--accent-secondary);
+          box-shadow: 0 0 20px rgba(43, 203, 196, 0.3);
+      }
+      .leaderboard-rank {
+          font-size: 1.2rem;
+          font-weight: 700;
+          width: 50px;
+          color: var(--text-secondary);
+          text-align: center;
+          flex-shrink: 0;
+          margin-right: 10px;
+      }
+      .leaderboard-avatar {
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          object-fit: cover;
+          margin-right: 15px;
+          border: 3px solid var(--border-color);
+          transition: all 0.3s ease;
+      }
+      .leaderboard-name { font-weight: 600; flex-grow: 1; min-width: 0; }
+      .leaderboard-exp {
+          font-size: 1.1rem;
+          font-weight: 700;
+          color: var(--accent-secondary);
+      }
+      .leaderboard-item.rank-1 .rank-icon, .leaderboard-item.rank-1 .leaderboard-avatar { color: var(--gold); border-color: var(--gold); }
+      .leaderboard-item.rank-2 .rank-icon, .leaderboard-item.rank-2 .leaderboard-avatar { color: var(--silver); border-color: var(--silver); }
+      .leaderboard-item.rank-3 .rank-icon, .leaderboard-item.rank-3 .leaderboard-avatar { color: var(--bronze); border-color: var(--bronze); }
+      .rank-icon { font-size: 1.8rem; }
+      .leaderboard-item.current-user {
+          border-color: var(--accent-primary);
+          box-shadow: 0 0 20px rgba(145, 94, 255, 0.4);
+          transform: scale(1.03);
+      }
+    
+       /* [NEW] Leaderboard Summary */
+      #leaderboard-summary {
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+      }
+      #leaderboard-summary .total-users-count {
+        font-weight: 700;
+        color: var(--accent-secondary);
+      }
+
+
+      /* Form Styles */
+      .form-control, .form-select {
+          background-color: rgba(23, 27, 48, 0.8);
+          border-color: var(--border-color);
+          color: var(--text-primary);
+          transition: var(--transition-smooth);
+      }
+      .form-control:focus, .form-select:focus {
+          background-color: rgba(23, 27, 48, 1);
+          border-color: var(--accent-primary);
+          color: var(--text-primary);
+          box-shadow: 0 0 0 0.25rem rgba(145, 94, 255, 0.25);
+      }
+      .form-control::placeholder { color: var(--text-secondary); }
+      .form-select { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23915EFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e"); }
+      .input-group-text {
+          background-color: rgba(23, 27, 48, 0.8);
+          border-color: var(--border-color);
+          color: var(--accent-secondary);
+      }
+
+      /* Admin Panel */
+      #admin-section .table {
+          --bs-table-bg: transparent;
+          --bs-table-border-color: var(--border-color);
+          --bs-table-color: var(--text-primary);
+          --bs-table-hover-bg: rgba(145, 94, 255, 0.1);
+          white-space: nowrap;
+      }
+      #admin-section thead th {
+          color: var(--text-secondary);
+          background-color: rgba(145, 94, 255, 0.05);
+          text-transform: uppercase;
+          font-size: 0.75rem;
+          letter-spacing: 0.5px;
+          padding-top: 0.75rem;
+          padding-bottom: 0.75rem;
+          border-bottom: 2px solid var(--border-color);
+      }
+      #admin-section tbody tr { transition: background-color 0.2s ease; }
+      #admin-section tbody td { padding: 0.75rem; vertical-align: middle; border-bottom: 1px solid var(--border-color); }
+      #admin-section tbody tr:last-child td { border-bottom: none; }
+      #admin-section tbody img.table-img-preview {
+          width: 40px;
+          height: 40px;
+          border-radius: 20px;
+          border: 2px solid var(--border-color);
+          object-fit: cover;
+      }
+      #admin-section .text-truncate { max-width: 150px; }
+      #admin-load-more-btn {
+          border-color: var(--accent-secondary);
+          color: var(--accent-secondary);
+          font-weight: 600;
+          transition: var(--transition-smooth);
+      }
+      #admin-load-more-btn:hover { background-color: var(--accent-secondary); color: white; transform: scale(1.05); }
+      #admin-user-list-container .form-check-input:checked { background-color: var(--color-verified); border-color: var(--color-verified); }
+      #admin-user-list-container .form-switch .form-check-input { height: 1.25em; width: 2.25em; }
+    
+     /* [NEW] Scrollable Admin User List */
+      #admin-user-list-container {
+        max-height: 70vh; /* Set a max height */
+        overflow-y: auto;  /* Enable vertical scroll */
+        /* The table-responsive class will handle horizontal scroll */
+      }
+
+
+      /* Airdrop Page */
+      .airdrop-stat-card {
+          background: linear-gradient(135deg, rgba(145, 94, 255, 0.1), rgba(43, 203, 196, 0.1));
+          padding: 1.5rem;
+          border-radius: 16px;
+          text-align: center;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          transition: var(--transition-smooth);
+      }
+      .airdrop-stat-card:hover { transform: translateY(-5px); }
+      .airdrop-stat-icon { font-size: 2.5rem; margin-bottom: 1rem; color: var(--accent-secondary); transition: transform 0.3s ease; }
+      .airdrop-stat-card:hover .airdrop-stat-icon { transform: scale(1.1); }
+      .airdrop-stat-value { font-size: 2rem; font-weight: 700; }
+      .airdrop-stat-label { color: var(--text-secondary); }
+      #airdrop-reward-card {
+          background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+          color: white;
+          padding: 2rem;
+          transform: scale(1);
+          transition: transform 0.4s ease, box-shadow 0.4s ease;
+      }
+      #airdrop-reward-card:hover {
+          transform: scale(1.03);
+          box-shadow: 0 10px 40px rgba(145, 94, 255, 0.4);
+      }
+      #airdrop-reward-logo { width: 32px; height: 32px; margin-left: 10px; vertical-align: middle; }
+      #airdrop-eligibility-status.eligible { color: var(--color-verified); }
+      #airdrop-eligibility-status.ineligible { color: var(--color-out); }
+      .airdrop-action-btn {
+          background: white;
+          color: var(--accent-primary);
+          font-weight: 700;
+          border: none;
+          padding: 10px 30px;
+          border-radius: 50px;
+          transition: all 0.3s ease;
+          width: 100%;
+          margin-top: 0.75rem;
+      }
+      .airdrop-action-btn:hover {
+          transform: scale(1.05);
+          box-shadow: 0 0 20px rgba(255,255,255,0.3);
+      }
+      .airdrop-action-btn:disabled {
+          background: #ccc;
+          color: #666;
+          cursor: not-allowed;
+          transform: scale(1);
+          box-shadow: none;
+      }
+
+      /* Loading & Maintenance Overlays */
+      #loading-overlay, #maintenance-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(5, 8, 22, 0.9);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          z-index: 9999;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          flex-direction: column;
+          color: var(--text-secondary);
+          visibility: hidden;
+          opacity: 0;
+          transition: visibility 0s 0.3s, opacity 0.3s ease;
+      }
+      #loading-overlay.visible, #maintenance-overlay.visible {
+          visibility: visible;
+          opacity: 1;
+          transition: opacity 0.3s ease;
+      }
+      #loading-overlay .spinner-border, #maintenance-overlay .spinner-border {
+          animation: spin 1s linear infinite;
+      }
+      #maintenance-overlay h2 {
+          color: var(--text-primary);
+      }
+      #admin-maintenance-banner {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background: linear-gradient(90deg, var(--gold), var(--color-failed));
+        color: #000;
+        text-align: center;
+        padding: 5px;
+        font-weight: 600;
+        z-index: 10000;
+        font-size: 0.9rem;
+      }
+
+
+      /* Partner Task Card */
+      .partner-task-card {
+          display: flex;
+          flex-direction: column; 
+          gap: 0.75rem; 
+          background: var(--card-color);
+          border: 1px solid var(--border-color);
+          padding: 1rem;
+          border-radius: 16px;
+          transition: var(--transition-smooth);
+          text-decoration: none;
+          color: var(--text-primary);
+          opacity: 0;
+          animation: fadeInUp 0.5s ease-out forwards;
+      }
+      .partner-task-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 0 25px rgba(145, 94, 255, 0.3);
+          border-color: var(--accent-primary);
+      }
+      .partner-task-card.mandatory { border-left: 4px solid var(--gold); }
+      .partner-task-card.completed {
+          opacity: 0.7;
+          pointer-events: none;
+          background: linear-gradient(45deg, rgba(46, 204, 113, 0.05), rgba(46, 204, 113, 0.15));
+      }
+
+      .partner-task-top { display: flex; align-items: center; gap: 1rem; }
+      .partner-task-img {
+          width: 64px;
+          height: 64px;
+          border-radius: 12px;
+          object-fit: cover;
+          flex-shrink: 0;
+          border: 2px solid var(--border-color);
+      }
+      .partner-task-body { flex-grow: 1; min-width: 0; }
+      .partner-task-title { font-weight: 600; font-size: 1.1rem; margin: 0; color: var(--text-primary); }
+      .partner-task-desc {
+          color: var(--text-secondary);
+          font-size: 0.9rem;
+          margin: 0.25rem 0 0.5rem;
+          white-space: normal;
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          transition: all 0.3s ease-in-out;
+      }
+      .partner-task-desc.expanded { -webkit-line-clamp: 10; max-height: 200px; }
+      .task-details-toggle {
+          background: none;
+          border: none;
+          color: var(--accent-secondary);
+          font-size: 0.85rem;
+          font-weight: 600;
+          padding: 0;
+          cursor: pointer;
+          z-index: 2;
+          position: relative;
+      }
+      .task-details-toggle:hover { text-decoration: underline; }
+      .partner-task-action-bar {
+          width: 100%;
+          text-align: center;
+          padding: 10px;
+          font-weight: 700;
+          border-radius: 25px;
+          background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+          color: white;
+          transition: all 0.3s ease;
+      }
+      .partner-task-card:not(.completed):hover .partner-task-action-bar {
+          transform: scale(1.03);
+          box-shadow: 0 0 15px rgba(145, 94, 255, 0.5);
+      }
+      .partner-task-card.completed .partner-task-action-bar {
+          background: rgba(46, 204, 113, 0.25);
+          color: var(--color-verified);
+      }
+
+
+      /* Responsive & Platform-Specific */
+      @media (min-width: 768px) {
+          .hero-section h1, .login-section h1 { font-size: 3.5rem; }
+          .card-glass { padding: 2rem; }
+          .main-container { padding: 2rem; }
+      }
+      
+      .platform-ios .main-container,
+      .platform-ios #loading-overlay { padding-top: 90px !important; }
+
+      .platform-android .main-container,
+      .platform-android #loading-overlay { padding-top: 65px !important; }
+
+      .platform-ios .toast-notification { top: 90px !important; }
+      .platform-android .toast-notification { top: 65px !important; }
+      
+      .platform-ios #sidebar-menu { padding-top: 150px !important; }
+      .platform-android #sidebar-menu { padding-top: 140px !important; }
+    
+    
+    /* [NEW & UPDATED] Admin Navigation Styles */
+    #admin-nav-bar {
+        display: flex;
+        justify-content: flex-start; /* Align to the start */
+        flex-wrap: nowrap; /* Prevent wrapping */
+        gap: 10px;
+        margin-bottom: 2.5rem;
+        overflow-x: auto; /* Enable horizontal scroll */
+        padding-bottom: 10px; /* Space for scrollbar */
+        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+    }
+    #admin-nav-bar::-webkit-scrollbar { height: 4px; }
+    #admin-nav-bar::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
+
+    .admin-nav-btn {
+        background-color: var(--card-color);
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        padding: 8px 20px;
+        border-radius: 50px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        white-space: nowrap; /* Keep button text on one line */
+        flex-shrink: 0; /* Prevent buttons from shrinking */
+    }
+    .admin-nav-btn:hover {
+        color: var(--text-primary);
+        border-color: var(--accent-secondary);
+        transform: translateY(-3px);
+    }
+    .admin-nav-btn.active {
+        background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 0 15px rgba(145, 94, 255, 0.5);
+    }
     </style>
 </head>
 <body>
+    <!-- [NEW] Maintenance Overlay -->
+    <div id="maintenance-overlay">
+        <div class="text-center">
+            <i class="fas fa-tools fa-3x mb-4" style="color: var(--accent-primary);"></i>
+            <h2 class="mb-3">Under Maintenance</h2>
+            <p>Bmass is currently undergoing scheduled maintenance.<br>We'll be back online shortly. Thank you for your patience!</p>
+        </div>
+    </div>
+
+    <!-- [NEW] Admin-only Maintenance Banner -->
+    <div id="admin-maintenance-banner" style="display: none;">
+        <i class="fas fa-exclamation-triangle me-2"></i> MAINTENANCE MODE IS ACTIVE
+    </div>
+
     <div id="loading-overlay">
         <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
           <span class="visually-hidden">Loading...</span>
@@ -589,15 +812,33 @@ body {
     <div id="sidebar-overlay"></div>
     <nav id="sidebar-menu" class="sidebar">
         <div class="sidebar-nav">
-            <a href="#dashboard" class="sidebar-link active" id="nav-dashboard">Wallet</a>
-            <a href="#apps" class="sidebar-link" id="nav-apps">Apps</a>
-            <a href="#task" class="sidebar-link" id="nav-task">History</a>
-            <a href="#partner" class="sidebar-link" id="nav-partner">Tasks</a>
-            <a href="#referral" class="sidebar-link" id="nav-referral">Referral</a>
-            <a href="#airdrop" class="sidebar-link" id="nav-airdrop">Airdrop</a>
-            <a href="#leaderboard" class="sidebar-link" id="nav-leaderboard">Leaderboard</a>
-            <a href="#account" class="sidebar-link" id="nav-account">Account</a>
-            <a href="#admin" class="sidebar-link" id="nav-admin" style="display: none;">Admin</a>
+            <a href="#dashboard" class="sidebar-link active" id="nav-dashboard">
+                <i class="fas fa-wallet fa-fw me-3"></i>Wallet
+            </a>
+            <a href="#apps" class="sidebar-link" id="nav-apps">
+                <i class="fas fa-th-large fa-fw me-3"></i>Apps
+            </a>
+            <a href="#task" class="sidebar-link" id="nav-task">
+                <i class="fas fa-history fa-fw me-3"></i>History
+            </a>
+            <a href="#partner" class="sidebar-link" id="nav-partner">
+                <i class="fas fa-list-check fa-fw me-3"></i>Tasks
+            </a>
+            <a href="#referral" class="sidebar-link" id="nav-referral">
+                <i class="fas fa-users fa-fw me-3"></i>Referral
+            </a>
+            <a href="#airdrop" class="sidebar-link" id="nav-airdrop">
+                <i class="fas fa-parachute-box fa-fw me-3"></i>Airdrop
+            </a>
+            <a href="#leaderboard" class="sidebar-link" id="nav-leaderboard">
+                <i class="fas fa-trophy fa-fw me-3"></i>Leaderboard
+            </a>
+            <a href="#account" class="sidebar-link" id="nav-account">
+                <i class="fas fa-user-circle fa-fw me-3"></i>Account
+            </a>
+            <a href="#admin" class="sidebar-link" id="nav-admin" style="display: none;">
+                <i class="fas fa-user-shield fa-fw me-3"></i>Admin
+            </a>
         </div>
         
         <div class="sidebar-wallet-connect">
@@ -647,6 +888,7 @@ body {
                             <p id="profile-username" class="text-secondary fs-5"></p>
                             <hr style="border-color: var(--border-color); opacity: 0.5;">
                             <div id="profile-details" class="text-start p-2">
+                                <!-- User details rendered by JS -->
                             </div>
                             <div class="d-grid gap-2 mt-4">
                                 <button id="contact-admin-btn" class="btn btn-outline-secondary">
@@ -792,8 +1034,7 @@ body {
                             <!-- Daily Check-in -->
                             <h5 class="card-title">Tasks and History</h5>
                             <div id="daily-checkin-content" class="d-flex justify-content-between align-items-center">
-                                <p class="mb-0">Check-in to receive <strong style="color: var(--accent-primary);">+10 EXP</strong>.</p>
-                                <button id="checkin-button" class="btn px-4 py-2" style="background-color: var(--accent-secondary); color: white; font-weight: 600; flex-shrink: 0; min-width: 130px;" disabled>
+<p class="mb-0">Check-in to receive <strong style="color: var(--accent-primary);" id="checkin-exp-display">+1000 EXP</strong>.</p>                                <button id="checkin-button" class="btn px-4 py-2" style="background-color: var(--accent-secondary); color: white; font-weight: 600; flex-shrink: 0; min-width: 130px;" disabled>
                                     <i class="fas fa-spinner fa-spin me-2"></i>Wait...
                                 </button>
                             </div>
@@ -831,16 +1072,38 @@ body {
             </div>
         </main>
         
-        <main id="referral-section" style="display: none;">
-             <div class="container">
-                <div class="text-center mb-5">
-                    <h1 class="mb-2" style="font-weight: 700;">Invite Friends</h1>
-                    <p class="lead text-secondary col-md-8 mx-auto">Invite friends to join and you both get a reward. Receive <strong style="color: var(--accent-secondary);">200 EXP</strong> for each successful referral!</p>
+<main id="referral-section" style="display: none;">
+     <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="mb-2" style="font-weight: 700;">Invite Friends</h1>
+            <p class="lead text-secondary col-md-8 mx-auto">Invite friends to join and you both get a reward. Receive <strong style="color: var(--accent-secondary);" id="referral-base-exp-display">5000 EXP</strong> for each successful referral!</p>
+        </div>
+
+        <!-- ============================================= -->
+        <!-- [NEW] KHỐI HIỂN THỊ MỐC THƯỞNG - DÁN VÀO ĐÂY -->
+        <!-- ============================================= -->
+        <div class="row justify-content-center g-4 mb-4">
+            <div class="col-12 col-md-10 col-lg-8">
+                <div class="card-glass">
+                    <h5 class="card-title"><i class="fas fa-gem me-2"></i>Referral Milestones</h5>
+                    <p class="text-secondary small">Invite more friends to unlock huge bonus rewards!</p>
+                    <div id="referral-milestones-list-container">
+                        <!-- Danh sách mốc thưởng sẽ được JS render ở đây -->
+                        <div class="skeleton-loader skeleton-line w-100 mb-2"></div>
+                        <div class="skeleton-loader skeleton-line w-75 mb-2"></div>
+                        <div class="skeleton-loader skeleton-line w-50"></div>
+                    </div>
                 </div>
-                <div class="row justify-content-center g-4">
-                    <div class="col-12 col-md-10 col-lg-8">
-                        <div class="card-glass">
-                            <ul class="nav nav-tabs" id="referralTab" role="tablist">
+            </div>
+        </div>
+        <!-- ============================================= -->
+        <!-- KẾT THÚC KHỐI MỚI                             -->
+        <!-- ============================================= -->
+
+        <div class="row justify-content-center g-4">
+            <div class="col-12 col-md-10 col-lg-8">
+                <div class="card-glass">
+                    <ul class="nav nav-tabs" id="referralTab" role="tablist">
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab"><i class="fas fa-link me-2"></i>My Codes</button>
                                 </li>
@@ -981,283 +1244,336 @@ body {
             <div class="container">
                 <div class="text-center mb-5">
                     <h1 class="mb-2" style="font-weight: 700;">Leaderboard</h1>
-                    <p class="lead text-secondary col-md-8 mx-auto">Celebrating our most active users. Keep earning EXP to climb the ranks!</p>
+                    <!-- [NEW] Leaderboard Summary -->
+                    <div id="leaderboard-summary">
+                        <p class="lead text-secondary col-md-8 mx-auto">
+                            Celebrating our most active users. Keep earning EXP to climb the ranks!
+                            <br>
+                            <span id="leaderboard-total-users">
+                                <i class="fas fa-users me-2"></i>Total Participants: 
+                                <span class="total-users-count">...</span>
+                            </span>
+                        </p>
+                    </div>
                 </div>
                 <div id="leaderboard-list" class="leaderboard-list"></div>
             </div>
         </main>
         
-        <main id="admin-section" style="display: none;">
-            <div class="container">
-                <div class="text-center mb-5">
-                    <h1 class="mb-2" style="font-weight: 700;">Admin Panel</h1>
-                    <p class="lead text-secondary col-md-8 mx-auto">Công cụ quản lý người dùng và sự kiện.</p>
+ <main id="admin-section" style="display: none;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="mb-2" style="font-weight: 700;">Admin Panel</h1>
+            <p class="lead text-secondary col-md-8 mx-auto">Công cụ quản lý người dùng và sự kiện.</p>
+        </div>
+
+        <!-- [UPDATED] Thanh Điều Hướng Admin -->
+        <div id="admin-nav-bar" class="app-filter-bar mb-4">
+            <button class="admin-nav-btn btn active" data-target="#admin-panel-users">User List</button>
+            <button class="admin-nav-btn btn" data-target="#admin-panel-messenger">Messenger</button>
+            <button class="admin-nav-btn btn" data-target="#admin-panel-partner-tasks">Partner Tasks</button>
+            <button class="admin-nav-btn btn" data-target="#admin-panel-reward-settings">Reward Settings</button>
+            <button class="admin-nav-btn btn" data-target="#admin-panel-airdrop-settings">Airdrop Settings</button>
+            <button class="admin-nav-btn btn" data-target="#admin-panel-edit-exp">Edit EXP</button>
+            <button class="admin-nav-btn btn" data-target="#admin-panel-mass-award">Mass Award</button>
+            <button class="admin-nav-btn btn" data-target="#admin-panel-account-status">Account Status</button>
+            <!-- [NEW] Nút bảo trì -->
+            <button class="admin-nav-btn btn" data-target="#admin-panel-system-status">System Status</button>
+        </div>
+
+        <div class="row justify-content-center g-4">
+            
+            <!-- [NEW] Bảng Trạng Thái Hệ Thống -->
+            <div id="admin-panel-system-status" class="admin-panel-wrapper" style="display: none;">
+                <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                    <div class="card-glass">
+                        <h5 class="card-title">System Status & Maintenance</h5>
+                        <div class="d-flex justify-content-center align-items-center p-4">
+                            <div class="form-check form-switch fs-2 d-inline-block">
+                                <input class="form-check-input" type="checkbox" role="switch" id="maintenance-mode-switch" style="width: 4em; height: 2em;">
+                                <label class="form-check-label ms-3" for="maintenance-mode-switch" style="color: var(--color-out);">Maintenance Mode</label>
+                            </div>
+                        </div>
+                        <p class="text-center text-secondary small">
+                            WARNING: Activating maintenance mode will block access for all non-admin users.
+                        </p>
+                         <div id="admin-system-status" class="mt-3 text-center fw-bold"></div>
+                    </div>
                 </div>
-                <div class="row justify-content-center g-4">
-                    <!-- ============================================= -->
-                    <!-- NEW: ADMIN PARTNER TASK MANAGEMENT            -->
-                    <!-- ============================================= -->
-                     <div class="col-12 col-lg-10 col-xl-8">
-                        <div class="card-glass">
-                            <h5 class="card-title">Quản lý Nhiệm vụ Partner</h5>
-                            <form id="admin-partner-task-form">
-                                <input type="hidden" id="partner-task-id-input">
-                                <div class="mb-3">
-                                    <label for="partner-task-name-input" class="form-label">Tên dự án</label>
-                                    <input type="text" class="form-control" id="partner-task-name-input" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="partner-task-desc-input" class="form-label">Mô tả ngắn</label>
-                                    <textarea class="form-control" id="partner-task-desc-input" rows="2" required></textarea>
-                                </div>
-                                <div class="row g-3">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="partner-task-img-upload" class="form-label">Tải ảnh lên</label>
-                                        <input class="form-control" type="file" id="partner-task-img-upload" accept="image/*">
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="partner-task-img-url" class="form-label">Hoặc dán Link ảnh</label>
-                                        <input type="url" class="form-control" id="partner-task-img-url" placeholder="https://...">
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="partner-task-link-input" class="form-label">Link nhiệm vụ</label>
-                                    <input type="url" class="form-control" id="partner-task-link-input" required placeholder="https://...">
-                                </div>
-                                <div class="row g-3">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="partner-task-exp-input" class="form-label">EXP Thưởng</label>
-                                        <input type="number" class="form-control" id="partner-task-exp-input" required min="0">
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="partner-task-type-select" class="form-label">Loại nhiệm vụ</label>
-                                        <select class="form-select" id="partner-task-type-select">
-                                            <option value="normal" selected>Thông thường</option>
-                                            <option value="mandatory">Bắt buộc (Ghim)</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div id="admin-partner-task-status" class="mt-3 text-center"></div>
-                                <div class="d-flex gap-3 mt-3">
-                                    <button type="submit" id="partner-task-save-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;">Lưu Nhiệm Vụ</button>
-                                    <button type="button" id="partner-task-clear-btn" class="btn btn-outline-secondary w-50">Làm mới</button>
-                                </div>
-                            </form>
-                            <hr style="border-color: var(--border-color); opacity: 0.5; margin: 2rem 0;">
-                            <h5 class="card-title">Danh sách Nhiệm vụ Partner</h5>
-                            <div id="admin-partner-tasks-list" class="table-responsive">
-                                <!-- Admin partner tasks table will be rendered here -->
-                            </div>
-                        </div>
-                    </div>
-
-                     <div class="col-12 col-lg-10 col-xl-8">
-                        <div class="card-glass">
-                            <h5 class="card-title">Cấu hình Airdrop & Xuất dữ liệu</h5>
-                            <div id="admin-airdrop-settings-form">
-                                <div class="row text-center g-3 mb-4">
-                                    <div class="col-6 col-sm-3">
-                                        <div class="form-check form-switch fs-5 d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="airdrop-live-switch">
-                                            <label class="form-check-label" for="airdrop-live-switch">Live</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-sm-3">
-                                        <div class="form-check form-switch fs-5 d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="confirmation-enabled-switch">
-                                            <label class="form-check-label" for="confirmation-enabled-switch">Xác nhận</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-sm-3">
-                                        <div class="form-check form-switch fs-5 d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="claim-enabled-switch">
-                                            <label class="form-check-label" for="claim-enabled-switch">Yêu cầu</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-sm-3">
-                                        <div class="form-check form-switch fs-5 d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="snapshot-active-switch">
-                                            <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snap</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <hr style="border-color: var(--border-color); opacity: 0.5;">
-                                <h6 class="text-secondary text-center my-3">CÔNG THỨC TÍNH ĐIỂM</h6>
-                                <div class="row g-3 mb-4">
-                                     <div class="col-md-4">
-                                        <label for="ref-multiplier-input" class="form-label">Điểm mỗi Lượt mời</label>
-                                        <input type="number" class="form-control" id="ref-multiplier-input" value="50" min="0">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="checkin-multiplier-input" class="form-label">Điểm mỗi Check-in</label>
-                                        <input type="number" class="form-control" id="checkin-multiplier-input" value="30" min="0">
-                                    </div>
-                                     <div class="col-md-4">
-                                        <label for="exp-multiplier-input" class="form-label">Điểm mỗi EXP</label>
-                                        <input type="number" class="form-control" id="exp-multiplier-input" value="20" min="0">
-                                    </div>
-                                </div>
-
-                                <hr style="border-color: var(--border-color); opacity: 0.5;">
-                                <h6 class="text-secondary text-center my-3">ĐIỀU KIỆN TỐI THIỂU</h6>
-                                <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <label for="min-checkins-input" class="form-label">Tối thiểu Check-in</label>
-                                        <input type="number" class="form-control" id="min-checkins-input" value="0" min="0">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="min-referrals-input" class="form-label">Tối thiểu Lượt mời</label>
-                                        <input type="number" class="form-control" id="min-referrals-input" value="0" min="0">
-                                    </div>
-                                     <div class="col-md-4">
-                                        <label for="min-exp-input" class="form-label">Tối thiểu EXP</label>
-                                        <input type="number" class="form-control" id="min-exp-input" value="0" min="0">
-                                    </div>
-                                </div>
-                                <div class="mt-3">
-                                     <label for="min-exp-input" class="form-label fw-bold" style="color: var(--gold);">ĐIỀU KIỆN NHIỆM VỤ BẮT BUỘC (Tự động áp dụng)</label>
-                                </div>
-                                <div id="admin-settings-status" class="mt-3"></div>
-                                <div class="d-flex gap-3 mt-3">
-                                    <button type="button" id="save-settings-btn" class="btn w-100" style="background-color: var(--accent-secondary); color: white;">Lưu Cài Đặt</button>
-                                    <button type="button" id="export-csv-btn" class="btn btn-outline-light w-100">Xuất File Excel (CSV)</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-lg-10 col-xl-8">
-                        <div class="card-glass">
-                            <h5 class="card-title">Chỉnh sửa EXP cho một User</h5>
-                            <form id="admin-exp-form">
-                                <div class="mb-3">
-                                    <label for="admin-target-type" class="form-label">Loại định danh</label>
-                                    <select class="form-select" id="admin-target-type">
-                                        <option value="uid" selected>UID (Telegram ID)</option>
-                                        <option value="address">Address (Raw)</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-target-value" class="form-label">Giá trị định danh</label>
-                                    <input type="text" class="form-control" id="admin-target-value" placeholder="Nhập UID hoặc địa chỉ ví..." required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-action-type" class="form-label">Hành động</label>
-                                    <select class="form-select" id="admin-action-type">
-                                        <option value="add" selected>Cộng EXP</option>
-                                        <option value="subtract">Trừ EXP</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-exp-amount" class="form-label">Số lượng EXP</label>
-                                    <input type="number" class="form-control" id="admin-exp-amount" placeholder="e.g., 100" required min="1">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-task-name" class="form-label">Lý do (Task Name)</label>
-                                    <input type="text" class="form-control" id="admin-task-name" placeholder="e.g., Thưởng event" required>
-                                </div>
-                                <button type="submit" id="admin-submit-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;">
-                                    <i class="fas fa-check me-2"></i>Xác nhận
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                    
-                    <!-- [NEW] THƯỞNG EXP HÀNG LOẠT -->
-                    <div class="col-12 col-lg-10 col-xl-8">
-                        <div class="card-glass">
-                            <h5 class="card-title">Thưởng EXP Hàng Loạt</h5>
-                            <form id="admin-mass-award-form">
-                                <div class="mb-3">
-                                    <label for="admin-mass-condition-type" class="form-label">Thưởng cho người dùng theo</label>
-                                    <select class="form-select" id="admin-mass-condition-type">
-                                        <option value="all" selected>Tất cả người dùng</option>
-                                        <option value="referralCount">Số lượt mời</option>
-                                        <option value="checkinCount">Số lượt Check-in</option>
-                                        <option value="points">Số điểm EXP</option>
-                                    </select>
-                                </div>
-                                <div id="admin-mass-condition-wrapper" style="display: none;">
-                                    <label class="form-label">Điều kiện</label>
-                                    <div class="input-group mb-3">
-                                        <select class="form-select" id="admin-mass-operator" style="max-width: 150px;">
-                                            <option value=">=" selected>Lớn hơn hoặc bằng</option>
-                                            <option value="<=">Nhỏ hơn hoặc bằng</option>
-                                        </select>
-                                        <input type="number" class="form-control" id="admin-mass-condition-value" placeholder="e.g., 10" min="0">
-                                    </div>
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <label for="admin-mass-exp-amount" class="form-label">Số lượng EXP để thưởng</label>
-                                    <input type="number" class="form-control" id="admin-mass-exp-amount" placeholder="e.g., 500" required min="1">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-mass-task-name" class="form-label">Nội dung/Lý do thưởng</label>
-                                    <input type="text" class="form-control" id="admin-mass-task-name" placeholder="e.g., Thưởng event Giáng Sinh" required>
-                                </div>
-                                
-                                <div id="admin-mass-award-status" class="mt-3 text-center"></div>
-
-                                <button type="submit" id="admin-mass-award-submit-btn" class="btn w-100" style="background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white;">
-                                    <i class="fas fa-gifts me-2"></i>Thực Hiện Thưởng Hàng Loạt
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                    
-                    <div class="col-12 col-lg-10 col-xl-8">
-                        <div class="card-glass">
-                            <h5 class="card-title">Quản lý Trạng thái Tài khoản</h5>
-                             <form id="admin-disable-form">
-                                <div class="mb-3">
-                                    <label for="admin-disable-target-type" class="form-label">Loại định danh</label>
-                                    <select class="form-select" id="admin-disable-target-type">
-                                        <option value="uid" selected>UID (Telegram ID)</option>
-                                        <option value="address">Address (Raw)</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-disable-target-value" class="form-label">Giá trị định danh</label>
-                                    <input type="text" class="form-control" id="admin-disable-target-value" placeholder="Nhập UID hoặc địa chỉ ví..." required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-disable-duration" class="form-label">Thời gian vô hiệu hoá (ngày)</label>
-                                    <input type="number" class="form-control" id="admin-disable-duration" placeholder="e.g., 7 (để trống nếu muốn mở khoá)" min="0">
-                                </div>
-                                <div class="d-flex gap-3">
-                                    <button type="button" id="admin-disable-btn" class="btn w-100" style="background-color: var(--color-out); color: white;">
-                                        <i class="fas fa-user-lock me-2"></i>Vô hiệu hoá
-                                    </button>
-                                     <button type="button" id="admin-enable-btn" class="btn w-100" style="background-color: var(--color-verified); color: white;">
-                                        <i class="fas fa-user-check me-2"></i>Mở khoá
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="col-12">
-                        <div class="card-glass">
-                            <h5 class="card-title">Danh sách Người dùng</h5>
+            </div>
+            
+            <!-- [UPDATED] Bảng Gửi Tin Nhắn -->
+            <div id="admin-panel-messenger" class="admin-panel-wrapper" style="display: none;">
+                <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                    <div class="card-glass">
+                        <h5 class="card-title">Gửi Tin Nhắn Hàng Loạt qua Telegram</h5>
+                        <p class="text-secondary small">Soạn một tin nhắn và gửi đến TẤT CẢ người dùng đã liên kết tài khoản Telegram (có UID) và đã bật nhận thông báo.</p>
+                        <form id="admin-telegram-sender-form">
                             <div class="mb-3">
-                                <input type="text" id="admin-user-search-input" class="form-control" placeholder="Tìm theo Tên, UID, hoặc Địa chỉ ví...">
+                                <label for="telegram-api-token-input" class="form-label">Telegram Bot API Token</label>
+                                <input type="password" class="form-control" id="telegram-api-token-input" placeholder="Dán API Token của bot vào đây" required>
                             </div>
-                            <div id="admin-user-list-container" class="table-responsive">
-                                <!-- JS renders table here -->
+                            <hr style="border-color: var(--border-color); opacity: 0.5; margin: 2rem 0;">
+                            <h6 class="text-secondary mb-3">NỘI DUNG TIN NHẮN</h6>
+                            <div class="mb-3">
+                                <label for="telegram-image-url-input" class="form-label">URL Hình ảnh (Tùy chọn)</label>
+                                <input type="url" class="form-control" id="telegram-image-url-input" placeholder="https://example.com/image.png">
                             </div>
-                            <div class="text-center mt-3">
-                                <button id="admin-load-more-btn" class="btn btn-outline-secondary" style="display: none;">Tải thêm</button>
+                            <div class="mb-3">
+                                <label for="telegram-message-text-input" class="form-label">Văn bản tin nhắn / Chú thích ảnh</label>
+                                <textarea class="form-control" id="telegram-message-text-input" rows="4" placeholder="Nhập nội dung tin nhắn của bạn..."></textarea>
+                            </div>
+                            <h6 class="text-secondary my-3">NÚT BẤM (TÙY CHỌN)</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6 mb-3">
+                                    <label for="telegram-button-text-input" class="form-label">Văn bản trên nút</label>
+                                    <input type="text" class="form-control" id="telegram-button-text-input" placeholder="e.g., Mở liên kết">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="telegram-button-url-input" class="form-label">URL của nút</label>
+                                    <input type="url" class="form-control" id="telegram-button-url-input" placeholder="https://t.me/your_channel">
+                                </div>
+                            </div>
+                            <div id="telegram-sender-status" class="mt-3 text-center fw-bold"></div>
+                            <div class="d-grid mt-3">
+                                <button type="button" id="send-bulk-telegram-message-btn" class="btn btn-lg" style="background: linear-gradient(90deg, #0088cc, #00aaff); color: white;">
+                                    <i class="fab fa-telegram-plane me-2"></i>Gửi Hàng Loạt
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [UPDATED] Bảng Nhiệm Vụ Partner -->
+            <div id="admin-panel-partner-tasks" class="admin-panel-wrapper" style="display: none;">
+                 <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                    <div class="card-glass">
+                        <h5 class="card-title">Quản lý Nhiệm vụ Partner</h5>
+                        <form id="admin-partner-task-form">
+                             <input type="hidden" id="partner-task-id-input">
+                            <div class="mb-3">
+                                <label for="partner-task-name-input" class="form-label">Tên dự án</label>
+                                <input type="text" class="form-control" id="partner-task-name-input" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="partner-task-desc-input" class="form-label">Mô tả ngắn</label>
+                                <textarea class="form-control" id="partner-task-desc-input" rows="2" required></textarea>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6 mb-3">
+                                    <label for="partner-task-img-upload" class="form-label">Tải ảnh lên</label>
+                                    <input class="form-control" type="file" id="partner-task-img-upload" accept="image/*">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="partner-task-img-url" class="form-label">Hoặc dán Link ảnh</label>
+                                    <input type="url" class="form-control" id="partner-task-img-url" placeholder="https://...">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="partner-task-link-input" class="form-label">Link nhiệm vụ</label>
+                                <input type="url" class="form-control" id="partner-task-link-input" required placeholder="https://...">
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6 mb-3">
+                                    <label for="partner-task-exp-input" class="form-label">EXP Thưởng</label>
+                                    <input type="number" class="form-control" id="partner-task-exp-input" required min="0">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="partner-task-type-select" class="form-label">Loại nhiệm vụ</label>
+                                    <select class="form-select" id="partner-task-type-select">
+                                        <option value="normal" selected>Thông thường</option>
+                                        <option value="mandatory">Bắt buộc (Ghim)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="admin-partner-task-status" class="mt-3 text-center"></div>
+                            <div class="d-flex gap-3 mt-3">
+                                <button type="submit" id="partner-task-save-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;">Lưu Nhiệm Vụ</button>
+                                <button type="button" id="partner-task-clear-btn" class="btn btn-outline-secondary w-50">Làm mới</button>
+                            </div>
+                        </form>
+                        <hr style="border-color: var(--border-color); opacity: 0.5; margin: 2rem 0;">
+                        <h5 class="card-title">Danh sách Nhiệm vụ Partner</h5>
+                        <div id="admin-partner-tasks-list" class="table-responsive"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- [UPDATED] Bảng Cài đặt Airdrop -->
+            <div id="admin-panel-airdrop-settings" class="admin-panel-wrapper" style="display: none;">
+                <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                    <div class="card-glass">
+                        <h5 class="card-title">Cấu hình Airdrop & Xuất dữ liệu</h5>
+                        <div id="admin-airdrop-settings-form">
+                            <!-- ... content for airdrop settings ... -->
+                            <div class="row text-center g-3 mb-4">
+                                <div class="col-6 col-sm-3">
+                                    <div class="form-check form-switch fs-5 d-inline-block">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="airdrop-live-switch">
+                                        <label class="form-check-label" for="airdrop-live-switch">Live</label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-3">
+                                    <div class="form-check form-switch fs-5 d-inline-block">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="confirmation-enabled-switch">
+                                        <label class="form-check-label" for="confirmation-enabled-switch">Xác nhận</label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-3">
+                                    <div class="form-check form-switch fs-5 d-inline-block">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="claim-enabled-switch">
+                                        <label class="form-check-label" for="claim-enabled-switch">Yêu cầu</label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-3">
+                                    <div class="form-check form-switch fs-5 d-inline-block">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="snapshot-active-switch">
+                                        <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snap</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr style="border-color: var(--border-color); opacity: 0.5;">
+                            <h6 class="text-secondary text-center my-3">CÔNG THỨC TÍNH ĐIỂM</h6>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-4"><label for="ref-multiplier-input" class="form-label">Điểm mỗi Lượt mời</label><input type="number" class="form-control" id="ref-multiplier-input" value="50" min="0"></div>
+                                <div class="col-md-4"><label for="checkin-multiplier-input" class="form-label">Điểm mỗi Check-in</label><input type="number" class="form-control" id="checkin-multiplier-input" value="30" min="0"></div>
+                                <div class="col-md-4"><label for="exp-multiplier-input" class="form-label">Điểm mỗi EXP</label><input type="number" class="form-control" id="exp-multiplier-input" value="20" min="0"></div>
+                            </div>
+                            <hr style="border-color: var(--border-color); opacity: 0.5;">
+                            <h6 class="text-secondary text-center my-3">ĐIỀU KIỆN TỐI THIỂU</h6>
+                            <div class="row g-3">
+                                <div class="col-md-4"><label for="min-checkins-input" class="form-label">Tối thiểu Check-in</label><input type="number" class="form-control" id="min-checkins-input" value="0" min="0"></div>
+                                <div class="col-md-4"><label for="min-referrals-input" class="form-label">Tối thiểu Lượt mời</label><input type="number" class="form-control" id="min-referrals-input" value="0" min="0"></div>
+                                <div class="col-md-4"><label for="min-exp-input" class="form-label">Tối thiểu EXP</label><input type="number" class="form-control" id="min-exp-input" value="0" min="0"></div>
+                            </div>
+                            <div class="mt-3"><label class="form-label fw-bold" style="color: var(--gold);">ĐIỀU KIỆN NHIỆM VỤ BẮT BUỘC (Tự động áp dụng)</label></div>
+                            <div id="admin-settings-status" class="mt-3"></div>
+                            <div class="d-flex gap-3 mt-3">
+                                <button type="button" id="save-settings-btn" class="btn w-100" style="background-color: var(--accent-secondary); color: white;">Lưu Cài Đặt</button>
+                                <button type="button" id="export-csv-btn" class="btn btn-outline-light w-100">Xuất File Excel (CSV)</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
+
+            <!-- [UPDATED] Bảng Chỉnh sửa EXP -->
+            <div id="admin-panel-edit-exp" class="admin-panel-wrapper" style="display: none;">
+                <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                    <div class="card-glass">
+                        <h5 class="card-title">Chỉnh sửa EXP cho một User</h5>
+                        <form id="admin-exp-form">
+                            <!-- ... content for edit exp form ... -->
+                             <div class="mb-3"><label for="admin-target-type" class="form-label">Loại định danh</label><select class="form-select" id="admin-target-type"><option value="uid" selected>UID (Telegram ID)</option><option value="address">Address (Raw)</option></select></div>
+                             <div class="mb-3"><label for="admin-target-value" class="form-label">Giá trị định danh</label><input type="text" class="form-control" id="admin-target-value" placeholder="Nhập UID hoặc địa chỉ ví..." required></div>
+                             <div class="mb-3"><label for="admin-action-type" class="form-label">Hành động</label><select class="form-select" id="admin-action-type"><option value="add" selected>Cộng EXP</option><option value="subtract">Trừ EXP</option></select></div>
+                             <div class="mb-3"><label for="admin-exp-amount" class="form-label">Số lượng EXP</label><input type="number" class="form-control" id="admin-exp-amount" placeholder="e.g., 100" required min="1"></div>
+                             <div class="mb-3"><label for="admin-task-name" class="form-label">Lý do (Task Name)</label><input type="text" class="form-control" id="admin-task-name" placeholder="e.g., Thưởng event" required></div>
+                             <button type="submit" id="admin-submit-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;"><i class="fas fa-check me-2"></i>Xác nhận</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [UPDATED] Bảng Thưởng Hàng Loạt -->
+            <div id="admin-panel-mass-award" class="admin-panel-wrapper" style="display: none;">
+                <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                    <div class="card-glass">
+                        <h5 class="card-title">Thưởng EXP Hàng Loạt</h5>
+                        <form id="admin-mass-award-form">
+                            <!-- ... content for mass award form ... -->
+                             <div class="mb-3"><label for="admin-mass-condition-type" class="form-label">Thưởng cho người dùng theo</label><select class="form-select" id="admin-mass-condition-type"><option value="all" selected>Tất cả người dùng</option><option value="referralCount">Số lượt mời</option><option value="checkinCount">Số lượt Check-in</option><option value="points">Số điểm EXP</option></select></div>
+                             <div id="admin-mass-condition-wrapper" style="display: none;"><label class="form-label">Điều kiện</label><div class="input-group mb-3"><select class="form-select" id="admin-mass-operator" style="max-width: 150px;"><option value=">=" selected>Lớn hơn hoặc bằng</option><option value="<=">Nhỏ hơn hoặc bằng</option></select><input type="number" class="form-control" id="admin-mass-condition-value" placeholder="e.g., 10" min="0"></div></div>
+                             <div class="mb-3"><label for="admin-mass-exp-amount" class="form-label">Số lượng EXP để thưởng</label><input type="number" class="form-control" id="admin-mass-exp-amount" placeholder="e.g., 500" required min="1"></div>
+                             <div class="mb-3"><label for="admin-mass-task-name" class="form-label">Nội dung/Lý do thưởng</label><input type="text" class="form-control" id="admin-mass-task-name" placeholder="e.g., Thưởng event Giáng Sinh" required></div>
+                             <div id="admin-mass-award-status" class="mt-3 text-center"></div>
+                             <button type="submit" id="admin-mass-award-submit-btn" class="btn w-100" style="background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white;"><i class="fas fa-gifts me-2"></i>Thực Hiện Thưởng Hàng Loạt</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [UPDATED] Bảng Trạng Thái Tài Khoản -->
+            <div id="admin-panel-account-status" class="admin-panel-wrapper" style="display: none;">
+                <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                    <div class="card-glass">
+                        <h5 class="card-title">Quản lý Trạng thái Tài khoản</h5>
+                         <form id="admin-disable-form">
+                            <!-- ... content for account status form ... -->
+                             <div class="mb-3"><label for="admin-disable-target-type" class="form-label">Loại định danh</label><select class="form-select" id="admin-disable-target-type"><option value="uid" selected>UID (Telegram ID)</option><option value="address">Address (Raw)</option></select></div>
+                             <div class="mb-3"><label for="admin-disable-target-value" class="form-label">Giá trị định danh</label><input type="text" class="form-control" id="admin-disable-target-value" placeholder="Nhập UID hoặc địa chỉ ví..." required></div>
+                             <div class="mb-3"><label for="admin-disable-duration" class="form-label">Thời gian vô hiệu hoá (ngày)</label><input type="number" class="form-control" id="admin-disable-duration" placeholder="e.g., 7 (để trống nếu muốn mở khoá)" min="0"></div>
+                             <div class="d-flex gap-3"><button type="button" id="admin-disable-btn" class="btn w-100" style="background-color: var(--color-out); color: white;"><i class="fas fa-user-lock me-2"></i>Vô hiệu hoá</button><button type="button" id="admin-enable-btn" class="btn w-100" style="background-color: var(--color-verified); color: white;"><i class="fas fa-user-check me-2"></i>Mở khoá</button></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [UPDATED] Bảng Danh sách User (Mặc định hiển thị) -->
+            <div id="admin-panel-users" class="admin-panel-wrapper">
+                 <div class="col-12">
+                    <div class="card-glass">
+                        <h5 class="card-title">Danh sách Người dùng</h5>
+                        <div class="mb-3">
+                            <input type="text" id="admin-user-search-input" class="form-control" placeholder="Tìm theo Tên, UID, hoặc Địa chỉ ví...">
+                        </div>
+                        <div id="admin-user-list-container" class="table-responsive"></div>
+                        <div class="text-center mt-3">
+                            <button id="admin-load-more-btn" class="btn btn-outline-secondary" style="display: none;">Tải thêm</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <!-- ====================================================== -->
+<!-- [UPDATED] BẢNG CÀI ĐẶT THƯỞNG -->
+<!-- ====================================================== -->
+<div id="admin-panel-reward-settings" class="admin-panel-wrapper" style="display: none;">
+    <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+        <div class="card-glass">
+            <h5 class="card-title">Cấu hình Phần thưởng EXP</h5>
+            <form id="admin-reward-settings-form">
+                <!-- Cài đặt cơ bản -->
+                <h6 class="text-secondary mb-3">Cài đặt Cơ bản</h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label for="checkin-exp-input" class="form-label">EXP mỗi lần Check-in</label>
+                        <input type="number" class="form-control" id="checkin-exp-input" min="0">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="base-referral-exp-input" class="form-label">EXP cơ bản mỗi lượt mời</label>
+                        <input type="number" class="form-control" id="base-referral-exp-input" min="0">
+                    </div>
+                </div>
+
+                <!-- Cài đặt mốc mời bạn -->
+                <hr style="border-color: var(--border-color); opacity: 0.5;">
+                <h6 class="text-secondary my-3">Các Mốc Thưởng Thêm Khi Mời Bạn</h6>
+                <p class="text-secondary small">Khi người dùng đạt chính xác số lượt mời ở một mốc, họ sẽ nhận được phần thưởng thêm tương ứng. Phần thưởng này được cộng vào EXP cơ bản.</p>
+                <div id="referral-milestones-container">
+                    <!-- Các mốc sẽ được JavaScript tạo ra ở đây -->
+                </div>
+                <button type="button" id="add-milestone-btn" class="btn btn-outline-secondary mt-3"><i class="fas fa-plus me-2"></i>Thêm Mốc</button>
+                
+                <!-- Nút Lưu -->
+                <div id="admin-reward-settings-status" class="mt-4 text-center fw-bold"></div>
+                <div class="d-grid mt-3">
+                    <button type="submit" id="save-reward-settings-btn" class="btn btn-lg" style="background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white;">
+                        <i class="fas fa-save me-2"></i>Lưu Cài đặt
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</main>
     </div>
 
+    <!-- [MODIFIED] All Modals below -->
+    
     <!-- Jetton Detail Modal -->
     <div class="modal fade" id="jettonDetailModal" tabindex="-1" aria-labelledby="jettonDetailModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -1320,11 +1636,72 @@ body {
         </div>
     </div>
 
+    <!-- [NEW] Email Update Modal -->
+    <div class="modal fade" id="emailUpdateModal" tabindex="-1" aria-labelledby="emailUpdateModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="emailUpdateModalLabel"><i class="fas fa-envelope me-2"></i>Update Email</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-secondary small">Please enter your email address. This is optional and used for account recovery or important notifications.</p>
+                    <form id="email-update-form">
+                        <div class="mb-3">
+                            <label for="email-input" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email-input" placeholder="you@example.com" required>
+                        </div>
+                        <div id="email-update-status" class="text-center"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="save-email-btn" class="btn" style="background-color: var(--accent-primary); color: white;">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- [NEW] Temporary Profile Setup Modal -->
+    <div class="modal fade" id="profileSetupModal" tabindex="-1" aria-labelledby="profileSetupModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="profileSetupModalLabel"><i class="fas fa-user-edit me-2"></i>Setup Your Profile</h5>
+                </div>
+                <div class="modal-body">
+                    <p class="text-secondary small">Since you're joining from the web, please set up a temporary profile. This will be updated automatically when you log in via the Telegram Mini App.</p>
+                    <form id="profile-setup-form">
+                        <div class="text-center mb-3">
+                            <label for="temp-avatar-upload" style="cursor: pointer;">
+                                <img id="temp-avatar-preview" src="https://bmass.vercel.app/img/bmasslogo.png" alt="Avatar Preview" class="rounded-circle" style="width: 100px; height: 100px; border: 2px solid var(--border-color); object-fit: cover;">
+                            </label>
+                            <input type="file" id="temp-avatar-upload" accept="image/*" style="display: none;">
+                        </div>
+                        <div class="mb-3">
+                            <label for="temp-fullname-input" class="form-label">Display Name</label>
+                            <input type="text" class="form-control" id="temp-fullname-input" placeholder="Enter your name" required>
+                        </div>
+                        <div id="profile-setup-status" class="text-center"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="save-temp-profile-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;">Save and Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/apps-data.js"></script>
     
-    <script>
+
+
+
+<script>
 document.addEventListener('DOMContentLoaded', () => {
+    // --- START OF DOMCONTENTLOADED ---
+
     const TON_API_BASE = 'https://tonapi.io/v2';
     const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
     const USER_SESSION_KEY = 'BmassUserSession';
@@ -1333,7 +1710,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIGURATION ---
     const YOUR_TELEGRAM_BOT_NAME = "bmassk3_bot"; 
     const YOUR_MINI_APP_NAME = "BmassK3"; 
-    const YOUR_WEB_APP_URL = "https://bmass.vercel.app/wallet.html";
+    const YOUR_WEB_APP_URL = "https://bmass.vercel.app/";
     
     // Admin Credentials
     const ADMIN_ADDRESS = '0:eef2fc994996c062f45143f8d6e3fd048811a26c01aaef6c126636164663401a';
@@ -1341,6 +1718,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Element Selectors
     const loadingOverlay = document.getElementById('loading-overlay');
+    const maintenanceOverlay = document.getElementById('maintenance-overlay');
+    const adminMaintenanceBanner = document.getElementById('admin-maintenance-banner');
     const accountSectionEl = document.getElementById('account-section');
     const dashboardEl = document.getElementById('dashboard');
     const heroEl = document.getElementById('hero-section');
@@ -1390,6 +1769,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const appFilterControls = document.getElementById('app-filter-controls');
     const jettonDetailModalEl = document.getElementById('jettonDetailModal');
     const jettonDetailModal = new bootstrap.Modal(jettonDetailModalEl);
+    const emailUpdateModalEl = document.getElementById('emailUpdateModal');
+    const emailUpdateModal = new bootstrap.Modal(emailUpdateModalEl);
+    const saveEmailBtn = document.getElementById('save-email-btn');
+    const profileSetupModalEl = document.getElementById('profileSetupModal');
+    const profileSetupModal = new bootstrap.Modal(profileSetupModalEl);
+    const saveTempProfileBtn = document.getElementById('save-temp-profile-btn');
     const portfolioContent = document.getElementById('portfolio-overview-content');
     const portfolioSkeleton = document.getElementById('portfolio-overview-skeleton');
     const totalValueUsdEl = document.getElementById('total-value-usd');
@@ -1422,14 +1807,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const contactAdminBtn = document.getElementById('contact-admin-btn');
     const contactAdminModal = new bootstrap.Modal(document.getElementById('contactAdminModal'));
     
-    // NEW: Mass Award Form Elements
+    // Mass Award Form Elements
     const adminMassAwardForm = document.getElementById('admin-mass-award-form');
     const adminMassConditionType = document.getElementById('admin-mass-condition-type');
     const adminMassConditionWrapper = document.getElementById('admin-mass-condition-wrapper');
     const adminMassAwardSubmitBtn = document.getElementById('admin-mass-award-submit-btn');
     const adminMassAwardStatus = document.getElementById('admin-mass-award-status');
     
-    // NEW: Partner Task Elements
+    // Partner Task Elements
     const partnerTasksContainer = document.getElementById('partner-tasks-container');
     const adminPartnerTaskForm = document.getElementById('admin-partner-task-form');
     const partnerTaskIdInput = document.getElementById('partner-task-id-input');
@@ -1438,8 +1823,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminPartnerTaskStatus = document.getElementById('admin-partner-task-status');
     const adminPartnerTasksList = document.getElementById('admin-partner-tasks-list');
 
+    // Telegram Sender Elements
+    const sendBulkTelegramMessageBtn = document.getElementById('send-bulk-telegram-message-btn');
+    const telegramSenderStatus = document.getElementById('telegram-sender-status');
+    
+    // [NEW] Maintenance Mode Switch
+    const maintenanceModeSwitch = document.getElementById('maintenance-mode-switch');
+    const adminSystemStatus = document.getElementById('admin-system-status');
+    
+    // [NEW] Leaderboard Total Users
+    const leaderboardTotalUsersEl = document.getElementById('leaderboard-total-users');
 
-    const DEFAULT_LOGO_SRC = 'https://duccodedao.github.io/Bmass/img/logo_viewc.png';
+    const DEFAULT_LOGO_SRC = 'https://bmass.vercel.app/img/bmasslogo.png';
     const GENERIC_WALLET_ICON = 'https://ton.org/download/ton_symbol.png';
     const GENERIC_TASK_ICON = 'https://bmass.vercel.app/img/bmass.png';
 
@@ -1448,6 +1843,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let connectedWalletAddress = null; // Raw address from wallet
     let currentUserData = null; // Full user profile from Firestore
     let airdropSettings = null; // Will hold all airdrop settings from admin
+    let systemStatus = { isMaintenanceMode: false }; // [NEW] System status
     let lastFetchedAddress = null;
     let currentActivityLogs = [];
     let activityRefreshInterval = null;
@@ -1458,17 +1854,34 @@ document.addEventListener('DOMContentLoaded', () => {
     let checkinInterval = null;
     let lastVisibleAdminUser = null; // For admin pagination
 
+    // [NEW] Reward Configuration Variable
+    let rewardConfig = {
+        checkinExp: 1000,
+        baseReferralExp: 5000,
+        referralMilestones: [
+            { required: 5, bonus: 10000 },
+            { required: 10, bonus: 25000 },
+            { required: 25, bonus: 70000 },
+            { required: 50, bonus: 150000 },
+            { required: 100, bonus: 500000 }
+        ]
+    }; // Default values
+
     // Constants
-    const REFERRAL_REWARD = 200;
-    const CHECKIN_REWARD = 10;
     const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000;
     const ADMIN_USERS_PER_PAGE = 50;
     const BATCH_SIZE = 200; // For mass award processing
+    const FIRESTORE_FETCH_BATCH_SIZE = 500; // For fetching all users
+    const TELEGRAM_SEND_DELAY_MS = 150; // Delay between each message to avoid rate limits
     
     const CONFIRM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
-    const CONFIRM_AMOUNT_NANOTONS = "10000"; // 0.00001 TON
     const REQUEST_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD"; 
-    const REQUEST_AMOUNT_NANOTONS = "20000"; // 0.00002 TON
+
+    const CONFIRM_AMOUNT_TON = 0.000000001;
+    const CONFIRM_AMOUNT_NANOTONS = String(CONFIRM_AMOUNT_TON * 1e9);
+
+    const REQUEST_AMOUNT_TON = 0.000000001;
+    const REQUEST_AMOUNT_NANOTONS = String(REQUEST_AMOUNT_TON * 1e9);
 
     const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
     const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
@@ -1502,9 +1915,49 @@ document.addEventListener('DOMContentLoaded', () => {
     function hideLoadingOverlay() {
         loadingOverlay.classList.remove('visible');
     }
+    
+    // [NEW] Fetch system status
+    async function fetchSystemStatus() {
+        if (!db) return { isMaintenanceMode: false };
+        try {
+            const doc = await db.collection('admin_settings').doc('system_status').get();
+            if (doc.exists) {
+                systemStatus = doc.data();
+            } else {
+                // If it doesn't exist, create it with default false value
+                await db.collection('admin_settings').doc('system_status').set({ isMaintenanceMode: false });
+                systemStatus = { isMaintenanceMode: false };
+            }
+        } catch (error) {
+            console.error("Error fetching system status:", error);
+            systemStatus = { isMaintenanceMode: false }; // Default to off on error
+        }
+        return systemStatus;
+    }
+    
+    // [NEW] Check and apply maintenance mode
+    function applyMaintenanceMode() {
+        if (systemStatus.isMaintenanceMode) {
+            if (isCurrentUserAdmin()) {
+                adminMaintenanceBanner.style.display = 'block';
+            } else {
+                maintenanceOverlay.classList.add('visible');
+                // Block everything else, this overlay will cover the screen
+                return true; // Indicates app flow should stop
+            }
+        } else {
+             maintenanceOverlay.classList.remove('visible');
+             adminMaintenanceBanner.style.display = 'none';
+        }
+        return false; // Indicates app flow can continue
+    }
+
 
     async function onUserAuthenticated() {
         hideLoadingOverlay();
+        
+        // [NEW] Re-check maintenance mode now that we know if user is admin
+        if(applyMaintenanceMode()) return;
         
         updateUIAfterLogin();
         await fetchAndDisplayAccountData(connectedWalletAddress);
@@ -1519,15 +1972,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!currentUserData) return false;
         const isAdminByAddress = currentUserData.address === ADMIN_ADDRESS;
         const isAdminByUID = currentUserData.telegramId === ADMIN_UID;
-        return isAdminByAddress || isAdminByUID;
+        // [NEW] Also allow admin login if maintenance is on and wallet matches
+        const isAdminByWalletInMaintenance = systemStatus.isMaintenanceMode && connectedWalletAddress === ADMIN_ADDRESS;
+        return isAdminByAddress || isAdminByUID || isAdminByWalletInMaintenance;
     }
 
     async function checkMandatoryTasksCompletion(userAddress) {
-        if (!db) return true; // Fail open if db is not ready
+        if (!db) return true;
 
         const mandatoryTasksSnapshot = await db.collection('partner_tasks').where('taskType', '==', 'mandatory').get();
         if (mandatoryTasksSnapshot.empty) {
-            return true; // No mandatory tasks exist
+            return true;
         }
         
         const mandatoryTaskIds = new Set(mandatoryTasksSnapshot.docs.map(doc => doc.id));
@@ -1537,17 +1992,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         for (const taskId of mandatoryTaskIds) {
             if (!completedTaskIds.has(taskId)) {
-                return false; // Found a mandatory task that is not completed
+                return false;
             }
         }
 
-        return true; // All mandatory tasks are completed
+        return true;
     }
 
     async function calculateBmassReward(user, settings) {
         if (!user || !settings) return 0;
-        
-        // This check is now implicitly handled by renderAirdropSection and exportAirdropData
         
         const refCount = user.referralCount || 0;
         const checkinCount = user.checkinCount || 0;
@@ -1566,22 +2019,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    // [UPDATED] to handle temporary profiles
     async function loadOrCreateUserByAddress(address) {
         if (!address || !db) return;
-
+    
         showLoadingOverlay('Authenticating and syncing...');
-
+    
+        // Logic to prevent TG account hijacking
         if (telegramUserData) {
             const uidQuery = db.collection('users').where('telegramId', '==', telegramUserData.id).limit(1);
             const uidSnapshot = await uidQuery.get();
-
+    
             if (!uidSnapshot.empty) {
                 const existingUserDoc = uidSnapshot.docs[0];
                 const existingUserData = existingUserDoc.data();
-                
                 if (existingUserData.address !== address) {
                     hideLoadingOverlay();
-                    showAppToast('Link Error', `This Telegram account is already linked with another wallet. Please use the correct connected wallet.`, 'error');
+                    showAppToast('Link Error', `This Telegram account is already linked with another wallet.`, 'error');
                     handleFullLogout();
                     return;
                 }
@@ -1590,62 +2044,98 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const userRef = db.collection('users').doc(address);
         const doc = await userRef.get();
-
+    
         if (!doc.exists) {
             console.log(`Creating new user profile for address: ${address}`);
             const newUser = {
-                address: address, points: 0, lastCheckin: null, checkinCount: 0,
-                referralCount: 0, referredBy: null, partnerTasksCompletedCount: 0,
-                hasSentConfirmationTx: false, hasRequestedAirdrop: false,
-                disabledUntil: null, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                address: address,
+                points: 0,
+                lastCheckin: null,
+                checkinCount: 0,
+                referralCount: 0,
+                referredBy: null,
+                partnerTasksCompletedCount: 0,
+                hasSentConfirmationTx: false,
+                hasRequestedAirdrop: false,
+                disabledUntil: null,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                notificationsEnabled: true,
+                email: null,
+                // Handle official vs temporary profile data
                 telegramId: telegramUserData ? telegramUserData.id : null,
                 username: telegramUserData ? (telegramUserData.username || `user${telegramUserData.id}`) : null,
                 fullName: telegramUserData ? `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim() : null,
-                photoUrl: telegramUserData ? (telegramUserData.photo_url || DEFAULT_LOGO_SRC) : null,
+                photoUrl: telegramUserData ? telegramUserData.photo_url : null,
+                temporaryFullName: null,
+                temporaryPhotoUrl: null,
+                isTemporaryProfile: !telegramUserData
             };
+    
             await userRef.set(newUser);
             currentUserData = newUser;
+    
+            // If it's a new web user, prompt for temporary profile setup
+            if (newUser.isTemporaryProfile) {
+                hideLoadingOverlay();
+                profileSetupModal.show();
+                // The rest of the onboarding flow will continue after they save their temp profile
+                return; 
+            }
             
+            // Continue onboarding for Mini App users
             const referrerCode = sessionStorage.getItem(REFERRAL_SESSION_KEY);
             if (referrerCode) {
                 await applyReferral(referrerCode, address);
                 sessionStorage.removeItem(REFERRAL_SESSION_KEY);
             }
-
+    
         } else {
             let userData = doc.data();
-
+    
             if (userData.disabledUntil && userData.disabledUntil.toDate() > new Date()) {
                 hideLoadingOverlay();
                 showAppToast('Account Disabled', `Your account is temporarily disabled until ${userData.disabledUntil.toDate().toLocaleString('en-US')}.`, 'error');
                 handleFullLogout();
                 return;
             }
-
+    
+            // Logic to prevent wallet hijacking
             if (telegramUserData && userData.telegramId && userData.telegramId !== telegramUserData.id) {
                 hideLoadingOverlay();
                 const ownerUsername = userData.username ? `@${userData.username}` : 'another user';
-                showAppToast('Ownership Error', `This wallet already belongs to ${ownerUsername}. Please connect with your own wallet.`, 'error');
+                showAppToast('Ownership Error', `This wallet already belongs to ${ownerUsername}.`, 'error');
                 handleFullLogout();
                 return;
             }
-
+    
             const updates = {};
-            if (telegramUserData && !userData.telegramId) {
+            // If a user with a temporary profile logs in from the Mini App, upgrade them
+            if (telegramUserData && userData.isTemporaryProfile) {
                 Object.assign(updates, {
                     telegramId: telegramUserData.id,
                     username: telegramUserData.username || `user${telegramUserData.id}`,
                     fullName: `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim(),
-                    photoUrl: telegramUserData.photo_url || DEFAULT_LOGO_SRC,
+                    photoUrl: telegramUserData.photo_url || null,
+                    isTemporaryProfile: false // Upgrade to official profile
+                });
+            }
+    
+            // Standard sync for returning Mini App users
+            if (telegramUserData && !userData.telegramId) {
+                 Object.assign(updates, {
+                    telegramId: telegramUserData.id,
+                    username: telegramUserData.username || `user${telegramUserData.id}`,
+                    fullName: `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim(),
+                    photoUrl: telegramUserData.photo_url || null,
                 });
             }
             
-            if (typeof userData.hasRequestedAirdrop === 'undefined') { updates.hasRequestedAirdrop = false; }
-            if (typeof userData.hasSentConfirmationTx === 'undefined') { updates.hasSentConfirmationTx = false; }
-            if (typeof userData.partnerTasksCompletedCount === 'undefined') { updates.partnerTasksCompletedCount = 0; }
-
+            // Ensure fields exist for older users
+            if (typeof userData.email === 'undefined') { updates.email = null; }
+            if (typeof userData.isTemporaryProfile === 'undefined') { updates.isTemporaryProfile = !userData.telegramId; }
+    
             if (Object.keys(updates).length > 0) {
-                 console.log(`Updating existing user profile with Telegram data:`, updates);
+                 console.log(`Updating existing user profile:`, updates);
                  await userRef.update(updates);
                  userData = { ...userData, ...updates };
             }
@@ -1686,75 +2176,101 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const referrerDoc = snapshot.docs[0];
             const referrerRef = referrerDoc.ref;
-            const referrerData = referrerDoc.data();
             
-            if (referrerData.address === newAddress) {
+            if (referrerDoc.data().address === newAddress) {
                 showAppToast('Error', 'You cannot refer yourself.', 'warning');
                 return;
             }
 
-            const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
-            
             await db.runTransaction(async (transaction) => {
                 const freshReferrerDoc = await transaction.get(referrerRef);
                 if (!freshReferrerDoc.exists) throw "Referrer does not exist in the transaction";
                 
+                const referrerData = freshReferrerDoc.data();
+                const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+
+                const newReferralCount = (referrerData.referralCount || 0) + 1;
+                let totalRewardForReferrer = rewardConfig.baseReferralExp;
+                let milestoneBonus = 0;
+                
+                const milestoneReached = rewardConfig.referralMilestones.find(m => m.required === newReferralCount);
+                if (milestoneReached) {
+                    milestoneBonus = milestoneReached.bonus;
+                    totalRewardForReferrer += milestoneBonus;
+                }
+                
                 transaction.update(referrerRef, {
-                    points: firebase.firestore.FieldValue.increment(REFERRAL_REWARD),
+                    points: firebase.firestore.FieldValue.increment(totalRewardForReferrer),
                     referralCount: firebase.firestore.FieldValue.increment(1)
                 });
                 
                 const referrerHistoryRef = referrerRef.collection('task_history').doc();
                 transaction.set(referrerHistoryRef, {
                     taskName: 'Invited a friend',
-                    exp: REFERRAL_REWARD,
+                    exp: rewardConfig.baseReferralExp,
                     timestamp: newTimestamp,
                     referredUser: newAddress 
                 });
+
+                if (milestoneBonus > 0) {
+                    const milestoneHistoryRef = referrerRef.collection('task_history').doc();
+                    transaction.set(milestoneHistoryRef, {
+                        taskName: `Referral Milestone (${newReferralCount} invites)`,
+                        exp: milestoneBonus,
+                        timestamp: newTimestamp
+                    });
+                }
                 
                 const newUserRef = db.collection('users').doc(newAddress);
                 transaction.update(newUserRef, { 
                     referredBy: String(referrerCode),
-                    points: firebase.firestore.FieldValue.increment(REFERRAL_REWARD)
+                    points: firebase.firestore.FieldValue.increment(rewardConfig.baseReferralExp)
                 });
 
                 const newUserHistoryRef = newUserRef.collection('task_history').doc();
                 transaction.set(newUserHistoryRef, {
                     taskName: 'Entered referral code',
-                    exp: REFERRAL_REWARD,
+                    exp: rewardConfig.baseReferralExp,
                     timestamp: newTimestamp,
                     referrer: String(referrerCode)
                 });
             });
             
-            showAppToast(`Referral Bonus!`, `You and your referrer both received ${REFERRAL_REWARD} EXP.`, 'success');
+            showAppToast(`Referral Bonus!`, `You and your referrer both received rewards.`, 'success');
 
         } catch (error) {
             console.error("Failed to apply referral:", error);
             showAppToast('Error', 'Could not apply referral code. Please try again.', 'error');
         }
     }
-
-    function updateUIAfterLogin() {
-        if (!currentUserData) return;
-        
-        headerExpDisplay.classList.remove('d-none');
-        updateExpBalances(currentUserData.points || 0);
-        updateCheckinUI(currentUserData);
-        fetchTaskHistory();
-        renderAccountSection();
-        renderReferralSection();
-        
-        handleRouteChange(); 
-        
-        if (isCurrentUserAdmin()) {
-            navAdmin.style.display = 'block';
-        } else {
-            navAdmin.style.display = 'none';
-        }
-    }
     
-     function updateExpBalances(newExp) {
+function updateUIAfterLogin() {
+    if (!currentUserData) return;
+    
+    // [NEW] CẬP NHẬT ĐỘNG HIỂN THỊ EXP THƯỞNG CHO CHECK-IN
+    const checkinExpDisplay = document.getElementById('checkin-exp-display');
+    if (checkinExpDisplay) {
+        checkinExpDisplay.textContent = `+${(rewardConfig.checkinExp || 1000).toLocaleString()} EXP`;
+    }
+
+    // --- Mã hiện có của bạn bên dưới đây ---
+    headerExpDisplay.classList.remove('d-none');
+    updateExpBalances(currentUserData.points || 0);
+    updateCheckinUI(currentUserData);
+    fetchTaskHistory();
+    renderAccountSection();
+    renderReferralSection();
+    
+    handleRouteChange(); 
+    
+    if (isCurrentUserAdmin()) {
+        navAdmin.style.display = 'block';
+    } else {
+        navAdmin.style.display = 'none';
+    }
+}
+    
+    function updateExpBalances(newExp) {
         taskExpBalanceEl.textContent = newExp;
         headerExpBalanceEl.textContent = newExp;
     }
@@ -1831,20 +2347,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+                
                 transaction.update(userRef, {
-                    points: firebase.firestore.FieldValue.increment(CHECKIN_REWARD),
+                    points: firebase.firestore.FieldValue.increment(rewardConfig.checkinExp),
                     lastCheckin: newTimestamp,
                     checkinCount: firebase.firestore.FieldValue.increment(1)
                 });
-                
+            
                 const historyRef = userRef.collection('task_history').doc();
                 transaction.set(historyRef, {
                     taskName: 'Daily Check-in',
-                    exp: CHECKIN_REWARD,
+                    exp: rewardConfig.checkinExp,
                     timestamp: newTimestamp
                 });
             });
-            showAppToast('Success!', `You've received ${CHECKIN_REWARD} EXP.`, 'success');
+
+            showAppToast('Success!', `You've received ${rewardConfig.checkinExp} EXP.`, 'success');
         } catch (error) {
             console.error("Check-in failed: ", error);
             showAppToast('Failed', 'An error occurred. Please try again.', 'error');
@@ -1871,7 +2389,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             let historyHtml = '';
-            snapshot.forEach(doc => {
+            snapshot.forEach((doc, index) => {
                 const item = doc.data();
                 const date = item.timestamp ? item.timestamp.toDate().toLocaleString('en-US') : 'N/A';
                 
@@ -1891,7 +2409,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const taskTitle = item.taskName === 'Partner Task' ? `${item.taskName}: ${item.projectName}` : item.taskName;
 
                 historyHtml += `
-                    <div class="task-history-item">
+                    <div class="task-history-item" style="animation-delay: ${index * 50}ms">
                         <i class="fas ${iconClass} task-history-icon" style="color: ${expAmount < 0 ? 'var(--color-out)' : 'var(--accent-secondary)'};"></i>
                         <div class="flex-grow-1">
                             <p class="m-0 fw-bold">${taskTitle}</p>
@@ -1908,35 +2426,47 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // [UPDATED] to show total user count
     async function fetchAndRenderLeaderboard() {
         if (!db) initializeFirebase();
-
+    
         const listContainer = document.getElementById('leaderboard-list');
+        const summaryContainer = document.getElementById('leaderboard-summary');
         const skeletonItem = `<div class="leaderboard-item"><div class="skeleton-loader leaderboard-rank" style="height: 24px; width: 40px; border-radius: 25px;"></div><img class="skeleton-loader leaderboard-avatar"><div class="flex-grow-1"><div class="skeleton-loader skeleton-line w-50"></div></div><div class="skeleton-loader skeleton-line" style="width: 80px;"></div></div>`;
         listContainer.innerHTML = skeletonItem.repeat(7);
-
+        summaryContainer.querySelector('.total-users-count').innerHTML = '...';
+    
         try {
+            // Fetch total user count from metadata
+            const metadataDoc = await db.collection('admin_settings').doc('metadata').get();
+            if (metadataDoc.exists) {
+                const totalUsers = metadataDoc.data().userCount || 0;
+                 summaryContainer.querySelector('.total-users-count').textContent = totalUsers.toLocaleString();
+            }
+    
+            // Fetch top 50 users for the leaderboard
             const snapshot = await db.collection('users').orderBy('points', 'desc').limit(50).get();
             listContainer.innerHTML = '';
-
+    
             if (snapshot.empty) {
-                listContainer.innerHTML = `<p class="text-secondary text-center p-3">No one is on the leaderboard yet. Be the first!</p>`;
+                listContainer.innerHTML = `<p class="text-secondary text-center p-3">No one is on the leaderboard yet.</p>`;
                 return;
             }
             
             let rank = 1;
             snapshot.forEach(doc => {
                 const user = doc.data();
-                const displayName = user.fullName || (user.username ? `@${user.username}`: shortenAddress(user.address));
-                const avatarUrl = user.photoUrl || GENERIC_WALLET_ICON;
+                // [UPDATED] Use temporary profile info as fallback
+                const displayName = user.fullName || user.temporaryFullName || (user.username ? `@${user.username}` : shortenAddress(user.address));
+                const avatarUrl = user.photoUrl || user.temporaryPhotoUrl || GENERIC_WALLET_ICON;
                 const isCurrentUser = connectedWalletAddress && user.address === connectedWalletAddress;
-
+    
                 let rankDisplay, rankClass = ''; 
                 if (rank === 1) { rankClass = 'rank-1'; rankDisplay = `<i class="fas fa-medal rank-icon"></i>`; } 
                 else if (rank === 2) { rankClass = 'rank-2'; rankDisplay = `<i class="fas fa-medal rank-icon"></i>`; } 
                 else if (rank === 3) { rankClass = 'rank-3'; rankDisplay = `<i class="fas fa-medal rank-icon"></i>`; } 
                 else { rankDisplay = `#${rank}`; }
-
+    
                 const item = document.createElement('div');
                 item.className = `leaderboard-item ${isCurrentUser ? 'current-user' : ''} ${rankClass}`;
                 
@@ -1950,10 +2480,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 listContainer.appendChild(item);
                 rank++;
             });
-
+    
         } catch (error) {
             console.error("Error fetching leaderboard:", error);
-            listContainer.innerHTML = `<p class="text-danger text-center p-3">Could not load the leaderboard. Please try again later.</p>`;
+            listContainer.innerHTML = `<p class="text-danger text-center p-3">Could not load the leaderboard.</p>`;
         }
     }
     
@@ -2385,6 +2915,132 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    async function handleNotificationToggle(e) {
+        if (!currentUserData || !db) return;
+
+        const toggle = e.target;
+        const newStatus = toggle.checked;
+        toggle.disabled = true;
+
+        try {
+            const userRef = db.collection('users').doc(currentUserData.address);
+            await userRef.update({ notificationsEnabled: newStatus });
+            currentUserData.notificationsEnabled = newStatus;
+            showAppToast('Settings Saved', `Notifications have been ${newStatus ? 'enabled' : 'disabled'}.`, 'success');
+        } catch (error) {
+            console.error('Failed to update notification settings:', error);
+            showAppToast('Error', 'Could not save your setting. Please try again.', 'error');
+            toggle.checked = !newStatus;
+        } finally {
+            toggle.disabled = false;
+        }
+    }
+    
+    async function sendBulkTelegramMessage() {
+        const delay = ms => new Promise(res => setTimeout(res, ms));
+
+        const apiToken = document.getElementById('telegram-api-token-input').value.trim();
+        const text = document.getElementById('telegram-message-text-input').value.trim();
+        const imageUrl = document.getElementById('telegram-image-url-input').value.trim();
+        const buttonText = document.getElementById('telegram-button-text-input').value.trim();
+        const buttonUrl = document.getElementById('telegram-button-url-input').value.trim();
+        
+        if (!apiToken) { showAppToast('Lỗi', 'Vui lòng nhập API Token của bot.', 'error'); return; }
+        if (!text && !imageUrl) { showAppToast('Lỗi', 'Vui lòng nhập văn bản tin nhắn hoặc URL hình ảnh.', 'error'); return; }
+        if ((buttonText && !buttonUrl) || (!buttonText && buttonUrl)) { showAppToast('Lỗi', 'Để tạo nút, vui lòng nhập cả Văn bản và URL cho nút.', 'warning'); return; }
+        
+        sendBulkTelegramMessageBtn.disabled = true;
+        telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lấy danh sách người dùng...`;
+
+        try {
+            const allUsers = [];
+            let lastVisible = null;
+            while (true) {
+                let query = db.collection('users').orderBy(firebase.firestore.FieldPath.documentId()).limit(FIRESTORE_FETCH_BATCH_SIZE);
+                if (lastVisible) {
+                    query = query.startAfter(lastVisible);
+                }
+                const snapshot = await query.get();
+                if (snapshot.empty) break;
+                snapshot.forEach(doc => allUsers.push(doc.data()));
+                lastVisible = snapshot.docs[snapshot.docs.length - 1];
+                telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã lấy được ${allUsers.length} người dùng...`;
+            }
+
+            const usersWithUid = allUsers.filter(user => user.telegramId);
+            const totalWithUid = usersWithUid.length;
+            const usersToNotify = usersWithUid.filter(user => user.notificationsEnabled !== false);
+            const totalToNotify = usersToNotify.length;
+
+            if (totalToNotify === 0) {
+                telegramSenderStatus.innerHTML = `<span class="text-warning">Không có người dùng nào bật thông báo.</span>`;
+                return;
+            }
+            
+            if (!confirm(`CẢNH BÁO: Bạn sắp gửi tin nhắn này cho ${totalToNotify} / ${totalWithUid} người dùng. Hành động này KHÔNG THỂ hoàn tác. Bạn có chắc chắn muốn tiếp tục?`)) {
+                return;
+            }
+            
+            let sentCount = 0;
+            let failedCount = 0;
+            const baseUrl = `https://api.telegram.org/bot${apiToken}/`;
+            
+            for (let i = 0; i < totalToNotify; i++) {
+                const user = usersToNotify[i];
+                telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang gửi tin ${i + 1}/${totalToNotify}...`;
+                
+                const body = { chat_id: user.telegramId };
+                let method;
+
+                if (buttonText && buttonUrl) {
+                    body.reply_markup = JSON.stringify({
+                        inline_keyboard: [[{ text: buttonText, url: buttonUrl }]]
+                    });
+                }
+                
+                if (imageUrl) {
+                    method = 'sendPhoto';
+                    body.photo = imageUrl;
+                    if (text) body.caption = text;
+                } else {
+                    method = 'sendMessage';
+                    body.text = text;
+                }
+                
+                try {
+                    const response = await fetch(baseUrl + method, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body),
+                    });
+                    const result = await response.json();
+                    if (result.ok) {
+                        sentCount++;
+                    } else {
+                        failedCount++;
+                        console.error(`Failed to send to UID ${user.telegramId}: ${result.description}`);
+                    }
+                } catch (error) {
+                    failedCount++;
+                    console.error(`Network error sending to UID ${user.telegramId}:`, error);
+                }
+
+                await delay(TELEGRAM_SEND_DELAY_MS);
+            }
+
+            telegramSenderStatus.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Hoàn tất! Đã gửi: ${sentCount}. Thất bại: ${failedCount}.</span>`;
+            showAppToast('Hoàn tất gửi hàng loạt', `Thành công: ${sentCount}, Thất bại: ${failedCount}`, 'success');
+
+        } catch (error) {
+            console.error("Telegram bulk sender error:", error);
+            telegramSenderStatus.innerHTML = `<span class="text-danger">Gửi hàng loạt thất bại: ${error.message}</span>`;
+            showAppToast('Thất bại', error.message, 'error');
+        } finally {
+            sendBulkTelegramMessageBtn.disabled = false;
+            setTimeout(() => { telegramSenderStatus.innerHTML = ''; }, 10000);
+        }
+    }
+
     function handleFullLogout(e) {
         if (e) e.preventDefault();
         console.log("Logging out completely...");
@@ -2407,34 +3063,156 @@ document.addEventListener('DOMContentLoaded', () => {
         walletDropdown.style.display = 'none';
     }
     
+    // [UPDATED] to handle temp profiles and email
     function renderAccountSection() {
         const profilePhoto = document.getElementById('profile-photo');
         const profileFullname = document.getElementById('profile-fullname');
         const profileUsername = document.getElementById('profile-username');
         const profileDetails = document.getElementById('profile-details');
-
-        if (!currentUserData || !currentUserData.telegramId) {
-            if(accountSectionEl.style.display === 'block') {
-                document.querySelector('#account-section .container').innerHTML = `<div class="text-center p-5 card-glass"><h3 class="text-secondary">Account information is only available when accessed from the Mini App.</h3><p class="text-secondary">Please connect your wallet within the Mini App to sync your data.</p></div>`;
-            }
-            return;
-        }
-        
-        profilePhoto.src = currentUserData.photoUrl || DEFAULT_LOGO_SRC;
-        profileFullname.textContent = currentUserData.fullName || 'Anonymous';
-        profileUsername.textContent = currentUserData.username ? `@${currentUserData.username}` : 'No username';
-
+    
+        if (!currentUserData) return;
+    
+        // Determine which name and photo to use
+        const displayName = currentUserData.fullName || currentUserData.temporaryFullName || 'Anonymous User';
+        const displayPhoto = currentUserData.photoUrl || currentUserData.temporaryPhotoUrl || DEFAULT_LOGO_SRC;
+        const displayUsername = currentUserData.username ? `@${currentUserData.username}` : (currentUserData.isTemporaryProfile ? 'Web User' : 'No username');
+    
+        profilePhoto.src = displayPhoto;
+        profileFullname.textContent = displayName;
+        profileUsername.textContent = displayUsername;
+    
+        const emailDisplay = currentUserData.email
+            ? `<span>${currentUserData.email}</span>`
+            : `<span class="text-secondary">Not set</span>`;
+    
         profileDetails.innerHTML = `
-            <div class="d-flex justify-content-between mb-2">
-                <span class="metadata-key">Telegram ID:</span>
-                <span>${currentUserData.telegramId}</span>
-            </div>
-             <div class="d-flex justify-content-between mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="metadata-key">Address:</span>
                 <span class="copyable-address" data-address="${currentUserData.address}" title="Click to copy">${shortenAddress(currentUserData.address)}</span>
             </div>
+            ${currentUserData.telegramId ? `
+            <div class="d-flex justify-content-between mb-2">
+                <span class="metadata-key">Telegram ID:</span>
+                <span>${currentUserData.telegramId}</span>
+            </div>` : ''}
+            <hr style="border-color: var(--border-color); opacity: 0.5; margin: 1rem 0;">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-envelope fa-fw me-2 metadata-key"></i>
+                    <span class="metadata-key">Email</span>
+                </div>
+                <div>
+                    ${emailDisplay}
+                    <button id="edit-email-btn" class="btn btn-sm btn-link p-0 ms-2"><i class="fas fa-pencil-alt"></i></button>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-bell fa-fw me-2 metadata-key"></i>
+                    <span class="metadata-key">Notifications</span>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="notifications-toggle" style="width: 3.5em; height: 1.75em; cursor: pointer;" ${!currentUserData.telegramId ? 'disabled' : ''}>
+                </div>
+            </div>
         `;
+        
+        const notificationsToggle = document.getElementById('notifications-toggle');
+        if (notificationsToggle) {
+            notificationsToggle.checked = currentUserData.notificationsEnabled !== false;
+        }
+    
+        document.getElementById('edit-email-btn').addEventListener('click', () => {
+            document.getElementById('email-input').value = currentUserData.email || '';
+            emailUpdateModal.show();
+        });
     }
+    
+    // [NEW] Handle email update logic
+    async function handleEmailUpdate() {
+        if (!currentUserData || !db) return;
+    
+        const emailInput = document.getElementById('email-input');
+        const newEmail = emailInput.value.trim();
+        const statusEl = document.getElementById('email-update-status');
+    
+        // Simple email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (newEmail && !emailRegex.test(newEmail)) {
+            statusEl.innerHTML = `<span class="text-danger">Invalid email format.</span>`;
+            return;
+        }
+    
+        saveEmailBtn.disabled = true;
+        statusEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+    
+        try {
+            const userRef = db.collection('users').doc(currentUserData.address);
+            await userRef.update({ email: newEmail || null }); // Store null if empty
+            currentUserData.email = newEmail || null;
+            showAppToast('Success', 'Email updated successfully.', 'success');
+            emailUpdateModal.hide();
+            renderAccountSection(); // Re-render to show the new email
+        } catch (error) {
+            console.error('Failed to update email:', error);
+            statusEl.innerHTML = `<span class="text-danger">Failed to save. Please try again.</span>`;
+            showAppToast('Error', 'Could not update your email.', 'error');
+        } finally {
+            saveEmailBtn.disabled = false;
+        }
+    }
+    
+    // [NEW] Handle temporary profile setup
+    async function handleTempProfileSave() {
+        if (!currentUserData || !storage) return;
+    
+        const nameInput = document.getElementById('temp-fullname-input');
+        const avatarFile = document.getElementById('temp-avatar-upload').files[0];
+        const statusEl = document.getElementById('profile-setup-status');
+    
+        const newName = nameInput.value.trim();
+        if (!newName) {
+            statusEl.innerHTML = `<span class="text-danger">Display name is required.</span>`;
+            return;
+        }
+    
+        saveTempProfileBtn.disabled = true;
+        statusEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Saving...`;
+    
+        try {
+            const updates = { temporaryFullName: newName };
+    
+            if (avatarFile) {
+                const storageRef = storage.ref(`temp_avatars/${currentUserData.address}/${Date.now()}_${avatarFile.name}`);
+                const uploadTask = await storageRef.put(avatarFile);
+                updates.temporaryPhotoUrl = await uploadTask.ref.getDownloadURL();
+            }
+    
+            const userRef = db.collection('users').doc(currentUserData.address);
+            await userRef.update(updates);
+    
+            // Update local data and continue
+            currentUserData = { ...currentUserData, ...updates };
+            profileSetupModal.hide();
+            
+            // Now, continue with the rest of the new user flow
+            showAppToast('Profile Set!', 'Welcome to Bmass!', 'success');
+            const referrerCode = sessionStorage.getItem(REFERRAL_SESSION_KEY);
+            if (referrerCode) {
+                await applyReferral(referrerCode, currentUserData.address);
+                sessionStorage.removeItem(REFERRAL_SESSION_KEY);
+            }
+            await onUserAuthenticated();
+    
+        } catch (error) {
+            console.error("Failed to save temporary profile:", error);
+            statusEl.innerHTML = `<span class="text-danger">Save failed. Please try again.</span>`;
+            showAppToast('Error', 'Could not save your profile.', 'error');
+        } finally {
+            saveTempProfileBtn.disabled = false;
+        }
+    }
+
     
     async function fetchAndRenderInvitedUsers() {
         const invitedListPane = document.getElementById('invited-list-pane');
@@ -2456,7 +3234,7 @@ document.addEventListener('DOMContentLoaded', () => {
             uidSnapshot.forEach(doc => invitedUsers.set(doc.id, doc.data()));
 
             if (invitedUsers.size === 0) {
-                invitedListPane.innerHTML = `<p class="text-secondary text-center p-3">You haven't invited anyone yet. Share your code now!</p>`;
+                invitedListPane.innerHTML = `<p class="text-secondary text-center p-3">You haven't invited anyone yet.</p>`;
                 return;
             }
 
@@ -2483,99 +3261,165 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    async function renderReferralSection() {
-        if (!currentUserData) return;
-        const linksContainer = document.getElementById('referral-links-container');
-        const codesContainer = document.getElementById('referral-codes-container');
-        const referralCountEl = document.getElementById('referral-count');
-        const referredByContainer = document.getElementById('referred-by-container');
-        const referralInputContainer = document.getElementById('referral-input-container');
-        
-        linksContainer.innerHTML = '';
-        codesContainer.innerHTML = '';
+async function renderReferralSection() {
+    if (!currentUserData) return;
+    const linksContainer = document.getElementById('referral-links-container');
+    const codesContainer = document.getElementById('referral-codes-container');
+    const referralCountEl = document.getElementById('referral-count');
+    const referredByContainer = document.getElementById('referred-by-container');
+    const referralInputContainer = document.getElementById('referral-input-container');
+    
+    linksContainer.innerHTML = '';
+    codesContainer.innerHTML = '';
 
-        const webLink = `${YOUR_WEB_APP_URL}?ref=${currentUserData.address}`;
-        linksContainer.innerHTML = `
-            <h6 class="mb-2"><i class="fas fa-link me-2"></i>Your Referral Link</h6>
-            <div class="mb-3">
-                <label class="form-label small text-secondary">Web Referral Link:</label>
+    const webLink = `${YOUR_WEB_APP_URL}?ref=${currentUserData.address}`;
+    linksContainer.innerHTML = `
+        <h6 class="mb-2"><i class="fas fa-link me-2"></i>Your Referral Link</h6>
+        <div class="mb-3">
+            <label class="form-label small text-secondary">Web Referral Link:</label>
+            <div class="input-group">
+                <input type="text" class="form-control" value="${webLink}" readonly>
+                <button class="btn btn-outline-secondary copyable-code" data-code="${webLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
+            </div>
+        </div>`;
+    codesContainer.innerHTML = `
+        <h6 class="mb-2"><i class="fas fa-barcode me-2"></i>Your Referral Code</h6>
+         <div class="mb-2">
+            <label class="form-label small text-secondary">Referral Code (Wallet Address):</label>
+            <div class="input-group">
+                <input type="text" class="form-control" value="${currentUserData.address}" readonly>
+                <button class="btn btn-outline-secondary copyable-code" data-code="${currentUserData.address}" title="Copy Code"><i class="fas fa-copy"></i></button>
+            </div>
+        </div>`;
+    
+    if (currentUserData.telegramId) {
+        const miniAppLink = `https://t.me/${YOUR_TELEGRAM_BOT_NAME}/${YOUR_MINI_APP_NAME}?startapp=${currentUserData.telegramId}`;
+         linksContainer.innerHTML += `
+            <div class="mb-2">
+                <label class="form-label small text-secondary">Mini App Referral Link:</label>
                 <div class="input-group">
-                    <input type="text" class="form-control" value="${webLink}" readonly>
-                    <button class="btn btn-outline-secondary copyable-code" data-code="${webLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
+                    <input type="text" class="form-control" value="${miniAppLink}" readonly>
+                    <button class="btn btn-outline-secondary copyable-code" data-code="${miniAppLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
                 </div>
             </div>`;
-        codesContainer.innerHTML = `
-            <h6 class="mb-2"><i class="fas fa-barcode me-2"></i>Your Referral Code</h6>
-             <div class="mb-2">
-                <label class="form-label small text-secondary">Referral Code (Wallet Address):</label>
+        codesContainer.innerHTML += `
+            <div class="mb-2">
+                <label class="form-label small text-secondary">Referral Code (UID):</label>
                 <div class="input-group">
-                    <input type="text" class="form-control" value="${currentUserData.address}" readonly>
-                    <button class="btn btn-outline-secondary copyable-code" data-code="${currentUserData.address}" title="Copy Code"><i class="fas fa-copy"></i></button>
+                    <input type="text" class="form-control" value="${currentUserData.telegramId}" readonly>
+                    <button class="btn btn-outline-secondary copyable-code" data-code="${currentUserData.telegramId}" title="Copy Code"><i class="fas fa-copy"></i></button>
                 </div>
             </div>`;
-        
-        if (currentUserData.telegramId) {
-            const miniAppLink = `https://t.me/${YOUR_TELEGRAM_BOT_NAME}/${YOUR_MINI_APP_NAME}?startapp=${currentUserData.telegramId}`;
-             linksContainer.innerHTML += `
-                <div class="mb-2">
-                    <label class="form-label small text-secondary">Mini App Referral Link:</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" value="${miniAppLink}" readonly>
-                        <button class="btn btn-outline-secondary copyable-code" data-code="${miniAppLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
-                    </div>
-                </div>`;
-            codesContainer.innerHTML += `
-                <div class="mb-2">
-                    <label class="form-label small text-secondary">Referral Code (UID):</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" value="${currentUserData.telegramId}" readonly>
-                        <button class="btn btn-outline-secondary copyable-code" data-code="${currentUserData.telegramId}" title="Copy Code"><i class="fas fa-copy"></i></button>
-                    </div>
-                </div>`;
-        }
-        
-        if (currentUserData.referredBy) {
-            referralInputContainer.style.display = 'none';
-            referredByContainer.style.display = 'block';
-            referredByContainer.innerHTML = `<div class="skeleton-loader skeleton-line w-75"></div>`; // Placeholder
-            
-            const referrerCode = currentUserData.referredBy;
-            let referrerQuery;
-            if (!isNaN(referrerCode)) {
-                referrerQuery = db.collection('users').where('telegramId', '==', parseInt(referrerCode, 10));
-            } else {
-                referrerQuery = db.collection('users').where('address', '==', referrerCode);
-            }
-            
-            try {
-                const snapshot = await referrerQuery.get();
-                let referrerName = shortenAddress(referrerCode);
-                if (!snapshot.empty) {
-                    const referrerData = snapshot.docs[0].data();
-                    referrerName = referrerData.fullName || (referrerData.username ? `@${referrerData.username}` : shortenAddress(referrerData.address));
-                }
-                referredByContainer.innerHTML = `
-                    <hr style="border-color: var(--border-color); opacity: 0.5;">
-                    <h6 class="mb-2 text-secondary"><i class="fas fa-user-check me-2"></i>Your Referrer</h6>
-                    <div class="d-flex align-items-center p-2" style="background: rgba(43, 203, 196, 0.1); border-radius: 25px;">
-                        <i class="fas fa-award me-3" style="color: var(--accent-secondary); font-size: 1.5rem;"></i>
-                        <p class="m-0">You were referred by <strong style="color: var(--accent-secondary);">${referrerName}</strong>.</p>
-                    </div>`;
-            } catch (error) {
-                console.error("Could not fetch referrer's name", error);
-                referredByContainer.innerHTML = '';
-            }
-
-        } else {
-            referredByContainer.style.display = 'none';
-            if (!airdropSettings?.isSnapshotActive) {
-                referralInputContainer.style.display = 'block';
-            }
-        }
-        
-        referralCountEl.textContent = `${currentUserData.referralCount || 0}`;
-        fetchAndRenderInvitedUsers();
     }
+    
+    if (currentUserData.referredBy) {
+        referralInputContainer.style.display = 'none';
+        referredByContainer.style.display = 'block';
+        referredByContainer.innerHTML = `<div class="skeleton-loader skeleton-line w-75"></div>`;
+        
+        const referrerCode = currentUserData.referredBy;
+        let referrerQuery;
+        if (!isNaN(referrerCode)) {
+            referrerQuery = db.collection('users').where('telegramId', '==', parseInt(referrerCode, 10));
+        } else {
+            referrerQuery = db.collection('users').where('address', '==', referrerCode);
+        }
+        
+        try {
+            const snapshot = await referrerQuery.get();
+            let referrerName = shortenAddress(referrerCode);
+            if (!snapshot.empty) {
+                const referrerData = snapshot.docs[0].data();
+                referrerName = referrerData.fullName || (referrerData.username ? `@${referrerData.username}` : shortenAddress(referrerData.address));
+            }
+            referredByContainer.innerHTML = `
+                <hr style="border-color: var(--border-color); opacity: 0.5;">
+                <h6 class="mb-2 text-secondary"><i class="fas fa-user-check me-2"></i>Your Referrer</h6>
+                <div class="d-flex align-items-center p-2" style="background: rgba(43, 203, 196, 0.1); border-radius: 25px;">
+                    <i class="fas fa-award me-3" style="color: var(--accent-secondary); font-size: 1.5rem;"></i>
+                    <p class="m-0">You were referred by <strong style="color: var(--accent-secondary);">${referrerName}</strong>.</p>
+                </div>`;
+        } catch (error) {
+            console.error("Could not fetch referrer's name", error);
+            referredByContainer.innerHTML = '';
+        }
+
+    } else {
+        referredByContainer.style.display = 'none';
+        if (!airdropSettings?.isSnapshotActive) {
+            referralInputContainer.style.display = 'block';
+        }
+    }
+    
+    referralCountEl.textContent = `${currentUserData.referralCount || 0}`;
+
+    // [FIX] THÊM LẠI CÁC LỜI GỌI HÀM BỊ THIẾU
+    fetchAndRenderInvitedUsers();
+    renderReferralMilestones(); 
+}
+
+
+
+
+// ======================================================
+// [NEW] HÀM ĐỂ HIỂN THỊ CÁC MỐC MỜI BẠN CHO USER
+// ======================================================
+function renderReferralMilestones() {
+    const container = document.getElementById('referral-milestones-list-container');
+    if (!container) return; // Dừng lại nếu không tìm thấy vùng chứa trên trang
+
+    // Cập nhật số EXP cơ bản hiển thị trên tiêu đề của trang Referral
+    const baseExpDisplay = document.getElementById('referral-base-exp-display');
+    if (baseExpDisplay) {
+        baseExpDisplay.textContent = `${(rewardConfig.baseReferralExp || 5000).toLocaleString()} EXP`;
+    }
+
+    // Kiểm tra xem admin có thiết lập mốc nào không
+    if (!rewardConfig.referralMilestones || rewardConfig.referralMilestones.length === 0) {
+        container.innerHTML = `<p class="text-secondary text-center">No milestones available right now.</p>`;
+        return;
+    }
+
+    let html = '';
+    const userReferralCount = currentUserData?.referralCount || 0;
+
+    // Lặp qua từng mốc thưởng và tạo HTML tương ứng
+    rewardConfig.referralMilestones.forEach(milestone => {
+        // Kiểm tra xem người dùng đã hoàn thành mốc này chưa
+        const isCompleted = userReferralCount >= milestone.required;
+
+        html += `
+        <div class="d-flex align-items-center justify-content-between p-3 mb-2" 
+             style="background: rgba(145, 94, 255, 0.05); border-radius: 12px; border-left: 4px solid ${isCompleted ? 'var(--color-verified)' : 'var(--accent-primary)'}; opacity: ${isCompleted ? '0.7' : '1'};">
+            
+            <div class="d-flex align-items-center">
+                <i class="fas ${isCompleted ? 'fa-check-circle' : 'fa-users'} fa-fw me-3 fs-4" style="color: ${isCompleted ? 'var(--color-verified)' : 'var(--accent-primary)'};"></i>
+                <div>
+                    <h6 class="mb-0">Invite ${milestone.required} Friends</h6>
+                    <small class="text-secondary">${isCompleted ? 'Completed' : `Your progress: ${userReferralCount} / ${milestone.required}`}</small>
+                </div>
+            </div>
+
+            <div class="text-end">
+                <strong class="d-block" style="color: var(--gold);">+${(milestone.bonus).toLocaleString()} EXP</strong>
+                <small class="text-secondary">Bonus Reward</small>
+            </div>
+        </div>
+        `;
+    });
+
+    // Đưa HTML đã tạo vào trang web
+    container.innerHTML = html;
+}
+
+
+
+
+
+
+
+
+
 
     async function fetchAirdropSettings() {
         if (airdropSettings) return airdropSettings;
@@ -2650,7 +3494,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isEligibleByStats) {
             eligibilityStatusEl.textContent = 'YOU ARE NOT ELIGIBLE';
             eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
-            actionsContainer.innerHTML = `<p class="text-white-50 mt-3">Continue completing tasks to become eligible for the airdrop.</p>`;
+            actionsContainer.innerHTML = `<p class="text-white-50 mt-3">Continue completing tasks to become eligible.</p>`;
         } else if (!mandatoryTasksCompleted) {
             eligibilityStatusEl.textContent = 'YOU ARE NOT ELIGIBLE';
             eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
@@ -2663,7 +3507,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p class="text-white-50 mt-3">Rewards will be distributed to your address soon.</p>
                 <code class="copyable-address fs-6" data-address="${friendlyAddress}">${shortenAddress(friendlyAddress, 10, 10)}</code>
             `;
-        } else { // Fully eligible and hasn't requested
+        } else {
             const rewardTier = currentUserData.hasSentConfirmationTx ? '100%' : '50%';
             eligibilityStatusEl.textContent = `YOU ARE ELIGIBLE (${rewardTier})`;
             eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
@@ -2678,10 +3522,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (!settings.isSnapshotActive && settings.isClaimingEnabled) {
-                buttonsHtml += `<p class="text-white-50 mt-3 small">You are one step away from receiving $BMASS. Add your name to the reward distribution list.</p>`;
+                buttonsHtml += `<p class="text-white-50 mt-3 small">You are one step away from receiving $BMASS.</p>`;
                 buttonsHtml += `<button id="request-reward-button" class="airdrop-action-btn" style="background: var(--accent-secondary); color: white;">Send Transaction</button>`;
             } else if (settings.isSnapshotActive) {
-                buttonsHtml += `<p class="mt-3 fw-bold" style="color: var(--gold);"><i class="fas fa-flag-checkered me-2"></i>Final Snapshot!</p><p class="text-white-50">Claiming has ended. Tokens will be distributed soon to those who requested.</p>`;
+                buttonsHtml += `<p class="mt-3 fw-bold" style="color: var(--gold);"><i class="fas fa-flag-checkered me-2"></i>Final Snapshot!</p><p class="text-white-50">Claiming has ended. Tokens will be distributed soon.</p>`;
             } else {
                  buttonsHtml += `<p class="text-white-50 mt-3 fst-italic">Reward claiming will be enabled soon.</p>`;
             }
@@ -2781,8 +3625,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     appLogoImg.style.borderRadius = '50%';
                     appLogoText.textContent = `@${telegramUserData.username}` || telegramUserData.first_name || 'Telegram User';
                     
-                    if (tg.initDataUnsafe.start_param) {
-                        sessionStorage.setItem(REFERRAL_SESSION_KEY, tg.initDataUnsafe.start_param);
+                    const startParam = tg.initDataUnsafe.start_param;
+                    if (startParam) {
+                        if (startParam.startsWith('route-')) {
+                            const route = startParam.split('-')[1];
+                            if (route) {
+                                console.log(`Deep link to route: #${route}`);
+                                window.location.hash = route; 
+                            }
+                        } 
+                        else {
+                            console.log(`Referral code found: ${startParam}`);
+                            sessionStorage.setItem(REFERRAL_SESSION_KEY, startParam);
+                        }
                     }
                     
                     if(tonConnectUI.connected) {
@@ -2823,22 +3678,41 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(e) { console.error("Error capturing web referral:", e); }
     }
 
+    // [UPDATED] to handle maintenance mode
     async function initializeApp() {
+        showLoadingOverlay('Initializing...');
+        initializeFirebase();
+    
+        await fetchSystemStatus();
+        if (applyMaintenanceMode() && !isCurrentUserAdmin()) {
+            hideLoadingOverlay();
+            return; // Stop initialization if in maintenance for non-admins
+        }
+    
         checkUserSession();
         captureWebReferral();
         identifyTelegramUser(); 
+        applyPlatformSpecificStyling();
+        
+        if (window.Telegram && window.Telegram.WebApp) {
+            const tg = window.Telegram.WebApp;
+            tg.BackButton.onClick(() => {
+                window.location.hash = '#dashboard';
+            });
+        }
         
         if (!telegramUserData) {
             appLogoText.textContent = 'Bmass';
         }
         
-        initializeFirebase();
         await fetchAirdropSettings();
+        await fetchRewardSettings();
         handleRouteChange(); 
+        hideLoadingOverlay();
     }
-
+    
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ 
-        manifestUrl: 'https://duccodedao.github.io/Bmass/tonconnect-manifest.json',
+        manifestUrl: 'https://bmass.vercel.app/tonconnect-manifest.json',
         buttonRootId: 'ton-connect-button-root' 
     });
     
@@ -2887,12 +3761,12 @@ document.addEventListener('DOMContentLoaded', () => {
         [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(nav => nav.classList.remove('active'));
 
         const isLoggedIn = !!connectedWalletAddress;
-        [navTask, navPartner, navAccount, navReferral, navAirdrop].forEach(nav => nav.style.display = isLoggedIn ? 'block' : 'none');
+        [navTask, navPartner, navAccount, navReferral, navAirdrop].forEach(nav => nav.style.display = isLoggedIn ? 'flex' : 'none');
 
         if (viewToShow === 'account' && isLoggedIn) { accountSectionEl.style.display = 'block'; navAccount.classList.add('active'); } 
         else if (viewToShow === 'apps') { appStoreSection.style.display = 'block'; navApps.classList.add('active'); } 
         else if (viewToShow === 'task' && isLoggedIn) { taskSectionEl.style.display = 'block'; navTask.classList.add('active'); } 
-        else if (viewToShow === 'partner' && isLoggedIn) { partnerSectionEl.style.display = 'block'; navPartner.classList.add('active'); renderPartnerSection(); }
+        else if (viewToShow === 'partner' && isLoggedIn) { partnerSectionEl.style.display = 'block'; navPartner.classList.add('active'); renderPartnerSection(); } 
         else if (viewToShow === 'referral' && isLoggedIn) { referralSectionEl.style.display = 'block'; navReferral.classList.add('active'); } 
         else if (viewToShow === 'airdrop') { airdropSectionEl.style.display = 'block'; navAirdrop.classList.add('active'); renderAirdropSection(); } 
         else if (viewToShow === 'leaderboard') { leaderboardSectionEl.style.display = 'block'; navLeaderboard.classList.add('active'); fetchAndRenderLeaderboard(); } 
@@ -2901,6 +3775,8 @@ document.addEventListener('DOMContentLoaded', () => {
             navAdmin.classList.add('active');
             renderAdminPartnerTasks();
             fetchAndRenderAdminUserList(true); 
+            // Fetch and set admin panel switch states
+            maintenanceModeSwitch.checked = systemStatus.isMaintenanceMode;
             fetchAirdropSettings().then(settings => {
                  document.getElementById('airdrop-live-switch').checked = settings.isAirdropLive || false;
                  document.getElementById('confirmation-enabled-switch').checked = settings.isConfirmationEnabled || false;
@@ -2925,6 +3801,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const handleRouteChange = () => {
         let hash = window.location.hash.substring(1) || 'dashboard';
         const [path, queryString] = hash.split('?');
+        const tg = window.Telegram?.WebApp;
         
         const protectedRoutes = ['task', 'partner', 'account', 'admin', 'referral', 'airdrop', 'leaderboard'];
         if (!connectedWalletAddress && protectedRoutes.includes(path)) {
@@ -2937,6 +3814,14 @@ document.addEventListener('DOMContentLoaded', () => {
              showAppToast('Access Denied', 'You do not have permission to access this page.', 'error');
              window.location.hash = '#dashboard';
              hash = 'dashboard'; 
+        }
+
+        if (tg) {
+            if (path === 'dashboard' || path === '') {
+                tg.BackButton.hide();
+            } else {
+                tg.BackButton.show();
+            }
         }
 
         switchView(path);
@@ -3229,7 +4114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!event?.actions) return logs;
         event.actions.forEach((action, actionIndex) => {
             try {
-                const log = { hash: `${event.hash}-${actionIndex}`, timestamp: event.timestamp * 1000, status: action.status, amount: null };
+                const log = { hash: `${event.event_id}-${actionIndex}`, timestamp: event.timestamp * 1000, status: action.status, amount: null };
                 const isViewingAddress = (partyObj) => getRaw(partyObj) === viewingRawAddress;
                 const processParty = (partyObj) => ({ short: partyObj?.name || shortenAddress(partyObj?.address), full: partyObj?.address });
                 if (action.type === 'TonTransfer' && action.TonTransfer) {
@@ -3442,7 +4327,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isSnapshotActive = document.getElementById('snapshot-active-switch').checked;
 
         if (isSnapshotActive && !airdropSettings?.isSnapshotActive) {
-            if (!confirm("CẢNH BÁO: Bạn sắp kích hoạt Snapshot. Hành động này sẽ DỪNG tất cả các hoạt động kiếm điểm và CHỐT dữ liệu. Hành động này không thể hoàn tác. Bạn có chắc chắn muốn tiếp tục không?")) {
+            if (!confirm("CẢNH BÁO: Bạn sắp kích hoạt Snapshot. Hành động này sẽ DỪNG tất cả các hoạt động kiếm điểm. Hành động này không thể hoàn tác. Bạn có chắc chắn muốn tiếp tục không?")) {
                 document.getElementById('snapshot-active-switch').checked = false;
                 return;
             }
@@ -3585,14 +4470,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const completedTaskIds = new Set(completedTasksSnapshot.docs.map(doc => doc.id));
             
             if (tasksSnapshot.empty) {
-                partnerTasksContainer.innerHTML = `<p class="text-secondary text-center p-3">No partner tasks available yet. Check back later!</p>`;
+                partnerTasksContainer.innerHTML = `<p class="text-secondary text-center p-3">No partner tasks available yet.</p>`;
                 return;
             }
             
             let mandatoryHtml = '';
             let normalHtml = '';
             
-            tasksSnapshot.forEach(doc => {
+            tasksSnapshot.forEach((doc, index) => {
                 const task = doc.data();
                 task.id = doc.id;
                 const isCompleted = completedTaskIds.has(task.id);
@@ -3601,7 +4486,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cardHtml = `
                     <a href="${task.taskLink}" target="_blank" rel="noopener noreferrer" 
                        class="partner-task-card ${task.taskType === 'mandatory' ? 'mandatory' : ''} ${isCompleted ? 'completed' : ''}"
-                       data-task-id="${task.id}" data-exp="${task.expReward}" data-name="${task.projectName}">
+                       data-task-id="${task.id}" data-exp="${task.expReward}" data-name="${task.projectName}" style="animation-delay: ${index * 70}ms">
                         
                         <div class="partner-task-top">
                             <img src="${task.imageUrl || GENERIC_TASK_ICON}" class="partner-task-img" onerror="this.src='${GENERIC_TASK_ICON}'">
@@ -3633,7 +4518,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
         } catch (error) {
             console.error("Error rendering partner tasks:", error);
-            partnerTasksContainer.innerHTML = `<p class="text-danger text-center p-3">Error loading partner tasks. Please try again.</p>`;
+            partnerTasksContainer.innerHTML = `<p class="text-danger text-center p-3">Error loading partner tasks.</p>`;
         }
     }
 
@@ -3658,7 +4543,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handlePartnerTaskCompletion(e, taskCard) {
         if (airdropSettings?.isSnapshotActive) {
-            showAppToast('Halted', 'Point-earning activities are paused due to the snapshot.', 'warning');
+            showAppToast('Halted', 'Point-earning activities are paused.', 'warning');
             e.preventDefault();
             return;
         }
@@ -3706,7 +4591,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             showAppToast('Success!', `You received +${expReward} EXP from the ${projectName} task.`, 'success');
             
-            window.open(taskLink, '_blank');
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.openLink(taskLink);
+            } else {
+                window.open(taskLink, '_blank');
+            }
             
             const updatedDoc = await userRef.get();
             currentUserData = updatedDoc.data();
@@ -3847,7 +4736,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const taskId = row.dataset.id;
         
         if (deleteBtn) {
-            if (!confirm(`Bạn có chắc chắn muốn xóa nhiệm vụ này? Hành động này không thể hoàn tác.`)) {
+            if (!confirm(`Bạn có chắc chắn muốn xóa nhiệm vụ này?`)) {
                 return;
             }
             try {
@@ -3880,6 +4769,38 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
+    
+    // [NEW] Handle maintenance mode toggle
+    async function handleMaintenanceToggle(e) {
+        const isEnabled = e.target.checked;
+        const confirmationMessage = isEnabled
+            ? "CẢNH BÁO: Bạn sắp bật chế độ bảo trì. Tất cả người dùng sẽ bị chặn truy cập. Tiếp tục?"
+            : "Bạn có chắc muốn tắt chế độ bảo trì và cho phép người dùng truy cập lại không?";
+
+        if (!confirm(confirmationMessage)) {
+            e.target.checked = !isEnabled; // Revert the switch
+            return;
+        }
+        
+        maintenanceModeSwitch.disabled = true;
+        adminSystemStatus.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Cập nhật...`;
+        try {
+            await db.collection('admin_settings').doc('system_status').set({ isMaintenanceMode: isEnabled });
+            systemStatus.isMaintenanceMode = isEnabled;
+            showAppToast('Thành công', `Chế độ bảo trì đã được ${isEnabled ? 'BẬT' : 'TẮT'}.`, 'success');
+            adminSystemStatus.innerHTML = `<span class="text-success">Đã cập nhật thành công!</span>`;
+            // Reload the page to apply changes for everyone
+            setTimeout(() => window.location.reload(), 1500);
+        } catch (error) {
+            console.error("Error updating maintenance mode:", error);
+            showAppToast('Lỗi', 'Không thể cập nhật trạng thái hệ thống.', 'error');
+            adminSystemStatus.innerHTML = `<span class="text-danger">Cập nhật thất bại.</span>`;
+            e.target.checked = !isEnabled; // Revert on failure
+        } finally {
+            maintenanceModeSwitch.disabled = false;
+        }
+    }
+
 
     // --- Event Listeners ---
     hamburgerBtn.addEventListener('click', toggleSidebar);
@@ -3889,6 +4810,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkinButton.addEventListener('click', handleCheckin);
     popupCheckinButton.addEventListener('click', handleCheckin);
     if (adminExpForm) adminExpForm.addEventListener('submit', handleAdminExpUpdate);
+    if (sendBulkTelegramMessageBtn) sendBulkTelegramMessageBtn.addEventListener('click', sendBulkTelegramMessage);
 
     if (adminMassAwardForm) adminMassAwardForm.addEventListener('submit', handleMassAward);
     if (adminMassConditionType) {
@@ -3938,6 +4860,21 @@ document.addEventListener('DOMContentLoaded', () => {
     backToMyWalletBtn.addEventListener('click', () => { if (connectedWalletAddress) fetchAndDisplayAccountData(connectedWalletAddress); });
     otherTokensContent.addEventListener('click', (e) => { const jettonItem = e.target.closest('.jetton-item'); if (jettonItem) showJettonDetails(jettonItem.dataset.jettonAddress); });
     
+    // [NEW] Event Listeners for new modals and features
+    if (saveEmailBtn) saveEmailBtn.addEventListener('click', handleEmailUpdate);
+    if (saveTempProfileBtn) saveTempProfileBtn.addEventListener('click', handleTempProfileSave);
+    if (maintenanceModeSwitch) maintenanceModeSwitch.addEventListener('change', handleMaintenanceToggle);
+    document.getElementById('temp-avatar-upload').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                document.getElementById('temp-avatar-preview').src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
     document.body.addEventListener('click', (e) => { 
         const copyAddressTarget = e.target.closest('.copyable-address');
         const copyCodeTarget = e.target.closest('.copyable-code');
@@ -3954,6 +4891,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none'; 
     });
     
+    document.body.addEventListener('change', e => {
+        if (e.target.id === 'notifications-toggle') {
+            handleNotificationToggle(e);
+        }
+    });
+
     [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(link => link.addEventListener('click', (e) => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
     appSearchInput.addEventListener('input', () => { renderApps(); const searchTerm = appSearchInput.value.trim(); const newUrl = searchTerm ? `#apps?search=${encodeURIComponent(searchTerm)}` : '#apps'; history.replaceState(null, '', newUrl); });
     appSearchButton.addEventListener('click', renderApps);
@@ -3970,10 +4913,168 @@ document.addEventListener('DOMContentLoaded', () => {
     heroConnectButton.addEventListener('click', () => tonConnectUI.openModal());
     connectWalletHeroBtnContainer.appendChild(heroConnectButton);
     
+    function applyPlatformSpecificStyling() {
+        if (window.Telegram && window.Telegram.WebApp) {
+            const platform = window.Telegram.WebApp.platform;
+            const body = document.body;
+            body.classList.remove('platform-ios', 'platform-android', 'platform-desktop');
+            
+            console.log(`Detected platform: ${platform}`);
+            switch (platform) {
+                case 'ios': body.classList.add('platform-ios'); break;
+                case 'android': body.classList.add('platform-android'); break;
+                default: body.classList.add('platform-desktop'); break;
+            }
+        }
+    }
+
+    // [NEW] Reward Settings Functions
+    async function fetchRewardSettings() {
+        if (!db) return;
+        try {
+            const docRef = db.collection('admin_settings').doc('reward_config');
+            const doc = await docRef.get();
+            if (doc.exists) {
+                const data = doc.data();
+                if (data.referralMilestones && Array.isArray(data.referralMilestones)) {
+                    data.referralMilestones.sort((a, b) => a.required - b.required);
+                }
+                rewardConfig = data;
+                console.log("Reward settings loaded from Firestore:", rewardConfig);
+            } else {
+                await docRef.set(rewardConfig);
+                console.log("No reward settings in Firestore, created with defaults.");
+            }
+        } catch (error) {
+            console.error("Error fetching reward settings:", error);
+        }
+    }
+
+    function renderRewardSettingsUI() {
+        const adminPanel = document.getElementById('admin-panel-reward-settings');
+        if (!adminPanel) return;
+
+        document.getElementById('checkin-exp-input').value = rewardConfig.checkinExp;
+        document.getElementById('base-referral-exp-input').value = rewardConfig.baseReferralExp;
+        
+        const container = document.getElementById('referral-milestones-container');
+        container.innerHTML = ''; 
+
+        (rewardConfig.referralMilestones || []).forEach((milestone) => {
+            addMilestoneRow(milestone.required, milestone.bonus);
+        });
+    }
+
+    function addMilestoneRow(required = '', bonus = '') {
+        const container = document.getElementById('referral-milestones-container');
+        const milestoneDiv = document.createElement('div');
+        milestoneDiv.className = 'row g-3 align-items-center mb-2 milestone-item';
+        milestoneDiv.innerHTML = `
+            <div class="col">
+                <label class="form-label small d-md-none">Mốc (lượt mời)</label>
+                <input type="number" class="form-control milestone-required" value="${required}" placeholder="Số lượt mời" min="1">
+            </div>
+            <div class="col">
+                <label class="form-label small d-md-none">Thưởng thêm (EXP)</label>
+                <input type="number" class="form-control milestone-bonus" value="${bonus}" placeholder="EXP thưởng thêm" min="0">
+            </div>
+            <div class="col-auto">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-milestone-btn mt-md-4"><i class="fas fa-trash"></i></button>
+            </div>
+        `;
+        container.appendChild(milestoneDiv);
+    }
+
+    // --- Event Listeners specific to new features ---
+
+    // Event Delegation for dynamically added elements and Admin Panel
+    document.addEventListener('click', (e) => {
+        // Reward settings panel buttons
+        if (e.target && e.target.id === 'add-milestone-btn') {
+            addMilestoneRow();
+        }
+        if (e.target && e.target.closest('.remove-milestone-btn')) {
+            e.target.closest('.milestone-item').remove();
+        }
+        
+        // Admin Navigation
+        const adminNavButton = e.target.closest('.admin-nav-btn');
+        if (adminNavButton) {
+            const targetId = adminNavButton.dataset.target;
+            if (!targetId) return;
+
+            const adminNavBar = document.getElementById('admin-nav-bar');
+            if (adminNavBar.querySelector('.admin-nav-btn.active')) {
+                adminNavBar.querySelector('.admin-nav-btn.active').classList.remove('active');
+            }
+            adminNavButton.classList.add('active');
+
+            document.querySelectorAll('.admin-panel-wrapper').forEach(panel => {
+                panel.style.display = 'none';
+            });
+
+            const targetPanel = document.querySelector(targetId);
+            if (targetPanel) {
+                targetPanel.style.display = 'block';
+                // Render UI specifically when switching to the reward settings tab
+                if (targetId === '#admin-panel-reward-settings') {
+                    renderRewardSettingsUI();
+                }
+            }
+        }
+    });
+
+    // Event Listener for Reward Settings Form Submission
+    document.addEventListener('submit', async (e) => {
+        if (e.target && e.target.id === 'admin-reward-settings-form') {
+            e.preventDefault();
+            const saveBtn = document.getElementById('save-reward-settings-btn');
+            const statusEl = document.getElementById('admin-reward-settings-status');
+            
+            saveBtn.disabled = true;
+            statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
+
+            const newSettings = {
+                checkinExp: parseInt(document.getElementById('checkin-exp-input').value, 10) || 0,
+                baseReferralExp: parseInt(document.getElementById('base-referral-exp-input').value, 10) || 0,
+                referralMilestones: []
+            };
+
+            document.querySelectorAll('.milestone-item').forEach(item => {
+                const required = parseInt(item.querySelector('.milestone-required').value, 10);
+                const bonus = parseInt(item.querySelector('.milestone-bonus').value, 10);
+                if (!isNaN(required) && required > 0 && !isNaN(bonus)) {
+                    newSettings.referralMilestones.push({ required, bonus });
+                }
+            });
+            
+            newSettings.referralMilestones.sort((a,b) => a.required - b.required);
+
+            try {
+                await db.collection('admin_settings').doc('reward_config').set(newSettings);
+                rewardConfig = newSettings; 
+                statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu cài đặt!</span>`;
+                showAppToast('Thành công', 'Cài đặt thưởng đã được cập nhật.', 'success');
+            } catch (error) {
+                console.error("Error saving reward settings:", error);
+                statusEl.innerHTML = `<span class="text-danger">Lỗi: ${error.message}</span>`;
+            } finally {
+                saveBtn.disabled = false;
+                setTimeout(() => { statusEl.innerHTML = ''; }, 4000);
+            }
+        }
+    });
+
     // --- App Initialization ---
     fetchCryptoNews();
     initializeApp();
+    
+    // --- END OF DOMCONTENTLOADED ---
 });
-    </script>
+
+
+
+</script>
+
 </body>
 </html>
