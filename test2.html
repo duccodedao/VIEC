@@ -4056,75 +4056,82 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function handlePartnerTaskCompletion(e, taskCard) {
-        if (airdropSettings?.isSnapshotActive) {
-            showAppToast('Halted', 'Point-earning activities are paused due to the snapshot.', 'warning');
-            e.preventDefault();
-            return;
-        }
-        
-        if (taskCard.classList.contains('completed')) {
-            e.preventDefault();
-            return;
-        }
-
+async function handlePartnerTaskCompletion(e, taskCard) {
+    if (airdropSettings?.isSnapshotActive) {
+        showAppToast('Halted', 'Point-earning activities are paused due to the snapshot.', 'warning');
         e.preventDefault();
+        return;
+    }
+    
+    if (taskCard.classList.contains('completed')) {
+        e.preventDefault();
+        return;
+    }
 
-        const taskId = taskCard.dataset.taskId;
-        const expReward = parseInt(taskCard.dataset.exp, 10);
-        const projectName = taskCard.dataset.name;
-        const taskLink = taskCard.href;
+    e.preventDefault();
 
-        if (!taskId || isNaN(expReward)) return;
+    const taskId = taskCard.dataset.taskId;
+    const expReward = parseInt(taskCard.dataset.exp, 10);
+    const projectName = taskCard.dataset.name;
+    const taskLink = taskCard.href;
 
-        const actionBar = taskCard.querySelector('.partner-task-action-bar');
-        actionBar.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+    if (!taskId || isNaN(expReward)) return;
+
+    const actionBar = taskCard.querySelector('.partner-task-action-bar');
+    actionBar.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+    
+    try {
+        const userRef = db.collection('users').doc(connectedWalletAddress);
+        const completedTaskRef = userRef.collection('completed_partner_tasks').doc(taskId);
         
-        try {
-            const userRef = db.collection('users').doc(connectedWalletAddress);
-            const completedTaskRef = userRef.collection('completed_partner_tasks').doc(taskId);
-            
-            await db.runTransaction(async (transaction) => {
-                const completedDoc = await transaction.get(completedTaskRef);
-                if (completedDoc.exists) {
-                    throw new Error("Task already completed.");
-                }
-                const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
-                transaction.update(userRef, {
-                    points: firebase.firestore.FieldValue.increment(expReward),
-                    partnerTasksCompletedCount: firebase.firestore.FieldValue.increment(1)
-                });
-                transaction.set(completedTaskRef, { completedAt: newTimestamp });
-                const historyRef = userRef.collection('task_history').doc();
-                transaction.set(historyRef, {
-                    taskName: 'Partner Task',
-                    projectName: projectName,
-                    exp: expReward,
-                    timestamp: newTimestamp
-                });
-            });
-            
-            showAppToast('Success!', `You received +${expReward} EXP from the ${projectName} task.`, 'success');
-            
-            window.open(taskLink, '_blank');
-            
-            const updatedDoc = await userRef.get();
-            currentUserData = updatedDoc.data();
-            updateExpBalances(currentUserData.points);
-            taskCard.classList.add('completed');
-            actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
-
-        } catch (error) {
-            if (error.message.includes("Task already completed.")) {
-                 taskCard.classList.add('completed');
-                 actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
-            } else {
-                console.error("Failed to complete partner task:", error);
-                showAppToast('Error', 'Could not complete the task. Please try again.', 'error');
-                actionBar.innerHTML = `+${expReward} EXP`; 
+        await db.runTransaction(async (transaction) => {
+            const completedDoc = await transaction.get(completedTaskRef);
+            if (completedDoc.exists) {
+                throw new Error("Task already completed.");
             }
+            const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+            transaction.update(userRef, {
+                points: firebase.firestore.FieldValue.increment(expReward),
+                partnerTasksCompletedCount: firebase.firestore.FieldValue.increment(1)
+            });
+            transaction.set(completedTaskRef, { completedAt: newTimestamp });
+            const historyRef = userRef.collection('task_history').doc();
+            transaction.set(historyRef, {
+                taskName: 'Partner Task',
+                projectName: projectName,
+                exp: expReward,
+                timestamp: newTimestamp
+            });
+        });
+        
+        showAppToast('Success!', `You received +${expReward} EXP from the ${projectName} task.`, 'success');
+        
+        // [LÝ DO] Dùng window.open() bị chặn trên iOS Mini App.
+        // [GIẢI PHÁP] Sử dụng API của Telegram Web App để đảm bảo tương thích.
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.openLink(taskLink);
+        } else {
+            // Phương án dự phòng cho trình duyệt web thông thường.
+            window.open(taskLink, '_blank');
+        }
+        
+        const updatedDoc = await userRef.get();
+        currentUserData = updatedDoc.data();
+        updateExpBalances(currentUserData.points);
+        taskCard.classList.add('completed');
+        actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
+
+    } catch (error) {
+        if (error.message.includes("Task already completed.")) {
+             taskCard.classList.add('completed');
+             actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
+        } else {
+            console.error("Failed to complete partner task:", error);
+            showAppToast('Error', 'Could not complete the task. Please try again.', 'error');
+            actionBar.innerHTML = `+${expReward} EXP`; 
         }
     }
+}
     
     async function handleAdminPartnerTaskSave(e) {
         e.preventDefault();
