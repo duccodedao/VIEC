@@ -2904,91 +2904,94 @@ async function renderReferralSection() {
     const referralCountEl = document.getElementById('referral-count');
     const referredByContainer = document.getElementById('referred-by-container');
     const referralInputContainer = document.getElementById('referral-input-container');
+    
+    linksContainer.innerHTML = '';
+    codesContainer.innerHTML = '';
 
-        linksContainer.innerHTML = '';
-        codesContainer.innerHTML = '';
-
-        const webLink = `${YOUR_WEB_APP_URL}?ref=${currentUserData.address}`;
-        linksContainer.innerHTML = `
-            <h6 class="mb-2"><i class="fas fa-link me-2"></i>Your Referral Link</h6>
-            <div class="mb-3">
-                <label class="form-label small text-secondary">Web Referral Link:</label>
+    const webLink = `${YOUR_WEB_APP_URL}?ref=${currentUserData.address}`;
+    linksContainer.innerHTML = `
+        <h6 class="mb-2"><i class="fas fa-link me-2"></i>Your Referral Link</h6>
+        <div class="mb-3">
+            <label class="form-label small text-secondary">Web Referral Link:</label>
+            <div class="input-group">
+                <input type="text" class="form-control" value="${webLink}" readonly>
+                <button class="btn btn-outline-secondary copyable-code" data-code="${webLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
+            </div>
+        </div>`;
+    codesContainer.innerHTML = `
+        <h6 class="mb-2"><i class="fas fa-barcode me-2"></i>Your Referral Code</h6>
+         <div class="mb-2">
+            <label class="form-label small text-secondary">Referral Code (Wallet Address):</label>
+            <div class="input-group">
+                <input type="text" class="form-control" value="${currentUserData.address}" readonly>
+                <button class="btn btn-outline-secondary copyable-code" data-code="${currentUserData.address}" title="Copy Code"><i class="fas fa-copy"></i></button>
+            </div>
+        </div>`;
+    
+    if (currentUserData.telegramId) {
+        const miniAppLink = `https://t.me/${YOUR_TELEGRAM_BOT_NAME}/${YOUR_MINI_APP_NAME}?startapp=${currentUserData.telegramId}`;
+         linksContainer.innerHTML += `
+            <div class="mb-2">
+                <label class="form-label small text-secondary">Mini App Referral Link:</label>
                 <div class="input-group">
-                    <input type="text" class="form-control" value="${webLink}" readonly>
-                    <button class="btn btn-outline-secondary copyable-code" data-code="${webLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
+                    <input type="text" class="form-control" value="${miniAppLink}" readonly>
+                    <button class="btn btn-outline-secondary copyable-code" data-code="${miniAppLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
                 </div>
             </div>`;
-        codesContainer.innerHTML = `
-            <h6 class="mb-2"><i class="fas fa-barcode me-2"></i>Your Referral Code</h6>
-             <div class="mb-2">
-                <label class="form-label small text-secondary">Referral Code (Wallet Address):</label>
+        codesContainer.innerHTML += `
+            <div class="mb-2">
+                <label class="form-label small text-secondary">Referral Code (UID):</label>
                 <div class="input-group">
-                    <input type="text" class="form-control" value="${currentUserData.address}" readonly>
-                    <button class="btn btn-outline-secondary copyable-code" data-code="${currentUserData.address}" title="Copy Code"><i class="fas fa-copy"></i></button>
+                    <input type="text" class="form-control" value="${currentUserData.telegramId}" readonly>
+                    <button class="btn btn-outline-secondary copyable-code" data-code="${currentUserData.telegramId}" title="Copy Code"><i class="fas fa-copy"></i></button>
                 </div>
             </div>`;
+    }
+    
+    if (currentUserData.referredBy) {
+        referralInputContainer.style.display = 'none';
+        referredByContainer.style.display = 'block';
+        referredByContainer.innerHTML = `<div class="skeleton-loader skeleton-line w-75"></div>`;
         
-        if (currentUserData.telegramId) {
-            const miniAppLink = `https://t.me/${YOUR_TELEGRAM_BOT_NAME}/${YOUR_MINI_APP_NAME}?startapp=${currentUserData.telegramId}`;
-             linksContainer.innerHTML += `
-                <div class="mb-2">
-                    <label class="form-label small text-secondary">Mini App Referral Link:</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" value="${miniAppLink}" readonly>
-                        <button class="btn btn-outline-secondary copyable-code" data-code="${miniAppLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
-                    </div>
-                </div>`;
-            codesContainer.innerHTML += `
-                <div class="mb-2">
-                    <label class="form-label small text-secondary">Referral Code (UID):</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" value="${currentUserData.telegramId}" readonly>
-                        <button class="btn btn-outline-secondary copyable-code" data-code="${currentUserData.telegramId}" title="Copy Code"><i class="fas fa-copy"></i></button>
-                    </div>
-                </div>`;
-        }
-        
-        if (currentUserData.referredBy) {
-            referralInputContainer.style.display = 'none';
-            referredByContainer.style.display = 'block';
-            referredByContainer.innerHTML = `<div class="skeleton-loader skeleton-line w-75"></div>`;
-            
-            const referrerCode = currentUserData.referredBy;
-            let referrerQuery;
-            if (!isNaN(referrerCode)) {
-                referrerQuery = db.collection('users').where('telegramId', '==', parseInt(referrerCode, 10));
-            } else {
-                referrerQuery = db.collection('users').where('address', '==', referrerCode);
-            }
-            
-            try {
-                const snapshot = await referrerQuery.get();
-                let referrerName = shortenAddress(referrerCode);
-                if (!snapshot.empty) {
-                    const referrerData = snapshot.docs[0].data();
-                    referrerName = referrerData.fullName || (referrerData.username ? `@${referrerData.username}` : shortenAddress(referrerData.address));
-                }
-                referredByContainer.innerHTML = `
-                    <hr style="border-color: var(--border-color); opacity: 0.5;">
-                    <h6 class="mb-2 text-secondary"><i class="fas fa-user-check me-2"></i>Your Referrer</h6>
-                    <div class="d-flex align-items-center p-2" style="background: rgba(43, 203, 196, 0.1); border-radius: 25px;">
-                        <i class="fas fa-award me-3" style="color: var(--accent-secondary); font-size: 1.5rem;"></i>
-                        <p class="m-0">You were referred by <strong style="color: var(--accent-secondary);">${referrerName}</strong>.</p>
-                    </div>`;
-            } catch (error) {
-                console.error("Could not fetch referrer's name", error);
-                referredByContainer.innerHTML = '';
-            }
-
+        const referrerCode = currentUserData.referredBy;
+        let referrerQuery;
+        if (!isNaN(referrerCode)) {
+            referrerQuery = db.collection('users').where('telegramId', '==', parseInt(referrerCode, 10));
         } else {
-            referredByContainer.style.display = 'none';
-            if (!airdropSettings?.isSnapshotActive) {
-                referralInputContainer.style.display = 'block';
-            }
+            referrerQuery = db.collection('users').where('address', '==', referrerCode);
         }
         
-        referralCountEl.textContent = `${currentUserData.referralCount || 0}`;
-   renderReferralMilestones(); 
+        try {
+            const snapshot = await referrerQuery.get();
+            let referrerName = shortenAddress(referrerCode);
+            if (!snapshot.empty) {
+                const referrerData = snapshot.docs[0].data();
+                referrerName = referrerData.fullName || (referrerData.username ? `@${referrerData.username}` : shortenAddress(referrerData.address));
+            }
+            referredByContainer.innerHTML = `
+                <hr style="border-color: var(--border-color); opacity: 0.5;">
+                <h6 class="mb-2 text-secondary"><i class="fas fa-user-check me-2"></i>Your Referrer</h6>
+                <div class="d-flex align-items-center p-2" style="background: rgba(43, 203, 196, 0.1); border-radius: 25px;">
+                    <i class="fas fa-award me-3" style="color: var(--accent-secondary); font-size: 1.5rem;"></i>
+                    <p class="m-0">You were referred by <strong style="color: var(--accent-secondary);">${referrerName}</strong>.</p>
+                </div>`;
+        } catch (error) {
+            console.error("Could not fetch referrer's name", error);
+            referredByContainer.innerHTML = '';
+        }
+
+    } else {
+        referredByContainer.style.display = 'none';
+        if (!airdropSettings?.isSnapshotActive) {
+            referralInputContainer.style.display = 'block';
+        }
+    }
+    
+    referralCountEl.textContent = `${currentUserData.referralCount || 0}`;
+
+    // [FIX] THÊM LẠI CÁC LỜI GỌI HÀM BỊ THIẾU
+    fetchAndRenderInvitedUsers();
+    renderReferralMilestones(); 
 }
 
 
