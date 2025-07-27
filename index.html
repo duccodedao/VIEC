@@ -709,6 +709,30 @@
       
       .platform-ios #sidebar-menu { padding-top: 150px !important; }
       .platform-android #sidebar-menu { padding-top: 140px !important; }
+    
+    
+    /* [NEW] Admin Navigation Styles */
+.admin-nav-btn {
+    background-color: var(--card-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 8px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+.admin-nav-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--accent-secondary);
+    transform: translateY(-3px);
+}
+.admin-nav-btn.active {
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 0 15px rgba(145, 94, 255, 0.5);
+}
     </style>
 </head>
 <body>
@@ -799,6 +823,7 @@
                             <p id="profile-username" class="text-secondary fs-5"></p>
                             <hr style="border-color: var(--border-color); opacity: 0.5;">
                             <div id="profile-details" class="text-start p-2">
+                                <!-- User details rendered by JS -->
                             </div>
                             <div class="d-grid gap-2 mt-4">
                                 <button id="contact-admin-btn" class="btn btn-outline-secondary">
@@ -1139,321 +1164,253 @@
             </div>
         </main>
         
-        <main id="admin-section" style="display: none;">
-            <div class="container">
-                <div class="text-center mb-5">
-                    <h1 class="mb-2" style="font-weight: 700;">Admin Panel</h1>
-                    <p class="lead text-secondary col-md-8 mx-auto">Công cụ quản lý người dùng và sự kiện.</p>
-                </div>
-                <div class="row justify-content-center g-4">
-                    <!-- ============================================= -->
-                    <!-- NEW: TELEGRAM BULK MESSENGER PANEL            -->
-                    <!-- ============================================= -->
-                     <div class="col-12 col-lg-10 col-xl-8">
-                        <div class="card-glass">
-                            <h5 class="card-title">Gửi Tin Nhắn Hàng Loạt qua Telegram</h5>
-                            <p class="text-secondary small">Soạn một tin nhắn và gửi đến TẤT CẢ người dùng đã liên kết tài khoản Telegram (có UID) trong hệ thống.</p>
-                            <form id="admin-telegram-sender-form">
-                                <div class="mb-3">
-                                    <label for="telegram-api-token-input" class="form-label">Telegram Bot API Token</label>
-                                    <input type="password" class="form-control" id="telegram-api-token-input" placeholder="Dán API Token của bot vào đây" required>
-                                </div>
+ <main id="admin-section" style="display: none;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="mb-2" style="font-weight: 700;">Admin Panel</h1>
+            <p class="lead text-secondary col-md-8 mx-auto">Công cụ quản lý người dùng và sự kiện.</p>
+        </div>
 
-                                <hr style="border-color: var(--border-color); opacity: 0.5; margin: 2rem 0;">
-                                <h6 class="text-secondary mb-3">NỘI DUNG TIN NHẮN</h6>
-                                <div class="mb-3">
-                                    <label for="telegram-image-url-input" class="form-label">URL Hình ảnh (Tùy chọn)</label>
-                                    <input type="url" class="form-control" id="telegram-image-url-input" placeholder="https://example.com/image.png">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="telegram-message-text-input" class="form-label">Văn bản tin nhắn / Chú thích ảnh</label>
-                                    <textarea class="form-control" id="telegram-message-text-input" rows="4" placeholder="Nhập nội dung tin nhắn của bạn..."></textarea>
-                                </div>
-                                <h6 class="text-secondary my-3">NÚT BẤM (TÙY CHỌN)</h6>
-                                <div class="row g-3">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="telegram-button-text-input" class="form-label">Văn bản trên nút</label>
-                                        <input type="text" class="form-control" id="telegram-button-text-input" placeholder="e.g., Mở liên kết">
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="telegram-button-url-input" class="form-label">URL của nút</label>
-                                        <input type="url" class="form-control" id="telegram-button-url-input" placeholder="https://t.me/your_channel">
-                                    </div>
-                                </div>
+        <!-- [NEW] Thanh Điều Hướng Admin -->
+        <div id="admin-nav-bar" class="app-filter-bar mb-4">
+            <button class="admin-nav-btn btn active" data-target="#admin-panel-users">Danh sách User</button>
+            <button class="admin-nav-btn btn" data-target="#admin-panel-messenger">Gửi Tin Nhắn</button>
+            <button class="admin-nav-btn btn" data-target="#admin-panel-partner-tasks">N.Vụ Partner</button>
+            <button class="admin-nav-btn btn" data-target="#admin-panel-airdrop-settings">Cài đặt Airdrop</button>
+            <button class="admin-nav-btn btn" data-target="#admin-panel-edit-exp">Chỉnh sửa EXP</button>
+            <button class="admin-nav-btn btn" data-target="#admin-panel-mass-award">Thưởng Hàng Loạt</button>
+            <button class="admin-nav-btn btn" data-target="#admin-panel-account-status">Trạng thái TK</button>
+        </div>
 
-                                <div id="telegram-sender-status" class="mt-3 text-center fw-bold"></div>
-
-                                <div class="d-grid mt-3">
-                                    <button type="button" id="send-bulk-telegram-message-btn" class="btn btn-lg" style="background: linear-gradient(90deg, #0088cc, #00aaff); color: white;">
-                                        <i class="fab fa-telegram-plane me-2"></i>Gửi Hàng Loạt cho Tất Cả User
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- ============================================= -->
-                    <!-- ADMIN PARTNER TASK MANAGEMENT                 -->
-                    <!-- ============================================= -->
-                     <div class="col-12 col-lg-10 col-xl-8">
-                        <div class="card-glass">
-                            <h5 class="card-title">Quản lý Nhiệm vụ Partner</h5>
-                            <form id="admin-partner-task-form">
-                                <input type="hidden" id="partner-task-id-input">
-                                <div class="mb-3">
-                                    <label for="partner-task-name-input" class="form-label">Tên dự án</label>
-                                    <input type="text" class="form-control" id="partner-task-name-input" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="partner-task-desc-input" class="form-label">Mô tả ngắn</label>
-                                    <textarea class="form-control" id="partner-task-desc-input" rows="2" required></textarea>
-                                </div>
-                                <div class="row g-3">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="partner-task-img-upload" class="form-label">Tải ảnh lên</label>
-                                        <input class="form-control" type="file" id="partner-task-img-upload" accept="image/*">
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="partner-task-img-url" class="form-label">Hoặc dán Link ảnh</label>
-                                        <input type="url" class="form-control" id="partner-task-img-url" placeholder="https://...">
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="partner-task-link-input" class="form-label">Link nhiệm vụ</label>
-                                    <input type="url" class="form-control" id="partner-task-link-input" required placeholder="https://...">
-                                </div>
-                                <div class="row g-3">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="partner-task-exp-input" class="form-label">EXP Thưởng</label>
-                                        <input type="number" class="form-control" id="partner-task-exp-input" required min="0">
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="partner-task-type-select" class="form-label">Loại nhiệm vụ</label>
-                                        <select class="form-select" id="partner-task-type-select">
-                                            <option value="normal" selected>Thông thường</option>
-                                            <option value="mandatory">Bắt buộc (Ghim)</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div id="admin-partner-task-status" class="mt-3 text-center"></div>
-                                <div class="d-flex gap-3 mt-3">
-                                    <button type="submit" id="partner-task-save-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;">Lưu Nhiệm Vụ</button>
-                                    <button type="button" id="partner-task-clear-btn" class="btn btn-outline-secondary w-50">Làm mới</button>
-                                </div>
-                            </form>
-                            <hr style="border-color: var(--border-color); opacity: 0.5; margin: 2rem 0;">
-                            <h5 class="card-title">Danh sách Nhiệm vụ Partner</h5>
-                            <div id="admin-partner-tasks-list" class="table-responsive">
-                                <!-- Admin partner tasks table will be rendered here -->
-                            </div>
-                        </div>
-                    </div>
-
-                     <div class="col-12 col-lg-10 col-xl-8">
-                        <div class="card-glass">
-                            <h5 class="card-title">Cấu hình Airdrop & Xuất dữ liệu</h5>
-                            <div id="admin-airdrop-settings-form">
-                                <div class="row text-center g-3 mb-4">
-                                    <div class="col-6 col-sm-3">
-                                        <div class="form-check form-switch fs-5 d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="airdrop-live-switch">
-                                            <label class="form-check-label" for="airdrop-live-switch">Live</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-sm-3">
-                                        <div class="form-check form-switch fs-5 d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="confirmation-enabled-switch">
-                                            <label class="form-check-label" for="confirmation-enabled-switch">Xác nhận</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-sm-3">
-                                        <div class="form-check form-switch fs-5 d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="claim-enabled-switch">
-                                            <label class="form-check-label" for="claim-enabled-switch">Yêu cầu</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-sm-3">
-                                        <div class="form-check form-switch fs-5 d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="snapshot-active-switch">
-                                            <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snap</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <hr style="border-color: var(--border-color); opacity: 0.5;">
-                                <h6 class="text-secondary text-center my-3">CÔNG THỨC TÍNH ĐIỂM</h6>
-                                <div class="row g-3 mb-4">
-                                     <div class="col-md-4">
-                                        <label for="ref-multiplier-input" class="form-label">Điểm mỗi Lượt mời</label>
-                                        <input type="number" class="form-control" id="ref-multiplier-input" value="50" min="0">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="checkin-multiplier-input" class="form-label">Điểm mỗi Check-in</label>
-                                        <input type="number" class="form-control" id="checkin-multiplier-input" value="30" min="0">
-                                    </div>
-                                     <div class="col-md-4">
-                                        <label for="exp-multiplier-input" class="form-label">Điểm mỗi EXP</label>
-                                        <input type="number" class="form-control" id="exp-multiplier-input" value="20" min="0">
-                                    </div>
-                                </div>
-
-                                <hr style="border-color: var(--border-color); opacity: 0.5;">
-                                <h6 class="text-secondary text-center my-3">ĐIỀU KIỆN TỐI THIỂU</h6>
-                                <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <label for="min-checkins-input" class="form-label">Tối thiểu Check-in</label>
-                                        <input type="number" class="form-control" id="min-checkins-input" value="0" min="0">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="min-referrals-input" class="form-label">Tối thiểu Lượt mời</label>
-                                        <input type="number" class="form-control" id="min-referrals-input" value="0" min="0">
-                                    </div>
-                                     <div class="col-md-4">
-                                        <label for="min-exp-input" class="form-label">Tối thiểu EXP</label>
-                                        <input type="number" class="form-control" id="min-exp-input" value="0" min="0">
-                                    </div>
-                                </div>
-                                <div class="mt-3">
-                                     <label for="min-exp-input" class="form-label fw-bold" style="color: var(--gold);">ĐIỀU KIỆN NHIỆM VỤ BẮT BUỘC (Tự động áp dụng)</label>
-                                </div>
-                                <div id="admin-settings-status" class="mt-3"></div>
-                                <div class="d-flex gap-3 mt-3">
-                                    <button type="button" id="save-settings-btn" class="btn w-100" style="background-color: var(--accent-secondary); color: white;">Lưu Cài Đặt</button>
-                                    <button type="button" id="export-csv-btn" class="btn btn-outline-light w-100">Xuất File Excel (CSV)</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-lg-10 col-xl-8">
-                        <div class="card-glass">
-                            <h5 class="card-title">Chỉnh sửa EXP cho một User</h5>
-                            <form id="admin-exp-form">
-                                <div class="mb-3">
-                                    <label for="admin-target-type" class="form-label">Loại định danh</label>
-                                    <select class="form-select" id="admin-target-type">
-                                        <option value="uid" selected>UID (Telegram ID)</option>
-                                        <option value="address">Address (Raw)</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-target-value" class="form-label">Giá trị định danh</label>
-                                    <input type="text" class="form-control" id="admin-target-value" placeholder="Nhập UID hoặc địa chỉ ví..." required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-action-type" class="form-label">Hành động</label>
-                                    <select class="form-select" id="admin-action-type">
-                                        <option value="add" selected>Cộng EXP</option>
-                                        <option value="subtract">Trừ EXP</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-exp-amount" class="form-label">Số lượng EXP</label>
-                                    <input type="number" class="form-control" id="admin-exp-amount" placeholder="e.g., 100" required min="1">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-task-name" class="form-label">Lý do (Task Name)</label>
-                                    <input type="text" class="form-control" id="admin-task-name" placeholder="e.g., Thưởng event" required>
-                                </div>
-                                <button type="submit" id="admin-submit-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;">
-                                    <i class="fas fa-check me-2"></i>Xác nhận
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                    
-                    <!-- [NEW] THƯỞNG EXP HÀNG LOẠT -->
-                    <div class="col-12 col-lg-10 col-xl-8">
-                        <div class="card-glass">
-                            <h5 class="card-title">Thưởng EXP Hàng Loạt</h5>
-                            <form id="admin-mass-award-form">
-                                <div class="mb-3">
-                                    <label for="admin-mass-condition-type" class="form-label">Thưởng cho người dùng theo</label>
-                                    <select class="form-select" id="admin-mass-condition-type">
-                                        <option value="all" selected>Tất cả người dùng</option>
-                                        <option value="referralCount">Số lượt mời</option>
-                                        <option value="checkinCount">Số lượt Check-in</option>
-                                        <option value="points">Số điểm EXP</option>
-                                    </select>
-                                </div>
-                                <div id="admin-mass-condition-wrapper" style="display: none;">
-                                    <label class="form-label">Điều kiện</label>
-                                    <div class="input-group mb-3">
-                                        <select class="form-select" id="admin-mass-operator" style="max-width: 150px;">
-                                            <option value=">=" selected>Lớn hơn hoặc bằng</option>
-                                            <option value="<=">Nhỏ hơn hoặc bằng</option>
-                                        </select>
-                                        <input type="number" class="form-control" id="admin-mass-condition-value" placeholder="e.g., 10" min="0">
-                                    </div>
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <label for="admin-mass-exp-amount" class="form-label">Số lượng EXP để thưởng</label>
-                                    <input type="number" class="form-control" id="admin-mass-exp-amount" placeholder="e.g., 500" required min="1">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-mass-task-name" class="form-label">Nội dung/Lý do thưởng</label>
-                                    <input type="text" class="form-control" id="admin-mass-task-name" placeholder="e.g., Thưởng event Giáng Sinh" required>
-                                </div>
-                                
-                                <div id="admin-mass-award-status" class="mt-3 text-center"></div>
-
-                                <button type="submit" id="admin-mass-award-submit-btn" class="btn w-100" style="background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white;">
-                                    <i class="fas fa-gifts me-2"></i>Thực Hiện Thưởng Hàng Loạt
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                    
-                    <div class="col-12 col-lg-10 col-xl-8">
-                        <div class="card-glass">
-                            <h5 class="card-title">Quản lý Trạng thái Tài khoản</h5>
-                             <form id="admin-disable-form">
-                                <div class="mb-3">
-                                    <label for="admin-disable-target-type" class="form-label">Loại định danh</label>
-                                    <select class="form-select" id="admin-disable-target-type">
-                                        <option value="uid" selected>UID (Telegram ID)</option>
-                                        <option value="address">Address (Raw)</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-disable-target-value" class="form-label">Giá trị định danh</label>
-                                    <input type="text" class="form-control" id="admin-disable-target-value" placeholder="Nhập UID hoặc địa chỉ ví..." required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-disable-duration" class="form-label">Thời gian vô hiệu hoá (ngày)</label>
-                                    <input type="number" class="form-control" id="admin-disable-duration" placeholder="e.g., 7 (để trống nếu muốn mở khoá)" min="0">
-                                </div>
-                                <div class="d-flex gap-3">
-                                    <button type="button" id="admin-disable-btn" class="btn w-100" style="background-color: var(--color-out); color: white;">
-                                        <i class="fas fa-user-lock me-2"></i>Vô hiệu hoá
-                                    </button>
-                                     <button type="button" id="admin-enable-btn" class="btn w-100" style="background-color: var(--color-verified); color: white;">
-                                        <i class="fas fa-user-check me-2"></i>Mở khoá
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="col-12">
-                        <div class="card-glass">
-                            <h5 class="card-title">Danh sách Người dùng</h5>
+        <div class="row justify-content-center g-4">
+            
+            <!-- [UPDATED] Bảng Gửi Tin Nhắn -->
+            <div id="admin-panel-messenger" class="admin-panel-wrapper" style="display: none;">
+                <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                    <div class="card-glass">
+                        <h5 class="card-title">Gửi Tin Nhắn Hàng Loạt qua Telegram</h5>
+                        <p class="text-secondary small">Soạn một tin nhắn và gửi đến TẤT CẢ người dùng đã liên kết tài khoản Telegram (có UID) và đã bật nhận thông báo.</p>
+                        <form id="admin-telegram-sender-form">
                             <div class="mb-3">
-                                <input type="text" id="admin-user-search-input" class="form-control" placeholder="Tìm theo Tên, UID, hoặc Địa chỉ ví...">
+                                <label for="telegram-api-token-input" class="form-label">Telegram Bot API Token</label>
+                                <input type="password" class="form-control" id="telegram-api-token-input" placeholder="Dán API Token của bot vào đây" required>
                             </div>
-                            <div id="admin-user-list-container" class="table-responsive">
-                                <!-- JS renders table here -->
+                            <hr style="border-color: var(--border-color); opacity: 0.5; margin: 2rem 0;">
+                            <h6 class="text-secondary mb-3">NỘI DUNG TIN NHẮN</h6>
+                            <div class="mb-3">
+                                <label for="telegram-image-url-input" class="form-label">URL Hình ảnh (Tùy chọn)</label>
+                                <input type="url" class="form-control" id="telegram-image-url-input" placeholder="https://example.com/image.png">
                             </div>
-                            <div class="text-center mt-3">
-                                <button id="admin-load-more-btn" class="btn btn-outline-secondary" style="display: none;">Tải thêm</button>
+                            <div class="mb-3">
+                                <label for="telegram-message-text-input" class="form-label">Văn bản tin nhắn / Chú thích ảnh</label>
+                                <textarea class="form-control" id="telegram-message-text-input" rows="4" placeholder="Nhập nội dung tin nhắn của bạn..."></textarea>
+                            </div>
+                            <h6 class="text-secondary my-3">NÚT BẤM (TÙY CHỌN)</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6 mb-3">
+                                    <label for="telegram-button-text-input" class="form-label">Văn bản trên nút</label>
+                                    <input type="text" class="form-control" id="telegram-button-text-input" placeholder="e.g., Mở liên kết">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="telegram-button-url-input" class="form-label">URL của nút</label>
+                                    <input type="url" class="form-control" id="telegram-button-url-input" placeholder="https://t.me/your_channel">
+                                </div>
+                            </div>
+                            <div id="telegram-sender-status" class="mt-3 text-center fw-bold"></div>
+                            <div class="d-grid mt-3">
+                                <button type="button" id="send-bulk-telegram-message-btn" class="btn btn-lg" style="background: linear-gradient(90deg, #0088cc, #00aaff); color: white;">
+                                    <i class="fab fa-telegram-plane me-2"></i>Gửi Hàng Loạt
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [UPDATED] Bảng Nhiệm Vụ Partner -->
+            <div id="admin-panel-partner-tasks" class="admin-panel-wrapper" style="display: none;">
+                 <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                    <div class="card-glass">
+                        <h5 class="card-title">Quản lý Nhiệm vụ Partner</h5>
+                        <form id="admin-partner-task-form">
+                             <input type="hidden" id="partner-task-id-input">
+                            <div class="mb-3">
+                                <label for="partner-task-name-input" class="form-label">Tên dự án</label>
+                                <input type="text" class="form-control" id="partner-task-name-input" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="partner-task-desc-input" class="form-label">Mô tả ngắn</label>
+                                <textarea class="form-control" id="partner-task-desc-input" rows="2" required></textarea>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6 mb-3">
+                                    <label for="partner-task-img-upload" class="form-label">Tải ảnh lên</label>
+                                    <input class="form-control" type="file" id="partner-task-img-upload" accept="image/*">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="partner-task-img-url" class="form-label">Hoặc dán Link ảnh</label>
+                                    <input type="url" class="form-control" id="partner-task-img-url" placeholder="https://...">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="partner-task-link-input" class="form-label">Link nhiệm vụ</label>
+                                <input type="url" class="form-control" id="partner-task-link-input" required placeholder="https://...">
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6 mb-3">
+                                    <label for="partner-task-exp-input" class="form-label">EXP Thưởng</label>
+                                    <input type="number" class="form-control" id="partner-task-exp-input" required min="0">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="partner-task-type-select" class="form-label">Loại nhiệm vụ</label>
+                                    <select class="form-select" id="partner-task-type-select">
+                                        <option value="normal" selected>Thông thường</option>
+                                        <option value="mandatory">Bắt buộc (Ghim)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="admin-partner-task-status" class="mt-3 text-center"></div>
+                            <div class="d-flex gap-3 mt-3">
+                                <button type="submit" id="partner-task-save-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;">Lưu Nhiệm Vụ</button>
+                                <button type="button" id="partner-task-clear-btn" class="btn btn-outline-secondary w-50">Làm mới</button>
+                            </div>
+                        </form>
+                        <hr style="border-color: var(--border-color); opacity: 0.5; margin: 2rem 0;">
+                        <h5 class="card-title">Danh sách Nhiệm vụ Partner</h5>
+                        <div id="admin-partner-tasks-list" class="table-responsive"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- [UPDATED] Bảng Cài đặt Airdrop -->
+            <div id="admin-panel-airdrop-settings" class="admin-panel-wrapper" style="display: none;">
+                <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                    <div class="card-glass">
+                        <h5 class="card-title">Cấu hình Airdrop & Xuất dữ liệu</h5>
+                        <div id="admin-airdrop-settings-form">
+                            <!-- ... content for airdrop settings ... -->
+                            <div class="row text-center g-3 mb-4">
+                                <div class="col-6 col-sm-3">
+                                    <div class="form-check form-switch fs-5 d-inline-block">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="airdrop-live-switch">
+                                        <label class="form-check-label" for="airdrop-live-switch">Live</label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-3">
+                                    <div class="form-check form-switch fs-5 d-inline-block">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="confirmation-enabled-switch">
+                                        <label class="form-check-label" for="confirmation-enabled-switch">Xác nhận</label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-3">
+                                    <div class="form-check form-switch fs-5 d-inline-block">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="claim-enabled-switch">
+                                        <label class="form-check-label" for="claim-enabled-switch">Yêu cầu</label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-3">
+                                    <div class="form-check form-switch fs-5 d-inline-block">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="snapshot-active-switch">
+                                        <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snap</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr style="border-color: var(--border-color); opacity: 0.5;">
+                            <h6 class="text-secondary text-center my-3">CÔNG THỨC TÍNH ĐIỂM</h6>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-4"><label for="ref-multiplier-input" class="form-label">Điểm mỗi Lượt mời</label><input type="number" class="form-control" id="ref-multiplier-input" value="50" min="0"></div>
+                                <div class="col-md-4"><label for="checkin-multiplier-input" class="form-label">Điểm mỗi Check-in</label><input type="number" class="form-control" id="checkin-multiplier-input" value="30" min="0"></div>
+                                <div class="col-md-4"><label for="exp-multiplier-input" class="form-label">Điểm mỗi EXP</label><input type="number" class="form-control" id="exp-multiplier-input" value="20" min="0"></div>
+                            </div>
+                            <hr style="border-color: var(--border-color); opacity: 0.5;">
+                            <h6 class="text-secondary text-center my-3">ĐIỀU KIỆN TỐI THIỂU</h6>
+                            <div class="row g-3">
+                                <div class="col-md-4"><label for="min-checkins-input" class="form-label">Tối thiểu Check-in</label><input type="number" class="form-control" id="min-checkins-input" value="0" min="0"></div>
+                                <div class="col-md-4"><label for="min-referrals-input" class="form-label">Tối thiểu Lượt mời</label><input type="number" class="form-control" id="min-referrals-input" value="0" min="0"></div>
+                                <div class="col-md-4"><label for="min-exp-input" class="form-label">Tối thiểu EXP</label><input type="number" class="form-control" id="min-exp-input" value="0" min="0"></div>
+                            </div>
+                            <div class="mt-3"><label class="form-label fw-bold" style="color: var(--gold);">ĐIỀU KIỆN NHIỆM VỤ BẮT BUỘC (Tự động áp dụng)</label></div>
+                            <div id="admin-settings-status" class="mt-3"></div>
+                            <div class="d-flex gap-3 mt-3">
+                                <button type="button" id="save-settings-btn" class="btn w-100" style="background-color: var(--accent-secondary); color: white;">Lưu Cài Đặt</button>
+                                <button type="button" id="export-csv-btn" class="btn btn-outline-light w-100">Xuất File Excel (CSV)</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
+
+            <!-- [UPDATED] Bảng Chỉnh sửa EXP -->
+            <div id="admin-panel-edit-exp" class="admin-panel-wrapper" style="display: none;">
+                <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                    <div class="card-glass">
+                        <h5 class="card-title">Chỉnh sửa EXP cho một User</h5>
+                        <form id="admin-exp-form">
+                            <!-- ... content for edit exp form ... -->
+                             <div class="mb-3"><label for="admin-target-type" class="form-label">Loại định danh</label><select class="form-select" id="admin-target-type"><option value="uid" selected>UID (Telegram ID)</option><option value="address">Address (Raw)</option></select></div>
+                             <div class="mb-3"><label for="admin-target-value" class="form-label">Giá trị định danh</label><input type="text" class="form-control" id="admin-target-value" placeholder="Nhập UID hoặc địa chỉ ví..." required></div>
+                             <div class="mb-3"><label for="admin-action-type" class="form-label">Hành động</label><select class="form-select" id="admin-action-type"><option value="add" selected>Cộng EXP</option><option value="subtract">Trừ EXP</option></select></div>
+                             <div class="mb-3"><label for="admin-exp-amount" class="form-label">Số lượng EXP</label><input type="number" class="form-control" id="admin-exp-amount" placeholder="e.g., 100" required min="1"></div>
+                             <div class="mb-3"><label for="admin-task-name" class="form-label">Lý do (Task Name)</label><input type="text" class="form-control" id="admin-task-name" placeholder="e.g., Thưởng event" required></div>
+                             <button type="submit" id="admin-submit-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;"><i class="fas fa-check me-2"></i>Xác nhận</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [UPDATED] Bảng Thưởng Hàng Loạt -->
+            <div id="admin-panel-mass-award" class="admin-panel-wrapper" style="display: none;">
+                <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                    <div class="card-glass">
+                        <h5 class="card-title">Thưởng EXP Hàng Loạt</h5>
+                        <form id="admin-mass-award-form">
+                            <!-- ... content for mass award form ... -->
+                             <div class="mb-3"><label for="admin-mass-condition-type" class="form-label">Thưởng cho người dùng theo</label><select class="form-select" id="admin-mass-condition-type"><option value="all" selected>Tất cả người dùng</option><option value="referralCount">Số lượt mời</option><option value="checkinCount">Số lượt Check-in</option><option value="points">Số điểm EXP</option></select></div>
+                             <div id="admin-mass-condition-wrapper" style="display: none;"><label class="form-label">Điều kiện</label><div class="input-group mb-3"><select class="form-select" id="admin-mass-operator" style="max-width: 150px;"><option value=">=" selected>Lớn hơn hoặc bằng</option><option value="<=">Nhỏ hơn hoặc bằng</option></select><input type="number" class="form-control" id="admin-mass-condition-value" placeholder="e.g., 10" min="0"></div></div>
+                             <div class="mb-3"><label for="admin-mass-exp-amount" class="form-label">Số lượng EXP để thưởng</label><input type="number" class="form-control" id="admin-mass-exp-amount" placeholder="e.g., 500" required min="1"></div>
+                             <div class="mb-3"><label for="admin-mass-task-name" class="form-label">Nội dung/Lý do thưởng</label><input type="text" class="form-control" id="admin-mass-task-name" placeholder="e.g., Thưởng event Giáng Sinh" required></div>
+                             <div id="admin-mass-award-status" class="mt-3 text-center"></div>
+                             <button type="submit" id="admin-mass-award-submit-btn" class="btn w-100" style="background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white;"><i class="fas fa-gifts me-2"></i>Thực Hiện Thưởng Hàng Loạt</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [UPDATED] Bảng Trạng Thái Tài Khoản -->
+            <div id="admin-panel-account-status" class="admin-panel-wrapper" style="display: none;">
+                <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                    <div class="card-glass">
+                        <h5 class="card-title">Quản lý Trạng thái Tài khoản</h5>
+                         <form id="admin-disable-form">
+                            <!-- ... content for account status form ... -->
+                             <div class="mb-3"><label for="admin-disable-target-type" class="form-label">Loại định danh</label><select class="form-select" id="admin-disable-target-type"><option value="uid" selected>UID (Telegram ID)</option><option value="address">Address (Raw)</option></select></div>
+                             <div class="mb-3"><label for="admin-disable-target-value" class="form-label">Giá trị định danh</label><input type="text" class="form-control" id="admin-disable-target-value" placeholder="Nhập UID hoặc địa chỉ ví..." required></div>
+                             <div class="mb-3"><label for="admin-disable-duration" class="form-label">Thời gian vô hiệu hoá (ngày)</label><input type="number" class="form-control" id="admin-disable-duration" placeholder="e.g., 7 (để trống nếu muốn mở khoá)" min="0"></div>
+                             <div class="d-flex gap-3"><button type="button" id="admin-disable-btn" class="btn w-100" style="background-color: var(--color-out); color: white;"><i class="fas fa-user-lock me-2"></i>Vô hiệu hoá</button><button type="button" id="admin-enable-btn" class="btn w-100" style="background-color: var(--color-verified); color: white;"><i class="fas fa-user-check me-2"></i>Mở khoá</button></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [UPDATED] Bảng Danh sách User (Mặc định hiển thị) -->
+            <div id="admin-panel-users" class="admin-panel-wrapper">
+                 <div class="col-12">
+                    <div class="card-glass">
+                        <h5 class="card-title">Danh sách Người dùng</h5>
+                        <div class="mb-3">
+                            <input type="text" id="admin-user-search-input" class="form-control" placeholder="Tìm theo Tên, UID, hoặc Địa chỉ ví...">
+                        </div>
+                        <div id="admin-user-list-container" class="table-responsive"></div>
+                        <div class="text-center mt-3">
+                            <button id="admin-load-more-btn" class="btn btn-outline-secondary" style="display: none;">Tải thêm</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</main>
     </div>
 
     <!-- Jetton Detail Modal -->
@@ -1521,7 +1478,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/apps-data.js"></script>
     
-    <script>
+<script>
 document.addEventListener('DOMContentLoaded', () => {
     const TON_API_BASE = 'https://tonapi.io/v2';
     const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
@@ -1670,9 +1627,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const TELEGRAM_SEND_DELAY_MS = 150; // Delay between each message to avoid rate limits
     
     const CONFIRM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
-    const CONFIRM_AMOUNT_NANOTONS = "10000"; // 0.00001 TON
     const REQUEST_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD"; 
-    const REQUEST_AMOUNT_NANOTONS = "20000"; // 0.00002 TON
+
+    // --- [NEW] Clearer Transaction Amounts ---
+    const CONFIRM_AMOUNT_TON = 0.000000001;
+    const CONFIRM_AMOUNT_NANOTONS = String(CONFIRM_AMOUNT_TON * 1e9);
+
+    const REQUEST_AMOUNT_TON = 0.000000001;
+    const REQUEST_AMOUNT_NANOTONS = String(REQUEST_AMOUNT_TON * 1e9);
 
     const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
     const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
@@ -1804,6 +1766,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 username: telegramUserData ? (telegramUserData.username || `user${telegramUserData.id}`) : null,
                 fullName: telegramUserData ? `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim() : null,
                 photoUrl: telegramUserData ? (telegramUserData.photo_url || DEFAULT_LOGO_SRC) : null,
+                notificationsEnabled: true // Default to enabled
             };
             await userRef.set(newUser);
             currentUserData = newUser;
@@ -1845,6 +1808,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof userData.hasRequestedAirdrop === 'undefined') { updates.hasRequestedAirdrop = false; }
             if (typeof userData.hasSentConfirmationTx === 'undefined') { updates.hasSentConfirmationTx = false; }
             if (typeof userData.partnerTasksCompletedCount === 'undefined') { updates.partnerTasksCompletedCount = 0; }
+            if (typeof userData.notificationsEnabled === 'undefined') { updates.notificationsEnabled = true; } // Add if missing
 
             if (Object.keys(updates).length > 0) {
                  console.log(`Updating existing user profile with Telegram data:`, updates);
@@ -2587,45 +2551,46 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // =============================================
-    // NEW: TELEGRAM BULK SENDER FUNCTION
-    // =============================================
+    // --- [NEW] Notification Toggle Handler ---
+    async function handleNotificationToggle(e) {
+        if (!currentUserData || !db) return;
+
+        const toggle = e.target;
+        const newStatus = toggle.checked;
+        toggle.disabled = true;
+
+        try {
+            const userRef = db.collection('users').doc(currentUserData.address);
+            await userRef.update({ notificationsEnabled: newStatus });
+            currentUserData.notificationsEnabled = newStatus;
+            showAppToast('Settings Saved', `Notifications have been ${newStatus ? 'enabled' : 'disabled'}.`, 'success');
+        } catch (error) {
+            console.error('Failed to update notification settings:', error);
+            showAppToast('Error', 'Could not save your setting. Please try again.', 'error');
+            toggle.checked = !newStatus; // Revert the toggle on failure
+        } finally {
+            toggle.disabled = false;
+        }
+    }
+    
+    // --- [UPDATED] TELEGRAM BULK SENDER FUNCTION ---
     async function sendBulkTelegramMessage() {
-        // Helper function for delay
         const delay = ms => new Promise(res => setTimeout(res, ms));
 
-        // 1. Get Inputs from Form
         const apiToken = document.getElementById('telegram-api-token-input').value.trim();
         const text = document.getElementById('telegram-message-text-input').value.trim();
         const imageUrl = document.getElementById('telegram-image-url-input').value.trim();
         const buttonText = document.getElementById('telegram-button-text-input').value.trim();
         const buttonUrl = document.getElementById('telegram-button-url-input').value.trim();
         
-        // 2. Validation
-        if (!apiToken) {
-            showAppToast('Lỗi', 'Vui lòng nhập API Token của bot.', 'error');
-            return;
-        }
-        if (!text && !imageUrl) {
-            showAppToast('Lỗi', 'Vui lòng nhập văn bản tin nhắn hoặc URL hình ảnh.', 'error');
-            return;
-        }
-        if ((buttonText && !buttonUrl) || (!buttonText && buttonUrl)) {
-            showAppToast('Lỗi', 'Để tạo nút, vui lòng nhập cả Văn bản và URL cho nút.', 'warning');
-            return;
-        }
+        if (!apiToken) { showAppToast('Lỗi', 'Vui lòng nhập API Token của bot.', 'error'); return; }
+        if (!text && !imageUrl) { showAppToast('Lỗi', 'Vui lòng nhập văn bản tin nhắn hoặc URL hình ảnh.', 'error'); return; }
+        if ((buttonText && !buttonUrl) || (!buttonText && buttonUrl)) { showAppToast('Lỗi', 'Để tạo nút, vui lòng nhập cả Văn bản và URL cho nút.', 'warning'); return; }
         
-        // 3. Confirmation
-        if (!confirm("CẢNH BÁO: Bạn sắp gửi tin nhắn này cho TẤT CẢ người dùng có UID trong hệ thống. Hành động này KHÔNG THỂ hoàn tác và có thể mất nhiều thời gian. Bạn có chắc chắn muốn tiếp tục?")) {
-            return;
-        }
-
-        // 4. Start Process & UI Feedback
         sendBulkTelegramMessageBtn.disabled = true;
         telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lấy danh sách người dùng từ cơ sở dữ liệu...`;
 
         try {
-            // 5. Fetch all users from Firestore
             const allUsers = [];
             let lastVisible = null;
             while (true) {
@@ -2634,31 +2599,33 @@ document.addEventListener('DOMContentLoaded', () => {
                     query = query.startAfter(lastVisible);
                 }
                 const snapshot = await query.get();
-                if (snapshot.empty) {
-                    break;
-                }
+                if (snapshot.empty) break;
                 snapshot.forEach(doc => allUsers.push(doc.data()));
                 lastVisible = snapshot.docs[snapshot.docs.length - 1];
                 telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã lấy được ${allUsers.length} người dùng...`;
             }
 
-            // 6. Filter for users with a UID
             const usersWithUid = allUsers.filter(user => user.telegramId);
+            const totalWithUid = usersWithUid.length;
+            const usersToNotify = usersWithUid.filter(user => user.notificationsEnabled !== false); // Default to true
+            const totalToNotify = usersToNotify.length;
 
-            if (usersWithUid.length === 0) {
-                telegramSenderStatus.innerHTML = `<span class="text-warning">Không tìm thấy người dùng nào có UID để gửi.</span>`;
+            if (totalToNotify === 0) {
+                telegramSenderStatus.innerHTML = `<span class="text-warning">Không tìm thấy người dùng nào bật thông báo.</span>`;
                 return;
             }
-
-            // 7. Prepare the sending loop
+            
+            if (!confirm(`CẢNH BÁO: Bạn sắp gửi tin nhắn này cho ${totalToNotify} / ${totalWithUid} người dùng đã bật thông báo. Hành động này KHÔNG THỂ hoàn tác. Bạn có chắc chắn muốn tiếp tục?`)) {
+                return;
+            }
+            
             let sentCount = 0;
             let failedCount = 0;
-            const totalUsers = usersWithUid.length;
             const baseUrl = `https://api.telegram.org/bot${apiToken}/`;
             
-            for (let i = 0; i < totalUsers; i++) {
-                const user = usersWithUid[i];
-                telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang gửi tin ${i + 1}/${totalUsers}... (UID: ${user.telegramId})`;
+            for (let i = 0; i < totalToNotify; i++) {
+                const user = usersToNotify[i];
+                telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang gửi tin ${i + 1}/${totalToNotify}... (UID: ${user.telegramId})`;
                 
                 const body = { chat_id: user.telegramId };
                 let method;
@@ -2678,7 +2645,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     body.text = text;
                 }
                 
-                // Send to one user
                 try {
                     const response = await fetch(baseUrl + method, {
                         method: 'POST',
@@ -2697,11 +2663,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error(`Network error sending to UID ${user.telegramId}:`, error);
                 }
 
-                // Wait before sending the next one
                 await delay(TELEGRAM_SEND_DELAY_MS);
             }
 
-            // 8. Final Report
             telegramSenderStatus.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Hoàn tất! Đã gửi: ${sentCount}. Thất bại: ${failedCount}.</span>`;
             showAppToast('Hoàn tất gửi hàng loạt', `Thành công: ${sentCount}, Thất bại: ${failedCount}`, 'success');
 
@@ -2737,6 +2701,7 @@ document.addEventListener('DOMContentLoaded', () => {
         walletDropdown.style.display = 'none';
     }
     
+    // --- [UPDATED] Render Account Section ---
     function renderAccountSection() {
         const profilePhoto = document.getElementById('profile-photo');
         const profileFullname = document.getElementById('profile-fullname');
@@ -2763,7 +2728,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="metadata-key">Address:</span>
                 <span class="copyable-address" data-address="${currentUserData.address}" title="Click to copy">${shortenAddress(currentUserData.address)}</span>
             </div>
+            <hr style="border-color: var(--border-color); opacity: 0.5; margin: 1rem 0;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-bell fa-fw me-2 metadata-key"></i>
+                    <span class="metadata-key">Notifications</span>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="notifications-toggle" style="width: 3.5em; height: 1.75em; cursor: pointer;">
+                </div>
+            </div>
         `;
+        
+        // Set the toggle state
+        const notificationsToggle = document.getElementById('notifications-toggle');
+        if (notificationsToggle) {
+            notificationsToggle.checked = currentUserData.notificationsEnabled !== false; // Default to true
+        }
     }
     
     async function fetchAndRenderInvitedUsers() {
@@ -3254,7 +3235,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (viewToShow === 'account' && isLoggedIn) { accountSectionEl.style.display = 'block'; navAccount.classList.add('active'); } 
         else if (viewToShow === 'apps') { appStoreSection.style.display = 'block'; navApps.classList.add('active'); } 
         else if (viewToShow === 'task' && isLoggedIn) { taskSectionEl.style.display = 'block'; navTask.classList.add('active'); } 
-        else if (viewToShow === 'partner' && isLoggedIn) { partnerSectionEl.style.display = 'block'; navPartner.classList.add('active'); renderPartnerSection(); }
+        else if (viewToShow === 'partner' && isLoggedIn) { partnerSectionEl.style.display = 'block'; navPartner.classList.add('active'); renderPartnerSection(); } 
         else if (viewToShow === 'referral' && isLoggedIn) { referralSectionEl.style.display = 'block'; navReferral.classList.add('active'); } 
         else if (viewToShow === 'airdrop') { airdropSectionEl.style.display = 'block'; navAirdrop.classList.add('active'); renderAirdropSection(); } 
         else if (viewToShow === 'leaderboard') { leaderboardSectionEl.style.display = 'block'; navLeaderboard.classList.add('active'); fetchAndRenderLeaderboard(); } 
@@ -4031,75 +4012,82 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function handlePartnerTaskCompletion(e, taskCard) {
-        if (airdropSettings?.isSnapshotActive) {
-            showAppToast('Halted', 'Point-earning activities are paused due to the snapshot.', 'warning');
-            e.preventDefault();
-            return;
-        }
-        
-        if (taskCard.classList.contains('completed')) {
-            e.preventDefault();
-            return;
-        }
-
+async function handlePartnerTaskCompletion(e, taskCard) {
+    if (airdropSettings?.isSnapshotActive) {
+        showAppToast('Halted', 'Point-earning activities are paused due to the snapshot.', 'warning');
         e.preventDefault();
+        return;
+    }
+    
+    if (taskCard.classList.contains('completed')) {
+        e.preventDefault();
+        return;
+    }
 
-        const taskId = taskCard.dataset.taskId;
-        const expReward = parseInt(taskCard.dataset.exp, 10);
-        const projectName = taskCard.dataset.name;
-        const taskLink = taskCard.href;
+    e.preventDefault();
 
-        if (!taskId || isNaN(expReward)) return;
+    const taskId = taskCard.dataset.taskId;
+    const expReward = parseInt(taskCard.dataset.exp, 10);
+    const projectName = taskCard.dataset.name;
+    const taskLink = taskCard.href;
 
-        const actionBar = taskCard.querySelector('.partner-task-action-bar');
-        actionBar.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+    if (!taskId || isNaN(expReward)) return;
+
+    const actionBar = taskCard.querySelector('.partner-task-action-bar');
+    actionBar.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+    
+    try {
+        const userRef = db.collection('users').doc(connectedWalletAddress);
+        const completedTaskRef = userRef.collection('completed_partner_tasks').doc(taskId);
         
-        try {
-            const userRef = db.collection('users').doc(connectedWalletAddress);
-            const completedTaskRef = userRef.collection('completed_partner_tasks').doc(taskId);
-            
-            await db.runTransaction(async (transaction) => {
-                const completedDoc = await transaction.get(completedTaskRef);
-                if (completedDoc.exists) {
-                    throw new Error("Task already completed.");
-                }
-                const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
-                transaction.update(userRef, {
-                    points: firebase.firestore.FieldValue.increment(expReward),
-                    partnerTasksCompletedCount: firebase.firestore.FieldValue.increment(1)
-                });
-                transaction.set(completedTaskRef, { completedAt: newTimestamp });
-                const historyRef = userRef.collection('task_history').doc();
-                transaction.set(historyRef, {
-                    taskName: 'Partner Task',
-                    projectName: projectName,
-                    exp: expReward,
-                    timestamp: newTimestamp
-                });
-            });
-            
-            showAppToast('Success!', `You received +${expReward} EXP from the ${projectName} task.`, 'success');
-            
-            window.open(taskLink, '_blank');
-            
-            const updatedDoc = await userRef.get();
-            currentUserData = updatedDoc.data();
-            updateExpBalances(currentUserData.points);
-            taskCard.classList.add('completed');
-            actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
-
-        } catch (error) {
-            if (error.message.includes("Task already completed.")) {
-                 taskCard.classList.add('completed');
-                 actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
-            } else {
-                console.error("Failed to complete partner task:", error);
-                showAppToast('Error', 'Could not complete the task. Please try again.', 'error');
-                actionBar.innerHTML = `+${expReward} EXP`; 
+        await db.runTransaction(async (transaction) => {
+            const completedDoc = await transaction.get(completedTaskRef);
+            if (completedDoc.exists) {
+                throw new Error("Task already completed.");
             }
+            const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+            transaction.update(userRef, {
+                points: firebase.firestore.FieldValue.increment(expReward),
+                partnerTasksCompletedCount: firebase.firestore.FieldValue.increment(1)
+            });
+            transaction.set(completedTaskRef, { completedAt: newTimestamp });
+            const historyRef = userRef.collection('task_history').doc();
+            transaction.set(historyRef, {
+                taskName: 'Partner Task',
+                projectName: projectName,
+                exp: expReward,
+                timestamp: newTimestamp
+            });
+        });
+        
+        showAppToast('Success!', `You received +${expReward} EXP from the ${projectName} task.`, 'success');
+        
+        // [LÝ DO] Dùng window.open() bị chặn trên iOS Mini App.
+        // [GIẢI PHÁP] Sử dụng API của Telegram Web App để đảm bảo tương thích.
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.openLink(taskLink);
+        } else {
+            // Phương án dự phòng cho trình duyệt web thông thường.
+            window.open(taskLink, '_blank');
+        }
+        
+        const updatedDoc = await userRef.get();
+        currentUserData = updatedDoc.data();
+        updateExpBalances(currentUserData.points);
+        taskCard.classList.add('completed');
+        actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
+
+    } catch (error) {
+        if (error.message.includes("Task already completed.")) {
+             taskCard.classList.add('completed');
+             actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
+        } else {
+            console.error("Failed to complete partner task:", error);
+            showAppToast('Error', 'Could not complete the task. Please try again.', 'error');
+            actionBar.innerHTML = `+${expReward} EXP`; 
         }
     }
+}
     
     async function handleAdminPartnerTaskSave(e) {
         e.preventDefault();
@@ -4330,6 +4318,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none'; 
     });
     
+    // --- [UPDATED] Event listener with notification toggle ---
+    document.body.addEventListener('change', e => {
+        if (e.target.id === 'notifications-toggle') {
+            handleNotificationToggle(e);
+        }
+    });
+
     [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(link => link.addEventListener('click', (e) => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
     appSearchInput.addEventListener('input', () => { renderApps(); const searchTerm = appSearchInput.value.trim(); const newUrl = searchTerm ? `#apps?search=${encodeURIComponent(searchTerm)}` : '#apps'; history.replaceState(null, '', newUrl); });
     appSearchButton.addEventListener('click', renderApps);
@@ -4378,8 +4373,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Core Logic ---
-    // (Phần code cũ của bạn tiếp tục từ đây)
+
+
+
+        // [NEW] Event Listener for Admin Panel Navigation
+    const adminNavBar = document.getElementById('admin-nav-bar');
+    if (adminNavBar) {
+        adminNavBar.addEventListener('click', (e) => {
+            const button = e.target.closest('.admin-nav-btn');
+            if (!button) return;
+
+            // Get target panel ID from button's data attribute
+            const targetId = button.dataset.target;
+            if (!targetId) return;
+
+            // Update button active state
+            adminNavBar.querySelector('.admin-nav-btn.active').classList.remove('active');
+            button.classList.add('active');
+
+            // Hide all admin panels
+            document.querySelectorAll('.admin-panel-wrapper').forEach(panel => {
+                panel.style.display = 'none';
+            });
+
+            // Show the target panel
+            const targetPanel = document.querySelector(targetId);
+            if (targetPanel) {
+                targetPanel.style.display = 'block';
+            }
+        });
+    }
+
+    // --- Event Listeners ---
+    // (Rest of your event listeners)
     </script>
 </body>
 </html>
