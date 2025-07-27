@@ -2499,65 +2499,75 @@ function updateUIAfterLogin() {
     }
 
     // [UPDATED] to show total user count
-    async function fetchAndRenderLeaderboard() {
-        if (!db) initializeFirebase();
+    // Tìm hàm này và sửa lại nó
+async function fetchAndRenderLeaderboard() {
+    if (!db) initializeFirebase();
+
+    const listContainer = document.getElementById('leaderboard-list');
+    const totalParticipantsDisplay = document.getElementById('total-participants-display'); // Thêm dòng này
     
-        const listContainer = document.getElementById('leaderboard-list');
-        const summaryContainer = document.getElementById('leaderboard-summary');
-        const skeletonItem = `<div class="leaderboard-item"><div class="skeleton-loader leaderboard-rank" style="height: 24px; width: 40px; border-radius: 25px;"></div><img class="skeleton-loader leaderboard-avatar"><div class="flex-grow-1"><div class="skeleton-loader skeleton-line w-50"></div></div><div class="skeleton-loader skeleton-line" style="width: 80px;"></div></div>`;
-        listContainer.innerHTML = skeletonItem.repeat(7);
-        summaryContainer.querySelector('.total-users-count').innerHTML = '...';
-    
-        try {
-            // Fetch total user count from metadata
-            const metadataDoc = await db.collection('admin_settings').doc('metadata').get();
-            if (metadataDoc.exists) {
-                const totalUsers = metadataDoc.data().userCount || 0;
-                 summaryContainer.querySelector('.total-users-count').textContent = totalUsers.toLocaleString();
-            }
-    
-            // Fetch top 50 users for the leaderboard
-            const snapshot = await db.collection('users').orderBy('points', 'desc').limit(50).get();
-            listContainer.innerHTML = '';
-    
-            if (snapshot.empty) {
-                listContainer.innerHTML = `<p class="text-secondary text-center p-3">No one is on the leaderboard yet.</p>`;
-                return;
-            }
+    // Reset giao diện
+    const skeletonItem = `<div class="leaderboard-item"><div class="skeleton-loader leaderboard-rank" style="height: 24px; width: 40px; border-radius: 25px;"></div><img class="skeleton-loader leaderboard-avatar"><div class="flex-grow-1"><div class="skeleton-loader skeleton-line w-50"></div></div><div class="skeleton-loader skeleton-line" style="width: 80px;"></div></div>`;
+    listContainer.innerHTML = skeletonItem.repeat(7);
+    if (totalParticipantsDisplay) {
+        totalParticipantsDisplay.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+    }
+
+    try {
+        // Sử dụng Promise.all để thực hiện 2 tác vụ cùng lúc
+        const [leaderboardSnapshot, allUsersSnapshot] = await Promise.all([
+            db.collection('users').orderBy('points', 'desc').limit(50).get(), // Lấy top 50
+            db.collection('users').get() // Lấy TẤT CẢ user để đếm
+        ]);
+
+        // Cập nhật tổng số người tham gia
+        if (totalParticipantsDisplay) {
+            totalParticipantsDisplay.textContent = allUsersSnapshot.size.toLocaleString();
+        }
+
+        // --- Phần code render bảng xếp hạng bên dưới giữ nguyên ---
+        listContainer.innerHTML = '';
+
+        if (leaderboardSnapshot.empty) {
+            listContainer.innerHTML = `<p class="text-secondary text-center p-3">No one is on the leaderboard yet. Be the first!</p>`;
+            return;
+        }
+        
+        let rank = 1;
+        leaderboardSnapshot.forEach(doc => {
+            const user = doc.data();
+            const displayName = user.fullName || (user.username ? `@${user.username}`: shortenAddress(user.address));
+            const avatarUrl = user.photoUrl || GENERIC_WALLET_ICON;
+            const isCurrentUser = connectedWalletAddress && user.address === connectedWalletAddress;
+
+            let rankDisplay, rankClass = ''; 
+            if (rank === 1) { rankClass = 'rank-1'; rankDisplay = `<i class="fas fa-medal rank-icon"></i>`; } 
+            else if (rank === 2) { rankClass = 'rank-2'; rankDisplay = `<i class="fas fa-medal rank-icon"></i>`; } 
+            else if (rank === 3) { rankClass = 'rank-3'; rankDisplay = `<i class="fas fa-medal rank-icon"></i>`; } 
+            else { rankDisplay = `#${rank}`; }
+
+            const item = document.createElement('div');
+            item.className = `leaderboard-item ${isCurrentUser ? 'current-user' : ''} ${rankClass}`;
             
-            let rank = 1;
-            snapshot.forEach(doc => {
-                const user = doc.data();
-                // [UPDATED] Use temporary profile info as fallback
-                const displayName = user.fullName || user.temporaryFullName || (user.username ? `@${user.username}` : shortenAddress(user.address));
-                const avatarUrl = user.photoUrl || user.temporaryPhotoUrl || GENERIC_WALLET_ICON;
-                const isCurrentUser = connectedWalletAddress && user.address === connectedWalletAddress;
-    
-                let rankDisplay, rankClass = ''; 
-                if (rank === 1) { rankClass = 'rank-1'; rankDisplay = `<i class="fas fa-medal rank-icon"></i>`; } 
-                else if (rank === 2) { rankClass = 'rank-2'; rankDisplay = `<i class="fas fa-medal rank-icon"></i>`; } 
-                else if (rank === 3) { rankClass = 'rank-3'; rankDisplay = `<i class="fas fa-medal rank-icon"></i>`; } 
-                else { rankDisplay = `#${rank}`; }
-    
-                const item = document.createElement('div');
-                item.className = `leaderboard-item ${isCurrentUser ? 'current-user' : ''} ${rankClass}`;
-                
-                item.innerHTML = `
-                    <div class="leaderboard-rank">${rankDisplay}</div>
-                    <img src="${avatarUrl}" class="leaderboard-avatar" onerror="this.src='${GENERIC_WALLET_ICON}'">
-                    <div class="leaderboard-name text-truncate">${displayName}</div>
-                    <div class="leaderboard-exp">${(user.points || 0).toLocaleString()} EXP</div>
-                `;
-                
-                listContainer.appendChild(item);
-                rank++;
-            });
-    
-        } catch (error) {
-            console.error("Error fetching leaderboard:", error);
-            listContainer.innerHTML = `<p class="text-danger text-center p-3">Could not load the leaderboard.</p>`;
+            item.innerHTML = `
+                <div class="leaderboard-rank">${rankDisplay}</div>
+                <img src="${avatarUrl}" class="leaderboard-avatar" onerror="this.src='${GENERIC_WALLET_ICON}'">
+                <div class="leaderboard-name text-truncate">${displayName}</div>
+                <div class="leaderboard-exp">${(user.points || 0).toLocaleString()} EXP</div>
+            `;
+            
+            listContainer.appendChild(item);
+            rank++;
+        });
+
+    } catch (error) {
+        console.error("Error fetching leaderboard:", error);
+        listContainer.innerHTML = `<p class="text-danger text-center p-3">Could not load the leaderboard. Please try again later.</p>`;
+        if (totalParticipantsDisplay) {
+            totalParticipantsDisplay.textContent = 'Error';
         }
     }
+}
     
     async function fetchAndRenderAdminUserList(isInitialLoad = true) {
         if (!adminUserListContainer || !db) return;
