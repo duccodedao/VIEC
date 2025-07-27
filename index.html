@@ -969,8 +969,7 @@
                             <!-- Daily Check-in -->
                             <h5 class="card-title">Tasks and History</h5>
                             <div id="daily-checkin-content" class="d-flex justify-content-between align-items-center">
-                                <p class="mb-0">Check-in to receive <strong style="color: var(--accent-primary);">+10 EXP</strong>.</p>
-                                <button id="checkin-button" class="btn px-4 py-2" style="background-color: var(--accent-secondary); color: white; font-weight: 600; flex-shrink: 0; min-width: 130px;" disabled>
+<p class="mb-0">Check-in to receive <strong style="color: var(--accent-primary);" id="checkin-exp-display">+1000 EXP</strong>.</p>                                <button id="checkin-button" class="btn px-4 py-2" style="background-color: var(--accent-secondary); color: white; font-weight: 600; flex-shrink: 0; min-width: 130px;" disabled>
                                     <i class="fas fa-spinner fa-spin me-2"></i>Wait...
                                 </button>
                             </div>
@@ -1008,16 +1007,38 @@
             </div>
         </main>
         
-        <main id="referral-section" style="display: none;">
-             <div class="container">
-                <div class="text-center mb-5">
-                    <h1 class="mb-2" style="font-weight: 700;">Invite Friends</h1>
-                    <p class="lead text-secondary col-md-8 mx-auto">Invite friends to join and you both get a reward. Receive <strong style="color: var(--accent-secondary);">200 EXP</strong> for each successful referral!</p>
+<main id="referral-section" style="display: none;">
+     <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="mb-2" style="font-weight: 700;">Invite Friends</h1>
+            <p class="lead text-secondary col-md-8 mx-auto">Invite friends to join and you both get a reward. Receive <strong style="color: var(--accent-secondary);" id="referral-base-exp-display">5000 EXP</strong> for each successful referral!</p>
+        </div>
+
+        <!-- ============================================= -->
+        <!-- [NEW] KHỐI HIỂN THỊ MỐC THƯỞNG - DÁN VÀO ĐÂY -->
+        <!-- ============================================= -->
+        <div class="row justify-content-center g-4 mb-4">
+            <div class="col-12 col-md-10 col-lg-8">
+                <div class="card-glass">
+                    <h5 class="card-title"><i class="fas fa-gem me-2"></i>Referral Milestones</h5>
+                    <p class="text-secondary small">Invite more friends to unlock huge bonus rewards!</p>
+                    <div id="referral-milestones-list-container">
+                        <!-- Danh sách mốc thưởng sẽ được JS render ở đây -->
+                        <div class="skeleton-loader skeleton-line w-100 mb-2"></div>
+                        <div class="skeleton-loader skeleton-line w-75 mb-2"></div>
+                        <div class="skeleton-loader skeleton-line w-50"></div>
+                    </div>
                 </div>
-                <div class="row justify-content-center g-4">
-                    <div class="col-12 col-md-10 col-lg-8">
-                        <div class="card-glass">
-                            <ul class="nav nav-tabs" id="referralTab" role="tablist">
+            </div>
+        </div>
+        <!-- ============================================= -->
+        <!-- KẾT THÚC KHỐI MỚI                             -->
+        <!-- ============================================= -->
+
+        <div class="row justify-content-center g-4">
+            <div class="col-12 col-md-10 col-lg-8">
+                <div class="card-glass">
+                    <ul class="nav nav-tabs" id="referralTab" role="tablist">
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab"><i class="fas fa-link me-2"></i>My Codes</button>
                                 </li>
@@ -1180,6 +1201,9 @@
             <button class="admin-nav-btn btn" data-target="#admin-panel-edit-exp">Chỉnh sửa EXP</button>
             <button class="admin-nav-btn btn" data-target="#admin-panel-mass-award">Thưởng Hàng Loạt</button>
             <button class="admin-nav-btn btn" data-target="#admin-panel-account-status">Trạng thái TK</button>
+        <button class="admin-nav-btn btn" data-target="#admin-panel-account-status">Trạng thái TK</button>
+<!-- THÊM NÚT NÀY VÀO -->
+<button class="admin-nav-btn btn" data-target="#admin-panel-reward-settings">Cài đặt Thưởng</button>
         </div>
 
         <div class="row justify-content-center g-4">
@@ -1410,6 +1434,47 @@
             
         </div>
     </div>
+    <!-- ====================================================== -->
+<!-- [NEW] BẢNG CÀI ĐẶT THƯỞNG - DÁN TOÀN BỘ KHỐI NÀY VÀO -->
+<!-- ====================================================== -->
+<div id="admin-panel-reward-settings" class="admin-panel-wrapper" style="display: none;">
+    <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+        <div class="card-glass">
+            <h5 class="card-title">Cấu hình Phần thưởng EXP</h5>
+            <form id="admin-reward-settings-form">
+                <!-- Cài đặt cơ bản -->
+                <h6 class="text-secondary mb-3">Cài đặt Cơ bản</h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label for="checkin-exp-input" class="form-label">EXP mỗi lần Check-in</label>
+                        <input type="number" class="form-control" id="checkin-exp-input" min="0">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="base-referral-exp-input" class="form-label">EXP cơ bản mỗi lượt mời</label>
+                        <input type="number" class="form-control" id="base-referral-exp-input" min="0">
+                    </div>
+                </div>
+
+                <!-- Cài đặt mốc mời bạn -->
+                <hr style="border-color: var(--border-color); opacity: 0.5;">
+                <h6 class="text-secondary my-3">Các Mốc Thưởng Thêm Khi Mời Bạn</h6>
+                <p class="text-secondary small">Khi người dùng đạt chính xác số lượt mời ở một mốc, họ sẽ nhận được phần thưởng thêm tương ứng. Phần thưởng này được cộng vào EXP cơ bản.</p>
+                <div id="referral-milestones-container">
+                    <!-- Các mốc sẽ được JavaScript tạo ra ở đây -->
+                </div>
+                <button type="button" id="add-milestone-btn" class="btn btn-outline-secondary mt-3"><i class="fas fa-plus me-2"></i>Thêm Mốc</button>
+                
+                <!-- Nút Lưu -->
+                <div id="admin-reward-settings-status" class="mt-4 text-center fw-bold"></div>
+                <div class="d-grid mt-3">
+                    <button type="submit" id="save-reward-settings-btn" class="btn btn-lg" style="background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white;">
+                        <i class="fas fa-save me-2"></i>Lưu Cài đặt
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 </main>
     </div>
 
@@ -1478,8 +1543,13 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/apps-data.js"></script>
     
+
+
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    // --- START OF DOMCONTENTLOADED ---
+
     const TON_API_BASE = 'https://tonapi.io/v2';
     const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
     const USER_SESSION_KEY = 'BmassUserSession';
@@ -1597,7 +1667,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendBulkTelegramMessageBtn = document.getElementById('send-bulk-telegram-message-btn');
     const telegramSenderStatus = document.getElementById('telegram-sender-status');
 
-
     const DEFAULT_LOGO_SRC = 'https://bmass.vercel.app/img/logo_viewc.png';
     const GENERIC_WALLET_ICON = 'https://ton.org/download/ton_symbol.png';
     const GENERIC_TASK_ICON = 'https://bmass.vercel.app/img/bmass.png';
@@ -1617,9 +1686,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let checkinInterval = null;
     let lastVisibleAdminUser = null; // For admin pagination
 
+    // [NEW] Reward Configuration Variable
+    let rewardConfig = {
+        checkinExp: 1000,
+        baseReferralExp: 5000,
+        referralMilestones: [
+            { required: 5, bonus: 10000 },
+            { required: 10, bonus: 25000 },
+            { required: 25, bonus: 70000 },
+            { required: 50, bonus: 150000 },
+            { required: 100, bonus: 500000 }
+        ]
+    }; // Default values
+
     // Constants
-    const REFERRAL_REWARD = 200;
-    const CHECKIN_REWARD = 10;
     const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000;
     const ADMIN_USERS_PER_PAGE = 50;
     const BATCH_SIZE = 200; // For mass award processing
@@ -1629,7 +1709,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const CONFIRM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
     const REQUEST_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD"; 
 
-    // --- [NEW] Clearer Transaction Amounts ---
     const CONFIRM_AMOUNT_TON = 0.000000001;
     const CONFIRM_AMOUNT_NANOTONS = String(CONFIRM_AMOUNT_TON * 1e9);
 
@@ -1689,11 +1768,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function checkMandatoryTasksCompletion(userAddress) {
-        if (!db) return true; // Fail open if db is not ready
+        if (!db) return true;
 
         const mandatoryTasksSnapshot = await db.collection('partner_tasks').where('taskType', '==', 'mandatory').get();
         if (mandatoryTasksSnapshot.empty) {
-            return true; // No mandatory tasks exist
+            return true;
         }
         
         const mandatoryTaskIds = new Set(mandatoryTasksSnapshot.docs.map(doc => doc.id));
@@ -1703,11 +1782,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         for (const taskId of mandatoryTaskIds) {
             if (!completedTaskIds.has(taskId)) {
-                return false; // Found a mandatory task that is not completed
+                return false;
             }
         }
 
-        return true; // All mandatory tasks are completed
+        return true;
     }
 
     async function calculateBmassReward(user, settings) {
@@ -1745,7 +1824,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (existingUserData.address !== address) {
                     hideLoadingOverlay();
-                    showAppToast('Link Error', `This Telegram account is already linked with another wallet. Please use the correct connected wallet.`, 'error');
+                    showAppToast('Link Error', `This Telegram account is already linked with another wallet.`, 'error');
                     handleFullLogout();
                     return;
                 }
@@ -1766,7 +1845,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 username: telegramUserData ? (telegramUserData.username || `user${telegramUserData.id}`) : null,
                 fullName: telegramUserData ? `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim() : null,
                 photoUrl: telegramUserData ? (telegramUserData.photo_url || DEFAULT_LOGO_SRC) : null,
-                notificationsEnabled: true // Default to enabled
+                notificationsEnabled: true
             };
             await userRef.set(newUser);
             currentUserData = newUser;
@@ -1790,7 +1869,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (telegramUserData && userData.telegramId && userData.telegramId !== telegramUserData.id) {
                 hideLoadingOverlay();
                 const ownerUsername = userData.username ? `@${userData.username}` : 'another user';
-                showAppToast('Ownership Error', `This wallet already belongs to ${ownerUsername}. Please connect with your own wallet.`, 'error');
+                showAppToast('Ownership Error', `This wallet already belongs to ${ownerUsername}.`, 'error');
                 handleFullLogout();
                 return;
             }
@@ -1808,7 +1887,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof userData.hasRequestedAirdrop === 'undefined') { updates.hasRequestedAirdrop = false; }
             if (typeof userData.hasSentConfirmationTx === 'undefined') { updates.hasSentConfirmationTx = false; }
             if (typeof userData.partnerTasksCompletedCount === 'undefined') { updates.partnerTasksCompletedCount = 0; }
-            if (typeof userData.notificationsEnabled === 'undefined') { updates.notificationsEnabled = true; } // Add if missing
+            if (typeof userData.notificationsEnabled === 'undefined') { updates.notificationsEnabled = true; }
 
             if (Object.keys(updates).length > 0) {
                  console.log(`Updating existing user profile with Telegram data:`, updates);
@@ -1852,75 +1931,101 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const referrerDoc = snapshot.docs[0];
             const referrerRef = referrerDoc.ref;
-            const referrerData = referrerDoc.data();
             
-            if (referrerData.address === newAddress) {
+            if (referrerDoc.data().address === newAddress) {
                 showAppToast('Error', 'You cannot refer yourself.', 'warning');
                 return;
             }
 
-            const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
-            
             await db.runTransaction(async (transaction) => {
                 const freshReferrerDoc = await transaction.get(referrerRef);
                 if (!freshReferrerDoc.exists) throw "Referrer does not exist in the transaction";
                 
+                const referrerData = freshReferrerDoc.data();
+                const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+
+                const newReferralCount = (referrerData.referralCount || 0) + 1;
+                let totalRewardForReferrer = rewardConfig.baseReferralExp;
+                let milestoneBonus = 0;
+                
+                const milestoneReached = rewardConfig.referralMilestones.find(m => m.required === newReferralCount);
+                if (milestoneReached) {
+                    milestoneBonus = milestoneReached.bonus;
+                    totalRewardForReferrer += milestoneBonus;
+                }
+                
                 transaction.update(referrerRef, {
-                    points: firebase.firestore.FieldValue.increment(REFERRAL_REWARD),
+                    points: firebase.firestore.FieldValue.increment(totalRewardForReferrer),
                     referralCount: firebase.firestore.FieldValue.increment(1)
                 });
                 
                 const referrerHistoryRef = referrerRef.collection('task_history').doc();
                 transaction.set(referrerHistoryRef, {
                     taskName: 'Invited a friend',
-                    exp: REFERRAL_REWARD,
+                    exp: rewardConfig.baseReferralExp,
                     timestamp: newTimestamp,
                     referredUser: newAddress 
                 });
+
+                if (milestoneBonus > 0) {
+                    const milestoneHistoryRef = referrerRef.collection('task_history').doc();
+                    transaction.set(milestoneHistoryRef, {
+                        taskName: `Referral Milestone (${newReferralCount} invites)`,
+                        exp: milestoneBonus,
+                        timestamp: newTimestamp
+                    });
+                }
                 
                 const newUserRef = db.collection('users').doc(newAddress);
                 transaction.update(newUserRef, { 
                     referredBy: String(referrerCode),
-                    points: firebase.firestore.FieldValue.increment(REFERRAL_REWARD)
+                    points: firebase.firestore.FieldValue.increment(rewardConfig.baseReferralExp)
                 });
 
                 const newUserHistoryRef = newUserRef.collection('task_history').doc();
                 transaction.set(newUserHistoryRef, {
                     taskName: 'Entered referral code',
-                    exp: REFERRAL_REWARD,
+                    exp: rewardConfig.baseReferralExp,
                     timestamp: newTimestamp,
                     referrer: String(referrerCode)
                 });
             });
             
-            showAppToast(`Referral Bonus!`, `You and your referrer both received ${REFERRAL_REWARD} EXP.`, 'success');
+            showAppToast(`Referral Bonus!`, `You and your referrer both received rewards.`, 'success');
 
         } catch (error) {
             console.error("Failed to apply referral:", error);
             showAppToast('Error', 'Could not apply referral code. Please try again.', 'error');
         }
     }
-
-    function updateUIAfterLogin() {
-        if (!currentUserData) return;
-        
-        headerExpDisplay.classList.remove('d-none');
-        updateExpBalances(currentUserData.points || 0);
-        updateCheckinUI(currentUserData);
-        fetchTaskHistory();
-        renderAccountSection();
-        renderReferralSection();
-        
-        handleRouteChange(); 
-        
-        if (isCurrentUserAdmin()) {
-            navAdmin.style.display = 'block';
-        } else {
-            navAdmin.style.display = 'none';
-        }
-    }
     
-     function updateExpBalances(newExp) {
+function updateUIAfterLogin() {
+    if (!currentUserData) return;
+    
+    // [NEW] CẬP NHẬT ĐỘNG HIỂN THỊ EXP THƯỞNG CHO CHECK-IN
+    const checkinExpDisplay = document.getElementById('checkin-exp-display');
+    if (checkinExpDisplay) {
+        checkinExpDisplay.textContent = `+${(rewardConfig.checkinExp || 1000).toLocaleString()} EXP`;
+    }
+
+    // --- Mã hiện có của bạn bên dưới đây ---
+    headerExpDisplay.classList.remove('d-none');
+    updateExpBalances(currentUserData.points || 0);
+    updateCheckinUI(currentUserData);
+    fetchTaskHistory();
+    renderAccountSection();
+    renderReferralSection();
+    
+    handleRouteChange(); 
+    
+    if (isCurrentUserAdmin()) {
+        navAdmin.style.display = 'block';
+    } else {
+        navAdmin.style.display = 'none';
+    }
+}
+    
+    function updateExpBalances(newExp) {
         taskExpBalanceEl.textContent = newExp;
         headerExpBalanceEl.textContent = newExp;
     }
@@ -1997,20 +2102,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+                
                 transaction.update(userRef, {
-                    points: firebase.firestore.FieldValue.increment(CHECKIN_REWARD),
+                    points: firebase.firestore.FieldValue.increment(rewardConfig.checkinExp),
                     lastCheckin: newTimestamp,
                     checkinCount: firebase.firestore.FieldValue.increment(1)
                 });
-                
+            
                 const historyRef = userRef.collection('task_history').doc();
                 transaction.set(historyRef, {
                     taskName: 'Daily Check-in',
-                    exp: CHECKIN_REWARD,
+                    exp: rewardConfig.checkinExp,
                     timestamp: newTimestamp
                 });
             });
-            showAppToast('Success!', `You've received ${CHECKIN_REWARD} EXP.`, 'success');
+
+            showAppToast('Success!', `You've received ${rewardConfig.checkinExp} EXP.`, 'success');
         } catch (error) {
             console.error("Check-in failed: ", error);
             showAppToast('Failed', 'An error occurred. Please try again.', 'error');
@@ -2086,7 +2193,7 @@ document.addEventListener('DOMContentLoaded', () => {
             listContainer.innerHTML = '';
 
             if (snapshot.empty) {
-                listContainer.innerHTML = `<p class="text-secondary text-center p-3">No one is on the leaderboard yet. Be the first!</p>`;
+                listContainer.innerHTML = `<p class="text-secondary text-center p-3">No one is on the leaderboard yet.</p>`;
                 return;
             }
             
@@ -2119,7 +2226,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error("Error fetching leaderboard:", error);
-            listContainer.innerHTML = `<p class="text-danger text-center p-3">Could not load the leaderboard. Please try again later.</p>`;
+            listContainer.innerHTML = `<p class="text-danger text-center p-3">Could not load the leaderboard.</p>`;
         }
     }
     
@@ -2551,7 +2658,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // --- [NEW] Notification Toggle Handler ---
     async function handleNotificationToggle(e) {
         if (!currentUserData || !db) return;
 
@@ -2567,13 +2673,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Failed to update notification settings:', error);
             showAppToast('Error', 'Could not save your setting. Please try again.', 'error');
-            toggle.checked = !newStatus; // Revert the toggle on failure
+            toggle.checked = !newStatus;
         } finally {
             toggle.disabled = false;
         }
     }
     
-    // --- [UPDATED] TELEGRAM BULK SENDER FUNCTION ---
     async function sendBulkTelegramMessage() {
         const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -2588,7 +2693,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if ((buttonText && !buttonUrl) || (!buttonText && buttonUrl)) { showAppToast('Lỗi', 'Để tạo nút, vui lòng nhập cả Văn bản và URL cho nút.', 'warning'); return; }
         
         sendBulkTelegramMessageBtn.disabled = true;
-        telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lấy danh sách người dùng từ cơ sở dữ liệu...`;
+        telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lấy danh sách người dùng...`;
 
         try {
             const allUsers = [];
@@ -2607,15 +2712,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const usersWithUid = allUsers.filter(user => user.telegramId);
             const totalWithUid = usersWithUid.length;
-            const usersToNotify = usersWithUid.filter(user => user.notificationsEnabled !== false); // Default to true
+            const usersToNotify = usersWithUid.filter(user => user.notificationsEnabled !== false);
             const totalToNotify = usersToNotify.length;
 
             if (totalToNotify === 0) {
-                telegramSenderStatus.innerHTML = `<span class="text-warning">Không tìm thấy người dùng nào bật thông báo.</span>`;
+                telegramSenderStatus.innerHTML = `<span class="text-warning">Không có người dùng nào bật thông báo.</span>`;
                 return;
             }
             
-            if (!confirm(`CẢNH BÁO: Bạn sắp gửi tin nhắn này cho ${totalToNotify} / ${totalWithUid} người dùng đã bật thông báo. Hành động này KHÔNG THỂ hoàn tác. Bạn có chắc chắn muốn tiếp tục?`)) {
+            if (!confirm(`CẢNH BÁO: Bạn sắp gửi tin nhắn này cho ${totalToNotify} / ${totalWithUid} người dùng. Hành động này KHÔNG THỂ hoàn tác. Bạn có chắc chắn muốn tiếp tục?`)) {
                 return;
             }
             
@@ -2625,7 +2730,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             for (let i = 0; i < totalToNotify; i++) {
                 const user = usersToNotify[i];
-                telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang gửi tin ${i + 1}/${totalToNotify}... (UID: ${user.telegramId})`;
+                telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang gửi tin ${i + 1}/${totalToNotify}...`;
                 
                 const body = { chat_id: user.telegramId };
                 let method;
@@ -2701,7 +2806,6 @@ document.addEventListener('DOMContentLoaded', () => {
         walletDropdown.style.display = 'none';
     }
     
-    // --- [UPDATED] Render Account Section ---
     function renderAccountSection() {
         const profilePhoto = document.getElementById('profile-photo');
         const profileFullname = document.getElementById('profile-fullname');
@@ -2710,7 +2814,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!currentUserData || !currentUserData.telegramId) {
             if(accountSectionEl.style.display === 'block') {
-                document.querySelector('#account-section .container').innerHTML = `<div class="text-center p-5 card-glass"><h3 class="text-secondary">Account information is only available when accessed from the Mini App.</h3><p class="text-secondary">Please connect your wallet within the Mini App to sync your data.</p></div>`;
+                document.querySelector('#account-section .container').innerHTML = `<div class="text-center p-5 card-glass"><h3 class="text-secondary">Account information is only available when accessed from the Mini App.</h3></div>`;
             }
             return;
         }
@@ -2740,10 +2844,9 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
         
-        // Set the toggle state
         const notificationsToggle = document.getElementById('notifications-toggle');
         if (notificationsToggle) {
-            notificationsToggle.checked = currentUserData.notificationsEnabled !== false; // Default to true
+            notificationsToggle.checked = currentUserData.notificationsEnabled !== false;
         }
     }
     
@@ -2767,7 +2870,7 @@ document.addEventListener('DOMContentLoaded', () => {
             uidSnapshot.forEach(doc => invitedUsers.set(doc.id, doc.data()));
 
             if (invitedUsers.size === 0) {
-                invitedListPane.innerHTML = `<p class="text-secondary text-center p-3">You haven't invited anyone yet. Share your code now!</p>`;
+                invitedListPane.innerHTML = `<p class="text-secondary text-center p-3">You haven't invited anyone yet.</p>`;
                 return;
             }
 
@@ -2794,14 +2897,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    async function renderReferralSection() {
-        if (!currentUserData) return;
-        const linksContainer = document.getElementById('referral-links-container');
-        const codesContainer = document.getElementById('referral-codes-container');
-        const referralCountEl = document.getElementById('referral-count');
-        const referredByContainer = document.getElementById('referred-by-container');
-        const referralInputContainer = document.getElementById('referral-input-container');
-        
+async function renderReferralSection() {
+    if (!currentUserData) return;
+    const linksContainer = document.getElementById('referral-links-container');
+    const codesContainer = document.getElementById('referral-codes-container');
+    const referralCountEl = document.getElementById('referral-count');
+    const referredByContainer = document.getElementById('referred-by-container');
+    const referralInputContainer = document.getElementById('referral-input-container');
+
         linksContainer.innerHTML = '';
         codesContainer.innerHTML = '';
 
@@ -2848,7 +2951,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentUserData.referredBy) {
             referralInputContainer.style.display = 'none';
             referredByContainer.style.display = 'block';
-            referredByContainer.innerHTML = `<div class="skeleton-loader skeleton-line w-75"></div>`; // Placeholder
+            referredByContainer.innerHTML = `<div class="skeleton-loader skeleton-line w-75"></div>`;
             
             const referrerCode = currentUserData.referredBy;
             let referrerQuery;
@@ -2885,8 +2988,71 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         referralCountEl.textContent = `${currentUserData.referralCount || 0}`;
-        fetchAndRenderInvitedUsers();
+   renderReferralMilestones(); 
+}
+
+
+
+
+// ======================================================
+// [NEW] HÀM ĐỂ HIỂN THỊ CÁC MỐC MỜI BẠN CHO USER
+// ======================================================
+function renderReferralMilestones() {
+    const container = document.getElementById('referral-milestones-list-container');
+    if (!container) return; // Dừng lại nếu không tìm thấy vùng chứa trên trang
+
+    // Cập nhật số EXP cơ bản hiển thị trên tiêu đề của trang Referral
+    const baseExpDisplay = document.getElementById('referral-base-exp-display');
+    if (baseExpDisplay) {
+        baseExpDisplay.textContent = `${(rewardConfig.baseReferralExp || 5000).toLocaleString()} EXP`;
     }
+
+    // Kiểm tra xem admin có thiết lập mốc nào không
+    if (!rewardConfig.referralMilestones || rewardConfig.referralMilestones.length === 0) {
+        container.innerHTML = `<p class="text-secondary text-center">No milestones available right now.</p>`;
+        return;
+    }
+
+    let html = '';
+    const userReferralCount = currentUserData?.referralCount || 0;
+
+    // Lặp qua từng mốc thưởng và tạo HTML tương ứng
+    rewardConfig.referralMilestones.forEach(milestone => {
+        // Kiểm tra xem người dùng đã hoàn thành mốc này chưa
+        const isCompleted = userReferralCount >= milestone.required;
+
+        html += `
+        <div class="d-flex align-items-center justify-content-between p-3 mb-2" 
+             style="background: rgba(145, 94, 255, 0.05); border-radius: 12px; border-left: 4px solid ${isCompleted ? 'var(--color-verified)' : 'var(--accent-primary)'}; opacity: ${isCompleted ? '0.7' : '1'};">
+            
+            <div class="d-flex align-items-center">
+                <i class="fas ${isCompleted ? 'fa-check-circle' : 'fa-users'} fa-fw me-3 fs-4" style="color: ${isCompleted ? 'var(--color-verified)' : 'var(--accent-primary)'};"></i>
+                <div>
+                    <h6 class="mb-0">Invite ${milestone.required} Friends</h6>
+                    <small class="text-secondary">${isCompleted ? 'Completed' : `Your progress: ${userReferralCount} / ${milestone.required}`}</small>
+                </div>
+            </div>
+
+            <div class="text-end">
+                <strong class="d-block" style="color: var(--gold);">+${(milestone.bonus).toLocaleString()} EXP</strong>
+                <small class="text-secondary">Bonus Reward</small>
+            </div>
+        </div>
+        `;
+    });
+
+    // Đưa HTML đã tạo vào trang web
+    container.innerHTML = html;
+}
+
+
+
+
+
+
+
+
+
 
     async function fetchAirdropSettings() {
         if (airdropSettings) return airdropSettings;
@@ -2961,7 +3127,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isEligibleByStats) {
             eligibilityStatusEl.textContent = 'YOU ARE NOT ELIGIBLE';
             eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
-            actionsContainer.innerHTML = `<p class="text-white-50 mt-3">Continue completing tasks to become eligible for the airdrop.</p>`;
+            actionsContainer.innerHTML = `<p class="text-white-50 mt-3">Continue completing tasks to become eligible.</p>`;
         } else if (!mandatoryTasksCompleted) {
             eligibilityStatusEl.textContent = 'YOU ARE NOT ELIGIBLE';
             eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
@@ -2974,7 +3140,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p class="text-white-50 mt-3">Rewards will be distributed to your address soon.</p>
                 <code class="copyable-address fs-6" data-address="${friendlyAddress}">${shortenAddress(friendlyAddress, 10, 10)}</code>
             `;
-        } else { // Fully eligible and hasn't requested
+        } else {
             const rewardTier = currentUserData.hasSentConfirmationTx ? '100%' : '50%';
             eligibilityStatusEl.textContent = `YOU ARE ELIGIBLE (${rewardTier})`;
             eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
@@ -2989,10 +3155,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (!settings.isSnapshotActive && settings.isClaimingEnabled) {
-                buttonsHtml += `<p class="text-white-50 mt-3 small">You are one step away from receiving $BMASS. Add your name to the reward distribution list.</p>`;
+                buttonsHtml += `<p class="text-white-50 mt-3 small">You are one step away from receiving $BMASS.</p>`;
                 buttonsHtml += `<button id="request-reward-button" class="airdrop-action-btn" style="background: var(--accent-secondary); color: white;">Send Transaction</button>`;
             } else if (settings.isSnapshotActive) {
-                buttonsHtml += `<p class="mt-3 fw-bold" style="color: var(--gold);"><i class="fas fa-flag-checkered me-2"></i>Final Snapshot!</p><p class="text-white-50">Claiming has ended. Tokens will be distributed soon to those who requested.</p>`;
+                buttonsHtml += `<p class="mt-3 fw-bold" style="color: var(--gold);"><i class="fas fa-flag-checkered me-2"></i>Final Snapshot!</p><p class="text-white-50">Claiming has ended. Tokens will be distributed soon.</p>`;
             } else {
                  buttonsHtml += `<p class="text-white-50 mt-3 fst-italic">Reward claiming will be enabled soon.</p>`;
             }
@@ -3077,7 +3243,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-        function identifyTelegramUser() {
+    function identifyTelegramUser() {
         try {
              if (window.Telegram && window.Telegram.WebApp) {
                 const tg = window.Telegram.WebApp;
@@ -3092,25 +3258,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     appLogoImg.style.borderRadius = '50%';
                     appLogoText.textContent = `@${telegramUserData.username}` || telegramUserData.first_name || 'Telegram User';
                     
-                    // [THAY ĐỔI] - BẮT ĐẦU LOGIC XỬ LÝ DEEP LINK
                     const startParam = tg.initDataUnsafe.start_param;
                     if (startParam) {
-                        // Ưu tiên xử lý deep link cho route
                         if (startParam.startsWith('route-')) {
-                            const route = startParam.split('-')[1]; // Lấy ra 'task' từ 'route-task'
+                            const route = startParam.split('-')[1];
                             if (route) {
                                 console.log(`Deep link to route: #${route}`);
-                                // Đặt hash để kích hoạt handleRouteChange()
                                 window.location.hash = route; 
                             }
                         } 
-                        // Nếu không phải route, thì đó là mã giới thiệu (logic cũ)
                         else {
                             console.log(`Referral code found: ${startParam}`);
                             sessionStorage.setItem(REFERRAL_SESSION_KEY, startParam);
                         }
                     }
-                    // [THAY ĐỔI] - KẾT THÚC LOGIC XỬ LÝ DEEP LINK
                     
                     if(tonConnectUI.connected) {
                         loadOrCreateUserByAddress(tonConnectUI.account.address);
@@ -3150,24 +3311,16 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(e) { console.error("Error capturing web referral:", e); }
     }
 
-        // --- PHIÊN BẢN MỚI ---
     async function initializeApp() {
         checkUserSession();
         captureWebReferral();
         identifyTelegramUser(); 
-
-        // [MỚI] Gọi hàm áp dụng style theo nền tảng
         applyPlatformSpecificStyling();
         
-        // [MỚI] Cấu hình chức năng cho nút Back Button
         if (window.Telegram && window.Telegram.WebApp) {
             const tg = window.Telegram.WebApp;
-            
-            // Định nghĩa hành động khi người dùng nhấn nút Back
             tg.BackButton.onClick(() => {
-                // Chuyển hướng về trang chủ
                 window.location.hash = '#dashboard';
-                // Không cần gọi handleRouteChange() ở đây vì sự kiện hashchange sẽ tự động làm điều đó
             });
         }
         
@@ -3177,7 +3330,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         initializeFirebase();
         await fetchAirdropSettings();
-        handleRouteChange(); // Gọi hàm này để kiểm tra route ban đầu và thiết lập nút Back
+        await fetchRewardSettings();
+        handleRouteChange(); 
     }
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ 
@@ -3230,7 +3384,7 @@ document.addEventListener('DOMContentLoaded', () => {
         [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(nav => nav.classList.remove('active'));
 
         const isLoggedIn = !!connectedWalletAddress;
-        [navTask, navPartner, navAccount, navReferral, navAirdrop].forEach(nav => nav.style.display = isLoggedIn ? 'block' : 'none');
+        [navTask, navPartner, navAccount, navReferral, navAirdrop].forEach(nav => nav.style.display = isLoggedIn ? 'flex' : 'none');
 
         if (viewToShow === 'account' && isLoggedIn) { accountSectionEl.style.display = 'block'; navAccount.classList.add('active'); } 
         else if (viewToShow === 'apps') { appStoreSection.style.display = 'block'; navApps.classList.add('active'); } 
@@ -3265,11 +3419,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sidebarMenu.classList.contains('open')) toggleSidebar();
     };
     
-        // --- PHIÊN BẢN MỚI ---
     const handleRouteChange = () => {
         let hash = window.location.hash.substring(1) || 'dashboard';
         const [path, queryString] = hash.split('?');
-        const tg = window.Telegram?.WebApp; // [ĐÃ SỬA] Lấy đối tượng WebApp một cách an toàn
+        const tg = window.Telegram?.WebApp;
         
         const protectedRoutes = ['task', 'partner', 'account', 'admin', 'referral', 'airdrop', 'leaderboard'];
         if (!connectedWalletAddress && protectedRoutes.includes(path)) {
@@ -3284,13 +3437,10 @@ document.addEventListener('DOMContentLoaded', () => {
              hash = 'dashboard'; 
         }
 
-        // [MỚI] Logic quản lý nút Back Button
         if (tg) {
             if (path === 'dashboard' || path === '') {
-                // Nếu đang ở trang chủ, ẩn nút Back
                 tg.BackButton.hide();
             } else {
-                // Nếu ở các trang khác, hiện nút Back
                 tg.BackButton.show();
             }
         }
@@ -3798,7 +3948,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isSnapshotActive = document.getElementById('snapshot-active-switch').checked;
 
         if (isSnapshotActive && !airdropSettings?.isSnapshotActive) {
-            if (!confirm("CẢNH BÁO: Bạn sắp kích hoạt Snapshot. Hành động này sẽ DỪNG tất cả các hoạt động kiếm điểm và CHỐT dữ liệu. Hành động này không thể hoàn tác. Bạn có chắc chắn muốn tiếp tục không?")) {
+            if (!confirm("CẢNH BÁO: Bạn sắp kích hoạt Snapshot. Hành động này sẽ DỪNG tất cả các hoạt động kiếm điểm. Hành động này không thể hoàn tác. Bạn có chắc chắn muốn tiếp tục không?")) {
                 document.getElementById('snapshot-active-switch').checked = false;
                 return;
             }
@@ -3941,7 +4091,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const completedTaskIds = new Set(completedTasksSnapshot.docs.map(doc => doc.id));
             
             if (tasksSnapshot.empty) {
-                partnerTasksContainer.innerHTML = `<p class="text-secondary text-center p-3">No partner tasks available yet. Check back later!</p>`;
+                partnerTasksContainer.innerHTML = `<p class="text-secondary text-center p-3">No partner tasks available yet.</p>`;
                 return;
             }
             
@@ -3989,7 +4139,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
         } catch (error) {
             console.error("Error rendering partner tasks:", error);
-            partnerTasksContainer.innerHTML = `<p class="text-danger text-center p-3">Error loading partner tasks. Please try again.</p>`;
+            partnerTasksContainer.innerHTML = `<p class="text-danger text-center p-3">Error loading partner tasks.</p>`;
         }
     }
 
@@ -4012,82 +4162,79 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-async function handlePartnerTaskCompletion(e, taskCard) {
-    if (airdropSettings?.isSnapshotActive) {
-        showAppToast('Halted', 'Point-earning activities are paused due to the snapshot.', 'warning');
-        e.preventDefault();
-        return;
-    }
-    
-    if (taskCard.classList.contains('completed')) {
-        e.preventDefault();
-        return;
-    }
-
-    e.preventDefault();
-
-    const taskId = taskCard.dataset.taskId;
-    const expReward = parseInt(taskCard.dataset.exp, 10);
-    const projectName = taskCard.dataset.name;
-    const taskLink = taskCard.href;
-
-    if (!taskId || isNaN(expReward)) return;
-
-    const actionBar = taskCard.querySelector('.partner-task-action-bar');
-    actionBar.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
-    
-    try {
-        const userRef = db.collection('users').doc(connectedWalletAddress);
-        const completedTaskRef = userRef.collection('completed_partner_tasks').doc(taskId);
+    async function handlePartnerTaskCompletion(e, taskCard) {
+        if (airdropSettings?.isSnapshotActive) {
+            showAppToast('Halted', 'Point-earning activities are paused.', 'warning');
+            e.preventDefault();
+            return;
+        }
         
-        await db.runTransaction(async (transaction) => {
-            const completedDoc = await transaction.get(completedTaskRef);
-            if (completedDoc.exists) {
-                throw new Error("Task already completed.");
+        if (taskCard.classList.contains('completed')) {
+            e.preventDefault();
+            return;
+        }
+
+        e.preventDefault();
+
+        const taskId = taskCard.dataset.taskId;
+        const expReward = parseInt(taskCard.dataset.exp, 10);
+        const projectName = taskCard.dataset.name;
+        const taskLink = taskCard.href;
+
+        if (!taskId || isNaN(expReward)) return;
+
+        const actionBar = taskCard.querySelector('.partner-task-action-bar');
+        actionBar.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+        
+        try {
+            const userRef = db.collection('users').doc(connectedWalletAddress);
+            const completedTaskRef = userRef.collection('completed_partner_tasks').doc(taskId);
+            
+            await db.runTransaction(async (transaction) => {
+                const completedDoc = await transaction.get(completedTaskRef);
+                if (completedDoc.exists) {
+                    throw new Error("Task already completed.");
+                }
+                const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+                transaction.update(userRef, {
+                    points: firebase.firestore.FieldValue.increment(expReward),
+                    partnerTasksCompletedCount: firebase.firestore.FieldValue.increment(1)
+                });
+                transaction.set(completedTaskRef, { completedAt: newTimestamp });
+                const historyRef = userRef.collection('task_history').doc();
+                transaction.set(historyRef, {
+                    taskName: 'Partner Task',
+                    projectName: projectName,
+                    exp: expReward,
+                    timestamp: newTimestamp
+                });
+            });
+            
+            showAppToast('Success!', `You received +${expReward} EXP from the ${projectName} task.`, 'success');
+            
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.openLink(taskLink);
+            } else {
+                window.open(taskLink, '_blank');
             }
-            const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
-            transaction.update(userRef, {
-                points: firebase.firestore.FieldValue.increment(expReward),
-                partnerTasksCompletedCount: firebase.firestore.FieldValue.increment(1)
-            });
-            transaction.set(completedTaskRef, { completedAt: newTimestamp });
-            const historyRef = userRef.collection('task_history').doc();
-            transaction.set(historyRef, {
-                taskName: 'Partner Task',
-                projectName: projectName,
-                exp: expReward,
-                timestamp: newTimestamp
-            });
-        });
-        
-        showAppToast('Success!', `You received +${expReward} EXP from the ${projectName} task.`, 'success');
-        
-        // [LÝ DO] Dùng window.open() bị chặn trên iOS Mini App.
-        // [GIẢI PHÁP] Sử dụng API của Telegram Web App để đảm bảo tương thích.
-        if (window.Telegram && window.Telegram.WebApp) {
-            window.Telegram.WebApp.openLink(taskLink);
-        } else {
-            // Phương án dự phòng cho trình duyệt web thông thường.
-            window.open(taskLink, '_blank');
-        }
-        
-        const updatedDoc = await userRef.get();
-        currentUserData = updatedDoc.data();
-        updateExpBalances(currentUserData.points);
-        taskCard.classList.add('completed');
-        actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
+            
+            const updatedDoc = await userRef.get();
+            currentUserData = updatedDoc.data();
+            updateExpBalances(currentUserData.points);
+            taskCard.classList.add('completed');
+            actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
 
-    } catch (error) {
-        if (error.message.includes("Task already completed.")) {
-             taskCard.classList.add('completed');
-             actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
-        } else {
-            console.error("Failed to complete partner task:", error);
-            showAppToast('Error', 'Could not complete the task. Please try again.', 'error');
-            actionBar.innerHTML = `+${expReward} EXP`; 
+        } catch (error) {
+            if (error.message.includes("Task already completed.")) {
+                 taskCard.classList.add('completed');
+                 actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
+            } else {
+                console.error("Failed to complete partner task:", error);
+                showAppToast('Error', 'Could not complete the task. Please try again.', 'error');
+                actionBar.innerHTML = `+${expReward} EXP`; 
+            }
         }
     }
-}
     
     async function handleAdminPartnerTaskSave(e) {
         e.preventDefault();
@@ -4210,7 +4357,7 @@ async function handlePartnerTaskCompletion(e, taskCard) {
         const taskId = row.dataset.id;
         
         if (deleteBtn) {
-            if (!confirm(`Bạn có chắc chắn muốn xóa nhiệm vụ này? Hành động này không thể hoàn tác.`)) {
+            if (!confirm(`Bạn có chắc chắn muốn xóa nhiệm vụ này?`)) {
                 return;
             }
             try {
@@ -4318,7 +4465,6 @@ async function handlePartnerTaskCompletion(e, taskCard) {
         if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none'; 
     });
     
-    // --- [UPDATED] Event listener with notification toggle ---
     document.body.addEventListener('change', e => {
         if (e.target.id === 'notifications-toggle') {
             handleNotificationToggle(e);
@@ -4341,71 +4487,168 @@ async function handlePartnerTaskCompletion(e, taskCard) {
     heroConnectButton.addEventListener('click', () => tonConnectUI.openModal());
     connectWalletHeroBtnContainer.appendChild(heroConnectButton);
     
-    // --- App Initialization ---
-    fetchCryptoNews();
-    initializeApp();
-});
-
-
     function applyPlatformSpecificStyling() {
-        // Chỉ chạy nếu đang ở trong môi trường Telegram Mini App
         if (window.Telegram && window.Telegram.WebApp) {
             const platform = window.Telegram.WebApp.platform;
             const body = document.body;
-
-            // Xóa các class cũ để tránh bị trùng lặp
             body.classList.remove('platform-ios', 'platform-android', 'platform-desktop');
             
             console.log(`Detected platform: ${platform}`);
-
             switch (platform) {
-                case 'ios':
-                    body.classList.add('platform-ios');
-                    break;
-                case 'android':
-                    body.classList.add('platform-android');
-                    break;
-                // Bạn có thể thêm các trường hợp khác như 'macos', 'windows', 'web' nếu cần
-                default:
-                    body.classList.add('platform-desktop');
-                    break;
+                case 'ios': body.classList.add('platform-ios'); break;
+                case 'android': body.classList.add('platform-android'); break;
+                default: body.classList.add('platform-desktop'); break;
             }
         }
     }
 
+    // [NEW] Reward Settings Functions
+    async function fetchRewardSettings() {
+        if (!db) return;
+        try {
+            const docRef = db.collection('admin_settings').doc('reward_config');
+            const doc = await docRef.get();
+            if (doc.exists) {
+                const data = doc.data();
+                if (data.referralMilestones && Array.isArray(data.referralMilestones)) {
+                    data.referralMilestones.sort((a, b) => a.required - b.required);
+                }
+                rewardConfig = data;
+                console.log("Reward settings loaded from Firestore:", rewardConfig);
+            } else {
+                await docRef.set(rewardConfig);
+                console.log("No reward settings in Firestore, created with defaults.");
+            }
+        } catch (error) {
+            console.error("Error fetching reward settings:", error);
+        }
+    }
 
+    function renderRewardSettingsUI() {
+        const adminPanel = document.getElementById('admin-panel-reward-settings');
+        if (!adminPanel) return;
 
+        document.getElementById('checkin-exp-input').value = rewardConfig.checkinExp;
+        document.getElementById('base-referral-exp-input').value = rewardConfig.baseReferralExp;
+        
+        const container = document.getElementById('referral-milestones-container');
+        container.innerHTML = ''; 
 
-        // [NEW] Event Listener for Admin Panel Navigation
-    const adminNavBar = document.getElementById('admin-nav-bar');
-    if (adminNavBar) {
-        adminNavBar.addEventListener('click', (e) => {
-            const button = e.target.closest('.admin-nav-btn');
-            if (!button) return;
+        (rewardConfig.referralMilestones || []).forEach((milestone) => {
+            addMilestoneRow(milestone.required, milestone.bonus);
+        });
+    }
 
-            // Get target panel ID from button's data attribute
-            const targetId = button.dataset.target;
+    function addMilestoneRow(required = '', bonus = '') {
+        const container = document.getElementById('referral-milestones-container');
+        const milestoneDiv = document.createElement('div');
+        milestoneDiv.className = 'row g-3 align-items-center mb-2 milestone-item';
+        milestoneDiv.innerHTML = `
+            <div class="col">
+                <label class="form-label small d-md-none">Mốc (lượt mời)</label>
+                <input type="number" class="form-control milestone-required" value="${required}" placeholder="Số lượt mời" min="1">
+            </div>
+            <div class="col">
+                <label class="form-label small d-md-none">Thưởng thêm (EXP)</label>
+                <input type="number" class="form-control milestone-bonus" value="${bonus}" placeholder="EXP thưởng thêm" min="0">
+            </div>
+            <div class="col-auto">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-milestone-btn mt-md-4"><i class="fas fa-trash"></i></button>
+            </div>
+        `;
+        container.appendChild(milestoneDiv);
+    }
+
+    // --- Event Listeners specific to new features ---
+
+    // Event Delegation for dynamically added elements and Admin Panel
+    document.addEventListener('click', (e) => {
+        // Reward settings panel buttons
+        if (e.target && e.target.id === 'add-milestone-btn') {
+            addMilestoneRow();
+        }
+        if (e.target && e.target.closest('.remove-milestone-btn')) {
+            e.target.closest('.milestone-item').remove();
+        }
+        
+        // Admin Navigation
+        const adminNavButton = e.target.closest('.admin-nav-btn');
+        if (adminNavButton) {
+            const targetId = adminNavButton.dataset.target;
             if (!targetId) return;
 
-            // Update button active state
-            adminNavBar.querySelector('.admin-nav-btn.active').classList.remove('active');
-            button.classList.add('active');
+            const adminNavBar = document.getElementById('admin-nav-bar');
+            if (adminNavBar.querySelector('.admin-nav-btn.active')) {
+                adminNavBar.querySelector('.admin-nav-btn.active').classList.remove('active');
+            }
+            adminNavButton.classList.add('active');
 
-            // Hide all admin panels
             document.querySelectorAll('.admin-panel-wrapper').forEach(panel => {
                 panel.style.display = 'none';
             });
 
-            // Show the target panel
             const targetPanel = document.querySelector(targetId);
             if (targetPanel) {
                 targetPanel.style.display = 'block';
+                // Render UI specifically when switching to the reward settings tab
+                if (targetId === '#admin-panel-reward-settings') {
+                    renderRewardSettingsUI();
+                }
             }
-        });
-    }
+        }
+    });
 
-    // --- Event Listeners ---
-    // (Rest of your event listeners)
-    </script>
+    // Event Listener for Reward Settings Form Submission
+    document.addEventListener('submit', async (e) => {
+        if (e.target && e.target.id === 'admin-reward-settings-form') {
+            e.preventDefault();
+            const saveBtn = document.getElementById('save-reward-settings-btn');
+            const statusEl = document.getElementById('admin-reward-settings-status');
+            
+            saveBtn.disabled = true;
+            statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
+
+            const newSettings = {
+                checkinExp: parseInt(document.getElementById('checkin-exp-input').value, 10) || 0,
+                baseReferralExp: parseInt(document.getElementById('base-referral-exp-input').value, 10) || 0,
+                referralMilestones: []
+            };
+
+            document.querySelectorAll('.milestone-item').forEach(item => {
+                const required = parseInt(item.querySelector('.milestone-required').value, 10);
+                const bonus = parseInt(item.querySelector('.milestone-bonus').value, 10);
+                if (!isNaN(required) && required > 0 && !isNaN(bonus)) {
+                    newSettings.referralMilestones.push({ required, bonus });
+                }
+            });
+            
+            newSettings.referralMilestones.sort((a,b) => a.required - b.required);
+
+            try {
+                await db.collection('admin_settings').doc('reward_config').set(newSettings);
+                rewardConfig = newSettings; 
+                statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu cài đặt!</span>`;
+                showAppToast('Thành công', 'Cài đặt thưởng đã được cập nhật.', 'success');
+            } catch (error) {
+                console.error("Error saving reward settings:", error);
+                statusEl.innerHTML = `<span class="text-danger">Lỗi: ${error.message}</span>`;
+            } finally {
+                saveBtn.disabled = false;
+                setTimeout(() => { statusEl.innerHTML = ''; }, 4000);
+            }
+        }
+    });
+
+    // --- App Initialization ---
+    fetchCryptoNews();
+    initializeApp();
+    
+    // --- END OF DOMCONTENTLOADED ---
+});
+
+
+
+</script>
+
 </body>
 </html>
