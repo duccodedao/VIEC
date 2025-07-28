@@ -3821,3 +3821,2323 @@ async function fetchAndRenderLeaderboard() {
             invitedListPane.innerHTML = `<p class="text-danger text-center p-3">Error loading invited users list.</p>`;
         }
     }
+
+                          async function renderReferralSection() {
+    if (!currentUserData) return;
+    const linksContainer = document.getElementById('referral-links-container');
+    const codesContainer = document.getElementById('referral-codes-container');
+    const referralCountEl = document.getElementById('referral-count');
+    const referredByContainer = document.getElementById('referred-by-container');
+    const referralInputContainer = document.getElementById('referral-input-container');
+
+ linksContainer.innerHTML = '';
+    codesContainer.innerHTML = '';
+
+    const webLink = `${YOUR_WEB_APP_URL}?ref=${currentUserData.address}`;
+    linksContainer.innerHTML = `
+        <h6 class="mb-2"><i class="fas fa-link me-2"></i>Your Referral Link</h6>
+        <div class="mb-3">
+            <label class="form-label small text-secondary">Web Referral Link:</label>
+            <div class="input-group">
+                <input type="text" class="form-control" value="${webLink}" readonly>
+                <button class="btn btn-outline-secondary copyable-code" data-code="${webLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
+            </div>
+        </div>`;
+    codesContainer.innerHTML = `
+        <h6 class="mb-2"><i class="fas fa-barcode me-2"></i>Your Referral Code</h6>
+         <div class="mb-2">
+            <label class="form-label small text-secondary">Referral Code (Wallet Address):</label>
+            <div class="input-group">
+                <input type="text" class="form-control" value="${currentUserData.address}" readonly>
+                <button class="btn btn-outline-secondary copyable-code" data-code="${currentUserData.address}" title="Copy Code"><i class="fas fa-copy"></i></button>
+            </div>
+        </div>`;
+    
+    if (currentUserData.telegramId) {
+        const miniAppLink = `https://t.me/${YOUR_TELEGRAM_BOT_NAME}/${YOUR_MINI_APP_NAME}?startapp=${currentUserData.telegramId}`;
+         linksContainer.innerHTML += `
+            <div class="mb-2">
+                <label class="form-label small text-secondary">Mini App Referral Link:</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" value="${miniAppLink}" readonly>
+                    <button class="btn btn-outline-secondary copyable-code" data-code="${miniAppLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
+                </div>
+            </div>`;
+        codesContainer.innerHTML += `
+            <div class="mb-2">
+                <label class="form-label small text-secondary">Referral Code (UID):</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" value="${currentUserData.telegramId}" readonly>
+                    <button class="btn btn-outline-secondary copyable-code" data-code="${currentUserData.telegramId}" title="Copy Code"><i class="fas fa-copy"></i></button>
+                </div>
+            </div>`;
+    }
+    
+    if (currentUserData.referredBy) {
+        referralInputContainer.style.display = 'none';
+        referredByContainer.style.display = 'block';
+        referredByContainer.innerHTML = `<div class="skeleton-loader skeleton-line w-75"></div>`;
+        
+        const referrerCode = currentUserData.referredBy;
+        let referrerQuery;
+        if (!isNaN(referrerCode)) {
+            referrerQuery = db.collection('users').where('telegramId', '==', parseInt(referrerCode, 10));
+        } else {
+            referrerQuery = db.collection('users').where('address', '==', referrerCode);
+        }
+        
+        try {
+            const snapshot = await referrerQuery.get();
+            let referrerName = shortenAddress(referrerCode);
+            if (!snapshot.empty) {
+                const referrerData = snapshot.docs[0].data();
+                referrerName = referrerData.fullName || (referrerData.username ? `@${referrerData.username}` : shortenAddress(referrerData.address));
+            }
+            referredByContainer.innerHTML = `
+                <hr style="border-color: var(--border-color); opacity: 0.5;">
+                <h6 class="mb-2 text-secondary"><i class="fas fa-user-check me-2"></i>Your Referrer</h6>
+                <div class="d-flex align-items-center p-2" style="background: rgba(43, 203, 196, 0.1); border-radius: 25px;">
+                    <i class="fas fa-award me-3" style="color: var(--accent-secondary); font-size: 1.5rem;"></i>
+                    <p class="m-0">You were referred by <strong style="color: var(--accent-secondary);">${referrerName}</strong>.</p>
+                </div>`;
+        } catch (error) {
+            console.error("Could not fetch referrer's name", error);
+            referredByContainer.innerHTML = '';
+        }
+
+    } else {
+        referredByContainer.style.display = 'none';
+        if (!airdropSettings?.isSnapshotActive) {
+            referralInputContainer.style.display = 'block';
+        }
+    }
+    
+    referralCountEl.textContent = `${currentUserData.referralCount || 0}`;
+
+    fetchAndRenderInvitedUsers();
+    renderReferralMilestones(); 
+}
+
+
+
+
+function renderReferralMilestones() {
+    const container = document.getElementById('referral-milestones-list-container');
+    if (!container) return; 
+
+    const baseExpDisplay = document.getElementById('referral-base-exp-display');
+    if (baseExpDisplay) {
+        baseExpDisplay.textContent = `${(rewardConfig.baseReferralExp || 5000).toLocaleString()} EXP`;
+    }
+
+    if (!rewardConfig.referralMilestones || rewardConfig.referralMilestones.length === 0) {
+        container.innerHTML = `<p class="text-secondary text-center">No milestones available right now.</p>`;
+        return;
+    }
+
+    let html = '';
+    const userReferralCount = currentUserData?.referralCount || 0;
+
+    rewardConfig.referralMilestones.forEach(milestone => {
+        const isCompleted = userReferralCount >= milestone.required;
+
+        html += `
+        <div class="d-flex align-items-center justify-content-between p-3 mb-2" 
+             style="background: rgba(145, 94, 255, 0.05); border-radius: 12px; border-left: 4px solid ${isCompleted ? 'var(--color-verified)' : 'var(--accent-primary)'}; opacity: ${isCompleted ? '0.7' : '1'};">
+            
+            <div class="d-flex align-items-center">
+                <i class="fas ${isCompleted ? 'fa-check-circle' : 'fa-users'} fa-fw me-3 fs-4" style="color: ${isCompleted ? 'var(--color-verified)' : 'var(--accent-primary)'};"></i>
+                <div>
+                    <h6 class="mb-0">Invite ${milestone.required} Friends</h6>
+                    <small class="text-secondary">${isCompleted ? 'Completed' : `Your progress: ${userReferralCount} / ${milestone.required}`}</small>
+                </div>
+            </div>
+
+            <div class="text-end">
+                <strong class="d-block" style="color: var(--gold);">+${(milestone.bonus).toLocaleString()} EXP</strong>
+                <small class="text-secondary">Bonus Reward</small>
+            </div>
+        </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+    // [UPDATED] Function to fetch settings for BOTH scoring and claiming
+    async function fetchAirdropSettings() {
+        if (airdropSettings) return airdropSettings;
+        try {
+            const docRef = db.collection('admin_settings').doc('airdrop_criteria');
+            const doc = await docRef.get();
+            if (doc.exists) { 
+                airdropSettings = doc.data(); 
+            } else {
+                // Default settings if none are found
+                airdropSettings = { 
+                    isAirdropLive: false,
+                    isSnapshotActive: false,
+                    minCheckins: 0, minReferrals: 0, minExp: 0,
+                    refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 1,
+                    levelMultipliers: [],
+                    onchainClaimEnabled: false,
+                    offchainClaimEnabled: false,
+                    allowClaimInfoEdit: true,
+                    notifyAirdropSent: false,
+                    enabledExchanges: []
+                };
+            }
+            return airdropSettings;
+        } catch (error) {
+            console.error("Error fetching airdrop settings:", error);
+            return null; // Return null on error
+        }
+    }
+    
+    // [RESTRUCTURED] Main function to render the airdrop section
+    async function renderAirdropSection() {
+        const airdropWrapper = document.getElementById('airdrop-content-wrapper');
+        const comingSoonEl = document.getElementById('airdrop-coming-soon');
+        const loadingEl = document.getElementById('airdrop-content-loading');
+        const loggedInContent = document.getElementById('airdrop-content-logged-in');
+        const loggedOutContent = document.getElementById('airdrop-content-logged-out');
+
+        loadingEl.style.display = 'block';
+        [loggedInContent, loggedOutContent, airdropWrapper, comingSoonEl].forEach(el => el.style.display = 'none');
+
+        const settings = await fetchAirdropSettings();
+        if (!settings) {
+            loadingEl.style.display = 'none';
+            airdropWrapper.style.display = 'block';
+            loggedInContent.style.display = 'block';
+            document.getElementById('airdrop-claim-container').innerHTML = `<p class="text-danger text-center">Could not load Airdrop settings. Please try again later.</p>`;
+            return;
+        }
+
+        if (!settings.isAirdropLive) {
+            loadingEl.style.display = 'none';
+            comingSoonEl.style.display = 'block';
+            return;
+        }
+        
+        airdropWrapper.style.display = 'block';
+
+        if (!currentUserData) {
+            loadingEl.style.display = 'none';
+            loggedOutContent.style.display = 'block';
+            return;
+        }
+        
+        // Fetch user's existing claim data
+        const claimDoc = await db.collection('airdrop_claims').doc(currentUserData.address).get();
+        userAirdropClaimData = claimDoc.exists ? claimDoc.data() : null;
+
+        const mandatoryTasksCompleted = await checkMandatoryTasksCompletion(currentUserData.address);
+        
+        const isEligibleByStats = (currentUserData.referralCount || 0) >= settings.minReferrals &&
+                           (currentUserData.checkinCount || 0) >= settings.minCheckins &&
+                           (currentUserData.points || 0) >= settings.minExp;
+        
+        const isFullyEligible = isEligibleByStats && mandatoryTasksCompleted;
+        const finalReward = isFullyEligible ? await calculateBmassReward(currentUserData, settings) : 0;
+
+        document.getElementById('airdrop-ref-count').textContent = (currentUserData.referralCount || 0).toLocaleString();
+        document.getElementById('airdrop-checkin-count').textContent = (currentUserData.checkinCount || 0).toLocaleString();
+        document.getElementById('airdrop-exp-count').textContent = (currentUserData.points || 0).toLocaleString();
+        document.getElementById('airdrop-level-display').textContent = (currentUserData.level || 1);
+        document.getElementById('airdrop-reward-value').textContent = finalReward.toLocaleString();
+
+        const eligibilityStatusEl = document.getElementById('airdrop-eligibility-status');
+        const claimContainer = document.getElementById('airdrop-claim-container');
+        claimContainer.innerHTML = ''; // Clear previous content
+        
+        if (!isEligibleByStats) {
+            eligibilityStatusEl.textContent = 'YOU ARE NOT ELIGIBLE';
+            eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
+            claimContainer.innerHTML = `<p class="text-white-50 mt-3">Continue completing tasks to become eligible.</p>`;
+        } else if (!mandatoryTasksCompleted) {
+            eligibilityStatusEl.textContent = 'YOU ARE NOT ELIGIBLE';
+            eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
+            claimContainer.innerHTML = `<p class="text-warning mt-3">You need to complete all <a href="#partner" style="color: var(--gold); font-weight: bold;">mandatory partner tasks</a> to claim rewards.</p>`;
+        } else if (settings.notifyAirdropSent && userAirdropClaimData) {
+            eligibilityStatusEl.textContent = 'AIRDROP SENT';
+            eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
+            claimContainer.innerHTML = `<p class="text-white mt-3">Your $BMASS tokens have been sent to the address you provided. Thank you for participating!</p>`;
+        } else {
+             eligibilityStatusEl.textContent = `YOU ARE ELIGIBLE`;
+             eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
+             renderClaimUI(claimContainer, settings, finalReward);
+        }
+        
+        loadingEl.style.display = 'none';
+        loggedInContent.style.display = 'block';
+    }
+
+    // [NEW] Renders the core UI for claiming
+    function renderClaimUI(container, settings, rewardAmount) {
+        if (!settings.isSnapshotActive) {
+            container.innerHTML = `<p class="text-white-50 mt-3 fst-italic">The claim process will begin after the snapshot. Stay tuned!</p>`;
+            return;
+        }
+
+        // User has already submitted their claim info
+        if (userAirdropClaimData) {
+            let detailsHtml = '';
+            if (userAirdropClaimData.method === 'onchain') {
+                detailsHtml = `
+                    <p class="m-0"><strong>Method:</strong> On-chain</p>
+                    <p class="m-0"><strong>Your Wallet:</strong> <code class="copyable-address" data-address="${userAirdropClaimData.claimAddress}">${shortenAddress(userAirdropClaimData.claimAddress)}</code></p>
+                `;
+            } else { // offchain
+                 detailsHtml = `
+                    <p class="m-0"><strong>Method:</strong> Off-chain</p>
+                    <p class="m-0"><strong>Exchange:</strong> ${userAirdropClaimData.exchange}</p>
+                    <p class="m-0"><strong>Address:</strong> <code>${shortenAddress(userAirdropClaimData.claimAddress, 10, 10)}</code></p>
+                    ${userAirdropClaimData.memo ? `<p class="m-0"><strong>Memo:</strong> <code>${userAirdropClaimData.memo}</code></p>` : ''}
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="card-glass p-3 mt-3" style="background: rgba(43, 203, 196, 0.1);">
+                    <h6 class="text-secondary"><i class="fas fa-check-circle me-2 text-success"></i>Claim Information Submitted</h6>
+                    ${detailsHtml}
+                </div>
+                ${settings.allowClaimInfoEdit ? '<button id="edit-claim-info-btn" class="btn btn-sm btn-outline-light mt-3">Edit Information</button>' : '<p class="text-secondary small mt-3">Editing is no longer possible.</p>'}
+            `;
+
+             if (settings.allowClaimInfoEdit) {
+                document.getElementById('edit-claim-info-btn').addEventListener('click', () => {
+                    userAirdropClaimData = null; // Reset to allow re-rendering of claim options
+                    renderClaimUI(container, settings, rewardAmount);
+                });
+            }
+            return;
+        }
+        
+        // User has NOT submitted claim info yet, show options
+        let html = '<p class="text-white mt-3">Please select your preferred method to receive the airdrop:</p>';
+        
+        if (settings.onchainClaimEnabled) {
+            html += `<button id="claim-onchain-btn" class="airdrop-claim-btn claim-btn-onchain"><i class="fas fa-wallet me-2"></i>Claim On-chain (Costs ${ONCHAIN_CLAIM_FEE_TON} TON gas)</button>`;
+        }
+
+        if (settings.offchainClaimEnabled) {
+            html += `<button id="claim-offchain-btn" class="airdrop-claim-btn claim-btn-offchain mt-2"><i class="fas fa-building-columns me-2"></i>Claim via Exchange (Off-chain)</button>`;
+        }
+
+        html += `<div id="offchain-claim-details" class="mt-4" style="display: none;"></div>`;
+
+        container.innerHTML = html;
+
+        if (settings.onchainClaimEnabled) {
+            document.getElementById('claim-onchain-btn').addEventListener('click', () => handleOnchainClaim(rewardAmount));
+        }
+
+        if (settings.offchainClaimEnabled) {
+            document.getElementById('claim-offchain-btn').addEventListener('click', () => renderOffchainForm(settings.enabledExchanges, rewardAmount));
+        }
+    }
+
+    // [NEW] Renders the Off-chain specific form
+    function renderOffchainForm(enabledExchanges, rewardAmount) {
+        const offchainContainer = document.getElementById('offchain-claim-details');
+        if (!offchainContainer) return;
+
+        document.getElementById('claim-onchain-btn')?.remove();
+        document.getElementById('claim-offchain-btn')?.remove();
+
+        const availableExchanges = exchanges.filter(ex => enabledExchanges.includes(ex.id));
+
+        if (availableExchanges.length === 0) {
+            offchainContainer.innerHTML = `<p class="text-warning text-center">No exchanges are currently enabled by the admin.</p>`;
+            offchainContainer.style.display = 'block';
+            return;
+        }
+
+        let exchangesHtml = availableExchanges.map(ex => `
+            <button type="button" class="exchange-btn" data-exchange-id="${ex.id}" data-exchange-name="${ex.name}" title="${ex.name}">
+                <img src="${ex.logo}" alt="${ex.name} logo">
+            </button>
+        `).join('');
+
+        offchainContainer.innerHTML = `
+            <div class="card-glass p-3">
+                <h6 class="text-secondary text-center">1. Select Exchange</h6>
+                <div class="exchange-selector">${exchangesHtml}</div>
+                <h6 class="text-secondary text-center mt-4">2. Enter Details</h6>
+                <form id="offchain-form" class="mt-3">
+                    <div class="mb-3">
+                        <label for="offchain-address" class="form-label">Deposit Address</label>
+                        <input type="text" id="offchain-address" class="form-control" placeholder="Enter your deposit address from the exchange" required>
+                    </div>
+                     <div class="mb-3">
+                        <label for="offchain-memo" class="form-label">Memo / Tag (If required)</label>
+                        <input type="text" id="offchain-memo" class="form-control" placeholder="Enter the memo/tag if the exchange requires one">
+                         <div class="form-text">Leave blank if not required by your exchange.</div>
+                    </div>
+                    <button type="submit" id="submit-offchain-claim" class="airdrop-claim-btn claim-btn-onchain">Submit Off-chain Info</button>
+                </form>
+            </div>
+        `;
+        offchainContainer.style.display = 'block';
+
+        document.querySelector('.exchange-selector').addEventListener('click', (e) => {
+            const btn = e.target.closest('.exchange-btn');
+            if (btn) {
+                document.querySelectorAll('.exchange-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+            }
+        });
+
+        document.getElementById('offchain-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleOffchainSubmit(rewardAmount);
+        });
+    }
+
+    // [UPDATED] Handles the On-chain claim process with new parameters
+    async function handleOnchainClaim(rewardAmount) {
+        const claimBtn = document.getElementById('claim-onchain-btn');
+        if (!claimBtn) return;
+        
+        claimBtn.disabled = true;
+        claimBtn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
+        
+        // Transaction object matches the user's requested format
+        const transaction = {
+            validUntil: Math.floor(Date.now() / 1000) + 60, // 60 seconds
+            messages: [{
+                address: ONCHAIN_CLAIM_WALLET_ADDRESS,
+                amount: ONCHAIN_CLAIM_FEE_NANOTONS, // "20000000"
+                payload: btoa(`onchain-claim-${currentUserData.address}`) // Payload is kept for tracking
+            }]
+        };
+
+        try {
+            // Send the transaction using TonConnectUI
+            const result = await tonConnectUI.sendTransaction(transaction);
+            
+            // On success, save the claim data to Firestore
+            const claimData = {
+                userId: currentUserData.telegramId,
+                userName: currentUserData.fullName || currentUserData.username,
+                method: 'onchain',
+                claimAddress: currentUserData.address, // For on-chain, claim address is the user's own wallet
+                bmassAmount: rewardAmount,
+                transactionBoc: result.boc, // Store the transaction boc for verification
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            await db.collection('airdrop_claims').doc(currentUserData.address).set(claimData);
+
+            showAppToast('Success', 'On-chain claim transaction sent! Your information is saved.', 'success');
+            await renderAirdropSection(); // Re-render to show completion status
+
+        } catch (error) {
+            console.error("On-chain claim transaction failed:", error);
+            showAppToast('Transaction Failed', 'Your claim was not submitted. Please try again.', 'error');
+            claimBtn.disabled = false;
+            claimBtn.innerHTML = `<i class="fas fa-wallet me-2"></i>Claim On-chain (Costs ${ONCHAIN_CLAIM_FEE_TON} TON gas)`;
+        }
+    }
+
+    // [NEW] Handles the Off-chain claim submission
+    async function handleOffchainSubmit(rewardAmount) {
+        const submitBtn = document.getElementById('submit-offchain-claim');
+        const selectedExchangeEl = document.querySelector('.exchange-btn.selected');
+        const addressInput = document.getElementById('offchain-address');
+        const memoInput = document.getElementById('offchain-memo');
+
+        if (!selectedExchangeEl) {
+            showAppToast('Error', 'Please select an exchange.', 'error');
+            return;
+        }
+        if (!addressInput.value.trim()) {
+            showAppToast('Error', 'Please enter your deposit address.', 'error');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Saving...`;
+
+        const claimData = {
+            userId: currentUserData.telegramId,
+            userName: currentUserData.fullName || currentUserData.username,
+            method: 'offchain',
+            exchange: selectedExchangeEl.dataset.exchangeName,
+            claimAddress: addressInput.value.trim(),
+            memo: memoInput.value.trim() || null,
+            bmassAmount: rewardAmount,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        try {
+            await db.collection('airdrop_claims').doc(currentUserData.address).set(claimData);
+            showAppToast('Success', 'Your off-chain claim information has been saved.', 'success');
+            await renderAirdropSection(); // Re-render to show completion status
+        } catch (error) {
+            console.error("Failed to save off-chain claim data:", error);
+            showAppToast('Error', 'Could not save your information. Please try again.', 'error');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Off-chain Info';
+        }
+    }
+
+
+    function identifyTelegramUser() {
+        try {
+             if (window.Telegram && window.Telegram.WebApp) {
+                const tg = window.Telegram.WebApp;
+                tg.ready();
+
+                if(tg.initDataUnsafe && tg.initDataUnsafe.user){
+                    telegramUserData = tg.initDataUnsafe.user;
+                    const session = { userData: telegramUserData, expiresAt: Date.now() + (24 * 60 * 60 * 1000) };
+                    localStorage.setItem(USER_SESSION_KEY, JSON.stringify(session));
+                    
+                    appLogoImg.src = telegramUserData.photo_url || DEFAULT_LOGO_SRC;
+                    appLogoImg.style.borderRadius = '50%';
+                    appLogoText.textContent = `@${telegramUserData.username}` || telegramUserData.first_name || 'Telegram User';
+                    
+                    const startParam = tg.initDataUnsafe.start_param;
+                    if (startParam) {
+                        if (startParam.startsWith('route-')) {
+                            const route = startParam.split('-')[1];
+                            if (route) {
+                                console.log(`Deep link to route: #${route}`);
+                                window.location.hash = route; 
+                            }
+                        } 
+                        else {
+                            console.log(`Referral code found: ${startParam}`);
+                            sessionStorage.setItem(REFERRAL_SESSION_KEY, startParam);
+                        }
+                    }
+                    
+                    if(tonConnectUI.connected) {
+                        loadOrCreateUserByAddress(tonConnectUI.account.address);
+                    }
+                }
+            }
+        } catch (e) { console.error("Could not initialize Telegram Web App:", e); }
+    }
+    
+    function checkUserSession() {
+        const sessionJSON = localStorage.getItem(USER_SESSION_KEY);
+        if (!sessionJSON) return;
+        try {
+            const session = JSON.parse(sessionJSON);
+            if (Date.now() > session.expiresAt) {
+                localStorage.removeItem(USER_SESSION_KEY);
+                return;
+            }
+            telegramUserData = session.userData;
+            appLogoImg.src = telegramUserData.photo_url || DEFAULT_LOGO_SRC;
+            appLogoImg.style.borderRadius = '50%';
+            appLogoText.textContent = `@${telegramUserData.username}` || telegramUserData.first_name || 'Telegram User';
+        } catch (error) {
+            localStorage.removeItem(USER_SESSION_KEY);
+        }
+    }
+    
+    function captureWebReferral() {
+        try {
+             const params = new URLSearchParams(window.location.search);
+             const refCode = params.get('ref');
+             if (refCode) {
+                sessionStorage.setItem(REFERRAL_SESSION_KEY, refCode);
+                const newUrl = window.location.pathname + window.location.hash;
+                history.replaceState(null, '', newUrl);
+             }
+        } catch(e) { console.error("Error capturing web referral:", e); }
+    }
+
+    async function initializeApp() {
+        showLoadingOverlay('Initializing...');
+        initializeFirebase();
+    
+        await fetchSystemStatus();
+    
+        checkUserSession();
+        captureWebReferral();
+        identifyTelegramUser(); 
+        applyPlatformSpecificStyling();
+        
+        if (window.Telegram && window.Telegram.WebApp) {
+            const tg = window.Telegram.WebApp;
+            tg.BackButton.onClick(() => {
+                window.location.hash = '#dashboard';
+            });
+        }
+        
+        if (!telegramUserData) {
+            appLogoText.textContent = 'Bmass';
+        }
+        
+        await fetchAirdropSettings();
+        await fetchRewardSettings();
+        await fetchLevelConfig(); // [NEW] Fetch level settings on init
+
+        if (!applyMaintenanceMode(tonConnectUI.account?.address)) {
+            handleRouteChange(); 
+        }
+        hideLoadingOverlay();
+    }
+    
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ 
+        manifestUrl: 'https://bmass.vercel.app/tonconnect-manifest.json',
+        buttonRootId: 'ton-connect-button-root' 
+    });
+    
+    tonConnectUI.onStatusChange(async (wallet) => {
+        clearInterval(activityRefreshInterval);
+    
+        if (applyMaintenanceMode(wallet ? wallet.account.address : null)) {
+            if (wallet) {
+                tonConnectUI.disconnect();
+            }
+            hideLoadingOverlay();
+            return;
+        }
+
+        if (wallet) {
+            showLoadingOverlay('Connecting wallet...');
+            connectedWalletAddress = wallet.account.address;
+            const friendlyAddress = await getFriendlyAddress(connectedWalletAddress);
+            
+            referralInputContainerHero.style.display = 'none';
+
+            tonConnectButtonRoot.style.display = 'none';
+            customWalletContainer.style.display = 'block';
+            customWalletButton.textContent = shortenAddress(friendlyAddress);
+            copyAddressBtn.dataset.address = friendlyAddress;
+            myAccountBtn.href = `https://tonviewer.com/${friendlyAddress}`;
+
+            await loadOrCreateUserByAddress(connectedWalletAddress);
+            
+        } else {
+            connectedWalletAddress = null;
+            lastFetchedAddress = null;
+            currentUserData = null;
+            currentActivityLogs = [];
+            userAirdropClaimData = null; // [NEW] Clear on disconnect
+
+            tonConnectButtonRoot.style.display = 'block';
+            customWalletContainer.style.display = 'none';
+            headerExpDisplay.classList.add('d-none');
+            navAdmin.style.display = 'none';
+            
+            if (!sessionStorage.getItem(REFERRAL_SESSION_KEY)){
+                 referralInputContainerHero.style.display = 'block';
+            }
+            
+            handleRouteChange();
+            hideLoadingOverlay();
+        }
+    });
+    
+    const switchView = (viewToShow) => {
+        [dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl, partnerSectionEl, accountSectionEl, leaderboardSectionEl, adminSectionEl, referralSectionEl, airdropSectionEl].forEach(section => {
+            if(section) section.style.display = 'none';
+        });
+        [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(nav => nav.classList.remove('active'));
+
+        const isLoggedIn = !!connectedWalletAddress;
+        [navTask, navPartner, navAccount, navReferral, navAirdrop].forEach(nav => nav.style.display = isLoggedIn ? 'flex' : 'none');
+
+        if (viewToShow === 'account' && isLoggedIn) { accountSectionEl.style.display = 'block'; navAccount.classList.add('active'); } 
+        else if (viewToShow === 'apps') { appStoreSection.style.display = 'block'; navApps.classList.add('active'); } 
+        else if (viewToShow === 'task' && isLoggedIn) { taskSectionEl.style.display = 'block'; navTask.classList.add('active'); } 
+        else if (viewToShow === 'partner' && isLoggedIn) { partnerSectionEl.style.display = 'block'; navPartner.classList.add('active'); renderPartnerSection(); } 
+        else if (viewToShow === 'referral' && isLoggedIn) { referralSectionEl.style.display = 'block'; navReferral.classList.add('active'); } 
+        else if (viewToShow === 'airdrop') { airdropSectionEl.style.display = 'block'; navAirdrop.classList.add('active'); renderAirdropSection(); } 
+        else if (viewToShow === 'leaderboard') { leaderboardSectionEl.style.display = 'block'; navLeaderboard.classList.add('active'); fetchAndRenderLeaderboard(); } 
+        else if (viewToShow === 'admin' && isLoggedIn && isCurrentUserAdmin()){
+            adminSectionEl.style.display = 'block';
+            navAdmin.classList.add('active');
+            // Lazy load admin data when the section is shown
+            const adminUserPanel = document.getElementById('admin-panel-users');
+            if (adminUserPanel.style.display !== 'none') {
+                fetchAndRenderAdminUserList(true); 
+            }
+            const adminPartnerPanel = document.getElementById('admin-panel-partner-tasks');
+             if (adminPartnerPanel.style.display !== 'none') {
+                 renderAdminPartnerTasks();
+             }
+            maintenanceModeSwitch.checked = systemStatus.isMaintenanceMode;
+            // Fetch and populate airdrop settings
+            fetchAirdropSettings().then(settings => {
+                 if (!settings) return;
+                 // Scoring Tab
+                 document.getElementById('ref-multiplier-input').value = settings.refMultiplier ?? 50;
+                 document.getElementById('checkin-multiplier-input').value = settings.checkinMultiplier ?? 30;
+                 document.getElementById('exp-multiplier-input').value = settings.expMultiplier ?? 1;
+                 document.getElementById('min-checkins-input').value = settings.minCheckins || 0;
+                 document.getElementById('min-referrals-input').value = settings.minReferrals || 0;
+                 document.getElementById('min-exp-input').value = settings.minExp || 0;
+                 renderLevelMultipliersUI(settings.levelMultipliers);
+                 // Claim Tab
+                 document.getElementById('airdrop-live-switch').checked = settings.isAirdropLive || false;
+                 document.getElementById('snapshot-active-switch').checked = settings.isSnapshotActive || false;
+                 document.getElementById('claim-edit-switch').checked = settings.allowClaimInfoEdit === true;
+                 document.getElementById('notify-sent-switch').checked = settings.notifyAirdropSent || false;
+                 document.getElementById('onchain-claim-enabled-switch').checked = settings.onchainClaimEnabled || false;
+                 offchainClaimEnabledSwitch.checked = settings.offchainClaimEnabled || false;
+                 renderAdminExchangeCheckboxes(settings.enabledExchanges || []);
+                 offchainSettingsContainer.style.display = offchainClaimEnabledSwitch.checked ? 'block' : 'none';
+            });
+        } else { 
+            if (isLoggedIn) { dashboardEl.style.display = 'block'; } 
+            else { heroEl.style.display = 'flex'; }
+            if (newsSection) newsSection.style.display = 'block';
+            navDashboard.classList.add('active');
+        }
+        if (sidebarMenu.classList.contains('open')) toggleSidebar();
+    };
+    
+    const handleRouteChange = () => {
+        let hash = window.location.hash.substring(1) || 'dashboard';
+        const [path, queryString] = hash.split('?');
+        const tg = window.Telegram?.WebApp;
+        
+        const protectedRoutes = ['task', 'partner', 'account', 'admin', 'referral', 'airdrop', 'leaderboard'];
+        if (!connectedWalletAddress && protectedRoutes.includes(path)) {
+             showAppToast('Wallet Connection Required', 'This feature requires a connected wallet.', 'warning');
+             window.location.hash = '#dashboard';
+             hash = 'dashboard';
+        }
+         
+        if (path === 'admin' && !isCurrentUserAdmin()){
+             showAppToast('Access Denied', 'You do not have permission to access this page.', 'error');
+             window.location.hash = '#dashboard';
+             hash = 'dashboard'; 
+        }
+
+        if (tg) {
+            if (path === 'dashboard' || path === '') {
+                tg.BackButton.hide();
+            } else {
+                tg.BackButton.show();
+            }
+        }
+
+        switchView(path);
+
+        if (path === 'apps') {
+            const params = new URLSearchParams(queryString || '');
+            const searchQuery = params.get('search');
+            appSearchInput.value = searchQuery ? decodeURIComponent(searchQuery) : '';
+            renderApps();
+        }
+    };
+
+    const shortenAddress = (addr, start = 6, end = 6) => addr ? (addr.includes('.') ? addr : `${addr.slice(0, start)}...${addr.slice(-end)}`) : 'Unknown';
+    
+    const handleManualReferralInput = async (e) => {
+        let inputEl, btnEl;
+        if(e.currentTarget.id.includes('hero')) {
+            inputEl = referralCodeInputHero; btnEl = referralCodeSubmitHero;
+        } else {
+            inputEl = referralCodeInput; btnEl = referralCodeSubmit;
+        }
+
+        const code = inputEl.value.trim();
+        if (!code) { showAppToast('Error', 'Please enter an invitation code.', 'warning'); return; }
+
+        if(connectedWalletAddress) { 
+             btnEl.disabled = true;
+             btnEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+             await applyReferral(code, connectedWalletAddress);
+             const updatedDoc = await db.collection('users').doc(connectedWalletAddress).get();
+             if(updatedDoc.exists) {
+                currentUserData = updatedDoc.data();
+                updateUIAfterLogin();
+             }
+             btnEl.disabled = false;
+             btnEl.textContent = 'Confirm';
+             inputEl.value = '';
+
+        } else {
+            sessionStorage.setItem(REFERRAL_SESSION_KEY, code);
+            showAppToast('Code Saved', 'Your referral code has been saved. Connect your wallet to complete the process.', 'info');
+            inputEl.value = '';
+            referralInputContainerHero.style.display = 'none';
+        }
+    };
+    
+    const formatBalance = (bigIntString, decimals, symbol = '') => {
+        try {
+            const validDecimals = (typeof decimals === 'number' && !isNaN(decimals)) ? decimals : 9;
+            const balance = parseFloat(BigInt(bigIntString)) / (10 ** validDecimals);
+            const formattedNumber = balance.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 6
+            });
+            return `${formattedNumber} ${symbol}`;
+        } catch (e) {
+            return `0 ${symbol}`;
+        }
+    };
+
+    async function getFriendlyAddress(address) {
+        if (!address || typeof address !== 'string' || address.includes('.') || !address.includes(':')) return address;
+        if (addressCache[address]) return addressCache[address];
+        try {
+            const response = await fetch(`https://toncenter.com/api/v2/detectAddress?address=${encodeURIComponent(address)}`);
+            if (!response.ok) throw new Error('API response not OK');
+            const data = await response.json();
+            const friendlyAddress = data?.result?.non_bounceable?.b64url || address;
+            addressCache[address] = friendlyAddress;
+            return friendlyAddress;
+        } catch (error) {
+            console.warn(`Could not convert address ${address}:`, error);
+            return address;
+        }
+    }
+    
+    const getRaw = (addrObj) => addrObj?.raw_form || (typeof addrObj?.address === 'string' ? addrObj.address : null);
+    
+    const setSkeletonLoaders = (isInitial = true) => {
+        portfolioSkeleton.style.display = 'block';
+        portfolioContent.style.display = 'none';
+        mainAssetsContent.innerHTML = skeletonAsset;
+        otherTokensContent.innerHTML = skeletonTx.repeat(3);
+        nftGalleryContent.innerHTML = `<div class="row g-2">${Array(4).fill('<div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 25px;"></div></div>').join('')}</div>`;
+        if (isInitial) {
+            activityFeedContent.innerHTML = skeletonTx.repeat(5);
+        }
+    };
+    
+    async function renderMainAssets(accountInfo, tonPriceUsd, tonValueUsd, tonValueVnd) {
+        if (!accountInfo) {
+            mainAssetsContent.innerHTML = `<p class="text-danger">Could not load account data.</p>`;
+            return;
+        }
+        const userFriendlyAddress = await getFriendlyAddress(accountInfo.address);
+        const tonBalance = accountInfo.balance / 1e9;
+        const formattedTonBalance = tonBalance.toLocaleString('en-US', { maximumFractionDigits: 6 });
+        const formattedPriceUsd = tonPriceUsd ? `$${tonPriceUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}` : 'N/A';
+        const formattedValueUsd = tonValueUsd ? `$${tonValueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'N/A';
+        const formattedValueVnd = tonValueVnd ? `${tonValueVnd.toLocaleString('vi-VN')} VND` : 'N/A';
+        
+        mainAssetsContent.innerHTML = `
+            <div class="d-flex align-items-center mb-3">
+                <img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;">
+                <div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-secondary">Balance</span><strong style="font-size: 1.1rem;">${formattedTonBalance}</strong>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-secondary">Current Price</span><strong>${formattedPriceUsd}</strong>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="text-secondary">Total Value</span>
+                <div class="text-end">
+                    <strong style="font-size: 1.1rem;">${formattedValueUsd}</strong><br>
+                    <small class="text-secondary">${formattedValueVnd}</small>
+                </div>
+            </div>
+            <hr style="border-color: var(--border-color); opacity: 0.5;">
+            <div class="d-flex align-items-center justify-content-between mt-3">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-wallet me-3" style="width: 48px; font-size: 24px; text-align: center; color: var(--accent-secondary);"></i>
+                    <div><h5 class="m-0">Address</h5><p class="m-0 text-secondary">Wallet</p></div>
+                </div>
+                <h6><code class="copyable-address" data-address="${userFriendlyAddress}" title="Click to copy">${shortenAddress(userFriendlyAddress)}</code></h6>
+            </div>
+        `;
+    }
+
+    function renderOtherTokens(jettons) {
+        otherTokensContent.innerHTML = '';
+        if (jettons?.length > 0) {
+            jettons.forEach(j => {
+                const balance = Number(BigInt(j.balance)) / (10 ** (j.jetton.decimals || 9));
+                const verifiedTick = j.jetton.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
+                let valueDisplayHtml;
+                const priceUsdt = j.price?.prices?.USDT;
+                if (priceUsdt) {
+                    const valueUsd = balance * priceUsdt;
+                    valueDisplayHtml = `
+                        <div class="text-end">
+                            <h6 class="m-0">$${valueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h6>
+                            <small class="text-secondary">${balance.toLocaleString('en-US', { maximumFractionDigits: 4 })} ${j.jetton.symbol}</small>
+                        </div>`;
+                } else {
+                    valueDisplayHtml = `<h6 class="m-0">${balance.toLocaleString('en-US', { maximumFractionDigits: 4 })}</h6>`;
+                }
+                otherTokensContent.innerHTML += `
+                    <div class="d-flex align-items-center justify-content-between mb-3 p-2 jetton-item" data-jetton-address="${j.jetton.address}">
+                        <div class="d-flex align-items-center">
+                            <img src="${j.jetton.image}" class="me-3 jetton-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png'">
+                            <div><h6 class="m-0">${j.jetton.symbol}${verifiedTick}</h6></div>
+                        </div>
+                        ${valueDisplayHtml}
+                    </div>`;
+            });
+        } else { otherTokensContent.innerHTML = `<p class="text-secondary">No tokens found.</p>`; }
+    }
+
+    function renderNFTs(nfts) {
+        nftGalleryContent.innerHTML = '';
+        if (nfts?.length > 0) {
+            let html = '<div class="row g-2">';
+            nfts.slice(0, 18).forEach(nft => {
+                const imgUrl = nft.previews?.[nft.previews.length - 1]?.url || nft.metadata?.image || 'https://via.placeholder.com/100';
+                html += `<div class="col-3"><div title="${nft.metadata?.name || 'NFT'}" style="cursor: pointer;"><img src="${imgUrl}" style="width: 100%; border-radius: 25px; aspect-ratio: 1/1; object-fit: cover;" onerror="this.src='https://via.placeholder.com/100'"></div></div>`;
+            });
+            nftGalleryContent.innerHTML = html + '</div>';
+        } else { nftGalleryContent.innerHTML = `<p class="text-secondary">No NFTs found.</p>`; }
+    }
+
+    function renderSingleActivityItem(log) {
+        const statusIcon = log.status === 'ok' ? `<i class="fas fa-check-circle status-icon status-ok"></i>` : `<i class="fas fa-exclamation-circle status-icon status-failed"></i>`;
+        const titleText = log.status !== 'ok' ? `<span class="text-warning">${log.title} (Failed)</span>` : log.title;
+        const colorClass = log.direction === 'in' ? 'amount-in' : 'amount-out';
+        const amountDisplay = log.amount !== null ? `<p class="m-0 fw-bold ${colorClass}">${log.sign} ${log.amount.toLocaleString('en-US', {maximumFractionDigits: 4})} ${log.symbol}</p>` : `<p class="m-0 fw-bold">${log.symbol} Transfer</p>`;
+        const commentDisplay = log.comment ? `<div class="w-100 mt-2"><p class="m-0 text-secondary" style="font-size: 0.8rem; font-style: italic;"><i class="fas fa-comment-dots me-2"></i>${log.comment}</p></div>` : '';
+        const partyAddressHtml = `<code class="copyable-address" data-address="${log.party_full}" title="Click to copy">${log.party}</code>`;
+        return `
+         <div class="d-flex flex-wrap align-items-center py-3 border-bottom border-secondary border-opacity-25">
+            <img src="${log.image}" class="activity-item-icon me-3" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
+            <div class="flex-grow-1"><p class="m-0 fw-bold">${statusIcon}${titleText}</p><p class="m-0 text-secondary" style="font-size: 0.8rem;">${log.party_title}: ${partyAddressHtml}</p></div>
+            <div class="text-end">${amountDisplay}<p class="m-0 text-secondary" style="font-size: 0.8rem;">${new Date(log.timestamp).toLocaleString()}</p></div>
+            ${commentDisplay}
+         </div>`;
+    }
+    
+    async function fetchAndDisplayAccountData(addressToFetch) {
+        const isNewAddress = addressToFetch !== lastFetchedAddress;
+        if (isNewAddress) {
+            currentActivityLogs = [];
+            activityFeedContent.innerHTML = '';
+            lastFetchedAddress = addressToFetch;
+            setSkeletonLoaders(true);
+        } else {
+            setSkeletonLoaders(false);
+        }
+        searchResultsContainer.style.display = 'none';
+        searchInput.value = '';
+        const isMyWallet = connectedWalletAddress && addressToFetch === connectedWalletAddress;
+        backToMyWalletBtn.style.display = isMyWallet ? 'none' : 'block';
+        if (!isMyWallet) clearInterval(activityRefreshInterval);
+        try {
+            const [tonapiResults, coingeckoResult] = await Promise.allSettled([
+                Promise.allSettled([
+                    fetch(`${TON_API_BASE}/accounts/${addressToFetch}`),
+                    fetch(`${TON_API_BASE}/accounts/${addressToFetch}/jettons?currencies=usdt`),
+                    fetch(`${TON_API_BASE}/accounts/${addressToFetch}/nfts?limit=100&indirect_ownership=false`),
+                    fetch(`${TON_API_BASE}/accounts/${addressToFetch}/events?limit=100`)
+                ]),
+                fetch(`${COINGECKO_API_BASE}/simple/price?ids=the-open-network&vs_currencies=usd,vnd`)
+            ]);
+            const [accountResult, jettonsResult, nftsResult, eventsResult] = tonapiResults.value;
+            if (accountResult.status === 'rejected' || !accountResult.value.ok) throw new Error(`Could not fetch account info.`);
+            const accountInfo = await accountResult.value.json();
+            const jettonsInfo = (jettonsResult.status === 'fulfilled' && jettonsResult.value.ok) ? await jettonsResult.value.json() : { balances: [] };
+            const nftsInfo = (nftsResult.status === 'fulfilled' && nftsResult.value.ok) ? await nftsResult.value.json() : { nft_items: [] };
+            const eventsInfo = (eventsResult.status === 'fulfilled' && eventsResult.value.ok) ? await eventsResult.value.json() : { events: [] };
+            const priceData = (coingeckoResult.status === 'fulfilled' && coingeckoResult.value.ok) ? await coingeckoResult.value.json() : {};
+            let totalValueUsd = 0, totalValueVnd = 0, tonValueUsd = 0, tonValueVnd = 0;
+            const tonPriceInfo = priceData['the-open-network'];
+            if (tonPriceInfo && tonPriceInfo.usd && tonPriceInfo.vnd) {
+                const tonBalance = accountInfo.balance / 1e9;
+                tonValueUsd = tonBalance * tonPriceInfo.usd;
+                tonValueVnd = tonBalance * tonPriceInfo.vnd;
+                totalValueUsd += tonValueUsd;
+            totalValueVnd += tonValueVnd;
+            }
+            const usdToVndRate = (tonPriceInfo?.vnd && tonPriceInfo?.usd) ? tonPriceInfo.vnd / tonPriceInfo.usd : 25450;
+            if (jettonsInfo.balances.length > 0) {
+                jettonsInfo.balances.forEach(j => {
+                    const priceUsdt = j.price?.prices?.USDT;
+                    if (priceUsdt) {
+                        const jettonBalance = Number(BigInt(j.balance)) / (10 ** (j.jetton.decimals || 9));
+                        const jettonValueUsd = jettonBalance * priceUsdt;
+                        totalValueUsd += jettonValueUsd;
+                        totalValueVnd += jettonValueUsd * usdToVndRate;
+                    }
+                });
+            }
+            totalValueUsdEl.textContent = `$${totalValueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            totalValueVndEl.textContent = `${totalValueVnd.toLocaleString('vi-VN')} VND`;
+            portfolioSkeleton.style.display = 'none';
+            portfolioContent.style.display = 'block';
+            const newLogs = (eventsInfo.events ?? []).flatMap((event) => parseEvent(event, accountInfo.address));
+            processNewActivity(newLogs);
+            await renderMainAssets(accountInfo, tonPriceInfo?.usd, tonValueUsd, tonValueVnd);
+            renderOtherTokens(jettonsInfo.balances);
+            renderNFTs(nftsInfo.nft_items ?? []);
+            if (nftsResult.status === 'rejected') nftGalleryContent.innerHTML = `<p class="text-warning">Could not load NFTs.</p>`;
+        } catch (error) {
+            console.error("Error fetching account data:", error);
+            mainAssetsContent.innerHTML = `<p class="text-danger"><strong>Error:</strong> ${error.message}</p>`;
+            [otherTokensContent, nftGalleryContent, activityFeedContent].forEach(el => el.innerHTML = `<p class="text-secondary">Data unavailable.</p>`);
+            portfolioSkeleton.style.display = 'none';
+            portfolioContent.style.display = 'block';
+            totalValueUsdEl.textContent = '$ -';
+            totalValueVndEl.textContent = '- VND';
+        }
+    }
+    
+    function processNewActivity(newLogs) {
+        const existingHashes = new Set(currentActivityLogs.map(log => log.hash));
+        const genuinelyNewLogs = newLogs.filter(log => !existingHashes.has(log.hash));
+        if (genuinelyNewLogs.length > 0) {
+            const newLogsHtml = genuinelyNewLogs.map(log => renderSingleActivityItem(log)).join('');
+            activityFeedContent.insertAdjacentHTML('afterbegin', newLogsHtml);
+            currentActivityLogs = [...genuinelyNewLogs, ...currentActivityLogs];
+            showTransactionPopup(genuinelyNewLogs[0]);
+        } else if (currentActivityLogs.length === 0) {
+            const initialLogsHtml = newLogs.slice(0, 50).map(log => renderSingleActivityItem(log)).join('');
+            activityFeedContent.innerHTML = initialLogsHtml;
+            currentActivityLogs = newLogs.slice(0, 50);
+            if (currentActivityLogs.length === 0) {
+                activityFeedContent.innerHTML = `<p class="text-secondary">No recent activity found.</p>`;
+            }
+        }
+    }
+
+    function showTransactionPopup(log) {
+         const amountDisplay = log.amount !== null ? `<strong class="${log.direction === 'in' ? 'amount-in' : 'amount-out'}">${log.sign} ${log.amount.toLocaleString('en-US', {maximumFractionDigits: 4})} ${log.symbol}</strong>` : `a ${log.symbol} transfer`;
+        const actionText = log.direction === 'in' ? `Received ${amountDisplay} from` : `Sent ${amountDisplay} to`;
+        const message = `${actionText} ${log.party}`;
+        showAppToast('New Transaction', message);
+    }
+
+    function parseEvent(event, viewingRawAddress) {
+        const logs = [];
+        if (!event?.actions) return logs;
+        event.actions.forEach((action, actionIndex) => {
+            try {
+                const log = { hash: `${event.event_id}-${actionIndex}`, timestamp: event.timestamp * 1000, status: action.status, amount: null };
+                const isViewingAddress = (partyObj) => getRaw(partyObj) === viewingRawAddress;
+                const processParty = (partyObj) => ({ short: partyObj?.name || shortenAddress(partyObj?.address), full: partyObj?.address });
+                if (action.type === 'TonTransfer' && action.TonTransfer) {
+                    const t = action.TonTransfer;
+                    log.direction = isViewingAddress(t.sender) ? 'out' : 'in';
+                    log.title = "TON Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
+                    log.amount = Number(t.amount) / 1e9;
+                    log.symbol = 'TON'; log.party_title = log.direction === 'out' ? 'To' : 'From';
+                    const partyInfo = processParty(log.direction === 'out' ? t.recipient : t.sender);
+                    log.party = partyInfo.short; log.party_full = partyInfo.full;
+                    log.image = 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
+                    if (log.party) logs.push(log);
+                } else if (action.type === 'JettonTransfer' && action.JettonTransfer) {
+                    const t = action.JettonTransfer;
+                    log.direction = isViewingAddress(t.sender) ? 'out' : 'in';
+                    log.title = "Jetton Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
+                    log.amount = Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9));
+                    log.symbol = t.jetton?.symbol || 'Token'; log.party_title = log.direction === 'out' ? 'To' : 'From';
+                    const partyInfo = processParty(log.direction === 'out' ? t.recipient : t.sender);
+                    log.party = partyInfo.short; log.party_full = partyInfo.full;
+                    log.image = t.jetton?.image || 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
+                    if (log.party) logs.push(log);
+                }
+            } catch (e) { console.warn("Could not parse an action:", action, "Error:", e); }
+        });
+        return logs;
+    }
+
+    async function fetchCryptoNews() {
+        if (!newsContentArea) return;
+        newsContentArea.innerHTML = `<div class="news-grid">${skeletonTx.repeat(3)}</div>`;
+        try {
+            const response = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN&limit=6');
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const newsData = await response.json();
+            newsContentArea.innerHTML = '';
+            if (newsData.Type === 100 && newsData.Data?.length > 0) {
+                let newsHtml = '<div class="news-grid">';
+                newsData.Data.forEach(article => {
+                    newsHtml += `
+                    <a href="${article.url}" target="_blank" rel="noopener noreferrer" class="news-card">
+                        <img src="${article.imageurl}" class="news-card-img" onerror="this.style.display='none'">
+                        <div class="news-card-body">
+                            <h3 class="news-card-title">${article.title}</h3>
+                            <p class="news-card-source">${article.source} - ${new Date(article.published_on * 1000).toLocaleDateString()}</p>
+                        </div>
+                    </a>`;
+                });
+                newsContentArea.innerHTML = newsHtml + '</div>';
+            } else { newsContentArea.innerHTML = '<p class="text-secondary text-center">No news found.</p>'; }
+        } catch (error) {
+            console.error("Error fetching crypto news:", error);
+            newsContentArea.innerHTML = '<p class="text-danger text-center">Could not load news feed.</p>';
+        }
+    }
+    
+    async function handleFastSearch() {
+        const query = searchInput.value.trim();
+        if (!query) { searchResultsContainer.style.display = 'none'; return; }
+        if ((query.length >= 48 && query.includes(':')) || query.length === 48 || query.endsWith('.ton')) { fetchAndDisplayAccountData(query); return; }
+        searchResultsContainer.style.display = 'block';
+        searchResultsContainer.innerHTML = `<div class="p-2 text-center text-secondary">${skeletonTx}</div>`;
+        try {
+            const response = await fetch(`${TON_API_BASE}/accounts/search?name=${encodeURIComponent(query)}`);
+            if (!response.ok) throw new Error('Search API failed');
+            const data = await response.json();
+            const results = data.addresses || [];
+            searchResultsContainer.innerHTML = '';
+            if (results.length > 0) {
+                for (const res of results) {
+                    const friendlyAddress = await getFriendlyAddress(res.address);
+                    const isJetton = res.name && res.name.toLowerCase().includes('jetton');
+                    const item = document.createElement('div');
+                    item.className = 'd-flex align-items-center p-2 mb-1 search-result-item';
+                    item.dataset.address = res.address;
+                    item.dataset.type = isJetton ? 'jetton' : 'account';
+                    const imageUrl = res.preview || res.icon || 'https://ton.org/download/ton_symbol.png';
+                    const verifiedTick = res.trust === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
+                    const addressHtml = `<code class="copyable-address" data-address="${friendlyAddress}" title="Click to copy">${shortenAddress(friendlyAddress)}</code>`;
+                    item.innerHTML = `
+                        <img src="${imageUrl}" class="me-3 search-result-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
+                        <div class="flex-grow-1">
+                            <p class="m-0 fw-bold">${res.name || 'Unnamed'} ${verifiedTick}</p>
+                            <p class="m-0 text-secondary" style="font-size: 0.8rem;">${addressHtml}</p>
+                        </div>`;
+                    item.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('copyable-address')) return;
+                        searchResultsContainer.style.display = 'none';
+                        searchInput.value = '';
+                        if (item.dataset.type === 'jetton') {
+                            showJettonDetails(item.dataset.address);
+                        } else {
+                            fetchAndDisplayAccountData(item.dataset.address);
+                        }
+                    });
+                    searchResultsContainer.appendChild(item);
+                }
+            } else { searchResultsContainer.innerHTML = '<p class="text-secondary text-center p-3">No results.</p>'; }
+        } catch (error) {
+            console.error('Error during search:', error);
+            searchResultsContainer.innerHTML = '<p class="text-danger text-center p-3">Search failed.</p>';
+        }
+    }
+    
+    async function showJettonDetails(jettonAddress) {
+        jettonDetailModal.show();
+        const headerEl = document.getElementById('jetton-modal-header-content');
+        const metadataEl = document.getElementById('metadata-tab-pane');
+        const historyEl = document.getElementById('history-tab-pane');
+        const holdersEl = document.getElementById('holders-tab-pane');
+        const holdersTabBtn = document.getElementById('holders-tab');
+        if (holdersTabBtn) holdersTabBtn.textContent = 'Holders';
+        headerEl.innerHTML = `<h5 class="modal-title">Loading Jetton...</h5>`;
+        [metadataEl, historyEl, holdersEl].forEach(el => el.innerHTML = `<div class="w-100 text-center p-5">${skeletonTx}</div>`);
+        const [metadataRes, historyRes, holdersRes] = await Promise.allSettled([
+            fetch(`${TON_API_BASE}/jettons/${jettonAddress}`),
+            fetch(`${TON_API_BASE}/accounts/${jettonAddress}/events?limit=100`),
+            fetch(`${TON_API_BASE}/jettons/${jettonAddress}/holders?limit=100`)
+        ]);
+        let jettonMetadata = null;
+        if (metadataRes.status === 'fulfilled' && metadataRes.value.ok) {
+            const data = await metadataRes.value.json();
+            jettonMetadata = data.metadata;
+            if (holdersTabBtn && data.holders_count) holdersTabBtn.textContent = `Holders (${data.holders_count.toLocaleString('en-US')})`;
+            const friendlyJettonAddress = await getFriendlyAddress(jettonMetadata.address);
+            const verifiedTick = data.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
+            headerEl.innerHTML = `<img src="${jettonMetadata.image}" class="me-3 jetton-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png'"><h5 class="modal-title">${jettonMetadata.name} (${jettonMetadata.symbol}) ${verifiedTick}</h5>`;
+            const addressHtml = `<code class="copyable-address" data-address="${friendlyJettonAddress}" title="Click to copy">${shortenAddress(friendlyJettonAddress, 10, 10)}</code>`;
+            const totalSupply = formatBalance(data.total_supply, jettonMetadata.decimals, jettonMetadata.symbol);
+            metadataEl.innerHTML = `<p class="mb-3">${jettonMetadata.description || 'No description.'}</p><div class="row g-3"><div class="col-12"><span class="metadata-key">Address:</span> <span class="fs-sm text-break">${addressHtml}</span></div><div class="col-md-6"><span class="metadata-key">Decimals:</span> ${jettonMetadata.decimals}</div><div class="col-md-6"><span class="metadata-key">Mintable:</span> ${data.mintable ? 'Yes' : 'No'}</div><div class="col-12"><span class="metadata-key">Total Supply:</span> ${totalSupply}</div></div>`;
+        } else { metadataEl.innerHTML = `<p class="text-danger">Failed to load metadata.</p>`; }
+
+        if (historyRes.status === 'fulfilled' && historyRes.value.ok) {
+            const data = await historyRes.value.json();
+            const historyLogs = (data.events ?? []).flatMap((e) => parseEvent(e, jettonAddress));
+            if (historyLogs.length > 0) {
+                historyEl.innerHTML = '';
+                historyLogs.slice(0, 50).forEach(log => {
+                   const partyAddressHtml = `<code class="copyable-address" data-address="${log.party_full}" title="Click to copy">${shortenAddress(log.party)}</code>`;
+                   historyEl.innerHTML += `<div class="d-flex flex-wrap justify-content-between align-items-center p-2 border-bottom border-secondary border-opacity-25"><div><small>${log.title} to/from ${partyAddressHtml}</small></div><div class="text-end"><small class="${log.direction === 'in' ? 'amount-in' : 'amount-out'}">${log.sign} ${log.amount.toLocaleString()}</small><br><small class="text-secondary">${new Date(log.timestamp).toLocaleDateString()}</small></div></div>`;
+                });
+            } else { historyEl.innerHTML = `<p class="text-secondary text-center p-3">No history.</p>`; }
+        } else { historyEl.innerHTML = `<p class="text-danger">Failed to load history.</p>`; }
+
+        if (holdersRes.status === 'fulfilled' && holdersRes.value.ok) {
+            const data = await holdersRes.value.json();
+            const decimals = jettonMetadata?.decimals;
+            const symbol = jettonMetadata?.symbol || '';
+            if (data.addresses?.length > 0) {
+                let tableHtml = `<table class="table table-hover align-middle"><thead><tr><th scope="col" style="width: 5%;">#</th><th scope="col">Holder</th><th scope="col" class="text-end">Balance</th></tr></thead><tbody>`;
+                for (const [index, holder] of data.addresses.entries()) {
+                    const ownerWalletAddress = holder.owner.address;
+                    const friendlyDisplayAddress = await getFriendlyAddress(ownerWalletAddress);
+                    const displayName = holder.owner.name ? `<strong>${holder.owner.name}</strong>` : `<code class="copyable-address" data-address="${friendlyDisplayAddress}" title="Click to copy">${shortenAddress(friendlyDisplayAddress)}</code>`;
+                    const fullAddressHtml = holder.owner.name ? `<br><small class="text-secondary"><code class="copyable-address" data-address="${friendlyDisplayAddress}" title="Click to copy">${shortenAddress(friendlyDisplayAddress, 10, 10)}</code></small>` : '';
+                    tableHtml += `<tr><th scope="row">${index + 1}</th><td>${displayName}${fullAddressHtml}</td><td class="text-end fw-bold">${formatBalance(holder.balance, decimals, symbol)}</td></tr>`;
+                }
+                tableHtml += `</tbody></table>`;
+                holdersEl.innerHTML = tableHtml;
+            } else { holdersEl.innerHTML = `<p class="text-secondary text-center p-3">No holders.</p>`; }
+        } else { holdersEl.innerHTML = `<p class="text-danger">Failed to load holders.</p>`; }
+    }
+
+    const renderApps = () => {
+        if (!appGrid || typeof appsData === 'undefined') return;
+        const searchTerm = appSearchInput.value.toLowerCase();
+        const activeFilter = appFilterControls.querySelector('.app-filter-btn.active').dataset.filter;
+        let filteredApps = appsData.filter(app => 
+            (activeFilter === 'all' || app.category.includes(activeFilter)) &&
+            (!searchTerm || app.name.toLowerCase().includes(searchTerm))
+        );
+        appGrid.innerHTML = '';
+        if (filteredApps.length === 0) {
+            appGrid.innerHTML = `<div class="col-12 text-center mt-4"><p class="text-secondary fs-5">No applications found.</p></div>`;
+            return;
+        }
+        filteredApps.forEach(app => {
+            const appCard = document.createElement('div');
+            appCard.className = 'col';
+            appCard.innerHTML = `<a href="${app.link}" target="_blank" rel="noopener noreferrer" class="app-item"><div class="app-item-img-wrapper"><img src="${app.image}" alt="${app.name} logo" class="app-item-img" onerror="this.src='https://via.placeholder.com/90?text=App';"></div><span class="app-item-name">${app.name}</span></a>`;
+            appGrid.appendChild(appCard);
+        });
+    };
+
+    function showAppToast(header, message, type = 'info') {
+        document.querySelector('.toast-notification')?.remove();
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        let iconClass = 'fas fa-info-circle';
+        if (type === 'success') iconClass = 'fas fa-check-circle';
+        if (type === 'error') iconClass = 'fas fa-times-circle';
+        if (type === 'warning') iconClass = 'fas fa-exclamation-triangle';
+        toast.innerHTML = `<div class="toast-notification-header"><i class="${iconClass} me-2"></i> ${header}</div><p class="m-0">${message}</p>`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.classList.add('show'), 100);
+        const hideTimeout = setTimeout(() => { toast.classList.remove('show'); toast.addEventListener('transitionend', () => toast.remove(), { once: true }); }, 5000);
+        toast.addEventListener('click', () => { clearTimeout(hideTimeout); toast.classList.remove('show'); toast.addEventListener('transitionend', () => toast.remove(), { once: true }); }, { once: true });
+    }
+    
+    const toggleSidebar = () => {
+        hamburgerBtn.classList.toggle('open');
+        sidebarMenu.classList.toggle('open');
+        sidebarOverlay.classList.toggle('open');
+    };
+    
+    // [NEW] Save Airdrop SCORING Settings
+    async function saveAirdropScoringSettings() {
+        const refMultiplier = parseFloat(document.getElementById('ref-multiplier-input').value) || 0;
+        const checkinMultiplier = parseFloat(document.getElementById('checkin-multiplier-input').value) || 0;
+        const expMultiplier = parseFloat(document.getElementById('exp-multiplier-input').value) || 0;
+        const minCheckins = parseInt(document.getElementById('min-checkins-input').value, 10);
+        const minReferrals = parseInt(document.getElementById('min-referrals-input').value, 10);
+        const minExp = parseInt(document.getElementById('min-exp-input').value, 10);
+
+        const levelMultipliers = [];
+        document.querySelectorAll('.level-multiplier-item').forEach(item => {
+            const level = parseInt(item.dataset.level, 10);
+            const multiplier = parseFloat(item.querySelector('input').value);
+            if (!isNaN(level) && !isNaN(multiplier)) {
+                levelMultipliers.push({ level, multiplier });
+            }
+        });
+        
+        if ([minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier].some(isNaN)) {
+             showAppToast('Lỗi', 'Vui lòng nhập giá trị số hợp lệ.', 'error');
+             return;
+        }
+
+        saveScoringSettingsBtn.disabled = true;
+        adminScoringSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
+        
+        try {
+            const settingsRef = db.collection('admin_settings').doc('airdrop_criteria');
+            const newSettings = { minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier, levelMultipliers };
+            await settingsRef.set(newSettings, { merge: true });
+            airdropSettings = { ...airdropSettings, ...newSettings }; // Update local cache
+            adminScoringSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
+            showAppToast('Thành công', 'Đã lưu cài đặt tính điểm.', 'success');
+        } catch(error) {
+             console.error("Error saving airdrop scoring settings:", error);
+            adminScoringSettingsStatusEl.innerHTML = `<span class="text-danger">Lưu thất bại.</span>`;
+            showAppToast('Lỗi', 'Không thể lưu cài đặt tính điểm.', 'error');
+        } finally {
+            saveScoringSettingsBtn.disabled = false;
+            setTimeout(() => { adminScoringSettingsStatusEl.innerHTML = ''; }, 3000);
+        }
+    }
+
+    // [NEW] Save Airdrop CLAIM Settings
+    async function saveAirdropClaimSettings() {
+        const isAirdropLive = document.getElementById('airdrop-live-switch').checked;
+        const isSnapshotActive = document.getElementById('snapshot-active-switch').checked;
+        const allowClaimInfoEdit = document.getElementById('claim-edit-switch').checked;
+        const notifyAirdropSent = document.getElementById('notify-sent-switch').checked;
+        const onchainClaimEnabled = document.getElementById('onchain-claim-enabled-switch').checked;
+        const offchainClaimEnabled = document.getElementById('offchain-claim-enabled-switch').checked;
+        
+        if (isSnapshotActive && !airdropSettings?.isSnapshotActive) {
+            if (!confirm("CẢNH BÁO: Bạn sắp kích hoạt Snapshot. Hành động này sẽ DỪNG tất cả các hoạt động kiếm điểm và cho phép người dùng bắt đầu claim. Hành động này không thể hoàn tác. Bạn có chắc chắn muốn tiếp tục không?")) {
+                document.getElementById('snapshot-active-switch').checked = false;
+                return;
+            }
+        }
+
+        const enabledExchanges = [];
+        document.querySelectorAll('#exchange-checkboxes-container input[type="checkbox"]:checked').forEach(checkbox => {
+            enabledExchanges.push(checkbox.value);
+        });
+        
+        saveClaimSettingsBtn.disabled = true;
+        adminClaimSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
+
+        try {
+            const settingsRef = db.collection('admin_settings').doc('airdrop_criteria');
+            const newSettings = { isAirdropLive, isSnapshotActive, allowClaimInfoEdit, notifyAirdropSent, onchainClaimEnabled, offchainClaimEnabled, enabledExchanges };
+             await settingsRef.set(newSettings, { merge: true });
+            
+             // Check if the notifyAirdropSent status has just been flipped to true
+            const shouldNotify = notifyAirdropSent && (!airdropSettings || !airdropSettings.notifyAirdropSent);
+
+            airdropSettings = { ...airdropSettings, ...newSettings }; // Update local cache
+            adminClaimSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
+            showAppToast('Thành công', 'Đã lưu cài đặt Claim.', 'success');
+
+             if (shouldNotify) {
+                handleNotifyAirdropSent();
+            }
+
+        } catch (error) {
+            console.error("Error saving airdrop claim settings:", error);
+            adminClaimSettingsStatusEl.innerHTML = `<span class="text-danger">Lưu thất bại.</span>`;
+            showAppToast('Lỗi', 'Không thể lưu cài đặt Claim.', 'error');
+        } finally {
+            saveClaimSettingsBtn.disabled = false;
+            setTimeout(() => { adminClaimSettingsStatusEl.innerHTML = ''; }, 3000);
+        }
+    }
+    
+    // [NEW] Function to trigger notification sending for claimed users
+    function handleNotifyAirdropSent() {
+        const messageGenerator = (user) => {
+            let memoText = user.memo ? ` (memo: ${user.memo})` : '';
+            const text = `🎉 Congratulations! Your $BMASS airdrop has been sent to your specified address: \n\n${user.claimAddress}${memoText}\n\nThank you for being a part of the Bmass community!`;
+            return {
+                body: { text: text },
+                method: 'sendMessage'
+            };
+        };
+        sendBulkTelegramMessage(messageGenerator);
+    }
+    
+    // [NEW] Export Airdrop CLAIM Data
+    async function exportAirdropClaimData() {
+        exportClaimCsvBtn.disabled = true;
+        adminClaimSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang chuẩn bị dữ liệu...`;
+        
+        try {
+            const snapshot = await db.collection('airdrop_claims').get();
+            if (snapshot.empty) {
+                 showAppToast('Thông báo', 'Không có dữ liệu claim nào để xuất.', 'info');
+                adminClaimSettingsStatusEl.innerHTML = `<span class="text-warning">Không có dữ liệu.</span>`;
+                return;
+            }
+
+            adminClaimSettingsStatusEl.innerHTML = `<i class="fas fa-file-csv me-2"></i>Đang tạo file...`;
+
+            let csvContent = "telegram_uid,telegram_name,claim_method,exchange,claim_address,memo,bmass_amount\n";
+            snapshot.forEach(doc => {
+                const item = doc.data();
+                const row = [
+                    item.userId || 'N/A',
+                    `"${(item.userName || 'N/A').replace(/"/g, '""')}"`,
+                    item.method,
+                    item.exchange || '',
+                    item.claimAddress,
+                    item.memo || '',
+                    item.bmassAmount
+                ].join(',');
+                csvContent += row + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            const exportDate = new Date().toISOString().slice(0, 10);
+            link.setAttribute("download", `bmass-airdrop-claims-${exportDate}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showAppToast('Thành công', `Đã xuất ${snapshot.size} bản ghi claim.`, 'success');
+            adminClaimSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã xuất file thành công!</span>`;
+
+        } catch (error) {
+            console.error("Error exporting airdrop claim data:", error);
+            showAppToast('Lỗi', 'Không thể xuất dữ liệu.', 'error');
+            adminClaimSettingsStatusEl.innerHTML = `<span class="text-danger">Xuất file thất bại.</span>`;
+        } finally {
+            exportClaimCsvBtn.disabled = false;
+            setTimeout(() => { adminClaimSettingsStatusEl.innerHTML = ''; }, 4000);
+        }
+    }
+    
+    async function renderPartnerSection() {
+        if (!partnerTasksContainer || !db || !connectedWalletAddress) return;
+        partnerTasksContainer.innerHTML = skeletonTx.repeat(3);
+        
+        try {
+            const tasksSnapshot = await db.collection('partner_tasks').orderBy('createdAt', 'desc').get();
+            const completedTasksSnapshot = await db.collection('users').doc(connectedWalletAddress).collection('completed_partner_tasks').get();
+            
+            const completedTaskIds = new Set(completedTasksSnapshot.docs.map(doc => doc.id));
+            
+            if (tasksSnapshot.empty) {
+                partnerTasksContainer.innerHTML = `<p class="text-secondary text-center p-3">No partner tasks available yet.</p>`;
+                return;
+            }
+            
+            let mandatoryHtml = '';
+            let normalHtml = '';
+            
+            tasksSnapshot.forEach((doc, index) => {
+                const task = doc.data();
+                task.id = doc.id;
+                const isCompleted = completedTaskIds.has(task.id);
+                const isDescLong = task.description.length > 100;
+
+                const cardHtml = `
+                    <div 
+                       class="partner-task-card ${task.taskType === 'mandatory' ? 'mandatory' : ''} ${isCompleted ? 'completed' : ''}"
+                       data-task-id="${task.id}" data-exp="${task.expReward}" data-name="${task.projectName}" data-link="${task.taskLink}" style="animation-delay: ${index * 70}ms">
+                        
+                        <div class="partner-task-top">
+                            <img src="${task.imageUrl || GENERIC_TASK_ICON}" class="partner-task-img" onerror="this.src='${GENERIC_TASK_ICON}'">
+                            
+                            <div class="partner-task-body">
+                                <h4 class="partner-task-title">
+                                    ${task.projectName}
+                                    ${task.taskType === 'mandatory' ? '<i class="fas fa-star mandatory-icon" title="Mandatory Task"></i>' : ''}
+                                </h4>
+                                <p class="partner-task-desc">${task.description}</p>
+                                ${isDescLong ? '<button class="task-details-toggle">View Details</button>' : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="partner-task-action-bar">
+                            ${isCompleted ? '<i class="fas fa-check-circle me-2"></i>Completed' : `+${task.expReward.toLocaleString()} EXP`}
+                        </div>
+                    </div>
+                `;
+                
+                if (task.taskType === 'mandatory') {
+                    mandatoryHtml += cardHtml;
+                } else {
+                    normalHtml += cardHtml;
+                }
+            });
+            
+            partnerTasksContainer.innerHTML = mandatoryHtml + normalHtml;
+            
+        } catch (error) {
+            console.error("Error rendering partner tasks:", error);
+            partnerTasksContainer.innerHTML = `<p class="text-danger text-center p-3">Error loading partner tasks.</p>`;
+        }
+    }
+
+    function handlePartnerCardClick(e) {
+        const toggleBtn = e.target.closest('.task-details-toggle');
+        const taskCard = e.target.closest('.partner-task-card');
+
+        if (toggleBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const desc = toggleBtn.previousElementSibling;
+            desc.classList.toggle('expanded');
+            toggleBtn.textContent = desc.classList.contains('expanded') ? 'Collapse' : 'View Details';
+            return;
+        }
+
+        if (taskCard) {
+            handlePartnerTaskCompletion(e, taskCard);
+        }
+    }
+
+    async function handlePartnerTaskCompletion(e, taskCard) {
+        if (airdropSettings?.isSnapshotActive) {
+            showAppToast('Halted', 'Point-earning activities are paused.', 'warning');
+            e.preventDefault();
+            return;
+        }
+        
+        if (taskCard.classList.contains('completed')) {
+            e.preventDefault();
+            return;
+        }
+
+        e.preventDefault();
+
+        const taskId = taskCard.dataset.taskId;
+        const expReward = parseInt(taskCard.dataset.exp, 10);
+        const projectName = taskCard.dataset.name;
+        const taskLink = taskCard.dataset.link;
+
+        if (!taskId || isNaN(expReward)) return;
+
+        const actionBar = taskCard.querySelector('.partner-task-action-bar');
+        actionBar.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+        
+        try {
+            const userRef = db.collection('users').doc(connectedWalletAddress);
+            const completedTaskRef = userRef.collection('completed_partner_tasks').doc(taskId);
+            
+            let newTotalPoints;
+            await db.runTransaction(async (transaction) => {
+                const [userDoc, completedDoc] = await Promise.all([
+                    transaction.get(userRef),
+                    transaction.get(completedTaskRef)
+                ]);
+
+                if (!userDoc.exists) throw new Error("User not found.");
+                if (completedDoc.exists) throw new Error("Task already completed.");
+
+                const userData = userDoc.data();
+                newTotalPoints = (userData.points || 0) + expReward;
+                const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+
+                transaction.update(userRef, {
+                    points: firebase.firestore.FieldValue.increment(expReward),
+                    partnerTasksCompletedCount: firebase.firestore.FieldValue.increment(1)
+                });
+                transaction.set(completedTaskRef, { completedAt: newTimestamp });
+                const historyRef = userRef.collection('task_history').doc();
+                transaction.set(historyRef, {
+                    taskName: 'Partner Task',
+                    projectName: projectName,
+                    exp: expReward,
+                    timestamp: newTimestamp
+                });
+            });
+            
+            showAppToast('Success!', `You received +${expReward} EXP from the ${projectName} task.`, 'success');
+            
+            // Update current user data then check for level up
+            currentUserData.points = newTotalPoints;
+            checkAndUpdateLevel(connectedWalletAddress, newTotalPoints);
+
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.openLink(taskLink);
+            } else {
+                window.open(taskLink, '_blank');
+            }
+            
+            const updatedDoc = await userRef.get();
+            currentUserData = updatedDoc.data();
+            updateUIAfterLogin(); 
+            taskCard.classList.add('completed');
+            actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
+
+        } catch (error) {
+            if (error.message.includes("Task already completed.")) {
+                 taskCard.classList.add('completed');
+                 actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
+            } else {
+                console.error("Failed to complete partner task:", error);
+                showAppToast('Error', 'Could not complete the task. Please try again.', 'error');
+                actionBar.innerHTML = `+${expReward.toLocaleString()} EXP`; 
+            }
+        }
+    }
+    
+    async function handleAdminPartnerTaskSave(e) {
+        e.preventDefault();
+        if (!db || !storage) return;
+
+        const taskId = partnerTaskIdInput.value.trim();
+        const projectName = document.getElementById('partner-task-name-input').value.trim();
+        const description = document.getElementById('partner-task-desc-input').value.trim();
+        const imageUpload = document.getElementById('partner-task-img-upload').files[0];
+        const imageUrlInput = document.getElementById('partner-task-img-url').value.trim();
+        const taskLink = document.getElementById('partner-task-link-input').value.trim();
+        const expReward = parseInt(document.getElementById('partner-task-exp-input').value, 10);
+        const taskType = document.getElementById('partner-task-type-select').value;
+        
+        if (!projectName || !description || !taskLink || isNaN(expReward)) {
+            showAppToast('Lỗi', 'Vui lòng điền đầy đủ các trường bắt buộc.', 'error');
+            return;
+        }
+        if (!imageUpload && !imageUrlInput && !taskId) {
+             showAppToast('Lỗi', 'Vui lòng tải lên ảnh hoặc cung cấp URL ảnh.', 'error');
+            return;
+        }
+
+        partnerTaskSaveBtn.disabled = true;
+        adminPartnerTaskStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...`;
+        
+        try {
+            let imageUrl = imageUrlInput;
+            if (imageUpload) {
+                const storageRef = storage.ref(`partner_tasks/${Date.now()}_${imageUpload.name}`);
+                const uploadTask = await storageRef.put(imageUpload);
+                imageUrl = await uploadTask.ref.getDownloadURL();
+            }
+            
+            const taskData = {
+                projectName, description, taskLink, expReward, taskType
+            };
+            
+            if (imageUrl) { taskData.imageUrl = imageUrl; }
+
+            if (taskId) {
+                await db.collection('partner_tasks').doc(taskId).update(taskData);
+                showAppToast('Thành công', 'Đã cập nhật nhiệm vụ đối tác.', 'success');
+            } else {
+                taskData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                await db.collection('partner_tasks').add(taskData);
+                showAppToast('Thành công', 'Đã thêm nhiệm vụ đối tác mới.', 'success');
+            }
+            
+            clearPartnerTaskForm();
+            renderAdminPartnerTasks();
+
+        } catch (error) {
+            console.error("Error saving partner task:", error);
+            showAppToast('Thất bại', 'Đã xảy ra lỗi khi lưu nhiệm vụ.', 'error');
+        } finally {
+            partnerTaskSaveBtn.disabled = false;
+            adminPartnerTaskStatus.innerHTML = '';
+        }
+    }
+    
+    function clearPartnerTaskForm() {
+        adminPartnerTaskForm.reset();
+        partnerTaskIdInput.value = '';
+        partnerTaskSaveBtn.textContent = 'Lưu Nhiệm Vụ';
+    }
+    
+    async function renderAdminPartnerTasks() {
+        if (!adminPartnerTasksList || !db) return;
+        adminPartnerTasksList.innerHTML = skeletonTx;
+        
+        try {
+            const snapshot = await db.collection('partner_tasks').orderBy('createdAt', 'desc').get();
+            if (snapshot.empty) {
+                adminPartnerTasksList.innerHTML = `<p class="text-secondary text-center p-3">Chưa có nhiệm vụ nào.</p>`;
+                return;
+            }
+            
+            let tableHtml = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem; white-space: normal;">
+                <thead><tr>
+                    <th>Ảnh</th><th>Tên dự án</th><th>Loại</th><th>EXP</th><th>Hành động</th>
+                </tr></thead><tbody>`;
+            
+            snapshot.forEach(doc => {
+                const task = doc.data();
+                const typeBadge = task.taskType === 'mandatory'
+                    ? `<span class="badge" style="background-color: var(--gold); color: #000;">Bắt buộc</span>`
+                    : `<span class="badge bg-secondary">Thường</span>`;
+                    
+                tableHtml += `
+                    <tr data-id="${doc.id}">
+                        <td><img src="${task.imageUrl || GENERIC_TASK_ICON}" class="table-img-preview" onerror="this.src='${GENERIC_TASK_ICON}'"></td>
+                        <td style="white-space: normal;"><strong>${task.projectName}</strong><br><small class="text-secondary">${task.description}</small></td>
+                        <td>${typeBadge}</td>
+                        <td class="fw-bold">${task.expReward.toLocaleString()}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-light admin-edit-partner-task-btn" title="Chỉnh sửa"><i class="fas fa-pencil-alt"></i></button>
+                            <button class="btn btn-sm btn-outline-danger admin-delete-partner-task-btn" title="Xóa"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableHtml += '</tbody></table>';
+            adminPartnerTasksList.innerHTML = tableHtml;
+
+        } catch (error) {
+            console.error("Error rendering admin partner tasks:", error);
+            adminPartnerTasksList.innerHTML = `<p class="text-danger text-center p-3">Lỗi tải danh sách nhiệm vụ.</p>`;
+        }
+    }
+    
+    async function handleAdminPartnerTaskActions(e) {
+        const editBtn = e.target.closest('.admin-edit-partner-task-btn');
+        const deleteBtn = e.target.closest('.admin-delete-partner-task-btn');
+
+        if (!editBtn && !deleteBtn) return;
+        
+        const row = e.target.closest('tr');
+        const taskId = row.dataset.id;
+        
+        if (deleteBtn) {
+            if (!confirm(`Bạn có chắc chắn muốn xóa nhiệm vụ này?`)) {
+                return;
+            }
+            try {
+                await db.collection('partner_tasks').doc(taskId).delete();
+                showAppToast('Thành công', 'Đã xóa nhiệm vụ.', 'success');
+                renderAdminPartnerTasks();
+            } catch (error) {
+                console.error("Error deleting partner task:", error);
+                showAppToast('Lỗi', 'Không thể xóa nhiệm vụ.', 'error');
+            }
+        } else if (editBtn) {
+            try {
+                const docSnap = await db.collection('partner_tasks').doc(taskId).get();
+                if (docSnap.exists) {
+                    const task = docSnap.data();
+                    partnerTaskIdInput.value = taskId;
+                    document.getElementById('partner-task-name-input').value = task.projectName || '';
+                    document.getElementById('partner-task-desc-input').value = task.description || '';
+                    document.getElementById('partner-task-img-url').value = task.imageUrl || '';
+                    document.getElementById('partner-task-link-input').value = task.taskLink || '';
+                    document.getElementById('partner-task-exp-input').value = task.expReward || 0;
+                    document.getElementById('partner-task-type-select').value = task.taskType || 'normal';
+                    
+                    partnerTaskSaveBtn.textContent = 'Cập nhật Nhiệm Vụ';
+                    adminPartnerTaskForm.scrollIntoView({ behavior: 'smooth' });
+                }
+            } catch (error) {
+                console.error("Error fetching task for edit:", error);
+                showAppToast('Lỗi', 'Không thể tải dữ liệu để chỉnh sửa.', 'error');
+            }
+        }
+    }
+    
+    async function handleMaintenanceToggle(e) {
+        const isEnabled = e.target.checked;
+        const confirmationMessage = isEnabled
+            ? "CẢNH BÁO: Bạn sắp bật chế độ bảo trì. Tất cả người dùng sẽ bị chặn truy cập. Tiếp tục?"
+            : "Bạn có chắc muốn tắt chế độ bảo trì và cho phép người dùng truy cập lại không?";
+
+        if (!confirm(confirmationMessage)) {
+            e.target.checked = !isEnabled; 
+            return;
+        }
+        
+        maintenanceModeSwitch.disabled = true;
+        adminSystemStatus.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Cập nhật...`;
+        try {
+            await db.collection('admin_settings').doc('system_status').set({ isMaintenanceMode: isEnabled });
+            systemStatus.isMaintenanceMode = isEnabled;
+            showAppToast('Thành công', `Chế độ bảo trì đã được ${isEnabled ? 'BẬT' : 'TẮT'}.`, 'success');
+            adminSystemStatus.innerHTML = `<span class="text-success">Đã cập nhật thành công!</span>`;
+            setTimeout(() => window.location.reload(), 1500);
+        } catch (error) {
+            console.error("Error updating maintenance mode:", error);
+            showAppToast('Lỗi', 'Không thể cập nhật trạng thái hệ thống.', 'error');
+            adminSystemStatus.innerHTML = `<span class="text-danger">Cập nhật thất bại.</span>`;
+            e.target.checked = !isEnabled;
+        } finally {
+            maintenanceModeSwitch.disabled = false;
+        }
+    }
+
+    // [FIX-BUG] Function to recalculate total users
+    async function recalculateTotalUsers() {
+        if (!db) {
+            showAppToast('Lỗi', 'Chưa kết nối cơ sở dữ liệu.', 'error');
+            return;
+        }
+        recalculateUsersBtn.disabled = true;
+        recalculateStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang đếm...`;
+
+        try {
+            const snapshot = await db.collection('users').get();
+            const totalUsers = snapshot.size;
+
+            await db.collection('admin_settings').doc('metadata').set({
+                userCount: totalUsers
+            }, { merge: true });
+
+            recalculateStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Hoàn tất! Tổng số người dùng: ${totalUsers.toLocaleString()}</span>`;
+            showAppToast('Thành công', `Đã cập nhật tổng số người dùng thành ${totalUsers.toLocaleString()}.`, 'success');
+
+        } catch (error) {
+            console.error("Error recalculating users:", error);
+            recalculateStatusEl.innerHTML = `<span class="text-danger">Đã xảy ra lỗi: ${error.message}</span>`;
+            showAppToast('Thất bại', 'Không thể đếm lại người dùng.', 'error');
+        } finally {
+            recalculateUsersBtn.disabled = false;
+            setTimeout(() => { recalculateStatusEl.innerHTML = ''; }, 5000);
+        }
+    }
+
+    // [NEW-FEATURE] Function to handle Audit & Award
+    async function handleAuditAndAward(e) {
+        e.preventDefault();
+        if (!db) { showAppToast('Lỗi', 'Chưa kết nối cơ sở dữ liệu.', 'error'); return; }
+        if (airdropSettings?.isSnapshotActive) {
+            showAppToast('Đã dừng', 'Không thể thưởng EXP sau khi Snapshot.', 'error');
+            return;
+        }
+
+        const eventId = document.getElementById('admin-audit-event-id').value.trim();
+        const conditionType = document.getElementById('admin-audit-condition-type').value;
+        const operator = document.getElementById('admin-audit-operator').value;
+        const conditionValue = parseInt(document.getElementById('admin-audit-condition-value').value, 10);
+        const expAmount = parseInt(document.getElementById('admin-audit-exp-amount').value, 10);
+        const taskName = eventId; // Use eventId as task name for history
+
+        if (!eventId || !taskName || isNaN(expAmount) || expAmount <= 0) {
+            showAppToast('Lỗi', 'Vui lòng điền đầy đủ và chính xác các trường.', 'error');
+            return;
+        }
+
+        if (conditionType !== 'all' && isNaN(conditionValue)) {
+            showAppToast('Lỗi', 'Vui lòng nhập giá trị điều kiện hợp lệ.', 'error');
+            return;
+        }
+        
+        const confirmationMessage = `Bạn có chắc chắn muốn chạy rà soát cho sự kiện "${eventId}" và cộng ${expAmount} EXP cho những người dùng đủ điều kiện nhưng chưa nhận thưởng không? Hành động này KHÔNG THỂ hoàn tác.`;
+        if (!confirm(confirmationMessage)) {
+            return;
+        }
+
+        adminAuditAwardSubmitBtn.disabled = true;
+        adminAuditAwardStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Bắt đầu quá trình rà soát...`;
+
+        try {
+            let query = db.collection('users');
+            if (conditionType !== 'all') {
+                query = query.where(conditionType, operator, conditionValue);
+            }
+
+            let lastVisible = null;
+            let totalProcessed = 0;
+            let totalAwarded = 0;
+            
+            while (true) {
+                let batchQuery;
+                 if (conditionType !== 'all') {
+                    batchQuery = query.orderBy(conditionType).orderBy(firebase.firestore.FieldPath.documentId()).limit(BATCH_SIZE);
+                } else {
+                    batchQuery = query.orderBy(firebase.firestore.FieldPath.documentId()).limit(BATCH_SIZE);
+                }
+                
+                if (lastVisible) {
+                    batchQuery = batchQuery.startAfter(lastVisible);
+                }
+                
+                const snapshot = await batchQuery.get();
+                if (snapshot.empty) break;
+                
+                lastVisible = snapshot.docs[snapshot.docs.length - 1];
+                
+                const usersToProcess = snapshot.docs;
+                const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+
+                // Process users in the current batch
+                for (const userDoc of usersToProcess) {
+                    const userRef = userDoc.ref;
+                    const historyCheckQuery = userRef.collection('task_history').where('eventId', '==', eventId).limit(1);
+                    const historySnapshot = await historyCheckQuery.get();
+
+                    if (historySnapshot.empty) {
+                        // User hasn't received this award yet, so grant it
+                        const userData = userDoc.data();
+                        const newTotalPoints = (userData.points || 0) + expAmount;
+                        const newLevel = calculateLevel(newTotalPoints);
+                        
+                        const writeBatch = db.batch();
+                        writeBatch.update(userRef, { 
+                            points: firebase.firestore.FieldValue.increment(expAmount),
+                            level: newLevel
+                        });
+
+                        const historyRef = userRef.collection('task_history').doc();
+                        writeBatch.set(historyRef, {
+                            taskName: taskName,
+                            exp: expAmount,
+                            timestamp: newTimestamp,
+                            eventId: eventId // IMPORTANT: Store the eventId for future checks
+                        });
+
+                        await writeBatch.commit();
+                        totalAwarded++;
+                    }
+                }
+
+                totalProcessed += snapshot.size;
+                adminAuditAwardStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã xử lý ${totalProcessed} người dùng... Đã thưởng cho ${totalAwarded} người.`;
+            }
+            
+            adminAuditAwardStatus.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Hoàn tất! Đã rà soát ${totalProcessed} người dùng và thưởng bổ sung cho ${totalAwarded} người.</span>`;
+            showAppToast('Thành Công', `Đã hoàn tất rà soát.`, 'success');
+
+        } catch (error) {
+            console.error("Audit and Award failed:", error);
+            adminAuditAwardStatus.innerHTML = `<span class="text-danger">Đã xảy ra lỗi: ${error.message}</span>`;
+            showAppToast('Thất bại', `Quá trình rà soát đã thất bại.`, 'error');
+        } finally {
+            adminAuditAwardSubmitBtn.disabled = false;
+        }
+    }
+
+
+    // --- Event Listeners ---
+    hamburgerBtn.addEventListener('click', toggleSidebar);
+    sidebarOverlay.addEventListener('click', toggleSidebar);
+    fullLogoutBtn.addEventListener('click', handleFullLogout);
+    disconnectWalletBtn.addEventListener('click', handleDisconnectWallet);
+    checkinButton.addEventListener('click', handleCheckin);
+    popupCheckinButton.addEventListener('click', handleCheckin);
+    if (adminExpForm) adminExpForm.addEventListener('submit', handleAdminExpUpdate);
+    
+    // [UPDATED] Use the same function for both bulk messaging types
+    if (sendBulkTelegramMessageBtn) sendBulkTelegramMessageBtn.addEventListener('click', () => sendBulkTelegramMessage(null));
+
+    if (adminMassAwardForm) adminMassAwardForm.addEventListener('submit', handleMassAward);
+    if (adminMassConditionType) {
+        adminMassConditionType.addEventListener('change', (e) => {
+            adminMassConditionWrapper.style.display = (e.target.value === 'all') ? 'none' : 'block';
+        });
+    }
+     // [NEW-FEATURE] Audit form listener
+    if (adminAuditAwardForm) adminAuditAwardForm.addEventListener('submit', handleAuditAndAward);
+    if (adminAuditConditionType) {
+        adminAuditConditionType.addEventListener('change', (e) => {
+            adminAuditConditionWrapper.style.display = (e.target.value === 'all') ? 'none' : 'block';
+        });
+    }
+
+    if (adminLoadMoreBtn) adminLoadMoreBtn.addEventListener('click', () => fetchAndRenderAdminUserList(false));
+    referralCodeSubmit.addEventListener('click', handleManualReferralInput);
+    referralCodeSubmitHero.addEventListener('click', handleManualReferralInput);
+    if(saveScoringSettingsBtn) saveScoringSettingsBtn.addEventListener('click', (e) => { e.preventDefault(); saveAirdropScoringSettings(); });
+    if(saveClaimSettingsBtn) saveClaimSettingsBtn.addEventListener('click', (e) => { e.preventDefault(); saveAirdropClaimSettings(); });
+    if(exportClaimCsvBtn) exportClaimCsvBtn.addEventListener('click', exportAirdropClaimData);
+    if (adminUserSearchInput) {
+        adminUserSearchInput.addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                fetchAndRenderAdminUserList(true);
+            }, 500); 
+        });
+    }
+    
+    if (partnerTasksContainer) partnerTasksContainer.addEventListener('click', handlePartnerCardClick);
+    if (adminPartnerTaskForm) adminPartnerTaskForm.addEventListener('submit', handleAdminPartnerTaskSave);
+    if (partnerTaskClearBtn) partnerTaskClearBtn.addEventListener('click', clearPartnerTaskForm);
+    if (adminPartnerTasksList) adminPartnerTasksList.addEventListener('click', handleAdminPartnerTaskActions);
+    if (offchainClaimEnabledSwitch) {
+        offchainClaimEnabledSwitch.addEventListener('change', (e) => {
+            offchainSettingsContainer.style.display = e.target.checked ? 'block' : 'none';
+        });
+    }
+
+    customWalletButton.addEventListener('click', () => { walletDropdown.style.display = walletDropdown.style.display === 'block' ? 'none' : 'block'; });
+    copyAddressBtn.addEventListener('click', (e) => { e.preventDefault(); const address = e.currentTarget.dataset.address; const textSpan = e.currentTarget.querySelector('span'); if (address) navigator.clipboard.writeText(address).then(() => { textSpan.textContent = 'Copied!'; setTimeout(() => { textSpan.textContent = 'Copy Address'; }, 2000); }); });
+    searchButton.addEventListener('click', handleFastSearch);
+    searchInput.addEventListener('keyup', (e) => { clearTimeout(searchTimeout); if (e.key === 'Enter') handleFastSearch(); else searchTimeout = setTimeout(handleFastSearch, 300); });
+    backToMyWalletBtn.addEventListener('click', () => { if (connectedWalletAddress) fetchAndDisplayAccountData(connectedWalletAddress); });
+    otherTokensContent.addEventListener('click', (e) => { const jettonItem = e.target.closest('.jetton-item'); if (jettonItem) showJettonDetails(jettonItem.dataset.jettonAddress); });
+    
+    if (saveEmailBtn) saveEmailBtn.addEventListener('click', handleEmailUpdate);
+    if (saveTempProfileBtn) saveTempProfileBtn.addEventListener('click', handleTempProfileSave);
+    if (maintenanceModeSwitch) maintenanceModeSwitch.addEventListener('change', handleMaintenanceToggle);
+    if (recalculateUsersBtn) recalculateUsersBtn.addEventListener('click', recalculateTotalUsers); // [FIX-BUG]
+
+    document.getElementById('temp-avatar-upload').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                document.getElementById('temp-avatar-preview').src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.body.addEventListener('click', (e) => { 
+        const copyAddressTarget = e.target.closest('.copyable-address');
+        const copyCodeTarget = e.target.closest('.copyable-code');
+
+        if (copyAddressTarget?.dataset?.address) { 
+            const target = copyAddressTarget;
+            navigator.clipboard.writeText(target.dataset.address).then(() => { const originalText = target.textContent; target.textContent = 'Copied!'; target.classList.add('copied'); setTimeout(() => { target.textContent = originalText; target.classList.remove('copied'); }, 1500); }); 
+        } else if (copyCodeTarget?.dataset?.code) {
+             const target = copyCodeTarget;
+             navigator.clipboard.writeText(target.dataset.code).then(() => { showAppToast('Success', 'Copied to clipboard!', 'success') }); 
+        }
+        
+        if (!customWalletContainer?.contains(e.target)) walletDropdown.style.display = 'none'; 
+        if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none'; 
+    });
+    
+    document.body.addEventListener('change', e => {
+        if (e.target.id === 'notifications-toggle') {
+            handleNotificationToggle(e);
+        }
+    });
+
+    [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(link => link.addEventListener('click', (e) => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
+    appSearchInput.addEventListener('input', () => { renderApps(); const searchTerm = appSearchInput.value.trim(); const newUrl = searchTerm ? `#apps?search=${encodeURIComponent(searchTerm)}` : '#apps'; history.replaceState(null, '', newUrl); });
+    appSearchButton.addEventListener('click', renderApps);
+    appSearchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') renderApps(); });
+    appFilterControls.addEventListener('click', (e) => { const target = e.target.closest('.app-filter-btn'); if (target) { appFilterControls.querySelector('.active').classList.remove('active'); target.classList.add('active'); renderApps(); } });
+    window.addEventListener('hashchange', handleRouteChange);
+    
+    contactAdminBtn.addEventListener('click', () => contactAdminModal.show());
+
+    const heroConnectButton = document.createElement('button');
+    heroConnectButton.className = 'btn px-5 py-3';
+    heroConnectButton.style = 'background-color: var(--accent-primary); color: white; font-weight: 600;';
+    heroConnectButton.textContent = 'Connect Wallet';
+    heroConnectButton.addEventListener('click', () => tonConnectUI.openModal());
+    connectWalletHeroBtnContainer.appendChild(heroConnectButton);
+    
+    function applyPlatformSpecificStyling() {
+        if (window.Telegram && window.Telegram.WebApp) {
+            const platform = window.Telegram.WebApp.platform;
+            const body = document.body;
+            body.classList.remove('platform-ios', 'platform-android', 'platform-desktop');
+            
+            console.log(`Detected platform: ${platform}`);
+            switch (platform) {
+                case 'ios': body.classList.add('platform-ios'); break;
+                case 'android': body.classList.add('platform-android'); break;
+                default: body.classList.add('platform-desktop'); break;
+            }
+        }
+    }
+
+    async function fetchRewardSettings() {
+        if (!db) return;
+        try {
+            const docRef = db.collection('admin_settings').doc('reward_config');
+            const doc = await docRef.get();
+            if (doc.exists) {
+                const data = doc.data();
+                if (data.referralMilestones && Array.isArray(data.referralMilestones)) {
+                    data.referralMilestones.sort((a, b) => a.required - b.required);
+                }
+                rewardConfig = data;
+                console.log("Reward settings loaded from Firestore:", rewardConfig);
+            } else {
+                await docRef.set(rewardConfig);
+                console.log("No reward settings in Firestore, created with defaults.");
+            }
+        } catch (error) {
+            console.error("Error fetching reward settings:", error);
+        }
+    }
+
+    function renderRewardSettingsUI() {
+        const adminPanel = document.getElementById('admin-panel-reward-settings');
+        if (!adminPanel) return;
+
+        document.getElementById('checkin-exp-input').value = rewardConfig.checkinExp;
+        document.getElementById('base-referral-exp-input').value = rewardConfig.baseReferralExp;
+        
+        const container = document.getElementById('referral-milestones-container');
+        container.innerHTML = ''; 
+
+        (rewardConfig.referralMilestones || []).forEach((milestone) => {
+            addMilestoneRow(milestone.required, milestone.bonus);
+        });
+    }
+
+    function addMilestoneRow(required = '', bonus = '') {
+        const container = document.getElementById('referral-milestones-container');
+        const milestoneDiv = document.createElement('div');
+        milestoneDiv.className = 'row g-3 align-items-center mb-2 milestone-item';
+        milestoneDiv.innerHTML = `
+            <div class="col">
+                <label class="form-label small d-md-none">Mốc (lượt mời)</label>
+                <input type="number" class="form-control milestone-required" value="${required}" placeholder="Số lượt mời" min="1">
+            </div>
+            <div class="col">
+                <label class="form-label small d-md-none">Thưởng thêm (EXP)</label>
+                <input type="number" class="form-control milestone-bonus" value="${bonus}" placeholder="EXP thưởng thêm" min="0">
+            </div>
+            <div class="col-auto">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-milestone-btn mt-md-4"><i class="fas fa-trash"></i></button>
+            </div>
+        `;
+        container.appendChild(milestoneDiv);
+    }
+    
+    // ===================================================================
+    // [NEW] LEVEL SETTINGS FUNCTIONS
+    // ===================================================================
+
+    async function fetchLevelConfig() {
+        if (!db) return;
+        try {
+            const docRef = db.collection('admin_settings').doc('level_config');
+            const doc = await docRef.get();
+            if (doc.exists) {
+                const data = doc.data();
+                if (data.levels && Array.isArray(data.levels)) {
+                    levelConfig = data.levels.sort((a, b) => a.level - b.level);
+                    console.log("Level config loaded from Firestore:", levelConfig);
+                }
+            } else {
+                // If not found, save the default config to Firestore
+                await docRef.set({ levels: levelConfig });
+                console.log("No level config in Firestore, created with defaults.");
+            }
+        } catch (error) {
+            console.error("Error fetching level config, using defaults:", error);
+        }
+    }
+    
+    function renderLevelSettingsUI() {
+        const adminPanel = document.getElementById('admin-panel-level-settings');
+        if (!adminPanel) return;
+
+        const container = document.getElementById('level-settings-container');
+        container.innerHTML = ''; // Clear existing rows
+
+        (levelConfig || []).forEach((levelData) => {
+            addLevelRow(levelData);
+        });
+    }
+
+    // [NEW] Render Level Multipliers in Airdrop Settings
+    function renderLevelMultipliersUI(savedMultipliers = []) {
+        const container = document.getElementById('admin-level-multipliers-container');
+        container.innerHTML = '';
+
+        levelConfig.forEach(levelInfo => {
+            const savedData = savedMultipliers.find(m => m.level === levelInfo.level);
+            const multiplierValue = savedData ? savedData.multiplier : 1.0;
+
+            const row = document.createElement('div');
+            row.className = 'row g-3 align-items-center mb-2 level-multiplier-item';
+            row.dataset.level = levelInfo.level;
+            row.innerHTML = `
+                <div class="col-4">
+                    <label class="form-label mb-0">Level ${levelInfo.level}</label>
+                </div>
+                <div class="col-8">
+                    <div class="input-group">
+                        <span class="input-group-text">x</span>
+                        <input type="number" class="form-control" value="${multiplierValue}" step="0.1" min="0">
+                    </div>
+                </div>
+            `;
+            container.appendChild(row);
+        });
+    }
+
+    // [NEW] Render Exchange Checkboxes in Admin Panel
+    function renderAdminExchangeCheckboxes(enabledExchanges = []) {
+        const container = document.getElementById('exchange-checkboxes-container');
+        container.innerHTML = '';
+        exchanges.forEach(ex => {
+            const isChecked = enabledExchanges.includes(ex.id);
+            container.innerHTML += `
+                 <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="${ex.id}" id="ex-check-${ex.id}" ${isChecked ? 'checked' : ''}>
+                    <label class="form-check-label" for="ex-check-${ex.id}">
+                        ${ex.name}
+                    </label>
+                </div>
+            `;
+        });
+    }
+
+
+    function addLevelRow(levelData = {}) {
+        const container = document.getElementById('level-settings-container');
+        const levelDiv = document.createElement('div');
+        levelDiv.className = 'row g-3 align-items-center mb-3 level-item';
+        
+        const currentLevel = levelData.level || (container.children.length + 1);
+        const expRequired = levelData.expRequired ?? '';
+        const benefit = levelData.benefit ?? '';
+
+        levelDiv.innerHTML = `
+            <div class="col-2 col-md-1">
+                <input type="number" class="form-control text-center level-number" value="${currentLevel}" readonly>
+            </div>
+            <div class="col-5 col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text">EXP ≥</span>
+                    <input type="number" class="form-control level-exp" value="${expRequired}" placeholder="EXP yêu cầu" min="0">
+                </div>
+            </div>
+            <div class="col-5 col-md-6">
+                 <input type="text" class="form-control level-benefit" value="${benefit}" placeholder="Mô tả quyền lợi">
+            </div>
+            <div class="col-12 col-md-1 text-end">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-level-btn"><i class="fas fa-trash"></i></button>
+            </div>
+        `;
+        container.appendChild(levelDiv);
+        
+        // Disable editing for Level 1
+        if (currentLevel === 1) {
+            levelDiv.querySelector('.level-exp').readOnly = true;
+            levelDiv.querySelector('.remove-level-btn').style.display = 'none';
+        }
+    }
+    
+    function renumberLevels() {
+        const items = document.querySelectorAll('#level-settings-container .level-item');
+        items.forEach((item, index) => {
+            const levelInput = item.querySelector('.level-number');
+            levelInput.value = index + 1;
+        });
+    }
+
+
+    // --- Event Listeners specific to new features ---
+
+    document.addEventListener('click', (e) => {
+        if (e.target && e.target.id === 'add-milestone-btn') {
+            addMilestoneRow();
+        }
+        if (e.target && e.target.closest('.remove-milestone-btn')) {
+            e.target.closest('.milestone-item').remove();
+        }
+        
+        // [NEW] Level Settings Listeners
+        if (e.target && e.target.id === 'add-level-btn') {
+            addLevelRow();
+        }
+        if (e.target && e.target.closest('.remove-level-btn')) {
+            e.target.closest('.level-item').remove();
+            renumberLevels();
+        }
+        
+        const adminNavButton = e.target.closest('#admin-nav-tabs .nav-link');
+        if (adminNavButton) {
+            const targetId = adminNavButton.dataset.target;
+            if (!targetId) return;
+
+            document.querySelectorAll('#admin-nav-tabs .nav-link').forEach(btn => btn.classList.remove('active'));
+            adminNavButton.classList.add('active');
+
+            document.querySelectorAll('.admin-panel-wrapper').forEach(panel => {
+                panel.style.display = 'none';
+            });
+
+            const targetPanel = document.querySelector(targetId);
+            if (targetPanel) {
+                targetPanel.style.display = 'block';
+                // Trigger render functions when a tab is shown
+                if (targetId === '#admin-panel-reward-settings') {
+                    renderRewardSettingsUI();
+                } else if (targetId === '#admin-panel-level-settings') {
+                    renderLevelSettingsUI();
+                } else if (targetId === '#admin-panel-users') {
+                    fetchAndRenderAdminUserList(true);
+                } else if (targetId === '#admin-panel-partner-tasks') {
+                    renderAdminPartnerTasks();
+                } else if (targetId === '#admin-panel-airdrop') {
+                    // Re-fetch and render settings when tab is clicked
+                    fetchAirdropSettings().then(settings => {
+                         if (!settings) return;
+                         renderLevelMultipliersUI(settings.levelMultipliers);
+                         renderAdminExchangeCheckboxes(settings.enabledExchanges || []);
+                         offchainSettingsContainer.style.display = document.getElementById('offchain-claim-enabled-switch').checked ? 'block' : 'none';
+                    });
+                }
+            }
+        }
+    });
+
+    document.addEventListener('submit', async (e) => {
+        if (e.target && e.target.id === 'admin-reward-settings-form') {
+            e.preventDefault();
+            const saveBtn = document.getElementById('save-reward-settings-btn');
+            const statusEl = document.getElementById('admin-reward-settings-status');
+            
+            saveBtn.disabled = true;
+            statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
+
+            const newSettings = {
+                checkinExp: parseInt(document.getElementById('checkin-exp-input').value, 10) || 0,
+                baseReferralExp: parseInt(document.getElementById('base-referral-exp-input').value, 10) || 0,
+                referralMilestones: []
+            };
+
+            document.querySelectorAll('.milestone-item').forEach(item => {
+                const required = parseInt(item.querySelector('.milestone-required').value, 10);
+                const bonus = parseInt(item.querySelector('.milestone-bonus').value, 10);
+                if (!isNaN(required) && required > 0 && !isNaN(bonus)) {
+                    newSettings.referralMilestones.push({ required, bonus });
+                }
+            });
+            
+            newSettings.referralMilestones.sort((a,b) => a.required - b.required);
+
+            try {
+                await db.collection('admin_settings').doc('reward_config').set(newSettings);
+                rewardConfig = newSettings; 
+                statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu cài đặt!</span>`;
+                showAppToast('Thành công', 'Cài đặt thưởng đã được cập nhật.', 'success');
+            } catch (error) {
+                console.error("Error saving reward settings:", error);
+                statusEl.innerHTML = `<span class="text-danger">Lỗi: ${error.message}</span>`;
+            } finally {
+                saveBtn.disabled = false;
+                setTimeout(() => { statusEl.innerHTML = ''; }, 4000);
+            }
+        }
+        
+        // [NEW] Level Settings Form Submission
+        if (e.target && e.target.id === 'admin-level-settings-form') {
+            e.preventDefault();
+            const saveBtn = document.getElementById('save-level-settings-btn');
+            const statusEl = document.getElementById('admin-level-settings-status');
+            
+            saveBtn.disabled = true;
+            statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
+
+            const newLevels = [];
+            let isValid = true;
+            let lastExp = -1;
+
+            document.querySelectorAll('.level-item').forEach(item => {
+                const level = parseInt(item.querySelector('.level-number').value, 10);
+                const expRequired = parseInt(item.querySelector('.level-exp').value, 10);
+                const benefit = item.querySelector('.level-benefit').value.trim();
+                
+                if (isNaN(level) || isNaN(expRequired)) {
+                    isValid = false;
+                }
+                
+                if (level > 1 && expRequired <= lastExp) {
+                    showAppToast('Lỗi Cấu hình', `EXP yêu cầu cho Level ${level} phải lớn hơn Level ${level - 1}.`, 'error');
+                    isValid = false;
+                }
+                lastExp = expRequired;
+
+                newLevels.push({ 
+                    level, 
+                    expRequired, 
+                    benefit,
+                    shieldClass: `level-shield-${level}` // Auto-generate shield class
+                });
+            });
+            
+            if (!isValid) {
+                 statusEl.innerHTML = `<span class="text-danger">Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.</span>`;
+                 saveBtn.disabled = false;
+                 return;
+            }
+
+            try {
+                await db.collection('admin_settings').doc('level_config').set({ levels: newLevels });
+                levelConfig = newLevels; // Update local config
+                statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu cài đặt level!</span>`;
+                showAppToast('Thành công', 'Cấu hình level đã được cập nhật.', 'success');
+            } catch (error) {
+                console.error("Error saving level settings:", error);
+                statusEl.innerHTML = `<span class="text-danger">Lỗi: ${error.message}</span>`;
+            } finally {
+                saveBtn.disabled = false;
+                setTimeout(() => { statusEl.innerHTML = ''; }, 4000);
+            }
+        }
+    });
+
+    // --- App Initialization ---
+    fetchCryptoNews();
+    initializeApp();
+    
+});
+</script>
+
+</body>
+</html>
