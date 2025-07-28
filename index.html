@@ -35,6 +35,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
     
+    <!-- [NEW] SheetJS Library for Excel Export -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -687,18 +690,18 @@
           object-fit: cover;
       }
       #admin-section .text-truncate { max-width: 150px; }
-      #admin-load-more-btn {
+      #admin-load-more-btn, #admin-load-more-claims-btn {
           border-color: var(--accent-secondary);
           color: var(--accent-secondary);
           font-weight: 600;
           transition: var(--transition-smooth);
       }
-      #admin-load-more-btn:hover { background-color: var(--accent-secondary); color: white; transform: scale(1.05); }
+      #admin-load-more-btn:hover, #admin-load-more-claims-btn:hover { background-color: var(--accent-secondary); color: white; transform: scale(1.05); }
       #admin-user-list-container .form-check-input:checked { background-color: var(--color-verified); border-color: var(--color-verified); }
       #admin-user-list-container .form-switch .form-check-input { height: 1.25em; width: 2.25em; }
     
      /* [NEW] Scrollable Admin User List */
-      #admin-user-list-container {
+      #admin-user-list-container, #admin-claim-list-container {
         max-height: 70vh; /* Set a max height */
         overflow-y: auto;  /* Enable vertical scroll */
         /* The table-responsive class will handle horizontal scroll */
@@ -736,27 +739,69 @@
       #airdrop-reward-logo { width: 32px; height: 32px; margin-left: 10px; vertical-align: middle; }
       #airdrop-eligibility-status.eligible { color: var(--color-verified); }
       #airdrop-eligibility-status.ineligible { color: var(--color-out); }
-      .airdrop-action-btn {
-          background: white;
-          color: var(--accent-primary);
+      
+      /* [NEW] Airdrop Claim Styles */
+      .airdrop-claim-btn {
           font-weight: 700;
           border: none;
-          padding: 10px 30px;
+          padding: 12px 30px;
           border-radius: 50px;
           transition: all 0.3s ease;
           width: 100%;
           margin-top: 0.75rem;
       }
-      .airdrop-action-btn:hover {
+      .airdrop-claim-btn:hover {
           transform: scale(1.05);
-          box-shadow: 0 0 20px rgba(255,255,255,0.3);
       }
-      .airdrop-action-btn:disabled {
-          background: #ccc;
-          color: #666;
+      .airdrop-claim-btn:disabled {
+          background: #ccc !important;
+          color: #666 !important;
           cursor: not-allowed;
           transform: scale(1);
           box-shadow: none;
+      }
+      .claim-btn-onchain {
+          background: var(--accent-primary);
+          color: white;
+      }
+      .claim-btn-onchain:hover {
+           box-shadow: 0 0 20px rgba(145, 94, 255, 0.5);
+      }
+      .claim-btn-offchain {
+          background: white;
+          color: var(--accent-primary);
+      }
+       .claim-btn-offchain:hover {
+           box-shadow: 0 0 20px rgba(255,255,255,0.3);
+      }
+
+      .exchange-selector {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+      }
+      .exchange-btn {
+        background-color: rgba(255,255,255,0.1);
+        border: 2px solid transparent;
+        border-radius: 12px;
+        padding: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+      }
+      .exchange-btn:hover {
+        transform: translateY(-4px);
+        background-color: rgba(255,255,255,0.2);
+      }
+      .exchange-btn.selected {
+        border-color: var(--accent-secondary);
+        box-shadow: 0 0 15px rgba(43, 203, 196, 0.5);
+      }
+      .exchange-btn img {
+        width: 48px;
+        height: 48px;
+        object-fit: contain;
       }
 
       /* Loading & Maintenance Overlays */
@@ -1420,8 +1465,11 @@
                                         <img src="https://bmass.vercel.app/img/token3d.png" id="airdrop-reward-logo" alt="Bmass Token">
                                     </div>
                                     <p id="airdrop-eligibility-status" class="fw-bold mt-2 mb-0 fs-5"></p>
-                                    <div id="airdrop-final-message-container" class="mt-3"></div>
-                                    <div id="airdrop-actions-container" class="mt-3"></div>
+                                    
+                                    <!-- [RESTRUCTURED] Claim Actions Container -->
+                                    <div id="airdrop-claim-container" class="mt-4">
+                                        <!-- This will be populated by JS -->
+                                    </div>
                                 </div>
                             </div>
 
@@ -1472,6 +1520,12 @@
                             <i class="fas fa-users me-1"></i> User List
                         </button>
                     </li>
+                     <!-- [NEW] Claim List Tab -->
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-target="#admin-panel-claim-list" type="button">
+                            <i class="fas fa-clipboard-check me-1"></i> Claim List
+                        </button>
+                    </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" data-target="#admin-panel-partner-tasks" type="button">
                             <i class="fas fa-handshake me-1"></i> Partner Tasks
@@ -1495,12 +1549,15 @@
                             <i class="fas fa-layer-group me-1"></i> Level Settings
                         </button>
                     </li>
+                     <!-- ============================================= -->
+                    <!-- [RESTRUCTURED] TAB AIRDROP MỚI                 -->
                     <!-- ============================================= -->
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" data-target="#admin-panel-airdrop-settings" type="button">
+                        <button class="nav-link" data-target="#admin-panel-airdrop" type="button">
                             <i class="fas fa-parachute-box me-1"></i> Airdrop
                         </button>
                     </li>
+                     <!-- ============================================= -->
                     <li class="nav-item" role="presentation">
                          <button class="nav-link" data-target="#admin-panel-edit-exp" type="button">
                             <i class="fas fa-edit me-1"></i> User Actions
@@ -1711,55 +1768,24 @@
                     </div>
                     <!-- ============================================= -->
 
-                    <!-- Bảng Cài đặt Airdrop -->
-                    <div id="admin-panel-airdrop-settings" class="admin-panel-wrapper" style="display: none;">
+                    <!-- [RESTRUCTURED] Bảng Cài đặt Airdrop -->
+                    <div id="admin-panel-airdrop" class="admin-panel-wrapper" style="display: none;">
                         <div class="col-12 col-lg-10 col-xl-8 mx-auto">
-                            <div class="card-glass">
-                                <h5 class="card-title">Cấu hình Airdrop & Xuất dữ liệu</h5>
-                                <form id="admin-airdrop-settings-form">
-                                    <div class="row text-center g-3 mb-4">
-                                        <div class="col-6 col-sm-3">
-                                            <div class="form-check form-switch fs-5 d-inline-block">
-                                                <input class="form-check-input" type="checkbox" role="switch" id="airdrop-live-switch">
-                                                <label class="form-check-label" for="airdrop-live-switch">Live</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-sm-3">
-                                            <div class="form-check form-switch fs-5 d-inline-block">
-                                                <input class="form-check-input" type="checkbox" role="switch" id="confirmation-enabled-switch">
-                                                <label class="form-check-label" for="confirmation-enabled-switch">Xác nhận</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-sm-3">
-                                            <div class="form-check form-switch fs-5 d-inline-block">
-                                                <input class="form-check-input" type="checkbox" role="switch" id="claim-enabled-switch">
-                                                <label class="form-check-label" for="claim-enabled-switch">Yêu cầu</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-sm-3">
-                                            <div class="form-check form-switch fs-5 d-inline-block">
-                                                <input class="form-check-input" type="checkbox" role="switch" id="snapshot-active-switch">
-                                                <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snap</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <hr style="border-color: var(--border-color); opacity: 0.5;">
+                            <div class="card-glass mb-4">
+                                <h5 class="card-title">Cấu hình Tính điểm Airdrop</h5>
+                                <form id="admin-airdrop-scoring-form" onsubmit="event.preventDefault();">
                                     <h6 class="text-secondary text-center my-3">CÔNG THỨC TÍNH ĐIỂM CƠ BẢN</h6>
                                     <div class="row g-3 mb-4">
                                         <div class="col-md-4"><label for="ref-multiplier-input" class="form-label">Điểm mỗi Lượt mời</label><input type="number" class="form-control" id="ref-multiplier-input" value="50" min="0"></div>
                                         <div class="col-md-4"><label for="checkin-multiplier-input" class="form-label">Điểm mỗi Check-in</label><input type="number" class="form-control" id="checkin-multiplier-input" value="30" min="0"></div>
-                                        <div class="col-md-4"><label for="exp-multiplier-input" class="form-label">Điểm mỗi EXP</label><input type="number" class="form-control" id="exp-multiplier-input" value="20" min="0"></div>
+                                        <div class="col-md-4"><label for="exp-multiplier-input" class="form-label">Điểm mỗi EXP</label><input type="number" class="form-control" id="exp-multiplier-input" value="1" min="0" step="0.1"></div>
                                     </div>
                                     
-                                    <!-- ============================================= -->
-                                    <!-- [NEW] MỤC CÀI ĐẶT HỆ SỐ LEVEL - DÁN VÀO ĐÂY   -->
-                                    <!-- ============================================= -->
                                     <hr style="border-color: var(--border-color); opacity: 0.5;">
                                     <h6 class="text-secondary text-center my-3">HỆ SỐ THƯỞNG THEO LEVEL (MULTIPLIER)</h6>
                                     <div id="admin-level-multipliers-container" class="mb-4" style="max-height: 300px; overflow-y: auto; padding-right: 10px;">
                                         <!-- Hệ số level sẽ được JS render ở đây -->
                                     </div>
-                                    <!-- ============================================= -->
                                     
                                     <hr style="border-color: var(--border-color); opacity: 0.5;">
                                     <h6 class="text-secondary text-center my-3">ĐIỀU KIỆN TỐI THIỂU</h6>
@@ -1769,15 +1795,74 @@
                                         <div class="col-md-4"><label for="min-exp-input" class="form-label">Tối thiểu EXP</label><input type="number" class="form-control" id="min-exp-input" value="0" min="0"></div>
                                     </div>
                                     <div class="mt-3"><label class="form-label fw-bold" style="color: var(--gold);">ĐIỀU KIỆN NHIỆM VỤ BẮT BUỘC (Tự động áp dụng)</label></div>
-                                    <div id="admin-settings-status" class="mt-3"></div>
+                                    <div id="admin-scoring-settings-status" class="mt-3"></div>
+                                    <div class="d-grid mt-3">
+                                        <button type="submit" id="save-scoring-settings-btn" class="btn w-100" style="background-color: var(--accent-secondary); color: white;">Lưu Cài Đặt Tính điểm</button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <div class="card-glass">
+                                <h5 class="card-title">Cấu hình & Quản lý Claim Airdrop</h5>
+                                <form id="admin-airdrop-claim-form" onsubmit="event.preventDefault();">
+                                     <div class="row text-center g-3 mb-4">
+                                        <div class="col-6 col-sm-3">
+                                            <div class="form-check form-switch fs-5 d-inline-block">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="airdrop-live-switch">
+                                                <label class="form-check-label" for="airdrop-live-switch">Live</label>
+                                            </div>
+                                        </div>
+                                         <div class="col-6 col-sm-3">
+                                            <div class="form-check form-switch fs-5 d-inline-block">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="snapshot-active-switch">
+                                                <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snap</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-sm-3">
+                                            <div class="form-check form-switch fs-5 d-inline-block">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="claim-edit-switch">
+                                                <label class="form-check-label" for="claim-edit-switch">Sửa</label>
+                                            </div>
+                                        </div>
+                                         <div class="col-6 col-sm-3">
+                                            <div class="form-check form-switch fs-5 d-inline-block">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="notify-sent-switch">
+                                                <label class="form-check-label" for="notify-sent-switch">Báo đã gửi</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                     <h6 class="text-secondary text-center my-3">CÀI ĐẶT PHƯƠNG THỨC CLAIM</h6>
+                                     <div class="row mb-3">
+                                         <div class="col-md-6 mb-3">
+                                             <div class="form-check form-switch">
+                                                 <input class="form-check-input" type="checkbox" role="switch" id="onchain-claim-enabled-switch">
+                                                 <label class="form-check-label" for="onchain-claim-enabled-switch">Cho phép Claim On-chain</label>
+                                             </div>
+                                         </div>
+                                         <div class="col-md-6">
+                                              <div class="form-check form-switch">
+                                                 <input class="form-check-input" type="checkbox" role="switch" id="offchain-claim-enabled-switch">
+                                                 <label class="form-check-label" for="offchain-claim-enabled-switch">Cho phép Claim Off-chain</label>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     <div id="offchain-settings-container" style="display: none;">
+                                         <h6 class="text-secondary">Chọn sàn được hiển thị</h6>
+                                         <div id="exchange-checkboxes-container" class="d-flex flex-wrap gap-3">
+                                            <!-- Checkboxes for exchanges will be rendered here -->
+                                         </div>
+                                     </div>
+                                    <div id="admin-claim-settings-status" class="mt-3"></div>
                                     <div class="d-flex gap-3 mt-3">
-                                        <button type="button" id="save-settings-btn" class="btn w-100" style="background-color: var(--accent-secondary); color: white;">Lưu Cài Đặt Airdrop</button>
-                                        <button type="button" id="export-csv-btn" class="btn btn-outline-light w-100">Xuất File Excel (CSV)</button>
+                                        <button type="submit" id="save-claim-settings-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;">Lưu Cài Đặt Claim</button>
+                                        <button type="button" id="export-claim-excel-btn" class="btn btn-outline-light w-100">Xuất File Excel</button>
                                     </div>
                                 </form>
                             </div>
                         </div>
                     </div>
+
 
                     <!-- Bảng Chỉnh sửa EXP / Mass Award -->
                     <div id="admin-panel-edit-exp" class="admin-panel-wrapper" style="display: none;">
@@ -1833,6 +1918,22 @@
                                 <div id="admin-user-list-container" class="table-responsive"></div>
                                 <div class="text-center mt-3">
                                     <button id="admin-load-more-btn" class="btn btn-outline-secondary" style="display: none;">Tải thêm</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- [NEW] Bảng Danh sách Claim -->
+                    <div id="admin-panel-claim-list" class="admin-panel-wrapper" style="display: none;">
+                         <div class="col-12">
+                            <div class="card-glass">
+                                <h5 class="card-title">Danh sách Claim Airdrop</h5>
+                                <div id="admin-claim-filter-controls" class="app-filter-bar" style="justify-content: start; margin-bottom: 1.5rem;">
+                                    <!-- Filter buttons will be rendered by JS -->
+                                </div>
+                                <div id="admin-claim-list-container" class="table-responsive"></div>
+                                <div class="text-center mt-3">
+                                    <button id="admin-load-more-claims-btn" class="btn btn-outline-secondary" style="display: none;">Tải thêm</button>
                                 </div>
                             </div>
                         </div>
@@ -2123,9 +2224,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const referralInputContainerHero = document.getElementById('referral-input-container-hero');
     const referralCodeInputHero = document.getElementById('referral-code-input-hero');
     const referralCodeSubmitHero = document.getElementById('referral-code-submit-hero');
-    const saveSettingsBtn = document.getElementById('save-settings-btn');
-    const exportCsvBtn = document.getElementById('export-csv-btn');
-    const adminSettingsStatusEl = document.getElementById('admin-settings-status');
     const contactAdminBtn = document.getElementById('contact-admin-btn');
     const contactAdminModal = new bootstrap.Modal(document.getElementById('contactAdminModal'));
     
@@ -2166,6 +2264,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // [FIX-BUG] Recalculate Button
     const recalculateUsersBtn = document.getElementById('recalculate-users-btn');
     const recalculateStatusEl = document.getElementById('recalculate-status');
+    
+    // [NEW] Admin Airdrop Panel Elements
+    const saveScoringSettingsBtn = document.getElementById('save-scoring-settings-btn');
+    const saveClaimSettingsBtn = document.getElementById('save-claim-settings-btn');
+    const exportClaimExcelBtn = document.getElementById('export-claim-excel-btn');
+    const adminScoringSettingsStatusEl = document.getElementById('admin-scoring-settings-status');
+    const adminClaimSettingsStatusEl = document.getElementById('admin-claim-settings-status');
+    const offchainSettingsContainer = document.getElementById('offchain-settings-container');
+    const offchainClaimEnabledSwitch = document.getElementById('offchain-claim-enabled-switch');
+    const adminClaimListContainer = document.getElementById('admin-claim-list-container');
+    const adminLoadMoreClaimsBtn = document.getElementById('admin-load-more-claims-btn');
+    const adminClaimFilterControls = document.getElementById('admin-claim-filter-controls');
 
 
     const DEFAULT_LOGO_SRC = 'https://bmass.vercel.app/img/bmasslogo.png';
@@ -2187,6 +2297,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let storage = null; // Firebase Storage
     let checkinInterval = null;
     let lastVisibleAdminUser = null; // For admin pagination
+    let lastVisibleAdminClaim = null; // For admin claim list pagination
+    let userAirdropClaimData = null; // [NEW] To store user's claim info
 
     // [UPDATED] Level System Configuration - Now treated as a default/fallback
     let levelConfig = [
@@ -2215,21 +2327,27 @@ document.addEventListener('DOMContentLoaded', () => {
         ]
     }; // Default values
 
+    // [NEW] Exchange Configuration
+    const exchanges = [
+        { id: 'binance', name: 'Binance', logo: 'https://s2.coinmarketcap.com/static/img/exchanges/64x64/270.png' },
+        { id: 'okx', name: 'OKX', logo: 'https://s2.coinmarketcap.com/static/img/exchanges/64x64/294.png' },
+        { id: 'bybit', name: 'Bybit', logo: 'https://bmass.vercel.app/logo-coin/bybitx.png' },
+        { id: 'bitget', name: 'Bitget', logo: 'https://bmass.vercel.app/logo-coin/bitget.jpg' },
+        { id: 'kucoin', name: 'KuCoin', logo: 'https://s2.coinmarketcap.com/static/img/exchanges/64x64/311.png' },
+        { id: 'gateio', name: 'Gate.io', logo: 'https://s2.coinmarketcap.com/static/img/exchanges/64x64/302.png' }
+    ];
+
     // Constants
     const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000;
-    const ADMIN_USERS_PER_PAGE = 50;
+    const ADMIN_LIST_PER_PAGE = 50;
     const BATCH_SIZE = 200; // For mass award processing
     const FIRESTORE_FETCH_BATCH_SIZE = 500; // For fetching all users
     const TELEGRAM_SEND_DELAY_MS = 150; // Delay between each message to avoid rate limits
     
-    const CONFIRM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
-    const REQUEST_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD"; 
-
-    const CONFIRM_AMOUNT_TON = 0.000000001;
-    const CONFIRM_AMOUNT_NANOTONS = String(CONFIRM_AMOUNT_TON * 1e9);
-
-    const REQUEST_AMOUNT_TON = 0.000000001;
-    const REQUEST_AMOUNT_NANOTONS = String(REQUEST_AMOUNT_TON * 1e9);
+    // [UPDATED] On-chain claim constants to match user request
+    const ONCHAIN_CLAIM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD"; // Admin wallet to receive gas fee
+    const ONCHAIN_CLAIM_FEE_TON = 0.02;
+    const ONCHAIN_CLAIM_FEE_NANOTONS = "20000000";
 
     const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
     const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
@@ -2350,7 +2468,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
-    // [UPDATED] to include LEVEL MULTIPLIER
     async function calculateBmassReward(user, settings) {
         if (!user || !settings) return 0;
         
@@ -2360,7 +2477,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const refMultiplier = settings.refMultiplier ?? 50;
         const checkinMultiplier = settings.checkinMultiplier ?? 30;
-        const expMultiplier = settings.expMultiplier ?? 20;
+        const expMultiplier = settings.expMultiplier ?? 1;
 
         // 1. Calculate the base reward
         const baseReward = (refCount * refMultiplier) + (checkinCount * checkinMultiplier) + (expCount * expMultiplier);
@@ -2378,15 +2495,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // 3. Apply the level multiplier
         const finalReward = baseReward * levelMultiplier;
 
-        // 4. Apply confirmation bonus/penalty
-        if (user.hasSentConfirmationTx) {
-            return Math.floor(finalReward);
-        } else {
-            return Math.floor(finalReward * 0.5);
-        }
+        return Math.floor(finalReward);
     }
     
-    // [UPDATED] to handle temporary profiles & LEVEL BACKFILLING
+    // [UPDATED] to include LEVEL BACKFILLING
     async function loadOrCreateUserByAddress(address) {
         if (!address || !db) return;
     
@@ -2423,8 +2535,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 referralCount: 0,
                 referredBy: null,
                 partnerTasksCompletedCount: 0,
-                hasSentConfirmationTx: false,
-                hasRequestedAirdrop: false,
                 disabledUntil: null,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 notificationsEnabled: true,
@@ -2942,7 +3052,7 @@ async function fetchAndRenderLeaderboard() {
         if (isInitialLoad) {
             lastVisibleAdminUser = null;
             // [UPDATED] Added Level column header
-            adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">Lượt mời</th><th scope="col">Check-in</th><th scope="col">N.vụ Partner HT</th><th scope="col">N.vụ Bắt buộc</th><th scope="col">Level</th><th scope="col">EXP</th><th scope="col">Đã xác nhận 100%</th><th scope="col">Đã yêu cầu</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
+            adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">Lượt mời</th><th scope="col">Check-in</th><th scope="col">N.vụ Partner HT</th><th scope="col">N.vụ Bắt buộc</th><th scope="col">Level</th><th scope="col">EXP</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
         }
         
         const tableBody = adminUserListContainer.querySelector('tbody');
@@ -2965,7 +3075,7 @@ async function fetchAndRenderLeaderboard() {
                 } else if (searchQuery.length > 40 && searchQuery.includes(':')) {
                     queries.push(db.collection('users').where('address', '==', searchQuery).get());
                 } else {
-                    const nameQuery = db.collection('users').orderBy('fullName').startAt(searchQuery).endAt(searchQuery + '\uf8ff').limit(ADMIN_USERS_PER_PAGE).get();
+                    const nameQuery = db.collection('users').orderBy('fullName').startAt(searchQuery).endAt(searchQuery + '\uf8ff').limit(ADMIN_LIST_PER_PAGE).get();
                     queries.push(nameQuery);
                 }
 
@@ -2981,13 +3091,13 @@ async function fetchAndRenderLeaderboard() {
                 
                 const userDocs = Array.from(usersMap.values());
                  if (userDocs.length === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="13" class="text-center text-secondary p-3">Không tìm thấy người dùng.</td></tr>`;
+                    tableBody.innerHTML = `<tr><td colspan="11" class="text-center text-secondary p-3">Không tìm thấy người dùng.</td></tr>`;
                     return;
                 }
                 renderAdminUserRows(userDocs, tableBody, mandatoryTaskIds);
                 
             } else {
-                query = db.collection('users').orderBy('createdAt', 'desc').limit(ADMIN_USERS_PER_PAGE);
+                query = db.collection('users').orderBy('createdAt', 'desc').limit(ADMIN_LIST_PER_PAGE);
 
                 if (!isInitialLoad && lastVisibleAdminUser) {
                     query = query.startAfter(lastVisibleAdminUser);
@@ -3004,7 +3114,7 @@ async function fetchAndRenderLeaderboard() {
                 lastVisibleAdminUser = snapshot.docs[snapshot.docs.length - 1];
                 renderAdminUserRows(snapshot.docs, tableBody, mandatoryTaskIds);
 
-                if (snapshot.docs.length < ADMIN_USERS_PER_PAGE) {
+                if (snapshot.docs.length < ADMIN_LIST_PER_PAGE) {
                     adminLoadMoreBtn.style.display = 'none';
                 } else {
                     adminLoadMoreBtn.style.display = 'block';
@@ -3013,7 +3123,7 @@ async function fetchAndRenderLeaderboard() {
 
         } catch (error) {
             console.error("Error fetching user list for admin:", error);
-            tableBody.innerHTML = `<tr><td colspan="13" class="text-center text-danger p-3">Lỗi khi tải danh sách người dùng.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="11" class="text-center text-danger p-3">Lỗi khi tải danh sách người dùng.</td></tr>`;
         } finally {
             adminLoadMoreBtn.disabled = false;
             adminLoadMoreBtn.innerHTML = `Tải thêm`;
@@ -3032,16 +3142,6 @@ async function fetchAndRenderLeaderboard() {
             const avatarUrl = user.photoUrl || GENERIC_WALLET_ICON;
             const joinDate = user.createdAt ? user.createdAt.toDate().toLocaleDateString('vi-VN') : 'N/A';
             
-            const sentTxHtml = `
-                <div class="form-check form-switch d-flex justify-content-center">
-                    <input class="form-check-input admin-tx-status-switch" type="checkbox" role="switch" data-address="${user.address}" ${user.hasSentConfirmationTx ? 'checked' : ''}>
-                </div>`;
-
-            const requestedRewardHtml = `
-                <div class="form-check form-switch d-flex justify-content-center">
-                    <input class="form-check-input admin-request-status-switch" type="checkbox" role="switch" data-address="${user.address}" ${user.hasRequestedAirdrop ? 'checked' : ''}>
-                </div>`;
-
             let statusHtml;
             if (user.disabledUntil && user.disabledUntil.toDate() > new Date()) {
                 statusHtml = `<span class="badge bg-danger">Disabled</span>`;
@@ -3070,7 +3170,7 @@ async function fetchAndRenderLeaderboard() {
             }
             
             const row = tableBody.insertRow();
-            // [UPDATED] Added Level cell
+            // [UPDATED] Added Level cell, removed tx/request switches
             row.innerHTML = `
                 <td>
                     <div class="d-flex align-items-center">
@@ -3088,54 +3188,10 @@ async function fetchAndRenderLeaderboard() {
                 <td>${mandatoryStatusHtml}</td>
                 <td class="fw-bold">${user.level || 1}</td>
                 <td class="fw-bold" style="color: var(--accent-secondary);">${(user.points || 0).toLocaleString()}</td>
-                <td>${sentTxHtml}</td>
-                <td>${requestedRewardHtml}</td>
                 <td>${statusHtml}</td>
                 <td>${joinDate}</td>
             `;
         });
-    }
-    
-    async function handleAdminTxStatusChange(e) {
-        const switchEl = e.target;
-        const userAddress = switchEl.dataset.address;
-        const newStatus = switchEl.checked;
-        
-        if (!userAddress) return;
-        
-        switchEl.disabled = true;
-        try {
-            const userRef = db.collection('users').doc(userAddress);
-            await userRef.update({ hasSentConfirmationTx: newStatus });
-            showAppToast('Thành Công', `Đã cập nhật trạng thái "Xác nhận 100%" cho ví.`, 'success');
-        } catch (error) {
-            console.error("Failed to update user transaction status:", error);
-            showAppToast('Lỗi', 'Cập nhật thất bại. Vui lòng thử lại.', 'error');
-            switchEl.checked = !newStatus;
-        } finally {
-            switchEl.disabled = false;
-        }
-    }
-    
-    async function handleAdminRequestStatusChange(e) {
-        const switchEl = e.target;
-        const userAddress = switchEl.dataset.address;
-        const newStatus = switchEl.checked;
-        
-        if (!userAddress) return;
-        
-        switchEl.disabled = true;
-        try {
-            const userRef = db.collection('users').doc(userAddress);
-            await userRef.update({ hasRequestedAirdrop: newStatus });
-            showAppToast('Thành Công', `Đã cập nhật trạng thái "Yêu cầu Thưởng".`, 'success');
-        } catch (error) {
-            console.error("Failed to update user request status:", error);
-            showAppToast('Lỗi', 'Cập nhật thất bại.', 'error');
-            switchEl.checked = !newStatus; 
-        } finally {
-            switchEl.disabled = false;
-        }
     }
 
     async function handleAdminExpUpdate(e) {
@@ -3395,48 +3451,69 @@ async function fetchAndRenderLeaderboard() {
         }
     }
     
-    async function sendBulkTelegramMessage() {
+    async function sendBulkTelegramMessage(customMessageGenerator = null) {
         const delay = ms => new Promise(res => setTimeout(res, ms));
+        const apiTokenInput = document.getElementById('telegram-api-token-input');
+        const statusEl = customMessageGenerator ? adminClaimSettingsStatusEl : telegramSenderStatus;
 
-        const apiToken = document.getElementById('telegram-api-token-input').value.trim();
-        const text = document.getElementById('telegram-message-text-input').value.trim();
-        const imageUrl = document.getElementById('telegram-image-url-input').value.trim();
-        const buttonText = document.getElementById('telegram-button-text-input').value.trim();
-        const buttonUrl = document.getElementById('telegram-button-url-input').value.trim();
+        const apiToken = apiTokenInput.value.trim();
+        if (!apiToken) { 
+            showAppToast('Lỗi', 'Vui lòng nhập API Token của bot tại tab Messenger.', 'error');
+            if (customMessageGenerator) { // If called from claim management, provide status
+                 statusEl.innerHTML = `<span class="text-danger">Vui lòng nhập API Token trước.</span>`;
+            }
+            return;
+        }
         
-        if (!apiToken) { showAppToast('Lỗi', 'Vui lòng nhập API Token của bot.', 'error'); return; }
-        if (!text && !imageUrl) { showAppToast('Lỗi', 'Vui lòng nhập văn bản tin nhắn hoặc URL hình ảnh.', 'error'); return; }
-        if ((buttonText && !buttonUrl) || (!buttonText && buttonUrl)) { showAppToast('Lỗi', 'Để tạo nút, vui lòng nhập cả Văn bản và URL cho nút.', 'warning'); return; }
+        let targetUsersQuery;
+        let confirmationMessage;
         
-        sendBulkTelegramMessageBtn.disabled = true;
-        telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lấy danh sách người dùng...`;
+        if (customMessageGenerator) {
+             // Logic for sending claim notifications
+            targetUsersQuery = db.collection('airdrop_claims');
+            confirmationMessage = `Bạn có chắc chắn muốn gửi thông báo "đã nhận airdrop" tới tất cả người dùng đã claim không?`;
+
+        } else {
+            // Logic for general bulk messages
+            targetUsersQuery = db.collection('users').where('notificationsEnabled', '!=', false);
+            confirmationMessage = `CẢNH BÁO: Bạn sắp gửi tin nhắn này cho tất cả người dùng đã bật thông báo. Hành động này KHÔNG THỂ hoàn tác. Bạn có chắc chắn muốn tiếp tục?`;
+        }
+
+        if (!confirm(confirmationMessage)) {
+            return;
+        }
+
+        if (!customMessageGenerator) sendBulkTelegramMessageBtn.disabled = true;
+        statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lấy danh sách người dùng...`;
 
         try {
-            const allUsers = [];
+            const usersWithUid = new Map();
             let lastVisible = null;
             while (true) {
-                let query = db.collection('users').orderBy(firebase.firestore.FieldPath.documentId()).limit(FIRESTORE_FETCH_BATCH_SIZE);
+                let query = targetUsersQuery.orderBy(firebase.firestore.FieldPath.documentId()).limit(FIRESTORE_FETCH_BATCH_SIZE);
                 if (lastVisible) {
                     query = query.startAfter(lastVisible);
                 }
                 const snapshot = await query.get();
                 if (snapshot.empty) break;
-                snapshot.forEach(doc => allUsers.push(doc.data()));
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.userId && !usersWithUid.has(data.userId)) {
+                        usersWithUid.set(data.userId, data);
+                    } else if (data.telegramId && !usersWithUid.has(data.telegramId)) {
+                        usersWithUid.set(data.telegramId, data);
+                    }
+                });
                 lastVisible = snapshot.docs[snapshot.docs.length - 1];
-                telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã lấy được ${allUsers.length} người dùng...`;
+                statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã lấy được ${usersWithUid.size} người dùng...`;
             }
 
-            const usersWithUid = allUsers.filter(user => user.telegramId);
-            const totalWithUid = usersWithUid.length;
-            const usersToNotify = usersWithUid.filter(user => user.notificationsEnabled !== false);
+            const usersToNotify = Array.from(usersWithUid.values());
             const totalToNotify = usersToNotify.length;
 
             if (totalToNotify === 0) {
-                telegramSenderStatus.innerHTML = `<span class="text-warning">Không có người dùng nào bật thông báo.</span>`;
-                return;
-            }
-            
-            if (!confirm(`CẢNH BÁO: Bạn sắp gửi tin nhắn này cho ${totalToNotify} / ${totalWithUid} người dùng. Hành động này KHÔNG THỂ hoàn tác. Bạn có chắc chắn muốn tiếp tục?`)) {
+                statusEl.innerHTML = `<span class="text-warning">Không có người dùng nào để thông báo.</span>`;
                 return;
             }
             
@@ -3446,25 +3523,33 @@ async function fetchAndRenderLeaderboard() {
             
             for (let i = 0; i < totalToNotify; i++) {
                 const user = usersToNotify[i];
-                telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang gửi tin ${i + 1}/${totalToNotify}...`;
-                
-                const body = { chat_id: user.telegramId };
-                let method;
+                statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang gửi tin ${i + 1}/${totalToNotify}...`;
 
-                if (buttonText && buttonUrl) {
-                    body.reply_markup = JSON.stringify({
-                        inline_keyboard: [[{ text: buttonText, url: buttonUrl }]]
-                    });
+                let body, method;
+                if (customMessageGenerator) {
+                    ({ body, method } = customMessageGenerator(user));
+                } else {
+                     const text = document.getElementById('telegram-message-text-input').value.trim();
+                    const imageUrl = document.getElementById('telegram-image-url-input').value.trim();
+                    const buttonText = document.getElementById('telegram-button-text-input').value.trim();
+                    const buttonUrl = document.getElementById('telegram-button-url-input').value.trim();
+                     body = {};
+                     if (buttonText && buttonUrl) {
+                        body.reply_markup = JSON.stringify({
+                            inline_keyboard: [[{ text: buttonText, url: buttonUrl }]]
+                        });
+                    }
+                    if (imageUrl) {
+                        method = 'sendPhoto';
+                        body.photo = imageUrl;
+                        if (text) body.caption = text;
+                    } else {
+                        method = 'sendMessage';
+                        body.text = text;
+                    }
                 }
                 
-                if (imageUrl) {
-                    method = 'sendPhoto';
-                    body.photo = imageUrl;
-                    if (text) body.caption = text;
-                } else {
-                    method = 'sendMessage';
-                    body.text = text;
-                }
+                body.chat_id = user.userId || user.telegramId;
                 
                 try {
                     const response = await fetch(baseUrl + method, {
@@ -3477,26 +3562,26 @@ async function fetchAndRenderLeaderboard() {
                         sentCount++;
                     } else {
                         failedCount++;
-                        console.error(`Failed to send to UID ${user.telegramId}: ${result.description}`);
+                        console.error(`Failed to send to UID ${body.chat_id}: ${result.description}`);
                     }
                 } catch (error) {
                     failedCount++;
-                    console.error(`Network error sending to UID ${user.telegramId}:`, error);
+                    console.error(`Network error sending to UID ${body.chat_id}:`, error);
                 }
 
                 await delay(TELEGRAM_SEND_DELAY_MS);
             }
 
-            telegramSenderStatus.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Hoàn tất! Đã gửi: ${sentCount}. Thất bại: ${failedCount}.</span>`;
+            statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Hoàn tất! Đã gửi: ${sentCount}. Thất bại: ${failedCount}.</span>`;
             showAppToast('Hoàn tất gửi hàng loạt', `Thành công: ${sentCount}, Thất bại: ${failedCount}`, 'success');
 
         } catch (error) {
             console.error("Telegram bulk sender error:", error);
-            telegramSenderStatus.innerHTML = `<span class="text-danger">Gửi hàng loạt thất bại: ${error.message}</span>`;
+            statusEl.innerHTML = `<span class="text-danger">Gửi hàng loạt thất bại: ${error.message}</span>`;
             showAppToast('Thất bại', error.message, 'error');
         } finally {
-            sendBulkTelegramMessageBtn.disabled = false;
-            setTimeout(() => { telegramSenderStatus.innerHTML = ''; }, 10000);
+            if (!customMessageGenerator) sendBulkTelegramMessageBtn.disabled = false;
+            setTimeout(() => { statusEl.innerHTML = ''; }, 10000);
         }
     }
 
@@ -3908,33 +3993,37 @@ function renderReferralMilestones() {
     container.innerHTML = html;
 }
 
+    // [UPDATED] Function to fetch settings for BOTH scoring and claiming
     async function fetchAirdropSettings() {
         if (airdropSettings) return airdropSettings;
         try {
             const docRef = db.collection('admin_settings').doc('airdrop_criteria');
             const doc = await docRef.get();
-            if (doc.exists) { airdropSettings = doc.data(); } 
-            else {
+            if (doc.exists) { 
+                airdropSettings = doc.data(); 
+            } else {
                 // Default settings if none are found
                 airdropSettings = { 
-                    isAirdropLive: false, isConfirmationEnabled: false, isClaimingEnabled: false, isSnapshotActive: false,
+                    isAirdropLive: false,
+                    isSnapshotActive: false,
                     minCheckins: 0, minReferrals: 0, minExp: 0,
-                    refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 20,
-                    levelMultipliers: [] // [NEW] Default empty array
+                    refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 1,
+                    levelMultipliers: [],
+                    onchainClaimEnabled: false,
+                    offchainClaimEnabled: false,
+                    allowClaimInfoEdit: true,
+                    notifyAirdropSent: false,
+                    enabledExchanges: []
                 };
             }
             return airdropSettings;
         } catch (error) {
             console.error("Error fetching airdrop settings:", error);
-            return { 
-                isAirdropLive: false, isConfirmationEnabled: false, isClaimingEnabled: false, isSnapshotActive: false,
-                minCheckins: 0, minReferrals: 0, minExp: 0,
-                refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 20,
-                levelMultipliers: []
-            };
+            return null; // Return null on error
         }
     }
     
+    // [RESTRUCTURED] Main function to render the airdrop section
     async function renderAirdropSection() {
         const airdropWrapper = document.getElementById('airdrop-content-wrapper');
         const comingSoonEl = document.getElementById('airdrop-coming-soon');
@@ -3946,6 +4035,13 @@ function renderReferralMilestones() {
         [loggedInContent, loggedOutContent, airdropWrapper, comingSoonEl].forEach(el => el.style.display = 'none');
 
         const settings = await fetchAirdropSettings();
+        if (!settings) {
+            loadingEl.style.display = 'none';
+            airdropWrapper.style.display = 'block';
+            loggedInContent.style.display = 'block';
+            document.getElementById('airdrop-claim-container').innerHTML = `<p class="text-danger text-center">Could not load Airdrop settings. Please try again later.</p>`;
+            return;
+        }
 
         if (!settings.isAirdropLive) {
             loadingEl.style.display = 'none';
@@ -3961,6 +4057,10 @@ function renderReferralMilestones() {
             return;
         }
         
+        // Fetch user's existing claim data
+        const claimDoc = await db.collection('airdrop_claims').doc(currentUserData.address).get();
+        userAirdropClaimData = claimDoc.exists ? claimDoc.data() : null;
+
         const mandatoryTasksCompleted = await checkMandatoryTasksCompletion(currentUserData.address);
         
         const isEligibleByStats = (currentUserData.referralCount || 0) >= settings.minReferrals &&
@@ -3977,129 +4077,238 @@ function renderReferralMilestones() {
         document.getElementById('airdrop-reward-value').textContent = finalReward.toLocaleString();
 
         const eligibilityStatusEl = document.getElementById('airdrop-eligibility-status');
-        const actionsContainer = document.getElementById('airdrop-actions-container');
-        const finalMessageContainer = document.getElementById('airdrop-final-message-container');
-        actionsContainer.innerHTML = '';
-        finalMessageContainer.innerHTML = '';
+        const claimContainer = document.getElementById('airdrop-claim-container');
+        claimContainer.innerHTML = ''; // Clear previous content
         
         if (!isEligibleByStats) {
             eligibilityStatusEl.textContent = 'YOU ARE NOT ELIGIBLE';
             eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
-            actionsContainer.innerHTML = `<p class="text-white-50 mt-3">Continue completing tasks to become eligible.</p>`;
+            claimContainer.innerHTML = `<p class="text-white-50 mt-3">Continue completing tasks to become eligible.</p>`;
         } else if (!mandatoryTasksCompleted) {
             eligibilityStatusEl.textContent = 'YOU ARE NOT ELIGIBLE';
             eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
-            actionsContainer.innerHTML = `<p class="text-warning mt-3">You need to complete all <a href="#partner" style="color: var(--gold); font-weight: bold;">mandatory partner tasks</a> to claim rewards.</p>`;
-        } else if (currentUserData.hasRequestedAirdrop) {
-            eligibilityStatusEl.textContent = '$BMASS CLAIM REQUESTED';
+            claimContainer.innerHTML = `<p class="text-warning mt-3">You need to complete all <a href="#partner" style="color: var(--gold); font-weight: bold;">mandatory partner tasks</a> to claim rewards.</p>`;
+        } else if (settings.notifyAirdropSent && userAirdropClaimData) {
+            eligibilityStatusEl.textContent = 'AIRDROP SENT';
             eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
-            const friendlyAddress = await getFriendlyAddress(currentUserData.address);
-            finalMessageContainer.innerHTML = `
-                <p class="text-white-50 mt-3">Rewards will be distributed to your address soon.</p>
-                <code class="copyable-address fs-6" data-address="${friendlyAddress}">${shortenAddress(friendlyAddress, 10, 10)}</code>
-            `;
+            claimContainer.innerHTML = `<p class="text-white mt-3">Your $BMASS tokens have been sent to the address you provided. Thank you for participating!</p>`;
         } else {
-            const rewardTier = currentUserData.hasSentConfirmationTx ? '100%' : '50%';
-            eligibilityStatusEl.textContent = `YOU ARE ELIGIBLE (${rewardTier})`;
-            eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
-            
-            let buttonsHtml = '';
-
-            if (!currentUserData.hasSentConfirmationTx && !settings.isSnapshotActive && settings.isConfirmationEnabled) {
-                 buttonsHtml += `<p class="text-white-50 mt-3 small">Upgrade your reward tier to <strong class="text-white">100%</strong>.</p>`;
-                 buttonsHtml += `<button id="confirm-button" class="airdrop-action-btn">Claim 100% of $BMASS</button>`;
-            } else if (currentUserData.hasSentConfirmationTx) {
-                 buttonsHtml += `<p class="text-white-50 mt-3 fw-bold" style="color: var(--color-verified)!important;"><i class="fas fa-check-circle me-2"></i>100% Privilege at TGE</p>`;
-            }
-
-            if (!settings.isSnapshotActive && settings.isClaimingEnabled) {
-                buttonsHtml += `<p class="text-white-50 mt-3 small">You are one step away from receiving $BMASS.</p>`;
-                buttonsHtml += `<button id="request-reward-button" class="airdrop-action-btn" style="background: var(--accent-secondary); color: white;">Send Transaction</button>`;
-            } else if (settings.isSnapshotActive) {
-                buttonsHtml += `<p class="mt-3 fw-bold" style="color: var(--gold);"><i class="fas fa-flag-checkered me-2"></i>Final Snapshot!</p><p class="text-white-50">Claiming has ended. Tokens will be distributed soon.</p>`;
-            } else {
-                 buttonsHtml += `<p class="text-white-50 mt-3 fst-italic">Reward claiming will be enabled soon.</p>`;
-            }
-
-            actionsContainer.innerHTML = buttonsHtml;
-            
-            const confirmBtn = document.getElementById('confirm-button');
-            const requestBtn = document.getElementById('request-reward-button');
-            if (confirmBtn) confirmBtn.addEventListener('click', handleConfirmationRequest);
-            if (requestBtn) requestBtn.addEventListener('click', handleAirdropRequest);
+             eligibilityStatusEl.textContent = `YOU ARE ELIGIBLE`;
+             eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
+             renderClaimUI(claimContainer, settings, finalReward);
         }
         
         loadingEl.style.display = 'none';
         loggedInContent.style.display = 'block';
     }
 
-    async function handleConfirmationRequest() {
-        const confirmButton = document.getElementById('confirm-button');
-        if (!confirmButton) return;
+    // [NEW] Renders the core UI for claiming
+    function renderClaimUI(container, settings, rewardAmount) {
+        if (!settings.isSnapshotActive) {
+            container.innerHTML = `<p class="text-white-50 mt-3 fst-italic">The claim process will begin after the snapshot. Stay tuned!</p>`;
+            return;
+        }
 
-        confirmButton.disabled = true;
-        confirmButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
+        // User has already submitted their claim info
+        if (userAirdropClaimData) {
+            let detailsHtml = '';
+            if (userAirdropClaimData.method === 'onchain') {
+                detailsHtml = `
+                    <p class="m-0"><strong>Method:</strong> On-chain</p>
+                    <p class="m-0"><strong>Your Wallet:</strong> <code class="copyable-address" data-address="${userAirdropClaimData.claimAddress}">${shortenAddress(userAirdropClaimData.claimAddress)}</code></p>
+                `;
+            } else { // offchain
+                 detailsHtml = `
+                    <p class="m-0"><strong>Method:</strong> Off-chain</p>
+                    <p class="m-0"><strong>Exchange:</strong> ${userAirdropClaimData.exchange}</p>
+                    <p class="m-0"><strong>Address:</strong> <code>${shortenAddress(userAirdropClaimData.claimAddress, 10, 10)}</code></p>
+                    ${userAirdropClaimData.memo ? `<p class="m-0"><strong>Memo:</strong> <code>${userAirdropClaimData.memo}</code></p>` : ''}
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="card-glass p-3 mt-3" style="background: rgba(43, 203, 196, 0.1);">
+                    <h6 class="text-secondary"><i class="fas fa-check-circle me-2 text-success"></i>Claim Information Submitted</h6>
+                    ${detailsHtml}
+                </div>
+                ${settings.allowClaimInfoEdit ? '<button id="edit-claim-info-btn" class="btn btn-sm btn-outline-light mt-3">Edit Information</button>' : '<p class="text-secondary small mt-3">Editing is no longer possible.</p>'}
+            `;
+
+             if (settings.allowClaimInfoEdit) {
+                document.getElementById('edit-claim-info-btn').addEventListener('click', () => {
+                    userAirdropClaimData = null; // Reset to allow re-rendering of claim options
+                    renderClaimUI(container, settings, rewardAmount);
+                });
+            }
+            return;
+        }
         
+        // User has NOT submitted claim info yet, show options
+        let html = '<p class="text-white mt-3">Please select your preferred method to receive the airdrop:</p>';
+        
+        if (settings.onchainClaimEnabled) {
+            html += `<button id="claim-onchain-btn" class="airdrop-claim-btn claim-btn-onchain"><i class="fas fa-wallet me-2"></i>Claim On-chain (Costs ${ONCHAIN_CLAIM_FEE_TON} TON gas)</button>`;
+        }
+
+        if (settings.offchainClaimEnabled) {
+            html += `<button id="claim-offchain-btn" class="airdrop-claim-btn claim-btn-offchain mt-2"><i class="fas fa-building-columns me-2"></i>Claim via Exchange (Off-chain)</button>`;
+        }
+
+        html += `<div id="offchain-claim-details" class="mt-4" style="display: none;"></div>`;
+
+        container.innerHTML = html;
+
+        if (settings.onchainClaimEnabled) {
+            document.getElementById('claim-onchain-btn').addEventListener('click', () => handleOnchainClaim(rewardAmount));
+        }
+
+        if (settings.offchainClaimEnabled) {
+            document.getElementById('claim-offchain-btn').addEventListener('click', () => renderOffchainForm(settings.enabledExchanges, rewardAmount));
+        }
+    }
+
+    // [NEW] Renders the Off-chain specific form
+    function renderOffchainForm(enabledExchanges, rewardAmount) {
+        const offchainContainer = document.getElementById('offchain-claim-details');
+        if (!offchainContainer) return;
+
+        document.getElementById('claim-onchain-btn')?.remove();
+        document.getElementById('claim-offchain-btn')?.remove();
+
+        const availableExchanges = exchanges.filter(ex => enabledExchanges.includes(ex.id));
+
+        if (availableExchanges.length === 0) {
+            offchainContainer.innerHTML = `<p class="text-warning text-center">No exchanges are currently enabled by the admin.</p>`;
+            offchainContainer.style.display = 'block';
+            return;
+        }
+
+        let exchangesHtml = availableExchanges.map(ex => `
+            <button type="button" class="exchange-btn" data-exchange-id="${ex.id}" data-exchange-name="${ex.name}" title="${ex.name}">
+                <img src="${ex.logo}" alt="${ex.name} logo">
+            </button>
+        `).join('');
+
+        offchainContainer.innerHTML = `
+            <div class="card-glass p-3">
+                <h6 class="text-secondary text-center">1. Select Exchange</h6>
+                <div class="exchange-selector">${exchangesHtml}</div>
+                <h6 class="text-secondary text-center mt-4">2. Enter Details</h6>
+                <form id="offchain-form" class="mt-3">
+                    <div class="mb-3">
+                        <label for="offchain-address" class="form-label">Deposit Address</label>
+                        <input type="text" id="offchain-address" class="form-control" placeholder="Enter your deposit address from the exchange" required>
+                    </div>
+                     <div class="mb-3">
+                        <label for="offchain-memo" class="form-label">Memo / Tag (If required)</label>
+                        <input type="text" id="offchain-memo" class="form-control" placeholder="Enter the memo/tag if the exchange requires one">
+                         <div class="form-text">Leave blank if not required by your exchange.</div>
+                    </div>
+                    <button type="submit" id="submit-offchain-claim" class="airdrop-claim-btn claim-btn-onchain">Submit Off-chain Info</button>
+                </form>
+            </div>
+        `;
+        offchainContainer.style.display = 'block';
+
+        document.querySelector('.exchange-selector').addEventListener('click', (e) => {
+            const btn = e.target.closest('.exchange-btn');
+            if (btn) {
+                document.querySelectorAll('.exchange-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+            }
+        });
+
+        document.getElementById('offchain-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleOffchainSubmit(rewardAmount);
+        });
+    }
+
+    // [UPDATED] Handles the On-chain claim process with new parameters and NO payload
+    async function handleOnchainClaim(rewardAmount) {
+        const claimBtn = document.getElementById('claim-onchain-btn');
+        if (!claimBtn) return;
+        
+        claimBtn.disabled = true;
+        claimBtn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
+        
+        // Transaction object matches the user's requested format, without the payload
         const transaction = {
-            validUntil: Math.floor(Date.now() / 1000) + 60,
+            validUntil: Math.floor(Date.now() / 1000) + 60, // 60 seconds
             messages: [{
-                address: CONFIRM_WALLET_ADDRESS,
-                amount: CONFIRM_AMOUNT_NANOTONS,
-                payload: btoa(`confirm-100-for-${currentUserData.address}`)
+                address: ONCHAIN_CLAIM_WALLET_ADDRESS,
+                amount: ONCHAIN_CLAIM_FEE_NANOTONS // "20000000"
             }]
         };
 
         try {
-            await tonConnectUI.sendTransaction(transaction);
+            // Send the transaction using TonConnectUI
+            const result = await tonConnectUI.sendTransaction(transaction);
             
-            const userRef = db.collection('users').doc(currentUserData.address);
-            await userRef.update({ hasSentConfirmationTx: true });
+            // On success, save the claim data to Firestore
+            const claimData = {
+                userId: currentUserData.telegramId,
+                method: 'onchain',
+                claimAddress: currentUserData.address, // For on-chain, claim address is the user's own wallet
+                bmassAmount: rewardAmount,
+                transactionBoc: result.boc, // Store the transaction boc for verification
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
 
-            currentUserData.hasSentConfirmationTx = true;
-            showAppToast('Success', '100% confirmation transaction sent!', 'success');
-            renderAirdropSection();
+            await db.collection('airdrop_claims').doc(currentUserData.address).set(claimData);
+
+            showAppToast('Success', 'On-chain claim transaction sent! Your information is saved.', 'success');
+            await renderAirdropSection(); // Re-render to show completion status
 
         } catch (error) {
-            console.error("Confirmation transaction failed:", error);
-            showAppToast('Transaction Failed', 'Please try again.', 'error');
-            confirmButton.disabled = false;
-            confirmButton.textContent = 'Confirm (Get 100%)';
+            console.error("On-chain claim transaction failed:", error);
+            showAppToast('Transaction Failed', 'Your claim was not submitted. Please try again.', 'error');
+            claimBtn.disabled = false;
+            claimBtn.innerHTML = `<i class="fas fa-wallet me-2"></i>Claim On-chain (Costs ${ONCHAIN_CLAIM_FEE_TON} TON gas)`;
         }
     }
-    
-    async function handleAirdropRequest() {
-        const requestButton = document.getElementById('request-reward-button');
-        if (!requestButton) return;
-        
-        requestButton.disabled = true;
-        requestButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Requesting...`;
 
-        const transaction = {
-            validUntil: Math.floor(Date.now() / 1000) + 60,
-            messages: [{
-                address: REQUEST_WALLET_ADDRESS,
-                amount: REQUEST_AMOUNT_NANOTONS,
-                payload: btoa(`request-airdrop-for-${currentUserData.address}`)
-            }]
+    // [NEW] Handles the Off-chain claim submission
+    async function handleOffchainSubmit(rewardAmount) {
+        const submitBtn = document.getElementById('submit-offchain-claim');
+        const selectedExchangeEl = document.querySelector('.exchange-btn.selected');
+        const addressInput = document.getElementById('offchain-address');
+        const memoInput = document.getElementById('offchain-memo');
+
+        if (!selectedExchangeEl) {
+            showAppToast('Error', 'Please select an exchange.', 'error');
+            return;
+        }
+        if (!addressInput.value.trim()) {
+            showAppToast('Error', 'Please enter your deposit address.', 'error');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Saving...`;
+
+        const claimData = {
+            userId: currentUserData.telegramId,
+            method: 'offchain',
+            exchange: selectedExchangeEl.dataset.exchangeName,
+            claimAddress: addressInput.value.trim(),
+            memo: memoInput.value.trim() || null,
+            bmassAmount: rewardAmount,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
 
         try {
-            await tonConnectUI.sendTransaction(transaction);
-            
-            const userRef = db.collection('users').doc(currentUserData.address);
-            await userRef.update({ hasRequestedAirdrop: true });
-
-            currentUserData.hasRequestedAirdrop = true;
-            showAppToast('Request Successful!', 'Your claim request has been recorded.', 'success');
-            renderAirdropSection();
-
-        } catch(error) {
-             console.error("Airdrop request transaction failed:", error);
-            showAppToast('Request Failed', 'Please try again.', 'error');
-            requestButton.disabled = false;
-            requestButton.textContent = 'Request Reward';
+            await db.collection('airdrop_claims').doc(currentUserData.address).set(claimData);
+            showAppToast('Success', 'Your off-chain claim information has been saved.', 'success');
+            await renderAirdropSection(); // Re-render to show completion status
+        } catch (error) {
+            console.error("Failed to save off-chain claim data:", error);
+            showAppToast('Error', 'Could not save your information. Please try again.', 'error');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Off-chain Info';
         }
     }
+
 
     function identifyTelegramUser() {
         try {
@@ -4237,6 +4446,7 @@ function renderReferralMilestones() {
             lastFetchedAddress = null;
             currentUserData = null;
             currentActivityLogs = [];
+            userAirdropClaimData = null; // [NEW] Clear on disconnect
 
             tonConnectButtonRoot.style.display = 'block';
             customWalletContainer.style.display = 'none';
@@ -4276,6 +4486,11 @@ function renderReferralMilestones() {
             if (adminUserPanel.style.display !== 'none') {
                 fetchAndRenderAdminUserList(true); 
             }
+             const adminClaimPanel = document.getElementById('admin-panel-claim-list');
+            if (adminClaimPanel.style.display !== 'none') {
+                renderAdminClaimFilters();
+                fetchAndRenderAdminClaimList(true);
+            }
             const adminPartnerPanel = document.getElementById('admin-panel-partner-tasks');
              if (adminPartnerPanel.style.display !== 'none') {
                  renderAdminPartnerTasks();
@@ -4283,17 +4498,24 @@ function renderReferralMilestones() {
             maintenanceModeSwitch.checked = systemStatus.isMaintenanceMode;
             // Fetch and populate airdrop settings
             fetchAirdropSettings().then(settings => {
-                 document.getElementById('airdrop-live-switch').checked = settings.isAirdropLive || false;
-                 document.getElementById('confirmation-enabled-switch').checked = settings.isConfirmationEnabled || false;
-                 document.getElementById('claim-enabled-switch').checked = settings.isClaimingEnabled || false;
-                 document.getElementById('snapshot-active-switch').checked = settings.isSnapshotActive || false;
+                 if (!settings) return;
+                 // Scoring Tab
+                 document.getElementById('ref-multiplier-input').value = settings.refMultiplier ?? 50;
+                 document.getElementById('checkin-multiplier-input').value = settings.checkinMultiplier ?? 30;
+                 document.getElementById('exp-multiplier-input').value = settings.expMultiplier ?? 1;
                  document.getElementById('min-checkins-input').value = settings.minCheckins || 0;
                  document.getElementById('min-referrals-input').value = settings.minReferrals || 0;
                  document.getElementById('min-exp-input').value = settings.minExp || 0;
-                 document.getElementById('ref-multiplier-input').value = settings.refMultiplier ?? 50;
-                 document.getElementById('checkin-multiplier-input').value = settings.checkinMultiplier ?? 30;
-                 document.getElementById('exp-multiplier-input').value = settings.expMultiplier ?? 20;
-                 renderLevelMultipliersUI(settings.levelMultipliers); // [NEW] Render level multipliers
+                 renderLevelMultipliersUI(settings.levelMultipliers);
+                 // Claim Tab
+                 document.getElementById('airdrop-live-switch').checked = settings.isAirdropLive || false;
+                 document.getElementById('snapshot-active-switch').checked = settings.isSnapshotActive || false;
+                 document.getElementById('claim-edit-switch').checked = settings.allowClaimInfoEdit === true;
+                 document.getElementById('notify-sent-switch').checked = settings.notifyAirdropSent || false;
+                 document.getElementById('onchain-claim-enabled-switch').checked = settings.onchainClaimEnabled || false;
+                 offchainClaimEnabledSwitch.checked = settings.offchainClaimEnabled || false;
+                 renderAdminExchangeCheckboxes(settings.enabledExchanges || []);
+                 offchainSettingsContainer.style.display = offchainClaimEnabledSwitch.checked ? 'block' : 'none';
             });
         } else { 
             if (isLoggedIn) { dashboardEl.style.display = 'block'; } 
@@ -4569,7 +4791,7 @@ function renderReferralMilestones() {
                     }
                 });
             }
-            totalValueUsdEl.textContent = `$${totalValueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                        totalValueUsdEl.textContent = `$${totalValueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             totalValueVndEl.textContent = `${totalValueVnd.toLocaleString('vi-VN')} VND`;
             portfolioSkeleton.style.display = 'none';
             portfolioContent.style.display = 'block';
@@ -4825,30 +5047,16 @@ function renderReferralMilestones() {
         sidebarMenu.classList.toggle('open');
         sidebarOverlay.classList.toggle('open');
     };
-
-    // [UPDATED] to include saving level multipliers
-    async function saveAirdropSettings() {
-        // ... (phần code thu thập dữ liệu form giữ nguyên) ...
-        const isAirdropLive = document.getElementById('airdrop-live-switch').checked;
-        const isConfirmationEnabled = document.getElementById('confirmation-enabled-switch').checked;
-        const isClaimingEnabled = document.getElementById('claim-enabled-switch').checked;
-        const isSnapshotActive = document.getElementById('snapshot-active-switch').checked;
-
-        if (isSnapshotActive && !airdropSettings?.isSnapshotActive) {
-            if (!confirm("CẢNH BÁO: Bạn sắp kích hoạt Snapshot. Hành động này sẽ DỪNG tất cả các hoạt động kiếm điểm. Hành động này không thể hoàn tác. Bạn có chắc chắn muốn tiếp tục không?")) {
-                document.getElementById('snapshot-active-switch').checked = false;
-                return;
-            }
-        }
-
-        const minCheckins = parseInt(document.getElementById('min-checkins-input').value, 10);
-        const minReferrals = parseInt(document.getElementById('min-referrals-input').value, 10);
-        const minExp = parseInt(document.getElementById('min-exp-input').value, 10);
+    
+    // [NEW] Save Airdrop SCORING Settings
+    async function saveAirdropScoringSettings() {
         const refMultiplier = parseFloat(document.getElementById('ref-multiplier-input').value) || 0;
         const checkinMultiplier = parseFloat(document.getElementById('checkin-multiplier-input').value) || 0;
         const expMultiplier = parseFloat(document.getElementById('exp-multiplier-input').value) || 0;
+        const minCheckins = parseInt(document.getElementById('min-checkins-input').value, 10);
+        const minReferrals = parseInt(document.getElementById('min-referrals-input').value, 10);
+        const minExp = parseInt(document.getElementById('min-exp-input').value, 10);
 
-        // [NEW] Collect level multipliers
         const levelMultipliers = [];
         document.querySelectorAll('.level-multiplier-item').forEach(item => {
             const level = parseInt(item.dataset.level, 10);
@@ -4857,122 +5065,146 @@ function renderReferralMilestones() {
                 levelMultipliers.push({ level, multiplier });
             }
         });
-
-        if (isNaN(minCheckins) || isNaN(minReferrals) || isNaN(minExp) || isNaN(refMultiplier) || isNaN(checkinMultiplier) || isNaN(expMultiplier)) {
-            showAppToast('Lỗi', 'Vui lòng nhập giá trị số hợp lệ.', 'error');
-            return;
+        
+        if ([minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier].some(isNaN)) {
+             showAppToast('Lỗi', 'Vui lòng nhập giá trị số hợp lệ.', 'error');
+             return;
         }
 
-        saveSettingsBtn.disabled = true;
-        adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
+        saveScoringSettingsBtn.disabled = true;
+        adminScoringSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
+        
+        try {
+            const settingsRef = db.collection('admin_settings').doc('airdrop_criteria');
+            const newSettings = { minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier, levelMultipliers };
+            await settingsRef.set(newSettings, { merge: true });
+            airdropSettings = { ...airdropSettings, ...newSettings }; // Update local cache
+            adminScoringSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
+            showAppToast('Thành công', 'Đã lưu cài đặt tính điểm.', 'success');
+        } catch(error) {
+             console.error("Error saving airdrop scoring settings:", error);
+            adminScoringSettingsStatusEl.innerHTML = `<span class="text-danger">Lưu thất bại.</span>`;
+            showAppToast('Lỗi', 'Không thể lưu cài đặt tính điểm.', 'error');
+        } finally {
+            saveScoringSettingsBtn.disabled = false;
+            setTimeout(() => { adminScoringSettingsStatusEl.innerHTML = ''; }, 3000);
+        }
+    }
+
+    // [NEW] Save Airdrop CLAIM Settings
+    async function saveAirdropClaimSettings() {
+        const isAirdropLive = document.getElementById('airdrop-live-switch').checked;
+        const isSnapshotActive = document.getElementById('snapshot-active-switch').checked;
+        const allowClaimInfoEdit = document.getElementById('claim-edit-switch').checked;
+        const notifyAirdropSent = document.getElementById('notify-sent-switch').checked;
+        const onchainClaimEnabled = document.getElementById('onchain-claim-enabled-switch').checked;
+        const offchainClaimEnabled = document.getElementById('offchain-claim-enabled-switch').checked;
+        
+        if (isSnapshotActive && !airdropSettings?.isSnapshotActive) {
+            if (!confirm("CẢNH BÁO: Bạn sắp kích hoạt Snapshot. Hành động này sẽ DỪNG tất cả các hoạt động kiếm điểm và cho phép người dùng bắt đầu claim. Hành động này không thể hoàn tác. Bạn có chắc chắn muốn tiếp tục không?")) {
+                document.getElementById('snapshot-active-switch').checked = false;
+                return;
+            }
+        }
+
+        const enabledExchanges = [];
+        document.querySelectorAll('#exchange-checkboxes-container input[type="checkbox"]:checked').forEach(checkbox => {
+            enabledExchanges.push(checkbox.value);
+        });
+        
+        saveClaimSettingsBtn.disabled = true;
+        adminClaimSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
 
         try {
             const settingsRef = db.collection('admin_settings').doc('airdrop_criteria');
-            const newSettings = { isAirdropLive, isConfirmationEnabled, isClaimingEnabled, isSnapshotActive, minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier, levelMultipliers };
-            await settingsRef.set(newSettings, { merge: true });
-            airdropSettings = newSettings;
-            adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
-            showAppToast('Thành công', 'Đã lưu cài đặt Airdrop.', 'success');
+            const newSettings = { isAirdropLive, isSnapshotActive, allowClaimInfoEdit, notifyAirdropSent, onchainClaimEnabled, offchainClaimEnabled, enabledExchanges };
+             await settingsRef.set(newSettings, { merge: true });
+            
+             // Check if the notifyAirdropSent status has just been flipped to true
+            const shouldNotify = notifyAirdropSent && (!airdropSettings || !airdropSettings.notifyAirdropSent);
+
+            airdropSettings = { ...airdropSettings, ...newSettings }; // Update local cache
+            adminClaimSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
+            showAppToast('Thành công', 'Đã lưu cài đặt Claim.', 'success');
+
+             if (shouldNotify) {
+                handleNotifyAirdropSent();
+            }
+
         } catch (error) {
-            console.error("Error saving airdrop settings:", error);
-            adminSettingsStatusEl.innerHTML = `<span class="text-danger">Lưu thất bại.</span>`;
-            showAppToast('Lỗi', 'Không thể lưu cài đặt.', 'error');
+            console.error("Error saving airdrop claim settings:", error);
+            adminClaimSettingsStatusEl.innerHTML = `<span class="text-danger">Lưu thất bại.</span>`;
+            showAppToast('Lỗi', 'Không thể lưu cài đặt Claim.', 'error');
         } finally {
-            saveSettingsBtn.disabled = false;
-            setTimeout(() => { adminSettingsStatusEl.innerHTML = ''; }, 3000);
+            saveClaimSettingsBtn.disabled = false;
+            setTimeout(() => { adminClaimSettingsStatusEl.innerHTML = ''; }, 4000);
         }
     }
     
-    async function exportAirdropData() {
-        exportCsvBtn.disabled = true;
-        adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang chuẩn bị dữ liệu...`;
+    // [NEW] Function to trigger notification sending for claimed users
+    function handleNotifyAirdropSent() {
+        const messageGenerator = (user) => {
+            let memoText = user.memo ? ` (memo: ${user.memo})` : '';
+            const text = `🎉 Congratulations! Your $BMASS airdrop has been sent to your specified address: \n\n${user.claimAddress}${memoText}\n\nThank you for being a part of the Bmass community!`;
+            return {
+                body: { text: text },
+                method: 'sendMessage'
+            };
+        };
+        sendBulkTelegramMessage(messageGenerator);
+    }
+    
+    // [UPDATED] Export Airdrop CLAIM Data to Excel
+    async function exportAirdropClaimData() {
+        exportClaimExcelBtn.disabled = true;
+        adminClaimSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang chuẩn bị dữ liệu...`;
         
         try {
-            const settings = await fetchAirdropSettings();
-            
-            const finalAirdropList = [];
-            let lastVisible = null;
-            let processedCount = 0;
-
-            while (true) {
-                let query = db.collection('users').orderBy(firebase.firestore.FieldPath.documentId()).limit(500);
-                if(lastVisible) {
-                    query = query.startAfter(lastVisible);
-                }
-                const snapshot = await query.get();
-                if (snapshot.empty) break;
-
-                const userDocs = snapshot.docs;
-                const eligibilityPromises = userDocs.map(doc => {
-                    const user = doc.data();
-                    
-                    const processUser = async () => {
-                        const isEligibleByStats = (user.referralCount || 0) >= settings.minReferrals &&
-                                                (user.checkinCount || 0) >= settings.minCheckins &&
-                                                (user.points || 0) >= settings.minExp;
-                        
-                        if (isEligibleByStats && user.hasRequestedAirdrop) {
-                            const mandatoryTasksCompleted = await checkMandatoryTasksCompletion(user.address);
-                            if (mandatoryTasksCompleted) {
-                                const finalReward = await calculateBmassReward(user, settings);
-                                if (finalReward > 0) {
-                                    return { address: user.address, reward: finalReward };
-                                }
-                            }
-                        }
-                        return null;
-                    };
-                    return processUser();
-                });
-
-                const results = await Promise.all(eligibilityPromises);
-                results.forEach(result => {
-                    if (result) {
-                        finalAirdropList.push(result);
-                    }
-                });
-
-                processedCount += userDocs.length;
-                adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã xử lý ${processedCount} người dùng...`;
-
-                if (userDocs.length < 500) break; 
-                lastVisible = userDocs[userDocs.length - 1];
-            }
-            
-            adminSettingsStatusEl.innerHTML = `<i class="fas fa-file-csv me-2"></i>Đang tạo file...`;
-            
-            if (finalAirdropList.length === 0) {
-                showAppToast('Thông báo', 'Không có người dùng nào đủ điều kiện và yêu cầu nhận Airdrop.', 'info');
-                adminSettingsStatusEl.innerHTML = `<span class="text-warning">Không có ai yêu cầu.</span>`;
+            const snapshot = await db.collection('airdrop_claims').get();
+            if (snapshot.empty) {
+                 showAppToast('Thông báo', 'Không có dữ liệu claim nào để xuất.', 'info');
+                adminClaimSettingsStatusEl.innerHTML = `<span class="text-warning">Không có dữ liệu.</span>`;
                 return;
             }
 
-            let csvContent = "address,quantity\n";
-            finalAirdropList.forEach(item => {
-                csvContent += `${item.address},${item.reward}\n`;
+            adminClaimSettingsStatusEl.innerHTML = `<i class="fas fa-file-excel me-2"></i>Đang tạo file Excel...`;
+
+            const claimsBySheet = {};
+            
+            snapshot.forEach(doc => {
+                const item = doc.data();
+                const sheetName = item.method === 'onchain' ? 'On-chain' : item.exchange;
+                if (!sheetName) return; // Skip if exchange name is missing
+
+                if (!claimsBySheet[sheetName]) {
+                    claimsBySheet[sheetName] = [];
+                }
+                
+                claimsBySheet[sheetName].push({
+                    'địa_chỉ_ví': item.claimAddress,
+                    'số_lượng': item.bmassAmount
+                });
             });
 
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            const airdropDate = new Date().toISOString().slice(0, 10);
-            link.setAttribute("download", `airdrop-request-list-${airdropDate}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const wb = XLSX.utils.book_new();
+            for (const sheetName in claimsBySheet) {
+                const ws = XLSX.utils.json_to_sheet(claimsBySheet[sheetName]);
+                XLSX.utils.book_append_sheet(wb, ws, sheetName);
+            }
 
-            showAppToast('Thành công', `Đã xuất ${finalAirdropList.length} người dùng đã yêu cầu.`, 'success');
-            adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã xuất file thành công!</span>`;
+            const exportDate = new Date().toISOString().slice(0, 10);
+            XLSX.writeFile(wb, `bmass-airdrop-claims-${exportDate}.xlsx`);
+            
+            showAppToast('Thành công', `Đã xuất ${snapshot.size} bản ghi claim.`, 'success');
+            adminClaimSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã xuất file thành công!</span>`;
 
         } catch (error) {
-            console.error("Error exporting airdrop data:", error);
+            console.error("Error exporting airdrop claim data:", error);
             showAppToast('Lỗi', 'Không thể xuất dữ liệu.', 'error');
-            adminSettingsStatusEl.innerHTML = `<span class="text-danger">Xuất file thất bại.</span>`;
+            adminClaimSettingsStatusEl.innerHTML = `<span class="text-danger">Xuất file thất bại.</span>`;
         } finally {
-            exportCsvBtn.disabled = false;
-            setTimeout(() => { adminSettingsStatusEl.innerHTML = ''; }, 4000);
+            exportClaimExcelBtn.disabled = false;
+            setTimeout(() => { adminClaimSettingsStatusEl.innerHTML = ''; }, 4000);
         }
     }
     
@@ -5372,6 +5604,7 @@ function renderReferralMilestones() {
         const operator = document.getElementById('admin-audit-operator').value;
         const conditionValue = parseInt(document.getElementById('admin-audit-condition-value').value, 10);
         const expAmount = parseInt(document.getElementById('admin-audit-exp-amount').value, 10);
+        const taskName = eventId; // Use eventId as task name for history
 
         if (!eventId || !taskName || isNaN(expAmount) || expAmount <= 0) {
             showAppToast('Lỗi', 'Vui lòng điền đầy đủ và chính xác các trường.', 'error');
@@ -5441,7 +5674,7 @@ function renderReferralMilestones() {
 
                         const historyRef = userRef.collection('task_history').doc();
                         writeBatch.set(historyRef, {
-                            taskName: eventId,
+                            taskName: taskName,
                             exp: expAmount,
                             timestamp: newTimestamp,
                             eventId: eventId // IMPORTANT: Store the eventId for future checks
@@ -5477,46 +5710,40 @@ function renderReferralMilestones() {
     checkinButton.addEventListener('click', handleCheckin);
     popupCheckinButton.addEventListener('click', handleCheckin);
     if (adminExpForm) adminExpForm.addEventListener('submit', handleAdminExpUpdate);
-    if (sendBulkTelegramMessageBtn) sendBulkTelegramMessageBtn.addEventListener('click', sendBulkTelegramMessage);
+    
+    // [UPDATED] Use the same function for both bulk messaging types
+    if (sendBulkTelegramMessageBtn) sendBulkTelegramMessageBtn.addEventListener('click', () => sendBulkTelegramMessage(null));
 
     if (adminMassAwardForm) adminMassAwardForm.addEventListener('submit', handleMassAward);
     if (adminMassConditionType) {
         adminMassConditionType.addEventListener('change', (e) => {
-            if (e.target.value === 'all') {
-                adminMassConditionWrapper.style.display = 'none';
-            } else {
-                adminMassConditionWrapper.style.display = 'block';
-            }
+            adminMassConditionWrapper.style.display = (e.target.value === 'all') ? 'none' : 'block';
         });
     }
      // [NEW-FEATURE] Audit form listener
     if (adminAuditAwardForm) adminAuditAwardForm.addEventListener('submit', handleAuditAndAward);
     if (adminAuditConditionType) {
         adminAuditConditionType.addEventListener('change', (e) => {
-            if (e.target.value === 'all') {
-                adminAuditConditionWrapper.style.display = 'none';
-            } else {
-                adminAuditConditionWrapper.style.display = 'block';
-            }
+            adminAuditConditionWrapper.style.display = (e.target.value === 'all') ? 'none' : 'block';
         });
     }
 
-    if(adminUserListContainer) adminUserListContainer.addEventListener('change', (e) => {
-        if (e.target.classList.contains('admin-tx-status-switch')) {
-            handleAdminTxStatusChange(e);
-        } else if (e.target.classList.contains('admin-request-status-switch')) {
-            handleAdminRequestStatusChange(e);
+    if (adminLoadMoreBtn) adminLoadMoreBtn.addEventListener('click', () => fetchAndRenderAdminUserList(false));
+    if (adminLoadMoreClaimsBtn) adminLoadMoreClaimsBtn.addEventListener('click', () => fetchAndRenderAdminClaimList(false));
+    if (adminClaimFilterControls) adminClaimFilterControls.addEventListener('click', (e) => {
+        const target = e.target.closest('.app-filter-btn');
+        if (target) {
+            adminClaimFilterControls.querySelector('.active').classList.remove('active');
+            target.classList.add('active');
+            fetchAndRenderAdminClaimList(true); // Re-fetch with new filter
         }
     });
-    
-    if (adminDisableBtn) adminDisableBtn.addEventListener('click', () => updateUserStatus(false));
-    if (adminEnableBtn) adminEnableBtn.addEventListener('click', () => updateUserStatus(true));
 
-    if (adminLoadMoreBtn) adminLoadMoreBtn.addEventListener('click', () => fetchAndRenderAdminUserList(false));
     referralCodeSubmit.addEventListener('click', handleManualReferralInput);
     referralCodeSubmitHero.addEventListener('click', handleManualReferralInput);
-    if(saveSettingsBtn) saveSettingsBtn.addEventListener('click', saveAirdropSettings);
-    if(exportCsvBtn) exportCsvBtn.addEventListener('click', exportAirdropData);
+    if(saveScoringSettingsBtn) saveScoringSettingsBtn.addEventListener('click', (e) => { e.preventDefault(); saveAirdropScoringSettings(); });
+    if(saveClaimSettingsBtn) saveClaimSettingsBtn.addEventListener('click', (e) => { e.preventDefault(); saveAirdropClaimSettings(); });
+    if(exportClaimExcelBtn) exportClaimExcelBtn.addEventListener('click', exportAirdropClaimData);
     if (adminUserSearchInput) {
         adminUserSearchInput.addEventListener('input', () => {
             clearTimeout(searchTimeout);
@@ -5530,6 +5757,11 @@ function renderReferralMilestones() {
     if (adminPartnerTaskForm) adminPartnerTaskForm.addEventListener('submit', handleAdminPartnerTaskSave);
     if (partnerTaskClearBtn) partnerTaskClearBtn.addEventListener('click', clearPartnerTaskForm);
     if (adminPartnerTasksList) adminPartnerTasksList.addEventListener('click', handleAdminPartnerTaskActions);
+    if (offchainClaimEnabledSwitch) {
+        offchainClaimEnabledSwitch.addEventListener('change', (e) => {
+            offchainSettingsContainer.style.display = e.target.checked ? 'block' : 'none';
+        });
+    }
 
     customWalletButton.addEventListener('click', () => { walletDropdown.style.display = walletDropdown.style.display === 'block' ? 'none' : 'block'; });
     copyAddressBtn.addEventListener('click', (e) => { e.preventDefault(); const address = e.currentTarget.dataset.address; const textSpan = e.currentTarget.querySelector('span'); if (address) navigator.clipboard.writeText(address).then(() => { textSpan.textContent = 'Copied!'; setTimeout(() => { textSpan.textContent = 'Copy Address'; }, 2000); }); });
@@ -5727,6 +5959,23 @@ function renderReferralMilestones() {
         });
     }
 
+    // [NEW] Render Exchange Checkboxes in Admin Panel
+    function renderAdminExchangeCheckboxes(enabledExchanges = []) {
+        const container = document.getElementById('exchange-checkboxes-container');
+        container.innerHTML = '';
+        exchanges.forEach(ex => {
+            const isChecked = enabledExchanges.includes(ex.id);
+            container.innerHTML += `
+                 <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="${ex.id}" id="ex-check-${ex.id}" ${isChecked ? 'checked' : ''}>
+                    <label class="form-check-label" for="ex-check-${ex.id}">
+                        ${ex.name}
+                    </label>
+                </div>
+            `;
+        });
+    }
+
 
     function addLevelRow(levelData = {}) {
         const container = document.getElementById('level-settings-container');
@@ -5813,8 +6062,19 @@ function renderReferralMilestones() {
                     renderLevelSettingsUI();
                 } else if (targetId === '#admin-panel-users') {
                     fetchAndRenderAdminUserList(true);
+                } else if (targetId === '#admin-panel-claim-list') { // [NEW]
+                    renderAdminClaimFilters();
+                    fetchAndRenderAdminClaimList(true);
                 } else if (targetId === '#admin-panel-partner-tasks') {
                     renderAdminPartnerTasks();
+                } else if (targetId === '#admin-panel-airdrop') {
+                    // Re-fetch and render settings when tab is clicked
+                    fetchAirdropSettings().then(settings => {
+                         if (!settings) return;
+                         renderLevelMultipliersUI(settings.levelMultipliers);
+                         renderAdminExchangeCheckboxes(settings.enabledExchanges || []);
+                         offchainSettingsContainer.style.display = document.getElementById('offchain-claim-enabled-switch').checked ? 'block' : 'none';
+                    });
                 }
             }
         }
