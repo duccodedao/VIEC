@@ -3199,11 +3199,10 @@ function renderAdminClaimFilters() {
 
     adminClaimFilterControls.innerHTML = filtersHtml;
 }
-
-// --- START: THAY THẾ HÀM CŨ BẰNG HÀM NÀY ---
+// --- START: THAY THẾ HÀM fetchAndRenderAdminClaimList CŨ BẰNG HÀM NÀY ---
 
 /**
- * Lấy dữ liệu claim, phát hiện trùng lặp, và hiển thị ra bảng.
+ * [NÂNG CẤP] Lấy dữ liệu claim, phát hiện trùng lặp (chỉ user có UID), và hiển thị.
  * Hỗ trợ lọc và phân trang.
  * @param {boolean} isInitialLoad - True nếu tải lần đầu.
  */
@@ -3215,7 +3214,6 @@ async function fetchAndRenderAdminClaimList(isInitialLoad = true) {
 
     if (isInitialLoad) {
         lastVisibleAdminClaim = null;
-        // Thêm cột mới "Tình trạng" vào bảng
         adminClaimListContainer.innerHTML = `
             <table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;">
                 <thead>
@@ -3238,7 +3236,6 @@ async function fetchAndRenderAdminClaimList(isInitialLoad = true) {
     }
 
     try {
-        // --- Logic truy vấn và lọc ---
         let query = db.collection('airdrop_claims');
         const activeFilterEl = adminClaimFilterControls.querySelector('.active');
         const filterValue = activeFilterEl ? activeFilterEl.dataset.filter : 'all';
@@ -3252,31 +3249,29 @@ async function fetchAndRenderAdminClaimList(isInitialLoad = true) {
         }
         query = query.orderBy('timestamp', 'desc');
 
-        // --- Logic phát hiện trùng lặp ---
-        // Lấy TOÀN BỘ dữ liệu khớp với bộ lọc để phân tích (không phân trang ở bước này)
         const fullSnapshot = await query.get();
         const claims = fullSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-        const addressTracker = new Map(); // Key: 'exchange-address', Value: { userId, docId }
-        const userTracker = new Set();    // Set chứa các userId đã gặp
-        const duplicates = new Map();     // Key: docId, Value: { type, message }
+        const addressTracker = new Map();
+        const userTracker = new Set();
+        const duplicates = new Map();
 
         for (const claim of claims) {
-            // 1. Kiểm tra trùng User ID
-            if (userTracker.has(claim.userId)) {
-                duplicates.set(claim.id, { type: 'user', message: `Trùng User ID: ${claim.userId}` });
+            // [THAY ĐỔI LOGIC] Chỉ kiểm tra trùng User ID nếu user đó có User ID
+            if (claim.userId) {
+                if (userTracker.has(claim.userId)) {
+                    duplicates.set(claim.id, { type: 'user', message: `Trùng User ID: ${claim.userId}` });
+                }
+                userTracker.add(claim.userId);
             }
-            userTracker.add(claim.userId);
 
-            // 2. Kiểm tra trùng địa chỉ ví off-chain
             if (claim.method === 'offchain' && claim.exchange && claim.claimAddress) {
                 const key = `${claim.exchange}-${claim.claimAddress.toLowerCase().trim()}`;
                 if (addressTracker.has(key)) {
                     const originalClaim = addressTracker.get(key);
-                    // Đánh dấu cả bản ghi gốc và bản ghi trùng lặp
-                    duplicates.set(claim.id, { type: 'address', message: `Trùng địa chỉ với User ID: ${originalClaim.userId}` });
+                    duplicates.set(claim.id, { type: 'address', message: `Trùng địa chỉ với User ID: ${originalClaim.userId || 'N/A'}` });
                     if (!duplicates.has(originalClaim.docId)) {
-                        duplicates.set(originalClaim.docId, { type: 'address', message: `Địa chỉ bị trùng bởi User ID: ${claim.userId}` });
+                        duplicates.set(originalClaim.docId, { type: 'address', message: `Địa chỉ bị trùng bởi User ID: ${claim.userId || 'N/A'}` });
                     }
                 } else {
                     addressTracker.set(key, { userId: claim.userId, docId: claim.id });
@@ -3284,10 +3279,9 @@ async function fetchAndRenderAdminClaimList(isInitialLoad = true) {
             }
         }
 
-        // --- Logic hiển thị và phân trang ---
-        const startIndex = isInitialLoad ? 0 : (claims.findIndex(c => c.id === lastVisibleAdminClaim.id) + 1);
+        const startIndex = isInitialLoad ? 0 : (claims.findIndex(c => c.id === (lastVisibleAdminClaim ? lastVisibleAdminClaim.id : -1)) + 1);
         const claimsToShow = claims.slice(startIndex, startIndex + ADMIN_LIST_PER_PAGE);
-
+        
         if (isInitialLoad) {
             tableBody.innerHTML = '';
         }
@@ -3298,7 +3292,9 @@ async function fetchAndRenderAdminClaimList(isInitialLoad = true) {
             return;
         }
 
-        lastVisibleAdminClaim = { id: claims[startIndex + claimsToShow.length - 1]?.id };
+        if (claimsToShow.length > 0) {
+            lastVisibleAdminClaim = { id: claims[startIndex + claimsToShow.length - 1].id };
+        }
 
         claimsToShow.forEach(claim => {
             const claimDate = claim.timestamp ? claim.timestamp.toDate().toLocaleString('vi-VN') : 'N/A';
@@ -3332,7 +3328,6 @@ async function fetchAndRenderAdminClaimList(isInitialLoad = true) {
             `;
         });
         
-        // Cập nhật nút "Tải thêm"
         if ((startIndex + claimsToShow.length) >= claims.length) {
             adminLoadMoreClaimsBtn.style.display = 'none';
         } else {
@@ -3349,8 +3344,7 @@ async function fetchAndRenderAdminClaimList(isInitialLoad = true) {
         adminLoadMoreClaimsBtn.innerHTML = `Tải thêm`;
     }
 }
-// --- END: THAY THẾ HÀM CŨ BẰNG HÀM NÀY ---
-
+// --- END: THAY THẾ HÀM fetchAndRenderAdminClaimList ---
 
 
 
@@ -4497,7 +4491,12 @@ function renderReferralMilestones() {
         }
     }
 
-    // [NEW] Handles the Off-chain claim submission
+    // --- START: THAY THẾ HÀM handleOffchainSubmit CŨ BẰNG HÀM NÀY ---
+
+    /**
+     * [NÂNG CẤP] Xử lý việc gửi thông tin claim off-chain.
+     * Tích hợp kiểm tra trùng lặp địa chỉ ví ngay lập tức trước khi gửi.
+     */
     async function handleOffchainSubmit(rewardAmount) {
         const submitBtn = document.getElementById('submit-offchain-claim');
         const selectedExchangeEl = document.querySelector('.exchange-btn.selected');
@@ -4505,39 +4504,74 @@ function renderReferralMilestones() {
         const memoInput = document.getElementById('offchain-memo');
 
         if (!selectedExchangeEl) {
-            showAppToast('Error', 'Please select an exchange.', 'error');
+            showAppToast('Lỗi', 'Vui lòng chọn một sàn giao dịch.', 'error');
             return;
         }
-        if (!addressInput.value.trim()) {
-            showAppToast('Error', 'Please enter your deposit address.', 'error');
+        const exchangeName = selectedExchangeEl.dataset.exchangeName;
+        const claimAddress = addressInput.value.trim();
+
+        if (!claimAddress) {
+            showAppToast('Lỗi', 'Vui lòng nhập địa chỉ nạp tiền của bạn.', 'error');
             return;
         }
 
         submitBtn.disabled = true;
-        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Saving...`;
-
-        const claimData = {
-            userId: currentUserData.telegramId,
-            userName: currentUserData.fullName || currentUserData.username,
-            method: 'offchain',
-            exchange: selectedExchangeEl.dataset.exchangeName,
-            claimAddress: addressInput.value.trim(),
-            memo: memoInput.value.trim() || null,
-            bmassAmount: rewardAmount,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        };
+        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang kiểm tra...`;
 
         try {
-            await db.collection('airdrop_claims').doc(currentUserData.address).set(claimData);
-            showAppToast('Success', 'Your off-chain claim information has been saved.', 'success');
-            await renderAirdropSection(); // Re-render to show completion status
+            // --- KIỂM TRA TRÙNG LẶP ĐỊA CHỈ TRƯỚC KHI LƯU ---
+            const query = db.collection('airdrop_claims')
+                .where('exchange', '==', exchangeName)
+                .where('claimAddress', '==', claimAddress);
+                
+            const snapshot = await query.get();
+
+            if (!snapshot.empty) {
+                // Tìm xem có bản ghi nào không phải của chính user này không
+                let isDuplicate = false;
+                snapshot.forEach(doc => {
+                    if (doc.data().userId !== currentUserData.telegramId) {
+                        isDuplicate = true;
+                    }
+                });
+
+                if (isDuplicate) {
+                    showAppToast('Địa chỉ đã tồn tại', 'Địa chỉ ví này đã được sử dụng bởi một tài khoản khác. Vui lòng sử dụng địa chỉ khác.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Gửi thông tin Off-chain';
+                    return; // Dừng thực thi
+                }
+            }
+            // --- KẾT THÚC KIỂM TRA ---
+
+            submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
+
+            const claimData = {
+                userId: currentUserData.telegramId,
+                userName: currentUserData.fullName || currentUserData.username,
+                method: 'offchain',
+                exchange: exchangeName,
+                claimAddress: claimAddress,
+                memo: memoInput.value.trim() || null,
+                bmassAmount: rewardAmount,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            // Dùng set với merge:true để ghi đè nếu user gửi lại thông tin, thay vì báo lỗi
+            await db.collection('airdrop_claims').doc(currentUserData.address).set(claimData, { merge: true });
+            
+            showAppToast('Thành công', 'Thông tin claim của bạn đã được lưu lại.', 'success');
+            await renderAirdropSection(); // Tải lại để hiển thị trạng thái đã hoàn thành
+
         } catch (error) {
-            console.error("Failed to save off-chain claim data:", error);
-            showAppToast('Error', 'Could not save your information. Please try again.', 'error');
+            console.error("Lỗi khi lưu thông tin claim off-chain:", error);
+            showAppToast('Lỗi', 'Không thể lưu thông tin. Vui lòng thử lại.', 'error');
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Submit Off-chain Info';
+            submitBtn.textContent = 'Gửi thông tin Off-chain';
         }
     }
+
+// --- END: THAY THẾ HÀM handleOffchainSubmit ---
 
 
     function identifyTelegramUser() {
@@ -5383,17 +5417,16 @@ function renderReferralMilestones() {
         };
         sendBulkTelegramMessage(messageGenerator);
     }
-    // --- START: THAY THẾ HÀM EXCEL CŨ BẰNG HÀM NÀY ---
+// --- START: THAY THẾ HÀM EXCEL CŨ BẰNG HÀM NÀY ---
 
 /**
- * Xuất dữ liệu claim đã được lọc ra file Excel, bao gồm cột trạng thái trùng lặp.
+ * [NÂNG CẤP] Xuất dữ liệu claim đã lọc, với logic phát hiện trùng lặp đã được cập nhật.
  */
 async function exportFilteredAirdropClaimData() {
     exportClaimExcelBtn.disabled = true;
     adminClaimSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang chuẩn bị dữ liệu...`;
 
     try {
-        // --- Xây dựng lại truy vấn và bộ lọc giống hệt hàm hiển thị ---
         let query = db.collection('airdrop_claims');
         const activeFilterEl = adminClaimFilterControls.querySelector('.active');
         const filterValue = activeFilterEl ? activeFilterEl.dataset.filter : 'all';
@@ -5410,7 +5443,6 @@ async function exportFilteredAirdropClaimData() {
         }
         query = query.orderBy('timestamp', 'desc');
 
-        // --- Lấy và phân tích dữ liệu trùng lặp ---
         const fullSnapshot = await query.get();
         if (fullSnapshot.empty) {
             showAppToast('Thông báo', 'Không có dữ liệu claim nào để xuất.', 'info');
@@ -5426,18 +5458,21 @@ async function exportFilteredAirdropClaimData() {
         const duplicates = new Map();
 
         for (const claim of claims) {
-            if (userTracker.has(claim.userId)) {
-                duplicates.set(claim.id, { type: 'user', message: `Trùng User ID: ${claim.userId}` });
+            // [THAY ĐỔI LOGIC] Chỉ kiểm tra trùng User ID nếu user đó có User ID
+            if (claim.userId) {
+                if (userTracker.has(claim.userId)) {
+                    duplicates.set(claim.id, { type: 'user', message: `Trùng User ID: ${claim.userId}` });
+                }
+                userTracker.add(claim.userId);
             }
-            userTracker.add(claim.userId);
 
             if (claim.method === 'offchain' && claim.exchange && claim.claimAddress) {
                 const key = `${claim.exchange}-${claim.claimAddress.toLowerCase().trim()}`;
                 if (addressTracker.has(key)) {
                     const originalClaim = addressTracker.get(key);
-                    duplicates.set(claim.id, { type: 'address', message: `Trùng địa chỉ với User ID: ${originalClaim.userId}` });
+                    duplicates.set(claim.id, { type: 'address', message: `Trùng địa chỉ với User ID: ${originalClaim.userId || 'N/A'}` });
                     if (!duplicates.has(originalClaim.docId)) {
-                        duplicates.set(originalClaim.docId, { type: 'address', message: `Địa chỉ bị trùng bởi User ID: ${claim.userId}` });
+                        duplicates.set(originalClaim.docId, { type: 'address', message: `Địa chỉ bị trùng bởi User ID: ${claim.userId || 'N/A'}` });
                     }
                 } else {
                     addressTracker.set(key, { userId: claim.userId, docId: claim.id });
@@ -5445,7 +5480,6 @@ async function exportFilteredAirdropClaimData() {
             }
         }
         
-        // --- Chuẩn bị dữ liệu để xuất Excel ---
         const dataForExcel = claims.map(claim => {
             const duplicateInfo = duplicates.get(claim.id);
             let status = 'Hợp lệ';
@@ -5485,7 +5519,7 @@ async function exportFilteredAirdropClaimData() {
         setTimeout(() => { adminClaimSettingsStatusEl.innerHTML = ''; }, 4000);
     }
 }
-// --- END: THAY THẾ HÀM EXCEL CŨ BẰNG HÀM NÀY ---
+// --- END: THAY THẾ HÀM EXCEL ---
     
     async function renderPartnerSection() {
         if (!partnerTasksContainer || !db || !connectedWalletAddress) return;
