@@ -37,11 +37,11 @@
     
     <!-- [NEW] SheetJS Library for Excel Export -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family/Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
       /* =================================================================== */
       /* [NEW VERSION] ROOT VARIABLES & KEYFRAME ANIMATIONS
@@ -983,7 +983,212 @@
         transform: translateY(-2px);
         border-color: var(--border-color);
     }
-    </style>
+
+
+
+    
+
+
+
+/* =================================================================== */
+/* [V-ULTIMATE] GIAO DIỆN COSMIC CLAIM STEPPER (3 BƯỚC)
+/* =================================================================== */
+
+/* --- Keyframes Animations --- */
+@keyframes pulse-glow {
+    0% { box-shadow: 0 0 15px 0px rgba(43, 203, 196, 0.4); }
+    50% { box-shadow: 0 0 25px 8px rgba(43, 203, 196, 0.7); }
+    100% { box-shadow: 0 0 15px 0px rgba(43, 203, 196, 0.4); }
+}
+
+@keyframes content-fade-in {
+    from { opacity: 0; transform: translateY(30px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes rocket-fly {
+    0% { transform: translateY(0) rotate(-45deg); opacity: 0.8; }
+    100% { transform: translateY(-300px) rotate(-45deg); opacity: 0; }
+}
+
+/* --- Main Container --- */
+.claim-stepper-container {
+    background: rgba(10, 13, 34, 0.7);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 1.5rem;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    margin-top: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+@media (min-width: 768px) {
+    .claim-stepper-container {
+        padding: 2rem;
+    }
+}
+
+/* --- Stepper Visual --- */
+.claim-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 5%;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.step-node {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--card-color);
+    border: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: var(--text-secondary);
+    position: relative;
+    z-index: 2;
+    transition: all 0.4s ease;
+}
+
+.step-node.active {
+    background: var(--accent-secondary);
+    border-color: var(--accent-secondary);
+    color: white;
+    box-shadow: 0 0 20px rgba(43, 203, 196, 0.5);
+    animation: pulse-glow 2s infinite ease-in-out;
+}
+
+.step-node.completed {
+    background: var(--color-verified);
+    border-color: var(--color-verified);
+    color: white;
+}
+
+.step-connector {
+    position: absolute;
+    top: 50%;
+    left: 15%;
+    width: 70%;
+    height: 2px;
+    background-color: var(--border-color);
+    z-index: 1;
+    transform: translateY(-50%);
+}
+
+.step-connector .connector-progress {
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-verified), var(--accent-secondary));
+    transition: width 0.5s ease-out;
+}
+
+/* --- Content Panels --- */
+.claim-step-content {
+    display: none; /* Mặc định ẩn tất cả */
+}
+
+.claim-step-content.active {
+    display: block;
+    animation: content-fade-in 0.6s ease-out forwards;
+}
+
+.step-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+.step-header h4 {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+.step-header p {
+    color: var(--text-secondary);
+    max-width: 500px;
+    margin: 0.5rem auto 0;
+}
+
+/* --- Step 1 & 2 Panels --- */
+.choice-panels-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+@media (min-width: 768px) {
+    .choice-panels-container {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.choice-panel {
+    background: var(--card-color);
+    border: 1px solid transparent;
+    border-radius: 16px;
+    padding: 1.5rem;
+    cursor: pointer;
+    text-align: center;
+    transition: var(--transition-smooth);
+}
+.choice-panel:hover {
+    transform: translateY(-5px);
+    background: rgba(145, 94, 255, 0.1);
+    border-color: var(--accent-primary);
+}
+.choice-panel-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--accent-primary);
+}
+.choice-panel-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+.choice-panel-desc {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.details-panel-container {
+    background: rgba(0,0,0,0.2);
+    border-radius: 16px;
+    padding: 1.5rem;
+}
+.details-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* --- Step 3: Success View --- */
+.success-panel {
+    text-align: center;
+    padding: 2rem 1rem;
+    position: relative;
+}
+.success-icon {
+    font-size: 4rem;
+    color: var(--color-verified);
+    line-height: 1;
+}
+.success-panel .rocket-icon {
+    position: absolute;
+    bottom: -50px;
+    right: 0;
+    font-size: 4rem;
+    color: var(--text-primary);
+    opacity: 0;
+    animation: rocket-fly 1.5s 0.5s ease-in forwards;
+}
+</style>
 </head>
 <body>
     <!-- [NEW] Maintenance Overlay -->
@@ -3042,48 +3247,82 @@ async function fetchAndRenderLeaderboard() {
         totalUsersCountSpan.textContent = 'Error';
     }
 }
-    
+     /**
+     * Lấy dữ liệu người dùng cho trang quản trị từ Firestore và hiển thị ra bảng.
+     * Hàm này hỗ trợ cả việc tải ban đầu, tìm kiếm, và tải thêm (phân trang).
+     * @param {boolean} isInitialLoad - Mặc định là true. Nếu là true, hàm sẽ xóa bảng cũ và tải lại từ đầu.
+     *                                 Nếu là false, hàm sẽ tải trang dữ liệu tiếp theo.
+     */
     async function fetchAndRenderAdminUserList(isInitialLoad = true) {
+        // 1. Kiểm tra điều kiện cần thiết: container hiển thị và kết nối DB phải tồn tại.
         if (!adminUserListContainer || !db) return;
 
+        // 2. Cập nhật giao diện để báo cho người dùng biết quá trình đang tải.
         adminLoadMoreBtn.disabled = true;
         adminLoadMoreBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Loading...`;
 
+        // 3. Nếu là lần tải đầu tiên, reset con trỏ phân trang và tạo lại cấu trúc bảng.
         if (isInitialLoad) {
-            lastVisibleAdminUser = null;
-            // [UPDATED] Added Level column header
-            adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">Lượt mời</th><th scope="col">Check-in</th><th scope="col">N.vụ Partner HT</th><th scope="col">N.vụ Bắt buộc</th><th scope="col">Level</th><th scope="col">EXP</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
+            lastVisibleAdminUser = null; // Reset con trỏ cho việc tải thêm
+            // Tạo tiêu đề cho bảng
+            adminUserListContainer.innerHTML = `
+                <table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">User</th>
+                            <th scope="col">Wallet Address</th>
+                            <th scope="col">UID</th>
+                            <th scope="col">Lượt mời</th>
+                            <th scope="col">Check-in</th>
+                            <th scope="col">N.vụ Partner HT</th>
+                            <th scope="col">N.vụ Bắt buộc</th>
+                            <th scope="col">Level</th>
+                            <th scope="col">EXP</th>
+                            <th scope="col">Account Status</th>
+                            <th scope="col">Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>`;
         }
         
         const tableBody = adminUserListContainer.querySelector('tbody');
         if (isInitialLoad) {
-            tableBody.innerHTML = ''; 
+            tableBody.innerHTML = ''; // Xóa các dòng cũ nếu có
         }
         
         try {
+            // 4. Lấy danh sách các nhiệm vụ bắt buộc để kiểm tra trạng thái hoàn thành của từng user.
             const mandatoryTasksSnapshot = await db.collection('partner_tasks').where('taskType', '==', 'mandatory').get();
             const mandatoryTaskIds = new Set(mandatoryTasksSnapshot.docs.map(doc => doc.id));
 
             const searchQuery = adminUserSearchInput.value.trim();
             let query;
 
+            // 5. Xử lý logic tìm kiếm nếu người dùng có nhập vào ô tìm kiếm.
             if (searchQuery) {
-                adminLoadMoreBtn.style.display = 'none'; 
+                adminLoadMoreBtn.style.display = 'none'; // Ẩn nút "Tải thêm" khi tìm kiếm
                 let queries = [];
+                // Tìm theo UID nếu query là số
                 if (!isNaN(searchQuery)) {
                     queries.push(db.collection('users').where('telegramId', '==', parseInt(searchQuery, 10)).get());
-                } else if (searchQuery.length > 40 && searchQuery.includes(':')) {
+                } 
+                // Tìm theo địa chỉ ví nếu query có định dạng ví
+                else if (searchQuery.length > 40 && searchQuery.includes(':')) {
                     queries.push(db.collection('users').where('address', '==', searchQuery).get());
-                } else {
+                } 
+                // Tìm theo tên
+                else {
                     const nameQuery = db.collection('users').orderBy('fullName').startAt(searchQuery).endAt(searchQuery + '\uf8ff').limit(ADMIN_LIST_PER_PAGE).get();
                     queries.push(nameQuery);
                 }
 
+                // Chạy các truy vấn tìm kiếm song song và gộp kết quả
                 const snapshots = await Promise.all(queries);
                 const usersMap = new Map();
                 snapshots.forEach(snapshot => {
                     snapshot.forEach(doc => {
-                        if (!usersMap.has(doc.id)) {
+                        if (!usersMap.has(doc.id)) { // Dùng Map để tránh trùng lặp user
                             usersMap.set(doc.id, doc);
                         }
                     });
@@ -3094,41 +3333,229 @@ async function fetchAndRenderLeaderboard() {
                     tableBody.innerHTML = `<tr><td colspan="11" class="text-center text-secondary p-3">Không tìm thấy người dùng.</td></tr>`;
                     return;
                 }
+                // Gọi hàm phụ để hiển thị các dòng dữ liệu
                 renderAdminUserRows(userDocs, tableBody, mandatoryTaskIds);
                 
-            } else {
+            } 
+            // 6. Nếu không tìm kiếm, thực hiện logic tải danh sách mặc định (có phân trang).
+            else {
+                // Tạo truy vấn cơ bản: lấy user, sắp xếp theo ngày tạo mới nhất
                 query = db.collection('users').orderBy('createdAt', 'desc').limit(ADMIN_LIST_PER_PAGE);
 
+                // Nếu không phải lần tải đầu (người dùng nhấn "Tải thêm"), bắt đầu từ user cuối cùng của lần tải trước.
                 if (!isInitialLoad && lastVisibleAdminUser) {
                     query = query.startAfter(lastVisibleAdminUser);
                 }
 
                 const snapshot = await query.get();
 
+                // Nếu không có user nào trong toàn bộ DB
                 if (snapshot.empty && isInitialLoad) {
                     adminUserListContainer.innerHTML = `<p class="text-secondary text-center p-3">No users found.</p>`;
                     adminLoadMoreBtn.style.display = 'none';
                     return;
                 }
 
+                // Lưu lại user cuối cùng của lần tải này để làm con trỏ cho lần tải tiếp theo
                 lastVisibleAdminUser = snapshot.docs[snapshot.docs.length - 1];
+                // Gọi hàm phụ để hiển thị các dòng dữ liệu
                 renderAdminUserRows(snapshot.docs, tableBody, mandatoryTaskIds);
 
+                // Ẩn/hiện nút "Tải thêm" dựa trên số lượng kết quả trả về
                 if (snapshot.docs.length < ADMIN_LIST_PER_PAGE) {
-                    adminLoadMoreBtn.style.display = 'none';
+                    adminLoadMoreBtn.style.display = 'none'; // Hết dữ liệu
                 } else {
-                    adminLoadMoreBtn.style.display = 'block';
+                    adminLoadMoreBtn.style.display = 'block'; // Vẫn còn dữ liệu
                 }
             }
 
         } catch (error) {
+            // 7. Xử lý lỗi nếu quá trình lấy dữ liệu thất bại.
             console.error("Error fetching user list for admin:", error);
             tableBody.innerHTML = `<tr><td colspan="11" class="text-center text-danger p-3">Lỗi khi tải danh sách người dùng.</td></tr>`;
         } finally {
+            // 8. Dù thành công hay thất bại, luôn kích hoạt lại nút "Tải thêm"
             adminLoadMoreBtn.disabled = false;
             adminLoadMoreBtn.innerHTML = `Tải thêm`;
         }
     }
+
+
+
+
+
+
+
+// --- START: ĐOẠN MÃ ĐỂ SỬA CLAIM LIST ---
+
+/**
+ * Tạo các nút lọc cho bảng danh sách claim dựa trên các phương thức có sẵn.
+ */
+function renderAdminClaimFilters() {
+    if (!adminClaimFilterControls) return;
+
+    let filtersHtml = '<button class="app-filter-btn active" data-filter="all">Tất cả</button>';
+    filtersHtml += '<button class="app-filter-btn" data-filter="onchain">On-chain</button>';
+    
+    // Tự động tạo nút lọc cho mỗi sàn giao dịch đã được định nghĩa trong biến `exchanges`
+    exchanges.forEach(ex => {
+        filtersHtml += `<button class="app-filter-btn" data-filter="${ex.name}">${ex.name}</button>`;
+    });
+
+    adminClaimFilterControls.innerHTML = filtersHtml;
+}
+// --- START: THAY THẾ HÀM fetchAndRenderAdminClaimList CŨ BẰNG HÀM NÀY ---
+
+/**
+ * [NÂNG CẤP] Lấy dữ liệu claim, phát hiện trùng lặp (chỉ user có UID), và hiển thị.
+ * Hỗ trợ lọc và phân trang.
+ * @param {boolean} isInitialLoad - True nếu tải lần đầu.
+ */
+async function fetchAndRenderAdminClaimList(isInitialLoad = true) {
+    if (!adminClaimListContainer || !db) return;
+
+    adminLoadMoreClaimsBtn.disabled = true;
+    adminLoadMoreClaimsBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Đang tải...`;
+
+    if (isInitialLoad) {
+        lastVisibleAdminClaim = null;
+        adminClaimListContainer.innerHTML = `
+            <table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;">
+                <thead>
+                    <tr>
+                        <th scope="col">Người dùng</th>
+                        <th scope="col">Phương thức</th>
+                        <th scope="col">Chi tiết Claim</th>
+                        <th scope="col">Số lượng ($BMASS)</th>
+                        <th scope="col">Thời gian</th>
+                        <th scope="col">Tình trạng</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>`;
+    }
+
+    const tableBody = adminClaimListContainer.querySelector('tbody');
+    if (isInitialLoad) {
+        tableBody.innerHTML = '<tr><td colspan="6" class="text-center p-3">Đang tải và phân tích dữ liệu...</td></tr>';
+    }
+
+    try {
+        let query = db.collection('airdrop_claims');
+        const activeFilterEl = adminClaimFilterControls.querySelector('.active');
+        const filterValue = activeFilterEl ? activeFilterEl.dataset.filter : 'all';
+
+        if (filterValue !== 'all') {
+            if (filterValue === 'onchain') {
+                query = query.where('method', '==', 'onchain');
+            } else {
+                query = query.where('exchange', '==', filterValue);
+            }
+        }
+        query = query.orderBy('timestamp', 'desc');
+
+        const fullSnapshot = await query.get();
+        const claims = fullSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        const addressTracker = new Map();
+        const userTracker = new Set();
+        const duplicates = new Map();
+
+        for (const claim of claims) {
+            // [THAY ĐỔI LOGIC] Chỉ kiểm tra trùng User ID nếu user đó có User ID
+            if (claim.userId) {
+                if (userTracker.has(claim.userId)) {
+                    duplicates.set(claim.id, { type: 'user', message: `Trùng User ID: ${claim.userId}` });
+                }
+                userTracker.add(claim.userId);
+            }
+
+            if (claim.method === 'offchain' && claim.exchange && claim.claimAddress) {
+                const key = `${claim.exchange}-${claim.claimAddress.toLowerCase().trim()}`;
+                if (addressTracker.has(key)) {
+                    const originalClaim = addressTracker.get(key);
+                    duplicates.set(claim.id, { type: 'address', message: `Trùng địa chỉ với User ID: ${originalClaim.userId || 'N/A'}` });
+                    if (!duplicates.has(originalClaim.docId)) {
+                        duplicates.set(originalClaim.docId, { type: 'address', message: `Địa chỉ bị trùng bởi User ID: ${claim.userId || 'N/A'}` });
+                    }
+                } else {
+                    addressTracker.set(key, { userId: claim.userId, docId: claim.id });
+                }
+            }
+        }
+
+        const startIndex = isInitialLoad ? 0 : (claims.findIndex(c => c.id === (lastVisibleAdminClaim ? lastVisibleAdminClaim.id : -1)) + 1);
+        const claimsToShow = claims.slice(startIndex, startIndex + ADMIN_LIST_PER_PAGE);
+        
+        if (isInitialLoad) {
+            tableBody.innerHTML = '';
+        }
+
+        if (claimsToShow.length === 0 && isInitialLoad) {
+            tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-secondary p-3">Không có dữ liệu.</td></tr>`;
+            adminLoadMoreClaimsBtn.style.display = 'none';
+            return;
+        }
+
+        if (claimsToShow.length > 0) {
+            lastVisibleAdminClaim = { id: claims[startIndex + claimsToShow.length - 1].id };
+        }
+
+        claimsToShow.forEach(claim => {
+            const claimDate = claim.timestamp ? claim.timestamp.toDate().toLocaleString('vi-VN') : 'N/A';
+            let detailsHtml = '';
+            
+            const duplicateInfo = duplicates.get(claim.id);
+            let statusBadge = '<span class="badge bg-success">Hợp lệ</span>';
+            if (duplicateInfo) {
+                statusBadge = `<span class="badge bg-danger" title="${duplicateInfo.message}">${duplicateInfo.type === 'user' ? 'Trùng User' : 'Trùng Ví'}</span>`;
+            }
+
+            if (claim.method === 'onchain') {
+                detailsHtml = `<code class="copyable-address" data-address="${claim.claimAddress}" title="Click to copy">${shortenAddress(claim.claimAddress)}</code>`;
+            } else {
+                detailsHtml = `<strong>Địa chỉ:</strong> <code class="text-break">${claim.claimAddress}</code>
+                               ${claim.memo ? `<br><strong>Memo/Tag:</strong> <code>${claim.memo}</code>` : ''}`;
+            }
+
+            const methodBadge = claim.method === 'onchain' ?
+                `<span class="badge" style="background-color: var(--accent-primary);">On-chain</span>` :
+                `<span class="badge bg-light text-dark">${claim.exchange || 'Off-chain'}</span>`;
+
+            const row = tableBody.insertRow();
+            row.innerHTML = `
+                <td><strong>${claim.userName || 'N/A'}</strong><br><small class="text-secondary">UID: ${claim.userId || 'N/A'}</small></td>
+                <td>${methodBadge}</td>
+                <td style="white-space: normal; max-width: 250px;">${detailsHtml}</td>
+                <td class="fw-bold" style="color: var(--accent-secondary);">${(claim.bmassAmount || 0).toLocaleString()}</td>
+                <td>${claimDate}</td>
+                <td>${statusBadge}</td>
+            `;
+        });
+        
+        if ((startIndex + claimsToShow.length) >= claims.length) {
+            adminLoadMoreClaimsBtn.style.display = 'none';
+        } else {
+            adminLoadMoreClaimsBtn.style.display = 'block';
+        }
+
+    } catch (error) {
+        console.error("Lỗi khi tải danh sách claim:", error);
+        if (isInitialLoad) {
+            tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger p-3">Không thể tải danh sách.</td></tr>`;
+        }
+    } finally {
+        adminLoadMoreClaimsBtn.disabled = false;
+        adminLoadMoreClaimsBtn.innerHTML = `Tải thêm`;
+    }
+}
+// --- END: THAY THẾ HÀM fetchAndRenderAdminClaimList ---
+
+
+
+
+
+
 
     async function renderAdminUserRows(docs, tableBody, mandatoryTaskIds) {
          const completedTasksPromises = docs.map(doc => 
@@ -4102,7 +4529,13 @@ function renderReferralMilestones() {
         loggedInContent.style.display = 'block';
     }
 
-    // [NEW] Renders the core UI for claiming
+
+
+
+
+
+
+   // [NEW] Renders the core UI for claiming
     function renderClaimUI(container, settings, rewardAmount) {
         if (!settings.isSnapshotActive) {
             container.innerHTML = `<p class="text-white-50 mt-3 fst-italic">The claim process will begin after the snapshot. Stay tuned!</p>`;
@@ -4224,6 +4657,20 @@ function renderReferralMilestones() {
         });
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // [UPDATED] Handles the On-chain claim process with new parameters and NO payload
     async function handleOnchainClaim(rewardAmount) {
         const claimBtn = document.getElementById('claim-onchain-btn');
@@ -4248,6 +4695,7 @@ function renderReferralMilestones() {
             // On success, save the claim data to Firestore
             const claimData = {
                 userId: currentUserData.telegramId,
+                userName: currentUserData.fullName || currentUserData.username,
                 method: 'onchain',
                 claimAddress: currentUserData.address, // For on-chain, claim address is the user's own wallet
                 bmassAmount: rewardAmount,
@@ -4268,7 +4716,12 @@ function renderReferralMilestones() {
         }
     }
 
-    // [NEW] Handles the Off-chain claim submission
+    // --- START: THAY THẾ HÀM handleOffchainSubmit CŨ BẰNG HÀM NÀY ---
+
+    /**
+     * [NÂNG CẤP] Xử lý việc gửi thông tin claim off-chain.
+     * Tích hợp kiểm tra trùng lặp địa chỉ ví ngay lập tức trước khi gửi.
+     */
     async function handleOffchainSubmit(rewardAmount) {
         const submitBtn = document.getElementById('submit-offchain-claim');
         const selectedExchangeEl = document.querySelector('.exchange-btn.selected');
@@ -4276,38 +4729,74 @@ function renderReferralMilestones() {
         const memoInput = document.getElementById('offchain-memo');
 
         if (!selectedExchangeEl) {
-            showAppToast('Error', 'Please select an exchange.', 'error');
+            showAppToast('Lỗi', 'Vui lòng chọn một sàn giao dịch.', 'error');
             return;
         }
-        if (!addressInput.value.trim()) {
-            showAppToast('Error', 'Please enter your deposit address.', 'error');
+        const exchangeName = selectedExchangeEl.dataset.exchangeName;
+        const claimAddress = addressInput.value.trim();
+
+        if (!claimAddress) {
+            showAppToast('Lỗi', 'Vui lòng nhập địa chỉ nạp tiền của bạn.', 'error');
             return;
         }
 
         submitBtn.disabled = true;
-        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Saving...`;
-
-        const claimData = {
-            userId: currentUserData.telegramId,
-            method: 'offchain',
-            exchange: selectedExchangeEl.dataset.exchangeName,
-            claimAddress: addressInput.value.trim(),
-            memo: memoInput.value.trim() || null,
-            bmassAmount: rewardAmount,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        };
+        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang kiểm tra...`;
 
         try {
-            await db.collection('airdrop_claims').doc(currentUserData.address).set(claimData);
-            showAppToast('Success', 'Your off-chain claim information has been saved.', 'success');
-            await renderAirdropSection(); // Re-render to show completion status
+            // --- KIỂM TRA TRÙNG LẶP ĐỊA CHỈ TRƯỚC KHI LƯU ---
+            const query = db.collection('airdrop_claims')
+                .where('exchange', '==', exchangeName)
+                .where('claimAddress', '==', claimAddress);
+                
+            const snapshot = await query.get();
+
+            if (!snapshot.empty) {
+                // Tìm xem có bản ghi nào không phải của chính user này không
+                let isDuplicate = false;
+                snapshot.forEach(doc => {
+                    if (doc.data().userId !== currentUserData.telegramId) {
+                        isDuplicate = true;
+                    }
+                });
+
+                if (isDuplicate) {
+                    showAppToast('Địa chỉ đã tồn tại', 'Địa chỉ ví này đã được sử dụng bởi một tài khoản khác. Vui lòng sử dụng địa chỉ khác.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Gửi thông tin Off-chain';
+                    return; // Dừng thực thi
+                }
+            }
+            // --- KẾT THÚC KIỂM TRA ---
+
+            submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
+
+            const claimData = {
+                userId: currentUserData.telegramId,
+                userName: currentUserData.fullName || currentUserData.username,
+                method: 'offchain',
+                exchange: exchangeName,
+                claimAddress: claimAddress,
+                memo: memoInput.value.trim() || null,
+                bmassAmount: rewardAmount,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            // Dùng set với merge:true để ghi đè nếu user gửi lại thông tin, thay vì báo lỗi
+            await db.collection('airdrop_claims').doc(currentUserData.address).set(claimData, { merge: true });
+            
+            showAppToast('Thành công', 'Thông tin claim của bạn đã được lưu lại.', 'success');
+            await renderAirdropSection(); // Tải lại để hiển thị trạng thái đã hoàn thành
+
         } catch (error) {
-            console.error("Failed to save off-chain claim data:", error);
-            showAppToast('Error', 'Could not save your information. Please try again.', 'error');
+            console.error("Lỗi khi lưu thông tin claim off-chain:", error);
+            showAppToast('Lỗi', 'Không thể lưu thông tin. Vui lòng thử lại.', 'error');
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Submit Off-chain Info';
+            submitBtn.textContent = 'Gửi thông tin Off-chain';
         }
     }
+
+// --- END: THAY THẾ HÀM handleOffchainSubmit ---
 
 
     function identifyTelegramUser() {
@@ -4791,7 +5280,7 @@ function renderReferralMilestones() {
                     }
                 });
             }
-                        totalValueUsdEl.textContent = `$${totalValueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            totalValueUsdEl.textContent = `$${totalValueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             totalValueVndEl.textContent = `${totalValueVnd.toLocaleString('vi-VN')} VND`;
             portfolioSkeleton.style.display = 'none';
             portfolioContent.style.display = 'block';
@@ -5153,60 +5642,109 @@ function renderReferralMilestones() {
         };
         sendBulkTelegramMessage(messageGenerator);
     }
-    
-    // [UPDATED] Export Airdrop CLAIM Data to Excel
-    async function exportAirdropClaimData() {
-        exportClaimExcelBtn.disabled = true;
-        adminClaimSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang chuẩn bị dữ liệu...`;
-        
-        try {
-            const snapshot = await db.collection('airdrop_claims').get();
-            if (snapshot.empty) {
-                 showAppToast('Thông báo', 'Không có dữ liệu claim nào để xuất.', 'info');
-                adminClaimSettingsStatusEl.innerHTML = `<span class="text-warning">Không có dữ liệu.</span>`;
-                return;
+// --- START: THAY THẾ HÀM EXCEL CŨ BẰNG HÀM NÀY ---
+
+/**
+ * [NÂNG CẤP] Xuất dữ liệu claim đã lọc, với logic phát hiện trùng lặp đã được cập nhật.
+ */
+async function exportFilteredAirdropClaimData() {
+    exportClaimExcelBtn.disabled = true;
+    adminClaimSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang chuẩn bị dữ liệu...`;
+
+    try {
+        let query = db.collection('airdrop_claims');
+        const activeFilterEl = adminClaimFilterControls.querySelector('.active');
+        const filterValue = activeFilterEl ? activeFilterEl.dataset.filter : 'all';
+        let fileNameFilter = filterValue;
+
+        if (filterValue !== 'all') {
+            if (filterValue === 'onchain') {
+                query = query.where('method', '==', 'onchain');
+            } else {
+                query = query.where('exchange', '==', filterValue);
             }
-
-            adminClaimSettingsStatusEl.innerHTML = `<i class="fas fa-file-excel me-2"></i>Đang tạo file Excel...`;
-
-            const claimsBySheet = {};
-            
-            snapshot.forEach(doc => {
-                const item = doc.data();
-                const sheetName = item.method === 'onchain' ? 'On-chain' : item.exchange;
-                if (!sheetName) return; // Skip if exchange name is missing
-
-                if (!claimsBySheet[sheetName]) {
-                    claimsBySheet[sheetName] = [];
-                }
-                
-                claimsBySheet[sheetName].push({
-                    'địa_chỉ_ví': item.claimAddress,
-                    'số_lượng': item.bmassAmount
-                });
-            });
-
-            const wb = XLSX.utils.book_new();
-            for (const sheetName in claimsBySheet) {
-                const ws = XLSX.utils.json_to_sheet(claimsBySheet[sheetName]);
-                XLSX.utils.book_append_sheet(wb, ws, sheetName);
-            }
-
-            const exportDate = new Date().toISOString().slice(0, 10);
-            XLSX.writeFile(wb, `bmass-airdrop-claims-${exportDate}.xlsx`);
-            
-            showAppToast('Thành công', `Đã xuất ${snapshot.size} bản ghi claim.`, 'success');
-            adminClaimSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã xuất file thành công!</span>`;
-
-        } catch (error) {
-            console.error("Error exporting airdrop claim data:", error);
-            showAppToast('Lỗi', 'Không thể xuất dữ liệu.', 'error');
-            adminClaimSettingsStatusEl.innerHTML = `<span class="text-danger">Xuất file thất bại.</span>`;
-        } finally {
-            exportClaimExcelBtn.disabled = false;
-            setTimeout(() => { adminClaimSettingsStatusEl.innerHTML = ''; }, 4000);
+        } else {
+            fileNameFilter = 'All';
         }
+        query = query.orderBy('timestamp', 'desc');
+
+        const fullSnapshot = await query.get();
+        if (fullSnapshot.empty) {
+            showAppToast('Thông báo', 'Không có dữ liệu claim nào để xuất.', 'info');
+            adminClaimSettingsStatusEl.innerHTML = `<span class="text-warning">Không có dữ liệu.</span>`;
+            return;
+        }
+
+        adminClaimSettingsStatusEl.innerHTML = `<i class="fas fa-file-excel me-2"></i>Đang phân tích và tạo file...`;
+        const claims = fullSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        const addressTracker = new Map();
+        const userTracker = new Set();
+        const duplicates = new Map();
+
+        for (const claim of claims) {
+            // [THAY ĐỔI LOGIC] Chỉ kiểm tra trùng User ID nếu user đó có User ID
+            if (claim.userId) {
+                if (userTracker.has(claim.userId)) {
+                    duplicates.set(claim.id, { type: 'user', message: `Trùng User ID: ${claim.userId}` });
+                }
+                userTracker.add(claim.userId);
+            }
+
+            if (claim.method === 'offchain' && claim.exchange && claim.claimAddress) {
+                const key = `${claim.exchange}-${claim.claimAddress.toLowerCase().trim()}`;
+                if (addressTracker.has(key)) {
+                    const originalClaim = addressTracker.get(key);
+                    duplicates.set(claim.id, { type: 'address', message: `Trùng địa chỉ với User ID: ${originalClaim.userId || 'N/A'}` });
+                    if (!duplicates.has(originalClaim.docId)) {
+                        duplicates.set(originalClaim.docId, { type: 'address', message: `Địa chỉ bị trùng bởi User ID: ${claim.userId || 'N/A'}` });
+                    }
+                } else {
+                    addressTracker.set(key, { userId: claim.userId, docId: claim.id });
+                }
+            }
+        }
+        
+        const dataForExcel = claims.map(claim => {
+            const duplicateInfo = duplicates.get(claim.id);
+            let status = 'Hợp lệ';
+            if (duplicateInfo) {
+                status = duplicateInfo.type === 'user' ? 'Trùng User' : 'Trùng Ví';
+            }
+            return {
+                'User ID': claim.userId || 'N/A',
+                'Tên User': claim.userName || 'N/A',
+                'Phương thức': claim.method,
+                'Sàn/Mạng': claim.exchange || 'On-chain',
+                'Địa chỉ Claim': claim.claimAddress,
+                'Memo/Tag': claim.memo || '',
+                'Số lượng $BMASS': claim.bmassAmount,
+                'Thời gian': claim.timestamp ? claim.timestamp.toDate().toLocaleString('vi-VN') : 'N/A',
+                'Tình trạng': status,
+                'Ghi chú Trùng lặp': duplicateInfo ? duplicateInfo.message : ''
+            };
+        });
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(dataForExcel);
+        XLSX.utils.book_append_sheet(wb, ws, "Claim List");
+
+        const exportDate = new Date().toISOString().slice(0, 10);
+        XLSX.writeFile(wb, `bmass-claims-${fileNameFilter.toLowerCase()}-${exportDate}.xlsx`);
+        
+        showAppToast('Thành công', `Đã xuất ${claims.length} bản ghi.`, 'success');
+        adminClaimSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã xuất file thành công!</span>`;
+
+    } catch (error) {
+        console.error("Lỗi khi xuất dữ liệu claim:", error);
+        showAppToast('Lỗi', 'Không thể xuất dữ liệu.', 'error');
+        adminClaimSettingsStatusEl.innerHTML = `<span class="text-danger">Xuất file thất bại.</span>`;
+    } finally {
+        exportClaimExcelBtn.disabled = false;
+        setTimeout(() => { adminClaimSettingsStatusEl.innerHTML = ''; }, 4000);
     }
+}
+// --- END: THAY THẾ HÀM EXCEL ---
     
     async function renderPartnerSection() {
         if (!partnerTasksContainer || !db || !connectedWalletAddress) return;
@@ -5743,8 +6281,7 @@ function renderReferralMilestones() {
     referralCodeSubmitHero.addEventListener('click', handleManualReferralInput);
     if(saveScoringSettingsBtn) saveScoringSettingsBtn.addEventListener('click', (e) => { e.preventDefault(); saveAirdropScoringSettings(); });
     if(saveClaimSettingsBtn) saveClaimSettingsBtn.addEventListener('click', (e) => { e.preventDefault(); saveAirdropClaimSettings(); });
-    if(exportClaimExcelBtn) exportClaimExcelBtn.addEventListener('click', exportAirdropClaimData);
-    if (adminUserSearchInput) {
+    if(exportClaimExcelBtn) exportClaimExcelBtn.addEventListener('click', exportFilteredAirdropClaimData);    if (adminUserSearchInput) {
         adminUserSearchInput.addEventListener('input', () => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
@@ -6181,6 +6718,8 @@ function renderReferralMilestones() {
     initializeApp();
     
 });
+
+
 </script>
 
 </body>
