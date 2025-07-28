@@ -1587,6 +1587,30 @@
                          <div class="col-12">
                             <div class="card-glass">
                                 <h5 class="card-title">Danh sách Người dùng</h5>
+
+
+
+            <div class="row g-3 mb-4 text-center">
+                <div class="col-md-6">
+                    <div class="airdrop-stat-card py-3">
+                        <div id="analytics-total-visits" class="airdrop-stat-value">...</div>
+                        <div class="airdrop-stat-label">Tổng Lượt Truy Cập</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="airdrop-stat-card py-3">
+                        <div id="analytics-today-visits" class="airdrop-stat-value">...</div>
+                        <div class="airdrop-stat-label">Truy Cập Hôm Nay</div>
+                    </div>
+                </div>
+            </div>
+            <hr style="border-color: var(--border-color); opacity: 0.5; margin-bottom: 1.5rem;">
+            <!-- ============================================= -->
+
+
+
+
+                                
                                 <div class="mb-3">
                                     <input type="text" id="admin-user-search-input" class="form-control" placeholder="Tìm theo Tên, UID, hoặc Địa chỉ ví...">
                                 </div>
@@ -1997,6 +2021,110 @@ document.addEventListener('touchmove', function (event) {
     function hideLoadingOverlay() {
         loadingOverlay.classList.remove('visible');
     }
+
+
+
+
+
+
+
+
+
+// ======================================================
+// [NEW] HÀM GHI LẠI LƯỢT TRUY CẬP
+// ======================================================
+async function recordUserVisit() {
+    if (!db) return;
+
+    // Lấy ngày hiện tại theo định dạng YYYY-MM-DD
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const dateString = `${year}-${month}-${day}`;
+
+    const analyticsRef = db.collection('admin_settings').doc('app_analytics');
+
+    try {
+        // Sử dụng batch để cập nhật nhiều trường cùng lúc
+        const batch = db.batch();
+
+        // Tăng tổng lượt truy cập
+        batch.set(analyticsRef, { 
+            totalVisits: firebase.firestore.FieldValue.increment(1) 
+        }, { merge: true });
+
+        // Tăng lượt truy cập cho ngày hôm nay
+        // Sử dụng dot notation để cập nhật một trường trong map
+        const dailyVisitsField = `visitsByDate.${dateString}`;
+        batch.update(analyticsRef, { 
+            [dailyVisitsField]: firebase.firestore.FieldValue.increment(1) 
+        });
+        
+        await batch.commit();
+        console.log("User visit recorded for", dateString);
+
+    } catch (error) {
+        // Nếu lỗi xảy ra (thường là do tài liệu chưa tồn tại), hãy tạo nó
+        if (error.code === 'not-found' || error.message.includes('No document to update')) {
+            const initialData = {
+                totalVisits: 1,
+                visitsByDate: {
+                    [dateString]: 1
+                }
+            };
+            await analyticsRef.set(initialData);
+            console.log("Analytics document created and first visit recorded.");
+        } else {
+            console.error("Error recording user visit:", error);
+        }
+    }
+}
+
+
+// ======================================================
+// [NEW] HÀM HIỂN THỊ DỮ LIỆU THỐNG KÊ
+// ======================================================
+async function displayAnalytics() {
+    if (!db) return;
+
+    const totalVisitsEl = document.getElementById('analytics-total-visits');
+    const todayVisitsEl = document.getElementById('analytics-today-visits');
+    if (!totalVisitsEl || !todayVisitsEl) return;
+
+    // Lấy ngày hôm nay
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const dateString = `${year}-${month}-${day}`;
+
+    try {
+        const analyticsRef = db.collection('admin_settings').doc('app_analytics');
+        const doc = await analyticsRef.get();
+
+        if (doc.exists) {
+            const data = doc.data();
+            totalVisitsEl.textContent = (data.totalVisits || 0).toLocaleString();
+            todayVisitsEl.textContent = (data.visitsByDate?.[dateString] || 0).toLocaleString();
+        } else {
+            totalVisitsEl.textContent = '0';
+            todayVisitsEl.textContent = '0';
+        }
+    } catch (error) {
+        console.error("Error displaying analytics:", error);
+        totalVisitsEl.textContent = 'Error';
+        todayVisitsEl.textContent = 'Error';
+    }
+}
+
+
+
+
+
+
+
+
     
     // [NEW] Fetch system status
     async function fetchSystemStatus() {
@@ -2039,6 +2167,10 @@ document.addEventListener('touchmove', function (event) {
 
 async function onUserAuthenticated() {
     hideLoadingOverlay();
+     // [NEW] GHI LẠI LƯỢT TRUY CẬP
+    recordUserVisit();
+
+    const userStatusDisplay = document.getElementById('user-status-display');
     
     // [NEW] HIỂN THỊ KHỐI TRẠNG THÁI USER
     const userStatusDisplay = document.getElementById('user-status-display');
@@ -3898,6 +4030,7 @@ function renderReferralMilestones() {
         else if (viewToShow === 'admin' && isLoggedIn && isCurrentUserAdmin()){
             adminSectionEl.style.display = 'block';
             navAdmin.classList.add('active');
+            displayAnalytics();
             renderAdminPartnerTasks();
             fetchAndRenderAdminUserList(true); 
             // Fetch and set admin panel switch states
