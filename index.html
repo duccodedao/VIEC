@@ -1506,6 +1506,17 @@
                             <i class="fas fa-edit me-1"></i> User Actions
                         </button>
                     </li>
+                    
+                    <!-- ============================================= -->
+                    <!-- [NEW-FEATURE] TAB KIỂM TRA & THƯỞNG           -->
+                    <!-- ============================================= -->
+                     <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-target="#admin-panel-audit-award" type="button">
+                            <i class="fas fa-tasks me-1"></i> Kiểm tra & Thưởng
+                        </button>
+                    </li>
+                    <!-- ============================================= -->
+                    
                      <li class="nav-item" role="presentation">
                         <button class="nav-link" data-target="#admin-panel-system-status" type="button">
                             <i class="fas fa-server me-1"></i> System
@@ -1517,7 +1528,7 @@
                     <!-- [NEW] Bảng Trạng Thái Hệ Thống -->
                     <div id="admin-panel-system-status" class="admin-panel-wrapper" style="display: none;">
                         <div class="col-12 col-lg-10 col-xl-8 mx-auto">
-                            <div class="card-glass">
+                             <div class="card-glass mb-4">
                                 <h5 class="card-title">System Status & Maintenance</h5>
                                 <div class="d-flex justify-content-center align-items-center p-4">
                                     <div class="form-check form-switch fs-2 d-inline-block">
@@ -1530,9 +1541,54 @@
                                 </p>
                                  <div id="admin-system-status" class="mt-3 text-center fw-bold"></div>
                             </div>
+                             <!-- ============================================= -->
+                             <!-- [FIX-BUG] KHU VỰC SỬA LỖI ĐẾM USER          -->
+                             <!-- ============================================= -->
+                            <div class="card-glass">
+                                <h5 class="card-title">Data Synchronization</h5>
+                                 <p class="text-secondary small">
+                                    If the "Total Participants" count on the Leaderboard is incorrect, use this tool to recount all users and update the value.
+                                </p>
+                                <div id="recalculate-status" class="mt-3 text-center fw-bold"></div>
+                                <div class="d-grid mt-3">
+                                    <button type="button" id="recalculate-users-btn" class="btn btn" style="background-color: var(--accent-secondary); color: white;">
+                                        <i class="fas fa-sync-alt me-2"></i>Recalculate User Count
+                                    </button>
+                                </div>
+                            </div>
+                             <!-- ============================================= -->
+
                         </div>
                     </div>
                     
+                    <!-- ============================================= -->
+                    <!-- [NEW-FEATURE] PANEL KIỂM TRA & THƯỞNG         -->
+                    <!-- ============================================= -->
+                    <div id="admin-panel-audit-award" class="admin-panel-wrapper" style="display: none;">
+                        <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                           <div class="card-glass">
+                                <h5 class="card-title">Rà soát và Thưởng EXP Bổ sung</h5>
+                                <p class="text-secondary small">Công cụ này sẽ quét người dùng theo điều kiện, kiểm tra xem họ đã nhận thưởng cho một sự kiện cụ thể hay chưa, và chỉ cộng điểm cho những người chưa nhận. Điều này đảm bảo không ai nhận thưởng hai lần.</p>
+                                <form id="admin-audit-award-form">
+                                     <div class="mb-3">
+                                        <label for="admin-audit-event-id" class="form-label">ID Sự kiện / Nhiệm vụ (Duy nhất)</label>
+                                        <input type="text" class="form-control" id="admin-audit-event-id" placeholder="e.g., thuong_giang_sinh_2024" required>
+                                        <div class="form-text">ID này dùng để hệ thống kiểm tra, tránh cộng điểm nhiều lần.</div>
+                                     </div>
+                                     <hr style="border-color: var(--border-color); opacity: 0.5;">
+                                     <div class="mb-3"><label for="admin-audit-condition-type" class="form-label">Thưởng cho người dùng theo</label><select class="form-select" id="admin-audit-condition-type"><option value="all" selected>Tất cả người dùng</option><option value="referralCount">Số lượt mời</option><option value="checkinCount">Số lượt Check-in</option><option value="points">Số điểm EXP</option><option value="level">Level</option></select></div>
+                                     <div id="admin-audit-condition-wrapper" style="display: none;"><label class="form-label">Điều kiện</label><div class="input-group mb-3"><select class="form-select" id="admin-audit-operator" style="max-width: 150px;"><option value=">=" selected>Lớn hơn hoặc bằng</option><option value="<=">Nhỏ hơn hoặc bằng</option><option value="==">Bằng</option></select><input type="number" class="form-control" id="admin-audit-condition-value" placeholder="e.g., 10" min="0"></div></div>
+                                     <div class="mb-3"><label for="admin-audit-exp-amount" class="form-label">Số lượng EXP để thưởng</label><input type="number" class="form-control" id="admin-audit-exp-amount" placeholder="e.g., 500" required min="1"></div>
+                                     
+                                     <div id="admin-audit-award-status" class="mt-3 text-center fw-bold"></div>
+                                     <button type="submit" id="admin-audit-award-submit-btn" class="btn btn-lg w-100" style="background: linear-gradient(90deg, #ffc107, #ff9800); color: black;"><i class="fas fa-tasks me-2"></i>Chạy Rà soát và Thưởng</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ============================================= -->
+
+
                     <!-- Bảng Gửi Tin Nhắn -->
                     <div id="admin-panel-messenger" class="admin-panel-wrapper" style="display: none;">
                         <div class="col-12 col-lg-10 col-xl-8 mx-auto">
@@ -2099,6 +2155,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // [NEW] Leaderboard Total Users
     const leaderboardTotalUsersEl = document.getElementById('leaderboard-total-users');
+
+    // [NEW-FEATURE] Audit & Award Elements
+    const adminAuditAwardForm = document.getElementById('admin-audit-award-form');
+    const adminAuditConditionType = document.getElementById('admin-audit-condition-type');
+    const adminAuditConditionWrapper = document.getElementById('admin-audit-condition-wrapper');
+    const adminAuditAwardSubmitBtn = document.getElementById('admin-audit-award-submit-btn');
+    const adminAuditAwardStatus = document.getElementById('admin-audit-award-status');
+
+    // [FIX-BUG] Recalculate Button
+    const recalculateUsersBtn = document.getElementById('recalculate-users-btn');
+    const recalculateStatusEl = document.getElementById('recalculate-status');
+
 
     const DEFAULT_LOGO_SRC = 'https://bmass.vercel.app/img/bmasslogo.png';
     const GENERIC_WALLET_ICON = 'https://ton.org/download/ton_symbol.png';
@@ -3902,14 +3970,10 @@ function renderReferralMilestones() {
         const isFullyEligible = isEligibleByStats && mandatoryTasksCompleted;
         const finalReward = isFullyEligible ? await calculateBmassReward(currentUserData, settings) : 0;
 
-        
         document.getElementById('airdrop-ref-count').textContent = (currentUserData.referralCount || 0).toLocaleString();
         document.getElementById('airdrop-checkin-count').textContent = (currentUserData.checkinCount || 0).toLocaleString();
         document.getElementById('airdrop-exp-count').textContent = (currentUserData.points || 0).toLocaleString();
-        
-        // DÒNG MỚI CẦN THÊM VÀO
-        document.getElementById('airdrop-level-display').textContent = (currentUserData.level || 1); 
-
+        document.getElementById('airdrop-level-display').textContent = (currentUserData.level || 1);
         document.getElementById('airdrop-reward-value').textContent = finalReward.toLocaleString();
 
         const eligibilityStatusEl = document.getElementById('airdrop-eligibility-status');
@@ -5264,6 +5328,146 @@ function renderReferralMilestones() {
         }
     }
 
+    // [FIX-BUG] Function to recalculate total users
+    async function recalculateTotalUsers() {
+        if (!db) {
+            showAppToast('Lỗi', 'Chưa kết nối cơ sở dữ liệu.', 'error');
+            return;
+        }
+        recalculateUsersBtn.disabled = true;
+        recalculateStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang đếm...`;
+
+        try {
+            const snapshot = await db.collection('users').get();
+            const totalUsers = snapshot.size;
+
+            await db.collection('admin_settings').doc('metadata').set({
+                userCount: totalUsers
+            }, { merge: true });
+
+            recalculateStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Hoàn tất! Tổng số người dùng: ${totalUsers.toLocaleString()}</span>`;
+            showAppToast('Thành công', `Đã cập nhật tổng số người dùng thành ${totalUsers.toLocaleString()}.`, 'success');
+
+        } catch (error) {
+            console.error("Error recalculating users:", error);
+            recalculateStatusEl.innerHTML = `<span class="text-danger">Đã xảy ra lỗi: ${error.message}</span>`;
+            showAppToast('Thất bại', 'Không thể đếm lại người dùng.', 'error');
+        } finally {
+            recalculateUsersBtn.disabled = false;
+            setTimeout(() => { recalculateStatusEl.innerHTML = ''; }, 5000);
+        }
+    }
+
+    // [NEW-FEATURE] Function to handle Audit & Award
+    async function handleAuditAndAward(e) {
+        e.preventDefault();
+        if (!db) { showAppToast('Lỗi', 'Chưa kết nối cơ sở dữ liệu.', 'error'); return; }
+        if (airdropSettings?.isSnapshotActive) {
+            showAppToast('Đã dừng', 'Không thể thưởng EXP sau khi Snapshot.', 'error');
+            return;
+        }
+
+        const eventId = document.getElementById('admin-audit-event-id').value.trim();
+        const conditionType = document.getElementById('admin-audit-condition-type').value;
+        const operator = document.getElementById('admin-audit-operator').value;
+        const conditionValue = parseInt(document.getElementById('admin-audit-condition-value').value, 10);
+        const expAmount = parseInt(document.getElementById('admin-audit-exp-amount').value, 10);
+
+        if (!eventId || !taskName || isNaN(expAmount) || expAmount <= 0) {
+            showAppToast('Lỗi', 'Vui lòng điền đầy đủ và chính xác các trường.', 'error');
+            return;
+        }
+
+        if (conditionType !== 'all' && isNaN(conditionValue)) {
+            showAppToast('Lỗi', 'Vui lòng nhập giá trị điều kiện hợp lệ.', 'error');
+            return;
+        }
+        
+        const confirmationMessage = `Bạn có chắc chắn muốn chạy rà soát cho sự kiện "${eventId}" và cộng ${expAmount} EXP cho những người dùng đủ điều kiện nhưng chưa nhận thưởng không? Hành động này KHÔNG THỂ hoàn tác.`;
+        if (!confirm(confirmationMessage)) {
+            return;
+        }
+
+        adminAuditAwardSubmitBtn.disabled = true;
+        adminAuditAwardStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Bắt đầu quá trình rà soát...`;
+
+        try {
+            let query = db.collection('users');
+            if (conditionType !== 'all') {
+                query = query.where(conditionType, operator, conditionValue);
+            }
+
+            let lastVisible = null;
+            let totalProcessed = 0;
+            let totalAwarded = 0;
+            
+            while (true) {
+                let batchQuery;
+                 if (conditionType !== 'all') {
+                    batchQuery = query.orderBy(conditionType).orderBy(firebase.firestore.FieldPath.documentId()).limit(BATCH_SIZE);
+                } else {
+                    batchQuery = query.orderBy(firebase.firestore.FieldPath.documentId()).limit(BATCH_SIZE);
+                }
+                
+                if (lastVisible) {
+                    batchQuery = batchQuery.startAfter(lastVisible);
+                }
+                
+                const snapshot = await batchQuery.get();
+                if (snapshot.empty) break;
+                
+                lastVisible = snapshot.docs[snapshot.docs.length - 1];
+                
+                const usersToProcess = snapshot.docs;
+                const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+
+                // Process users in the current batch
+                for (const userDoc of usersToProcess) {
+                    const userRef = userDoc.ref;
+                    const historyCheckQuery = userRef.collection('task_history').where('eventId', '==', eventId).limit(1);
+                    const historySnapshot = await historyCheckQuery.get();
+
+                    if (historySnapshot.empty) {
+                        // User hasn't received this award yet, so grant it
+                        const userData = userDoc.data();
+                        const newTotalPoints = (userData.points || 0) + expAmount;
+                        const newLevel = calculateLevel(newTotalPoints);
+                        
+                        const writeBatch = db.batch();
+                        writeBatch.update(userRef, { 
+                            points: firebase.firestore.FieldValue.increment(expAmount),
+                            level: newLevel
+                        });
+
+                        const historyRef = userRef.collection('task_history').doc();
+                        writeBatch.set(historyRef, {
+                            taskName: eventId,
+                            exp: expAmount,
+                            timestamp: newTimestamp,
+                            eventId: eventId // IMPORTANT: Store the eventId for future checks
+                        });
+
+                        await writeBatch.commit();
+                        totalAwarded++;
+                    }
+                }
+
+                totalProcessed += snapshot.size;
+                adminAuditAwardStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã xử lý ${totalProcessed} người dùng... Đã thưởng cho ${totalAwarded} người.`;
+            }
+            
+            adminAuditAwardStatus.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Hoàn tất! Đã rà soát ${totalProcessed} người dùng và thưởng bổ sung cho ${totalAwarded} người.</span>`;
+            showAppToast('Thành Công', `Đã hoàn tất rà soát.`, 'success');
+
+        } catch (error) {
+            console.error("Audit and Award failed:", error);
+            adminAuditAwardStatus.innerHTML = `<span class="text-danger">Đã xảy ra lỗi: ${error.message}</span>`;
+            showAppToast('Thất bại', `Quá trình rà soát đã thất bại.`, 'error');
+        } finally {
+            adminAuditAwardSubmitBtn.disabled = false;
+        }
+    }
+
 
     // --- Event Listeners ---
     hamburgerBtn.addEventListener('click', toggleSidebar);
@@ -5282,6 +5486,17 @@ function renderReferralMilestones() {
                 adminMassConditionWrapper.style.display = 'none';
             } else {
                 adminMassConditionWrapper.style.display = 'block';
+            }
+        });
+    }
+     // [NEW-FEATURE] Audit form listener
+    if (adminAuditAwardForm) adminAuditAwardForm.addEventListener('submit', handleAuditAndAward);
+    if (adminAuditConditionType) {
+        adminAuditConditionType.addEventListener('change', (e) => {
+            if (e.target.value === 'all') {
+                adminAuditConditionWrapper.style.display = 'none';
+            } else {
+                adminAuditConditionWrapper.style.display = 'block';
             }
         });
     }
@@ -5326,6 +5541,8 @@ function renderReferralMilestones() {
     if (saveEmailBtn) saveEmailBtn.addEventListener('click', handleEmailUpdate);
     if (saveTempProfileBtn) saveTempProfileBtn.addEventListener('click', handleTempProfileSave);
     if (maintenanceModeSwitch) maintenanceModeSwitch.addEventListener('change', handleMaintenanceToggle);
+    if (recalculateUsersBtn) recalculateUsersBtn.addEventListener('click', recalculateTotalUsers); // [FIX-BUG]
+
     document.getElementById('temp-avatar-upload').addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
