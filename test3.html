@@ -1,14 +1,4 @@
-Đã hiểu, tôi sẽ cập nhật lại logic gửi giao dịch cho tính năng "Claim On-chain" để đảm bảo nó hoàn toàn khớp với cấu trúc và các giá trị bạn đã cung cấp.
 
-Các thay đổi chính trong logic `sendTransaction` sẽ bao gồm:
-
-1.  **`validUntil`**: Thời gian hiệu lực của giao dịch sẽ được rút ngắn xuống còn **60 giây** theo đúng yêu cầu của bạn.
-2.  **`amount`**: Số tiền gửi sẽ được điều chỉnh thành **"20000000" nanotons** (tức là 0.02 TON), thay vì 0.05 TON như trước.
-3.  **`payload`**: Tôi sẽ giữ lại `payload` trong tin nhắn. Đây là một phần rất quan trọng để hệ thống có thể xác định được *người dùng nào* đang thực hiện claim. Nếu không có nó, việc ghi nhận claim sẽ không thể thực hiện được. Cấu trúc giao dịch tổng thể sẽ tuân thủ chính xác theo mẫu bạn đưa ra.
-
-Dưới đây là đoạn code hoàn chỉnh đã được cập nhật với logic gửi giao dịch chính xác như bạn yêu cầu.
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -3816,4 +3806,18 @@ async function fetchAndRenderLeaderboard() {
                 const joinDate = user.createdAt ? user.createdAt.toDate().toLocaleDateString('en-US') : 'N/A';
                 listHtml += `
                     <div class="d-flex align-items-center p-2 mb-2" style="background: rgba(0,0,0,0.2); border-radius: 25px;">
-                        <img src="${avatarUrl}" class="me-3" style="width: 48px; height: 48px
+                        <img src="${avatarUrl}" class="me-3" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;" onerror="this.src='${GENERIC_WALLET_ICON}'">
+                        <div class="flex-grow-1">
+                            <p class="m-0 fw-bold">${displayName}</p>
+                            <p class="m-0 text-secondary" style="font-size: 0.8rem;">Joined on: ${joinDate}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            invitedListPane.innerHTML = listHtml;
+            
+        } catch(error) {
+            console.error("Error fetching invited users:", error);
+            invitedListPane.innerHTML = `<p class="text-danger text-center p-3">Error loading invited users list.</p>`;
+        }
+    }
