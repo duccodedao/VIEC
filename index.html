@@ -84,6 +84,18 @@
           to { background-position: -200% center; }
       }
 
+      /* [NEW] Keyframes for Level Shields */
+        @keyframes shield-pulse-gold {
+            0% { box-shadow: 0 0 15px 0px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 25px 8px rgba(255, 215, 0, 0.7); }
+            100% { box-shadow: 0 0 15px 0px rgba(255, 215, 0, 0.5); }
+        }
+
+        @keyframes shield-rotate-gradient {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
 
       /* =================================================================== */
       /* GENERAL STYLES & ENHANCEMENTS
@@ -208,8 +220,110 @@
       }
       
       .hero-section .highlight, .login-section .highlight { color: var(--accent-primary); }
-
       
+    
+      /* ============================================= */
+      /* [NEW] AVATAR & LEVEL SYSTEM STYLES            */
+      /* ============================================= */
+      .profile-avatar-wrapper {
+          position: relative;
+          width: 128px;
+          height: 128px;
+          margin: 0 auto 1.5rem; /* Tăng margin bottom */
+      }
+
+      .profile-avatar {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          object-fit: cover;
+          position: relative; /* Đảm bảo avatar nằm trên shield background */
+          z-index: 2;
+      }
+
+      .avatar-shield {
+          position: absolute;
+          top: -6px; /* Điều chỉnh để tạo khoảng cách cho viền */
+          left: -6px;
+          width: calc(100% + 12px);
+          height: calc(100% + 12px);
+          border-radius: 50%;
+          z-index: 1;
+          transition: all 0.5s ease-in-out;
+          background-clip: padding-box; /* Quan trọng để background không tràn vào trong */
+          border: 4px solid transparent; /* Viền trong suốt mặc định */
+      }
+
+      .avatar-shield::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          border-radius: 50%;
+          padding: 4px; /* Độ dày của viền gradient */
+          background: var(--border-color); /* Màu nền mặc định */
+          -webkit-mask: 
+              linear-gradient(#fff 0 0) content-box, 
+              linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          transition: all 0.5s ease-in-out;
+      }
+
+      /* Level 1: Bronze */
+      .level-shield-1::before { background: var(--bronze); }
+      /* Level 2: Silver */
+      .level-shield-2::before { background: var(--silver); }
+      /* Level 3: Basic Accent */
+      .level-shield-3::before { background: var(--accent-secondary); }
+      /* Level 4: Primary Accent */
+      .level-shield-4::before { background: var(--accent-primary); }
+      /* Level 5: Simple Gradient */
+      .level-shield-5::before { background: linear-gradient(45deg, var(--accent-secondary), var(--accent-primary)); }
+      /* Level 6: Enhanced Gradient */
+      .level-shield-6::before { background: linear-gradient(90deg, #2BCBC4, #915EFF, #f977b8); }
+      /* Level 7: Pulsing Accent */
+      .level-shield-7 { animation: shield-pulse-gold 2.5s infinite; }
+      .level-shield-7::before { background: linear-gradient(135deg, var(--accent-primary), var(--gold)); }
+      /* Level 8: Gold */
+      .level-shield-8 { animation: shield-pulse-gold 2s infinite; }
+      .level-shield-8::before { background: var(--gold); }
+      /* Level 9: Rotating Gradient */
+      .level-shield-9::after {
+          content: '';
+          position: absolute;
+          top: -8px; left: -8px; right: -8px; bottom: -8px;
+          background: conic-gradient(from var(--angle), #915EFF, #2BCBC4, #f977b8, #915EFF);
+          border-radius: 50%;
+          animation: shield-rotate-gradient 4s linear infinite;
+          z-index: -1;
+          filter: blur(5px);
+      }
+      .level-shield-9::before { background: linear-gradient(45deg, #915EFF, #2BCBC4); }
+      /* Level 10: MAX - Ultimate Rotating Rainbow */
+      .level-shield-10 { animation: shield-pulse-gold 1.5s infinite; }
+      .level-shield-10::after {
+          content: '';
+          position: absolute;
+          top: -10px; left: -10px; right: -10px; bottom: -10px;
+          background: conic-gradient(from var(--angle), #ff2257, #ffdd57, #57ffab, #57d1ff, #a257ff, #ff2257);
+          border-radius: 50%;
+          animation: shield-rotate-gradient 3s linear infinite;
+          z-index: -1;
+          filter: blur(8px);
+          opacity: 0.8;
+      }
+      .level-shield-10::before { background: linear-gradient(315deg, #ffdd57, #a257ff, #57d1ff); }
+      
+      .progress { transition: all 0.4s ease; }
+      .progress-bar { transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+      /* ============================================= */
+      /* END OF AVATAR & LEVEL SYSTEM STYLES           */
+      /* ============================================= */
+
+
       /* =================================================================== */
       /* UI COMPONENTS & WIDGETS
       /* =================================================================== */
@@ -922,13 +1036,43 @@
                 <div class="row justify-content-center">
                     <div class="col-12 col-md-10 col-lg-8 col-xl-6">
                         <div class="card-glass p-4 text-center">
-                            <img id="profile-photo" src="" alt="User Photo" class="rounded-circle mb-3" style="width: 120px; height: 120px; border: 3px solid var(--accent-primary);">
+                            
+                            <!-- [MODIFIED] AVATAR SECTION WITH SHIELD -->
+                            <div class="profile-avatar-wrapper mx-auto mb-3">
+                                <img id="profile-photo" src="" alt="User Photo" class="profile-avatar">
+                                <div id="profile-avatar-shield" class="avatar-shield"></div>
+                            </div>
+                            <!-- END OF MODIFIED AVATAR SECTION -->
+                            
                             <h3 id="profile-fullname" class="fw-bold"></h3>
                             <p id="profile-username" class="text-secondary fs-5"></p>
+
+                             <!-- [NEW] LEVEL PROGRESS SECTION -->
+                            <div id="level-progress-container" class="px-3 my-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span id="current-level-display" class="fw-bold"></span>
+                                    <span id="next-level-display" class="text-secondary"></span>
+                                </div>
+                                <div class="progress" style="height: 10px; background-color: var(--border-color);">
+                                    <div id="level-progress-bar" class="progress-bar" role="progressbar" style="width: 0%; background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));"></div>
+                                </div>
+                                <div class="text-center text-secondary mt-1 small" id="level-exp-display"></div>
+                            </div>
+                             <!-- END OF NEW LEVEL PROGRESS SECTION -->
+
                             <hr style="border-color: var(--border-color); opacity: 0.5;">
+                            
                             <div id="profile-details" class="text-start p-2">
                                 <!-- User details rendered by JS -->
                             </div>
+
+                            <!-- [NEW] NEXT LEVEL PERK DISPLAY -->
+                            <div id="next-level-perk-container" class="card-glass p-3 mt-4 text-center" style="background-color: rgba(255, 215, 0, 0.1); border-color: rgba(255, 215, 0, 0.3);">
+                                <h6 class="text-secondary mb-2">Next Level Perk <i class="fas fa-arrow-up"></i></h6>
+                                <p id="next-level-perk" class="m-0 fw-bold" style="color: var(--gold);"></p>
+                            </div>
+                            <!-- END OF NEW NEXT LEVEL PERK DISPLAY -->
+
                             <div class="d-grid gap-2 mt-4">
                                 <button id="contact-admin-btn" class="btn btn-outline-secondary">
                                     <i class="fab fa-telegram-plane me-2"></i>Contact Admin
@@ -1748,7 +1892,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- START OF DOMCONTENTLOADED ---
 
-document.addEventListener('touchmove', function (event) {
+    document.addEventListener('touchmove', function (event) {
       if (event.scale !== 1) { event.preventDefault(); }
     }, { passive: false });
 
@@ -1915,6 +2059,20 @@ document.addEventListener('touchmove', function (event) {
     let storage = null; // Firebase Storage
     let checkinInterval = null;
     let lastVisibleAdminUser = null; // For admin pagination
+
+    // [NEW] Level System Configuration
+    const levelConfig = [
+        { level: 1, expRequired: 0,         shieldClass: 'level-shield-1', benefit: "Unlock Daily Check-in" },
+        { level: 2, expRequired: 15000,     shieldClass: 'level-shield-2', benefit: "Unlock Referral System" },
+        { level: 3, expRequired: 50000,     shieldClass: 'level-shield-3', benefit: "+1% EXP bonus on all tasks" },
+        { level: 4, expRequired: 100000,    shieldClass: 'level-shield-4', benefit: "Access to special partner tasks" },
+        { level: 5, expRequired: 200000,    shieldClass: 'level-shield-5', benefit: "+2% EXP bonus & priority support" },
+        { level: 6, expRequired: 400000,    shieldClass: 'level-shield-6', benefit: "Unique role in community" },
+        { level: 7, expRequired: 700000,    shieldClass: 'level-shield-7', benefit: "Early access to new features" },
+        { level: 8, expRequired: 1200000,   shieldClass: 'level-shield-8', benefit: "Higher Airdrop multiplier" },
+        { level: 9, expRequired: 2000000,   shieldClass: 'level-shield-9', benefit: "Direct line to the dev team" },
+        { level: 10, expRequired: 5000000,  shieldClass: 'level-shield-10', benefit: "Legendary status & surprise rewards" }
+    ];
 
     // [NEW] Reward Configuration Variable
     let rewardConfig = {
@@ -2108,13 +2266,14 @@ document.addEventListener('touchmove', function (event) {
         }
         
         const userRef = db.collection('users').doc(address);
-        const doc = await userRef.get();
+        let doc = await userRef.get();
     
         if (!doc.exists) {
             console.log(`Creating new user profile for address: ${address}`);
             const newUser = {
                 address: address,
                 points: 0,
+                level: 1, // [NEW] Initialize level
                 lastCheckin: null,
                 checkinCount: 0,
                 referralCount: 0,
@@ -2126,7 +2285,6 @@ document.addEventListener('touchmove', function (event) {
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 notificationsEnabled: true,
                 email: null,
-                // Handle official vs temporary profile data
                 telegramId: telegramUserData ? telegramUserData.id : null,
                 username: telegramUserData ? (telegramUserData.username || `user${telegramUserData.id}`) : null,
                 fullName: telegramUserData ? `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim() : null,
@@ -2139,26 +2297,24 @@ document.addEventListener('touchmove', function (event) {
             await userRef.set(newUser);
             currentUserData = newUser;
             
-            // [FIX] Increment total user count
             const metadataRef = db.collection('admin_settings').doc('metadata');
             await metadataRef.set({ 
                 userCount: firebase.firestore.FieldValue.increment(1) 
             }, { merge: true });
 
     
-            // If it's a new web user, prompt for temporary profile setup
             if (newUser.isTemporaryProfile) {
                 hideLoadingOverlay();
                 profileSetupModal.show();
-                // The rest of the onboarding flow will continue after they save their temp profile
                 return; 
             }
             
-            // Continue onboarding for Mini App users
             const referrerCode = sessionStorage.getItem(REFERRAL_SESSION_KEY);
             if (referrerCode) {
                 await applyReferral(referrerCode, address);
-                sessionStorage.removeItem(REFERRAL_SESSION_KEY);
+                 // Re-fetch user data after referral to get updated points
+                doc = await userRef.get();
+                currentUserData = doc.data();
             }
     
         } else {
@@ -2171,7 +2327,6 @@ document.addEventListener('touchmove', function (event) {
                 return;
             }
     
-            // Logic to prevent wallet hijacking
             if (telegramUserData && userData.telegramId && userData.telegramId !== telegramUserData.id) {
                 hideLoadingOverlay();
                 const ownerUsername = userData.username ? `@${userData.username}` : 'another user';
@@ -2181,18 +2336,16 @@ document.addEventListener('touchmove', function (event) {
             }
     
             const updates = {};
-            // If a user with a temporary profile logs in from the Mini App, upgrade them
             if (telegramUserData && userData.isTemporaryProfile) {
                 Object.assign(updates, {
                     telegramId: telegramUserData.id,
                     username: telegramUserData.username || `user${telegramUserData.id}`,
                     fullName: `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim(),
                     photoUrl: telegramUserData.photo_url || null,
-                    isTemporaryProfile: false // Upgrade to official profile
+                    isTemporaryProfile: false 
                 });
             }
     
-            // Standard sync for returning Mini App users
             if (telegramUserData && !userData.telegramId) {
                  Object.assign(updates, {
                     telegramId: telegramUserData.id,
@@ -2202,9 +2355,15 @@ document.addEventListener('touchmove', function (event) {
                 });
             }
             
-            // Ensure fields exist for older users
             if (typeof userData.email === 'undefined') { updates.email = null; }
             if (typeof userData.isTemporaryProfile === 'undefined') { updates.isTemporaryProfile = !userData.telegramId; }
+            if (typeof userData.level === 'undefined') { updates.level = 1; } // [NEW] Add level to old users
+
+            // [NEW] Check for level up on login
+            const calculatedLevel = calculateLevel(userData.points || 0);
+            if (userData.level !== calculatedLevel) {
+                updates.level = calculatedLevel;
+            }
     
             if (Object.keys(updates).length > 0) {
                  console.log(`Updating existing user profile:`, updates);
@@ -2218,6 +2377,43 @@ document.addEventListener('touchmove', function (event) {
         await onUserAuthenticated();
     }
     
+    // [NEW] Level Calculation Function
+    function calculateLevel(exp) {
+        if (typeof exp !== 'number' || exp < 0) return 1;
+        let currentLevel = 1;
+        // Iterate backwards to find the highest level achieved
+        for (let i = levelConfig.length - 1; i >= 0; i--) {
+            if (exp >= levelConfig[i].expRequired) {
+                currentLevel = levelConfig[i].level;
+                break;
+            }
+        }
+        return currentLevel;
+    }
+    
+    // [NEW] Check and update level after gaining EXP
+    async function checkAndUpdateLevel(userAddress, newPoints) {
+        const newLevel = calculateLevel(newPoints);
+        if (currentUserData.level !== newLevel) {
+            // Level up!
+            currentUserData.level = newLevel;
+            try {
+                const userRef = db.collection('users').doc(userAddress);
+                await userRef.update({ level: newLevel });
+                showAppToast(
+                    'Level Up!', 
+                    `Congratulations, you've reached Level ${newLevel}!`, 
+                    'success'
+                );
+                // Re-render UI to show new shield and benefits
+                updateLevelUI(currentUserData.level, newPoints);
+            } catch(error) {
+                console.error("Failed to update user level in Firestore:", error);
+            }
+        }
+    }
+
+
     async function applyReferral(referrerCode, newAddress) {
         if (airdropSettings?.isSnapshotActive) {
             showAppToast('Halted', 'Point-earning activities are paused due to the snapshot.', 'warning');
@@ -2256,11 +2452,15 @@ document.addEventListener('touchmove', function (event) {
 
             await db.runTransaction(async (transaction) => {
                 const freshReferrerDoc = await transaction.get(referrerRef);
-                if (!freshReferrerDoc.exists) throw "Referrer does not exist in the transaction";
-                
-                const referrerData = freshReferrerDoc.data();
-                const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+                const newUserDoc = await transaction.get(db.collection('users').doc(newAddress));
 
+                if (!freshReferrerDoc.exists) throw "Referrer does not exist in the transaction";
+                if (!newUserDoc.exists) throw "New user does not exist in the transaction";
+
+                const referrerData = freshReferrerDoc.data();
+                const newUserData = newUserDoc.data();
+                
+                const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
                 const newReferralCount = (referrerData.referralCount || 0) + 1;
                 let totalRewardForReferrer = rewardConfig.baseReferralExp;
                 let milestoneBonus = 0;
@@ -2270,10 +2470,15 @@ document.addEventListener('touchmove', function (event) {
                     milestoneBonus = milestoneReached.bonus;
                     totalRewardForReferrer += milestoneBonus;
                 }
+
+                // Calculate referrer's new points and level
+                const referrerNewPoints = (referrerData.points || 0) + totalRewardForReferrer;
+                const referrerNewLevel = calculateLevel(referrerNewPoints);
                 
                 transaction.update(referrerRef, {
                     points: firebase.firestore.FieldValue.increment(totalRewardForReferrer),
-                    referralCount: firebase.firestore.FieldValue.increment(1)
+                    referralCount: firebase.firestore.FieldValue.increment(1),
+                    level: referrerNewLevel // Update referrer's level
                 });
                 
                 const referrerHistoryRef = referrerRef.collection('task_history').doc();
@@ -2293,13 +2498,17 @@ document.addEventListener('touchmove', function (event) {
                     });
                 }
                 
-                const newUserRef = db.collection('users').doc(newAddress);
-                transaction.update(newUserRef, { 
+                // Calculate new user's new points and level
+                const newUserNewPoints = (newUserData.points || 0) + rewardConfig.baseReferralExp;
+                const newUserNewLevel = calculateLevel(newUserNewPoints);
+
+                transaction.update(db.collection('users').doc(newAddress), { 
                     referredBy: String(referrerCode),
-                    points: firebase.firestore.FieldValue.increment(rewardConfig.baseReferralExp)
+                    points: firebase.firestore.FieldValue.increment(rewardConfig.baseReferralExp),
+                    level: newUserNewLevel // Update new user's level
                 });
 
-                const newUserHistoryRef = newUserRef.collection('task_history').doc();
+                const newUserHistoryRef = db.collection('users').doc(newAddress).collection('task_history').doc();
                 transaction.set(newUserHistoryRef, {
                     taskName: 'Entered referral code',
                     exp: rewardConfig.baseReferralExp,
@@ -2325,13 +2534,13 @@ function updateUIAfterLogin() {
         checkinExpDisplay.textContent = `+${(rewardConfig.checkinExp || 1000).toLocaleString()} EXP`;
     }
 
-    // --- Mã hiện có của bạn bên dưới đây ---
     headerExpDisplay.classList.remove('d-none');
     updateExpBalances(currentUserData.points || 0);
     updateCheckinUI(currentUserData);
     fetchTaskHistory();
     renderAccountSection();
     renderReferralSection();
+    updateLevelUI(currentUserData.level, currentUserData.points); // [NEW] Update level UI on login
     
     handleRouteChange(); 
     
@@ -2343,8 +2552,8 @@ function updateUIAfterLogin() {
 }
     
     function updateExpBalances(newExp) {
-        taskExpBalanceEl.textContent = newExp;
-        headerExpBalanceEl.textContent = newExp;
+        taskExpBalanceEl.textContent = newExp.toLocaleString();
+        headerExpBalanceEl.textContent = newExp.toLocaleString();
     }
 
     function updateCheckinUI(userData) {
@@ -2406,6 +2615,7 @@ function updateUIAfterLogin() {
         const userRef = db.collection('users').doc(connectedWalletAddress);
         
         try {
+            let newTotalPoints;
             await db.runTransaction(async (transaction) => {
                 const userDoc = await transaction.get(userRef);
                 if (!userDoc.exists) throw "User document not found!";
@@ -2418,10 +2628,13 @@ function updateUIAfterLogin() {
                     return;
                 }
 
+                newTotalPoints = (userData.points || 0) + rewardConfig.checkinExp;
+                const newLevel = calculateLevel(newTotalPoints);
                 const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
                 
                 transaction.update(userRef, {
                     points: firebase.firestore.FieldValue.increment(rewardConfig.checkinExp),
+                    level: newLevel, // Update level in the same transaction
                     lastCheckin: newTimestamp,
                     checkinCount: firebase.firestore.FieldValue.increment(1)
                 });
@@ -2435,6 +2648,10 @@ function updateUIAfterLogin() {
             });
 
             showAppToast('Success!', `You've received ${rewardConfig.checkinExp} EXP.`, 'success');
+             // Check if level up occurred
+            if (currentUserData.level !== calculateLevel(newTotalPoints)) {
+                showAppToast('Level Up!', `Congratulations, you've reached Level ${calculateLevel(newTotalPoints)}!`, 'success');
+            }
         } catch (error) {
             console.error("Check-in failed: ", error);
             showAppToast('Failed', 'An error occurred. Please try again.', 'error');
@@ -2477,7 +2694,7 @@ function updateUIAfterLogin() {
                 const expAmount = item.exp;
                 const expClass = expAmount >= 0 ? 'amount-in' : 'amount-out';
                 const expSign = expAmount > 0 ? '+' : '';
-                const expDisplay = `<strong class="${expClass}">${expSign}${expAmount} EXP</strong>`;
+                const expDisplay = `<strong class="${expClass}">${expSign}${expAmount.toLocaleString()} EXP</strong>`;
                 const taskTitle = item.taskName === 'Partner Task' ? `${item.taskName}: ${item.projectName}` : item.taskName;
 
                 historyHtml += `
@@ -2498,34 +2715,29 @@ function updateUIAfterLogin() {
         }
     }
 
-    // [UPDATED] to show total user count
-    // Tìm hàm này và sửa lại nó
 async function fetchAndRenderLeaderboard() {
     if (!db) initializeFirebase();
 
     const listContainer = document.getElementById('leaderboard-list');
-    const totalParticipantsDisplay = document.getElementById('total-participants-display'); // Thêm dòng này
+    const totalParticipantsContainer = document.getElementById('leaderboard-total-users');
+    const totalUsersCountSpan = totalParticipantsContainer.querySelector('.total-users-count');
     
-    // Reset giao diện
     const skeletonItem = `<div class="leaderboard-item"><div class="skeleton-loader leaderboard-rank" style="height: 24px; width: 40px; border-radius: 25px;"></div><img class="skeleton-loader leaderboard-avatar"><div class="flex-grow-1"><div class="skeleton-loader skeleton-line w-50"></div></div><div class="skeleton-loader skeleton-line" style="width: 80px;"></div></div>`;
     listContainer.innerHTML = skeletonItem.repeat(7);
-    if (totalParticipantsDisplay) {
-        totalParticipantsDisplay.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
-    }
+    totalUsersCountSpan.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
 
     try {
-        // Sử dụng Promise.all để thực hiện 2 tác vụ cùng lúc
-        const [leaderboardSnapshot, allUsersSnapshot] = await Promise.all([
-            db.collection('users').orderBy('points', 'desc').limit(50).get(), // Lấy top 50
-            db.collection('users').get() // Lấy TẤT CẢ user để đếm
+        const [leaderboardSnapshot, metadataDoc] = await Promise.all([
+            db.collection('users').orderBy('points', 'desc').limit(50).get(),
+            db.collection('admin_settings').doc('metadata').get()
         ]);
-
-        // Cập nhật tổng số người tham gia
-        if (totalParticipantsDisplay) {
-            totalParticipantsDisplay.textContent = allUsersSnapshot.size.toLocaleString();
+        
+        if (metadataDoc.exists) {
+            totalUsersCountSpan.textContent = (metadataDoc.data().userCount || 0).toLocaleString();
+        } else {
+            totalUsersCountSpan.textContent = 'N/A';
         }
 
-        // --- Phần code render bảng xếp hạng bên dưới giữ nguyên ---
         listContainer.innerHTML = '';
 
         if (leaderboardSnapshot.empty) {
@@ -2549,10 +2761,16 @@ async function fetchAndRenderLeaderboard() {
             const item = document.createElement('div');
             item.className = `leaderboard-item ${isCurrentUser ? 'current-user' : ''} ${rankClass}`;
             
+            // [NEW] Add Level next to the name
+            const levelBadge = `<span class="badge ms-2" style="background-color: var(--accent-primary);">LV ${user.level || 1}</span>`;
+
             item.innerHTML = `
                 <div class="leaderboard-rank">${rankDisplay}</div>
                 <img src="${avatarUrl}" class="leaderboard-avatar" onerror="this.src='${GENERIC_WALLET_ICON}'">
-                <div class="leaderboard-name text-truncate">${displayName}</div>
+                <div class="leaderboard-name text-truncate d-flex align-items-center">
+                    <span class="text-truncate">${displayName}</span>
+                    ${levelBadge}
+                </div>
                 <div class="leaderboard-exp">${(user.points || 0).toLocaleString()} EXP</div>
             `;
             
@@ -2563,9 +2781,7 @@ async function fetchAndRenderLeaderboard() {
     } catch (error) {
         console.error("Error fetching leaderboard:", error);
         listContainer.innerHTML = `<p class="text-danger text-center p-3">Could not load the leaderboard. Please try again later.</p>`;
-        if (totalParticipantsDisplay) {
-            totalParticipantsDisplay.textContent = 'Error';
-        }
+        totalUsersCountSpan.textContent = 'Error';
     }
 }
     
@@ -2577,7 +2793,7 @@ async function fetchAndRenderLeaderboard() {
 
         if (isInitialLoad) {
             lastVisibleAdminUser = null;
-            adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">Lượt mời</th><th scope="col">Check-in</th><th scope="col">N.vụ Partner HT</th><th scope="col">N.vụ Bắt buộc</th><th scope="col">EXP</th><th scope="col">Đã xác nhận 100%</th><th scope="col">Đã yêu cầu</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
+            adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">Lượt mời</th><th scope="col">Check-in</th><th scope="col">N.vụ Partner HT</th><th scope="col">N.vụ Bắt buộc</th><th scope="col">Level</th><th scope="col">EXP</th><th scope="col">Đã xác nhận 100%</th><th scope="col">Đã yêu cầu</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
         }
         
         const tableBody = adminUserListContainer.querySelector('tbody');
@@ -2616,7 +2832,7 @@ async function fetchAndRenderLeaderboard() {
                 
                 const userDocs = Array.from(usersMap.values());
                  if (userDocs.length === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="12" class="text-center text-secondary p-3">Không tìm thấy người dùng.</td></tr>`;
+                    tableBody.innerHTML = `<tr><td colspan="13" class="text-center text-secondary p-3">Không tìm thấy người dùng.</td></tr>`;
                     return;
                 }
                 renderAdminUserRows(userDocs, tableBody, mandatoryTaskIds);
@@ -2648,7 +2864,7 @@ async function fetchAndRenderLeaderboard() {
 
         } catch (error) {
             console.error("Error fetching user list for admin:", error);
-            tableBody.innerHTML = `<tr><td colspan="12" class="text-center text-danger p-3">Lỗi khi tải danh sách người dùng.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="13" class="text-center text-danger p-3">Lỗi khi tải danh sách người dùng.</td></tr>`;
         } finally {
             adminLoadMoreBtn.disabled = false;
             adminLoadMoreBtn.innerHTML = `Tải thêm`;
@@ -2720,6 +2936,7 @@ async function fetchAndRenderLeaderboard() {
                 <td>${user.checkinCount || 0}</td>
                 <td>${user.partnerTasksCompletedCount || 0}</td>
                 <td>${mandatoryStatusHtml}</td>
+                <td class="fw-bold">${user.level || 1}</td>
                 <td class="fw-bold" style="color: var(--accent-secondary);">${(user.points || 0).toLocaleString()}</td>
                 <td>${sentTxHtml}</td>
                 <td>${requestedRewardHtml}</td>
@@ -2813,10 +3030,14 @@ async function fetchAndRenderLeaderboard() {
                 const freshUserDoc = await transaction.get(userRef);
                 if (!freshUserDoc.exists) throw "User document not found in transaction!";
                 
+                const userData = freshUserDoc.data();
+                const newTotalPoints = (userData.points || 0) + finalExpChange;
+                const newLevel = calculateLevel(newTotalPoints);
                 const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
                 
                 transaction.update(userRef, { 
-                    points: firebase.firestore.FieldValue.increment(finalExpChange) 
+                    points: firebase.firestore.FieldValue.increment(finalExpChange),
+                    level: newLevel // Update level in transaction
                 });
                 
                 const historyRef = userRef.collection('task_history').doc();
@@ -2899,24 +3120,29 @@ async function fetchAndRenderLeaderboard() {
                 }
                 
                 lastVisible = snapshot.docs[snapshot.docs.length - 1];
-                const batch = db.batch();
+                const writeBatch = db.batch();
                 const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
 
                 snapshot.forEach(doc => {
                     const userRef = doc.ref;
-                    batch.update(userRef, { 
-                        points: firebase.firestore.FieldValue.increment(expAmount) 
+                    const userData = doc.data();
+                    const newTotalPoints = (userData.points || 0) + expAmount;
+                    const newLevel = calculateLevel(newTotalPoints);
+
+                    writeBatch.update(userRef, { 
+                        points: firebase.firestore.FieldValue.increment(expAmount),
+                        level: newLevel
                     });
 
                     const historyRef = userRef.collection('task_history').doc();
-                    batch.set(historyRef, {
+                    writeBatch.set(historyRef, {
                         taskName: taskName,
                         exp: expAmount,
                         timestamp: newTimestamp
                     });
                 });
 
-                await batch.commit();
+                await writeBatch.commit();
                 totalProcessed += snapshot.size;
                 adminMassAwardStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã xử lý ${totalProcessed} người dùng...`;
             }
@@ -3145,7 +3371,6 @@ async function fetchAndRenderLeaderboard() {
         walletDropdown.style.display = 'none';
     }
     
-    // [UPDATED] to handle temp profiles and email
     function renderAccountSection() {
         const profilePhoto = document.getElementById('profile-photo');
         const profileFullname = document.getElementById('profile-fullname');
@@ -3154,7 +3379,6 @@ async function fetchAndRenderLeaderboard() {
     
         if (!currentUserData) return;
     
-        // Determine which name and photo to use
         const displayName = currentUserData.fullName || currentUserData.temporaryFullName || 'Anonymous User';
         const displayPhoto = currentUserData.photoUrl || currentUserData.temporaryPhotoUrl || DEFAULT_LOGO_SRC;
         const displayUsername = currentUserData.username ? `@${currentUserData.username}` : (currentUserData.isTemporaryProfile ? 'Web User' : 'No username');
@@ -3208,9 +3432,59 @@ async function fetchAndRenderLeaderboard() {
             document.getElementById('email-input').value = currentUserData.email || '';
             emailUpdateModal.show();
         });
+
+        // [NEW] Update level UI when rendering account section
+        updateLevelUI(currentUserData.level, currentUserData.points);
+    }
+
+    // [NEW] Function to update all Level-related UI elements
+    function updateLevelUI(level, exp) {
+        if (!accountSectionEl.style.display === 'none') return; // Only update if visible
+        
+        const currentLevel = level || 1;
+        const currentExp = exp || 0;
+        
+        const levelInfo = levelConfig[currentLevel - 1];
+        const nextLevelInfo = (currentLevel < levelConfig.length) ? levelConfig[currentLevel] : null;
+
+        // Update Avatar Shield
+        const shield = document.getElementById('profile-avatar-shield');
+        if (shield) {
+            shield.className = 'avatar-shield'; // Reset classes
+            shield.classList.add(levelInfo.shieldClass);
+        }
+
+        // Update Progress Bar and Text
+        const currentLevelDisplay = document.getElementById('current-level-display');
+        const nextLevelDisplay = document.getElementById('next-level-display');
+        const progressBar = document.getElementById('level-progress-bar');
+        const expDisplay = document.getElementById('level-exp-display');
+        const perkContainer = document.getElementById('next-level-perk-container');
+        const perkText = document.getElementById('next-level-perk');
+
+        currentLevelDisplay.textContent = `LV ${currentLevel}`;
+
+        if (nextLevelInfo) {
+            // Not max level
+            const expForNextLevel = nextLevelInfo.expRequired - levelInfo.expRequired;
+            const expProgress = currentExp - levelInfo.expRequired;
+            const progressPercentage = Math.min((expProgress / expForNextLevel) * 100, 100);
+
+            nextLevelDisplay.textContent = `LV ${nextLevelInfo.level}`;
+            progressBar.style.width = `${progressPercentage}%`;
+            expDisplay.textContent = `${expProgress.toLocaleString()} / ${expForNextLevel.toLocaleString()} EXP`;
+            perkText.textContent = nextLevelInfo.benefit;
+            perkContainer.style.display = 'block';
+
+        } else {
+            // Max level
+            nextLevelDisplay.textContent = 'MAX';
+            progressBar.style.width = '100%';
+            expDisplay.textContent = 'You have reached the maximum level!';
+            perkContainer.style.display = 'none';
+        }
     }
     
-    // [NEW] Handle email update logic
     async function handleEmailUpdate() {
         if (!currentUserData || !db) return;
     
@@ -3218,7 +3492,6 @@ async function fetchAndRenderLeaderboard() {
         const newEmail = emailInput.value.trim();
         const statusEl = document.getElementById('email-update-status');
     
-        // Simple email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (newEmail && !emailRegex.test(newEmail)) {
             statusEl.innerHTML = `<span class="text-danger">Invalid email format.</span>`;
@@ -3230,11 +3503,11 @@ async function fetchAndRenderLeaderboard() {
     
         try {
             const userRef = db.collection('users').doc(currentUserData.address);
-            await userRef.update({ email: newEmail || null }); // Store null if empty
+            await userRef.update({ email: newEmail || null }); 
             currentUserData.email = newEmail || null;
             showAppToast('Success', 'Email updated successfully.', 'success');
             emailUpdateModal.hide();
-            renderAccountSection(); // Re-render to show the new email
+            renderAccountSection(); 
         } catch (error) {
             console.error('Failed to update email:', error);
             statusEl.innerHTML = `<span class="text-danger">Failed to save. Please try again.</span>`;
@@ -3244,7 +3517,6 @@ async function fetchAndRenderLeaderboard() {
         }
     }
     
-    // [NEW] Handle temporary profile setup
     async function handleTempProfileSave() {
         if (!currentUserData || !storage) return;
     
@@ -3273,16 +3545,16 @@ async function fetchAndRenderLeaderboard() {
             const userRef = db.collection('users').doc(currentUserData.address);
             await userRef.update(updates);
     
-            // Update local data and continue
             currentUserData = { ...currentUserData, ...updates };
             profileSetupModal.hide();
             
-            // Now, continue with the rest of the new user flow
             showAppToast('Profile Set!', 'Welcome to Bmass!', 'success');
             const referrerCode = sessionStorage.getItem(REFERRAL_SESSION_KEY);
             if (referrerCode) {
                 await applyReferral(referrerCode, currentUserData.address);
-                sessionStorage.removeItem(REFERRAL_SESSION_KEY);
+                // Re-fetch user data after referral to get updated points
+                const doc = await userRef.get();
+                currentUserData = doc.data();
             }
             await onUserAuthenticated();
     
@@ -3435,7 +3707,6 @@ async function renderReferralSection() {
     
     referralCountEl.textContent = `${currentUserData.referralCount || 0}`;
 
-    // [FIX] THÊM LẠI CÁC LỜI GỌI HÀM BỊ THIẾU
     fetchAndRenderInvitedUsers();
     renderReferralMilestones(); 
 }
@@ -3443,20 +3714,15 @@ async function renderReferralSection() {
 
 
 
-// ======================================================
-// [NEW] HÀM ĐỂ HIỂN THỊ CÁC MỐC MỜI BẠN CHO USER
-// ======================================================
 function renderReferralMilestones() {
     const container = document.getElementById('referral-milestones-list-container');
-    if (!container) return; // Dừng lại nếu không tìm thấy vùng chứa trên trang
+    if (!container) return; 
 
-    // Cập nhật số EXP cơ bản hiển thị trên tiêu đề của trang Referral
     const baseExpDisplay = document.getElementById('referral-base-exp-display');
     if (baseExpDisplay) {
         baseExpDisplay.textContent = `${(rewardConfig.baseReferralExp || 5000).toLocaleString()} EXP`;
     }
 
-    // Kiểm tra xem admin có thiết lập mốc nào không
     if (!rewardConfig.referralMilestones || rewardConfig.referralMilestones.length === 0) {
         container.innerHTML = `<p class="text-secondary text-center">No milestones available right now.</p>`;
         return;
@@ -3465,9 +3731,7 @@ function renderReferralMilestones() {
     let html = '';
     const userReferralCount = currentUserData?.referralCount || 0;
 
-    // Lặp qua từng mốc thưởng và tạo HTML tương ứng
     rewardConfig.referralMilestones.forEach(milestone => {
-        // Kiểm tra xem người dùng đã hoàn thành mốc này chưa
         const isCompleted = userReferralCount >= milestone.required;
 
         html += `
@@ -3490,18 +3754,8 @@ function renderReferralMilestones() {
         `;
     });
 
-    // Đưa HTML đã tạo vào trang web
     container.innerHTML = html;
 }
-
-
-
-
-
-
-
-
-
 
     async function fetchAirdropSettings() {
         if (airdropSettings) return airdropSettings;
@@ -3760,13 +4014,11 @@ function renderReferralMilestones() {
         } catch(e) { console.error("Error capturing web referral:", e); }
     }
 
-    // [UPDATED] to handle maintenance mode
     async function initializeApp() {
         showLoadingOverlay('Initializing...');
         initializeFirebase();
     
         await fetchSystemStatus();
-        // The check is now deferred until after wallet connection
     
         checkUserSession();
         captureWebReferral();
@@ -3787,7 +4039,6 @@ function renderReferralMilestones() {
         await fetchAirdropSettings();
         await fetchRewardSettings();
 
-        // If not in maintenance, or if admin is potentially connected, continue
         if (!applyMaintenanceMode(tonConnectUI.account?.address)) {
             handleRouteChange(); 
         }
@@ -3799,14 +4050,10 @@ function renderReferralMilestones() {
         buttonRootId: 'ton-connect-button-root' 
     });
     
-    // [UPDATED] to handle maintenance mode correctly on status change
     tonConnectUI.onStatusChange(async (wallet) => {
         clearInterval(activityRefreshInterval);
     
-        // FIRST: Check maintenance status with the new wallet info
         if (applyMaintenanceMode(wallet ? wallet.account.address : null)) {
-            // If maintenance is on and this is not an admin, we stop here.
-            // Disconnect if they were trying to connect, to prevent a stuck state.
             if (wallet) {
                 tonConnectUI.disconnect();
             }
@@ -3870,7 +4117,6 @@ function renderReferralMilestones() {
             navAdmin.classList.add('active');
             renderAdminPartnerTasks();
             fetchAndRenderAdminUserList(true); 
-            // Fetch and set admin panel switch states
             maintenanceModeSwitch.checked = systemStatus.isMaintenanceMode;
             fetchAirdropSettings().then(settings => {
                  document.getElementById('airdrop-live-switch').checked = settings.isAirdropLive || false;
@@ -4359,7 +4605,7 @@ function renderReferralMilestones() {
             const decimals = jettonMetadata?.decimals;
             const symbol = jettonMetadata?.symbol || '';
             if (data.addresses?.length > 0) {
-                let tableHtml = `<table class="table table-hover align-middle"><thead><tr><th scope="col" style="width: 5%;">#100</th><th scope="col">Holder</th><th scope="col" class="text-end">Balance</th></tr></thead><tbody>`;
+                let tableHtml = `<table class="table table-hover align-middle"><thead><tr><th scope="col" style="width: 5%;">#</th><th scope="col">Holder</th><th scope="col" class="text-end">Balance</th></tr></thead><tbody>`;
                 for (const [index, holder] of data.addresses.entries()) {
                     const ownerWalletAddress = holder.owner.address;
                     const friendlyDisplayAddress = await getFriendlyAddress(ownerWalletAddress);
@@ -4579,9 +4825,9 @@ function renderReferralMilestones() {
                 const isDescLong = task.description.length > 100;
 
                 const cardHtml = `
-                    <a href="${task.taskLink}" target="_blank" rel="noopener noreferrer" 
+                    <div 
                        class="partner-task-card ${task.taskType === 'mandatory' ? 'mandatory' : ''} ${isCompleted ? 'completed' : ''}"
-                       data-task-id="${task.id}" data-exp="${task.expReward}" data-name="${task.projectName}" style="animation-delay: ${index * 70}ms">
+                       data-task-id="${task.id}" data-exp="${task.expReward}" data-name="${task.projectName}" data-link="${task.taskLink}" style="animation-delay: ${index * 70}ms">
                         
                         <div class="partner-task-top">
                             <img src="${task.imageUrl || GENERIC_TASK_ICON}" class="partner-task-img" onerror="this.src='${GENERIC_TASK_ICON}'">
@@ -4597,9 +4843,9 @@ function renderReferralMilestones() {
                         </div>
                         
                         <div class="partner-task-action-bar">
-                            ${isCompleted ? '<i class="fas fa-check-circle me-2"></i>Completed' : `+${task.expReward} EXP`}
+                            ${isCompleted ? '<i class="fas fa-check-circle me-2"></i>Completed' : `+${task.expReward.toLocaleString()} EXP`}
                         </div>
-                    </a>
+                    </div>
                 `;
                 
                 if (task.taskType === 'mandatory') {
@@ -4653,7 +4899,7 @@ function renderReferralMilestones() {
         const taskId = taskCard.dataset.taskId;
         const expReward = parseInt(taskCard.dataset.exp, 10);
         const projectName = taskCard.dataset.name;
-        const taskLink = taskCard.href;
+        const taskLink = taskCard.dataset.link;
 
         if (!taskId || isNaN(expReward)) return;
 
@@ -4664,14 +4910,24 @@ function renderReferralMilestones() {
             const userRef = db.collection('users').doc(connectedWalletAddress);
             const completedTaskRef = userRef.collection('completed_partner_tasks').doc(taskId);
             
+            let newTotalPoints;
             await db.runTransaction(async (transaction) => {
-                const completedDoc = await transaction.get(completedTaskRef);
-                if (completedDoc.exists) {
-                    throw new Error("Task already completed.");
-                }
+                const [userDoc, completedDoc] = await Promise.all([
+                    transaction.get(userRef),
+                    transaction.get(completedTaskRef)
+                ]);
+
+                if (!userDoc.exists) throw new Error("User not found.");
+                if (completedDoc.exists) throw new Error("Task already completed.");
+
+                const userData = userDoc.data();
+                newTotalPoints = (userData.points || 0) + expReward;
+                const newLevel = calculateLevel(newTotalPoints);
                 const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+
                 transaction.update(userRef, {
                     points: firebase.firestore.FieldValue.increment(expReward),
+                    level: newLevel,
                     partnerTasksCompletedCount: firebase.firestore.FieldValue.increment(1)
                 });
                 transaction.set(completedTaskRef, { completedAt: newTimestamp });
@@ -4686,6 +4942,11 @@ function renderReferralMilestones() {
             
             showAppToast('Success!', `You received +${expReward} EXP from the ${projectName} task.`, 'success');
             
+            // Check for level up after transaction
+            if (currentUserData.level !== calculateLevel(newTotalPoints)) {
+                showAppToast('Level Up!', `Congratulations, you've reached Level ${calculateLevel(newTotalPoints)}!`, 'success');
+            }
+
             if (window.Telegram && window.Telegram.WebApp) {
                 window.Telegram.WebApp.openLink(taskLink);
             } else {
@@ -4694,7 +4955,7 @@ function renderReferralMilestones() {
             
             const updatedDoc = await userRef.get();
             currentUserData = updatedDoc.data();
-            updateExpBalances(currentUserData.points);
+            updateUIAfterLogin(); // This will handle all UI updates including level
             taskCard.classList.add('completed');
             actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
 
@@ -4705,7 +4966,7 @@ function renderReferralMilestones() {
             } else {
                 console.error("Failed to complete partner task:", error);
                 showAppToast('Error', 'Could not complete the task. Please try again.', 'error');
-                actionBar.innerHTML = `+${expReward} EXP`; 
+                actionBar.innerHTML = `+${expReward.toLocaleString()} EXP`; 
             }
         }
     }
@@ -4803,7 +5064,7 @@ function renderReferralMilestones() {
                         <td><img src="${task.imageUrl || GENERIC_TASK_ICON}" class="table-img-preview" onerror="this.src='${GENERIC_TASK_ICON}'"></td>
                         <td style="white-space: normal;"><strong>${task.projectName}</strong><br><small class="text-secondary">${task.description}</small></td>
                         <td>${typeBadge}</td>
-                        <td class="fw-bold">${task.expReward}</td>
+                        <td class="fw-bold">${task.expReward.toLocaleString()}</td>
                         <td>
                             <button class="btn btn-sm btn-outline-light admin-edit-partner-task-btn" title="Chỉnh sửa"><i class="fas fa-pencil-alt"></i></button>
                             <button class="btn btn-sm btn-outline-danger admin-delete-partner-task-btn" title="Xóa"><i class="fas fa-trash-alt"></i></button>
@@ -4865,7 +5126,6 @@ function renderReferralMilestones() {
         }
     }
     
-    // [NEW] Handle maintenance mode toggle
     async function handleMaintenanceToggle(e) {
         const isEnabled = e.target.checked;
         const confirmationMessage = isEnabled
@@ -4873,7 +5133,7 @@ function renderReferralMilestones() {
             : "Bạn có chắc muốn tắt chế độ bảo trì và cho phép người dùng truy cập lại không?";
 
         if (!confirm(confirmationMessage)) {
-            e.target.checked = !isEnabled; // Revert the switch
+            e.target.checked = !isEnabled; 
             return;
         }
         
@@ -4884,13 +5144,12 @@ function renderReferralMilestones() {
             systemStatus.isMaintenanceMode = isEnabled;
             showAppToast('Thành công', `Chế độ bảo trì đã được ${isEnabled ? 'BẬT' : 'TẮT'}.`, 'success');
             adminSystemStatus.innerHTML = `<span class="text-success">Đã cập nhật thành công!</span>`;
-            // Reload the page to apply changes for everyone
             setTimeout(() => window.location.reload(), 1500);
         } catch (error) {
             console.error("Error updating maintenance mode:", error);
             showAppToast('Lỗi', 'Không thể cập nhật trạng thái hệ thống.', 'error');
             adminSystemStatus.innerHTML = `<span class="text-danger">Cập nhật thất bại.</span>`;
-            e.target.checked = !isEnabled; // Revert on failure
+            e.target.checked = !isEnabled;
         } finally {
             maintenanceModeSwitch.disabled = false;
         }
@@ -4955,7 +5214,6 @@ function renderReferralMilestones() {
     backToMyWalletBtn.addEventListener('click', () => { if (connectedWalletAddress) fetchAndDisplayAccountData(connectedWalletAddress); });
     otherTokensContent.addEventListener('click', (e) => { const jettonItem = e.target.closest('.jetton-item'); if (jettonItem) showJettonDetails(jettonItem.dataset.jettonAddress); });
     
-    // [NEW] Event Listeners for new modals and features
     if (saveEmailBtn) saveEmailBtn.addEventListener('click', handleEmailUpdate);
     if (saveTempProfileBtn) saveTempProfileBtn.addEventListener('click', handleTempProfileSave);
     if (maintenanceModeSwitch) maintenanceModeSwitch.addEventListener('change', handleMaintenanceToggle);
@@ -5023,7 +5281,6 @@ function renderReferralMilestones() {
         }
     }
 
-    // [NEW] Reward Settings Functions
     async function fetchRewardSettings() {
         if (!db) return;
         try {
@@ -5082,9 +5339,7 @@ function renderReferralMilestones() {
 
     // --- Event Listeners specific to new features ---
 
-    // Event Delegation for dynamically added elements and Admin Panel
     document.addEventListener('click', (e) => {
-        // Reward settings panel buttons
         if (e.target && e.target.id === 'add-milestone-btn') {
             addMilestoneRow();
         }
@@ -5092,7 +5347,6 @@ function renderReferralMilestones() {
             e.target.closest('.milestone-item').remove();
         }
         
-        // [UPDATED] Admin Tab Navigation
         const adminNavButton = e.target.closest('#admin-nav-tabs .nav-link');
         if (adminNavButton) {
             const targetId = adminNavButton.dataset.target;
@@ -5115,7 +5369,6 @@ function renderReferralMilestones() {
         }
     });
 
-    // Event Listener for Reward Settings Form Submission
     document.addEventListener('submit', async (e) => {
         if (e.target && e.target.id === 'admin-reward-settings-form') {
             e.preventDefault();
@@ -5160,11 +5413,7 @@ function renderReferralMilestones() {
     fetchCryptoNews();
     initializeApp();
     
-    // --- END OF DOMCONTENTLOADED ---
 });
-
-
-
 </script>
 
 </body>
