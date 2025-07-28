@@ -4701,7 +4701,8 @@ function renderReferralMilestones() {
                     valueDisplayHtml = `<h6 class="m-0">${balance.toLocaleString('en-US', { maximumFractionDigits: 4 })}</h6>`;
                 }
                 otherTokensContent.innerHTML += `
-                    <div class="d-flex align-items-center justify-content-between mb-3 p-2 jetton-item" data-jetton-address="${j.jetton.address}">
+Generated html
+<div class="d-flex align-items-center justify-content-between mb-3 p-2 jetton-item" data-jetton-address="${j.jetton.address}">
                         <div class="d-flex align-items-center">
                             <img src="${j.jetton.image}" class="me-3 jetton-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png'">
                             <div><h6 class="m-0">${j.jetton.symbol}${verifiedTick}</h6></div>
@@ -5139,7 +5140,7 @@ function renderReferralMilestones() {
             showAppToast('Lỗi', 'Không thể lưu cài đặt Claim.', 'error');
         } finally {
             saveClaimSettingsBtn.disabled = false;
-            setTimeout(() => { adminClaimSettingsStatusEl.innerHTML = ''; }, 4000);
+            setTimeout(() => { adminClaimSettingsStatusEl.innerHTML = ''; }, 3000);
         }
     }
     
