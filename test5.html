@@ -3484,7 +3484,7 @@ async function fetchAndRenderLeaderboard() {
         }
 
         if (!customMessageGenerator) sendBulkTelegramMessageBtn.disabled = true;
-        statusEl.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Đang lấy danh sách người dùng...`;
+        statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lấy danh sách người dùng...`;
 
         try {
             const usersWithUid = new Map();
