@@ -1738,6 +1738,17 @@
         </div>
     </div>
 
+
+
+
+
+    
+    <!-- ========== BỘ ĐẾM LƯỢT TRUY CẬP ========== -->
+<div id="visitor-counter" style="position: fixed; bottom: 10px; right: 10px; background: var(--card-color); color: var(--text-secondary); padding: 8px 15px; border-radius: 12px; font-size: 0.8rem; border: 1px solid var(--border-color); z-index: 1000; text-align: right;">
+    <div><i class="fas fa-globe-americas fa-fw"></i> Tổng: <span id="total-visits">...</span></div>
+    <div><i class="fas fa-calendar-day fa-fw"></i> Hôm nay: <span id="today-visits">...</span></div>
+</div>
+<!-- ============================================= -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/apps-data.js"></script>
     
@@ -5168,12 +5179,6 @@ function renderReferralMilestones() {
 
 
 
-    <!-- ========== BỘ ĐẾM LƯỢT TRUY CẬP ========== -->
-<div id="visitor-counter" style="position: fixed; bottom: 10px; right: 10px; background: var(--card-color); color: var(--text-secondary); padding: 8px 15px; border-radius: 12px; font-size: 0.8rem; border: 1px solid var(--border-color); z-index: 1000; text-align: right;">
-    <div><i class="fas fa-globe-americas fa-fw"></i> Tổng: <span id="total-visits">...</span></div>
-    <div><i class="fas fa-calendar-day fa-fw"></i> Hôm nay: <span id="today-visits">...</span></div>
-</div>
-<!-- ============================================= -->
         // Biến cờ để đảm bảo chỉ đếm một lần mỗi khi tải trang
 let hasCountedVisit = false;
 
