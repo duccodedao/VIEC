@@ -1348,53 +1348,68 @@
                             <div class="col-12 col-md-10 col-lg-8">
                                 <div class="card-glass p-4">
                                 <h5 class="card-title text-center">Scoring Mechanism</h5>
-                                <p class="text-center text-secondary">The final airdrop score is calculated by multiplying your activity counts by their respective point multipliers.</p>
+                                <p class="text-center text-secondary">The final airdrop score is calculated by multiplying your activity counts by their respective point multipliers, and then by your Level multiplier.</p>
                                 <div class="row text-center mt-4">
-                                   <div class="col-4">
+                                   <div class="col-3">
                                         <i class="fas fa-users airdrop-stat-icon" style="color:var(--accent-primary)"></i>
                                         <p class="text-secondary mb-0"><strong>Friends</strong></p>
                                    </div>
-                                   <div class="col-4">
+                                   <div class="col-3">
                                        <i class="fas fa-calendar-check airdrop-stat-icon"></i>
                                        <p class="text-secondary mb-0"><strong>Check-ins</strong></p>
                                    </div>
-                                   <div class="col-4">
+                                   <div class="col-3">
                                         <i class="fas fa-star airdrop-stat-icon" style="color:var(--gold)"></i>
                                        <p class="text-secondary mb-0"><strong>EXP Points</strong></p>
+                                   </div>
+                                   <div class="col-3">
+                                        <i class="fas fa-layer-group airdrop-stat-icon" style="color:var(--accent-secondary)"></i>
+                                       <p class="text-secondary mb-0"><strong>Level</strong></p>
                                    </div>
                                </div>
                                 </div>
                             </div>
 
-                            <!-- User Stats -->
-                            <div class="col-12 col-md-10 col-lg-8">
-                                <h5 class="card-title text-center mt-4">Your Statistics</h5>
-                            </div>
-                            <div class="col-12 col-md-10 col-lg-8">
-                                <div class="row g-3">
-                                    <div class="col-4">
-                                        <div class="airdrop-stat-card">
-                                            <i class="fas fa-users airdrop-stat-icon"></i>
-                                            <div id="airdrop-ref-count" class="airdrop-stat-value">0</div>
-                                            <div class="airdrop-stat-label">Referrals</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="airdrop-stat-card">
-                                            <i class="fas fa-calendar-check airdrop-stat-icon"></i>
-                                            <div id="airdrop-checkin-count" class="airdrop-stat-value">0</div>
-                                            <div class="airdrop-stat-label">Check-ins</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="airdrop-stat-card">
-                                            <i class="fas fa-star airdrop-stat-icon" style="color: var(--gold)"></i>
-                                            <div id="airdrop-exp-count" class="airdrop-stat-value">0</div>
-                                            <div class="airdrop-stat-label">EXP Score</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+<!-- User Stats -->
+<div class="col-12 col-md-10 col-lg-8">
+    <h5 class="card-title text-center mt-4">Your Statistics</h5>
+</div>
+<div class="col-12 col-md-10 col-lg-8">
+    <div class="row g-3">
+        <!-- Cột Referrals -->
+        <div class="col-6 col-md-3">
+            <div class="airdrop-stat-card">
+                <i class="fas fa-users airdrop-stat-icon"></i>
+                <div id="airdrop-ref-count" class="airdrop-stat-value">0</div>
+                <div class="airdrop-stat-label">Referrals</div>
+            </div>
+        </div>
+        <!-- Cột Check-ins -->
+        <div class="col-6 col-md-3">
+            <div class="airdrop-stat-card">
+                <i class="fas fa-calendar-check airdrop-stat-icon"></i>
+                <div id="airdrop-checkin-count" class="airdrop-stat-value">0</div>
+                <div class="airdrop-stat-label">Check-ins</div>
+            </div>
+        </div>
+        <!-- Cột EXP Score -->
+        <div class="col-6 col-md-3">
+            <div class="airdrop-stat-card">
+                <i class="fas fa-star airdrop-stat-icon" style="color: var(--gold)"></i>
+                <div id="airdrop-exp-count" class="airdrop-stat-value">0</div>
+                <div class="airdrop-stat-label">EXP Score</div>
+            </div>
+        </div>
+        <!-- Cột Level -->
+        <div class="col-6 col-md-3">
+            <div class="airdrop-stat-card">
+                <i class="fas fa-layer-group airdrop-stat-icon" style="color: var(--accent-secondary)"></i>
+                <div id="airdrop-level-display" class="airdrop-stat-value">1</div>
+                <div class="airdrop-stat-label">Your Level</div>
+            </div>
+        </div>
+    </div>
+</div>
                             
                             <!-- Total Reward & Eligibility -->
                             <div class="col-12 col-md-10 col-lg-8 mt-4">
@@ -1402,7 +1417,7 @@
                                     <h6 class="text-white-50">YOUR ESTIMATED $BMASS REWARD</h6>
                                     <div class="d-flex justify-content-center align-items-center">
                                         <h2 id="airdrop-reward-value" class="fw-bold display-4 mb-0">0</h2>
-                                        <img src="https://bmass.vercel.app/img/bmasslogo.png" id="airdrop-reward-logo" alt="Bmass Token">
+                                        <img src="https://bmass.vercel.app/img/token3d.png" id="airdrop-reward-logo" alt="Bmass Token">
                                     </div>
                                     <p id="airdrop-eligibility-status" class="fw-bold mt-2 mb-0 fs-5"></p>
                                     <div id="airdrop-final-message-container" class="mt-3"></div>
@@ -1472,6 +1487,15 @@
                             <i class="fas fa-gift me-1"></i> Rewards
                         </button>
                     </li>
+                    <!-- ============================================= -->
+                    <!-- [NEW] NÚT TAB CÀI ĐẶT LEVEL - DÁN VÀO ĐÂY    -->
+                    <!-- ============================================= -->
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-target="#admin-panel-level-settings" type="button">
+                            <i class="fas fa-layer-group me-1"></i> Level Settings
+                        </button>
+                    </li>
+                    <!-- ============================================= -->
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" data-target="#admin-panel-airdrop-settings" type="button">
                             <i class="fas fa-parachute-box me-1"></i> Airdrop
@@ -1606,12 +1630,37 @@
                         </div>
                     </div>
                     
+                    <!-- ============================================= -->
+                    <!-- [NEW] PANEL CÀI ĐẶT LEVEL - DÁN VÀO ĐÂY       -->
+                    <!-- ============================================= -->
+                    <div id="admin-panel-level-settings" class="admin-panel-wrapper" style="display: none;">
+                        <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                            <div class="card-glass">
+                                <h5 class="card-title">Cấu hình Level và Quyền lợi</h5>
+                                <p class="text-secondary small">Tại đây, bạn có thể định nghĩa các cấp độ, số EXP cần thiết để đạt được chúng, và mô tả các quyền lợi mà người dùng sẽ nhận được khi lên cấp.</p>
+                                <form id="admin-level-settings-form">
+                                    <div id="level-settings-container">
+                                        <!-- Các dòng cài đặt level sẽ được JS render ở đây -->
+                                    </div>
+                                    <button type="button" id="add-level-btn" class="btn btn-outline-secondary mt-3"><i class="fas fa-plus me-2"></i>Thêm Cấp độ</button>
+                                    <div id="admin-level-settings-status" class="mt-4 text-center fw-bold"></div>
+                                    <div class="d-grid mt-3">
+                                        <button type="submit" id="save-level-settings-btn" class="btn btn-lg" style="background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white;">
+                                            <i class="fas fa-save me-2"></i>Lưu Cài đặt Level
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ============================================= -->
+
                     <!-- Bảng Cài đặt Airdrop -->
                     <div id="admin-panel-airdrop-settings" class="admin-panel-wrapper" style="display: none;">
                         <div class="col-12 col-lg-10 col-xl-8 mx-auto">
                             <div class="card-glass">
                                 <h5 class="card-title">Cấu hình Airdrop & Xuất dữ liệu</h5>
-                                <div id="admin-airdrop-settings-form">
+                                <form id="admin-airdrop-settings-form">
                                     <div class="row text-center g-3 mb-4">
                                         <div class="col-6 col-sm-3">
                                             <div class="form-check form-switch fs-5 d-inline-block">
@@ -1639,12 +1688,23 @@
                                         </div>
                                     </div>
                                     <hr style="border-color: var(--border-color); opacity: 0.5;">
-                                    <h6 class="text-secondary text-center my-3">CÔNG THỨC TÍNH ĐIỂM</h6>
+                                    <h6 class="text-secondary text-center my-3">CÔNG THỨC TÍNH ĐIỂM CƠ BẢN</h6>
                                     <div class="row g-3 mb-4">
                                         <div class="col-md-4"><label for="ref-multiplier-input" class="form-label">Điểm mỗi Lượt mời</label><input type="number" class="form-control" id="ref-multiplier-input" value="50" min="0"></div>
                                         <div class="col-md-4"><label for="checkin-multiplier-input" class="form-label">Điểm mỗi Check-in</label><input type="number" class="form-control" id="checkin-multiplier-input" value="30" min="0"></div>
                                         <div class="col-md-4"><label for="exp-multiplier-input" class="form-label">Điểm mỗi EXP</label><input type="number" class="form-control" id="exp-multiplier-input" value="20" min="0"></div>
                                     </div>
+                                    
+                                    <!-- ============================================= -->
+                                    <!-- [NEW] MỤC CÀI ĐẶT HỆ SỐ LEVEL - DÁN VÀO ĐÂY   -->
+                                    <!-- ============================================= -->
+                                    <hr style="border-color: var(--border-color); opacity: 0.5;">
+                                    <h6 class="text-secondary text-center my-3">HỆ SỐ THƯỞNG THEO LEVEL (MULTIPLIER)</h6>
+                                    <div id="admin-level-multipliers-container" class="mb-4" style="max-height: 300px; overflow-y: auto; padding-right: 10px;">
+                                        <!-- Hệ số level sẽ được JS render ở đây -->
+                                    </div>
+                                    <!-- ============================================= -->
+                                    
                                     <hr style="border-color: var(--border-color); opacity: 0.5;">
                                     <h6 class="text-secondary text-center my-3">ĐIỀU KIỆN TỐI THIỂU</h6>
                                     <div class="row g-3">
@@ -1655,10 +1715,10 @@
                                     <div class="mt-3"><label class="form-label fw-bold" style="color: var(--gold);">ĐIỀU KIỆN NHIỆM VỤ BẮT BUỘC (Tự động áp dụng)</label></div>
                                     <div id="admin-settings-status" class="mt-3"></div>
                                     <div class="d-flex gap-3 mt-3">
-                                        <button type="button" id="save-settings-btn" class="btn w-100" style="background-color: var(--accent-secondary); color: white;">Lưu Cài Đặt</button>
+                                        <button type="button" id="save-settings-btn" class="btn w-100" style="background-color: var(--accent-secondary); color: white;">Lưu Cài Đặt Airdrop</button>
                                         <button type="button" id="export-csv-btn" class="btn btn-outline-light w-100">Xuất File Excel (CSV)</button>
                                     </div>
-                                </div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -1680,8 +1740,8 @@
                             <div class="card-glass">
                                 <h5 class="card-title">Thưởng EXP Hàng Loạt</h5>
                                 <form id="admin-mass-award-form">
-                                     <div class="mb-3"><label for="admin-mass-condition-type" class="form-label">Thưởng cho người dùng theo</label><select class="form-select" id="admin-mass-condition-type"><option value="all" selected>Tất cả người dùng</option><option value="referralCount">Số lượt mời</option><option value="checkinCount">Số lượt Check-in</option><option value="points">Số điểm EXP</option></select></div>
-                                     <div id="admin-mass-condition-wrapper" style="display: none;"><label class="form-label">Điều kiện</label><div class="input-group mb-3"><select class="form-select" id="admin-mass-operator" style="max-width: 150px;"><option value=">=" selected>Lớn hơn hoặc bằng</option><option value="<=">Nhỏ hơn hoặc bằng</option></select><input type="number" class="form-control" id="admin-mass-condition-value" placeholder="e.g., 10" min="0"></div></div>
+                                     <div class="mb-3"><label for="admin-mass-condition-type" class="form-label">Thưởng cho người dùng theo</label><select class="form-select" id="admin-mass-condition-type"><option value="all" selected>Tất cả người dùng</option><option value="referralCount">Số lượt mời</option><option value="checkinCount">Số lượt Check-in</option><option value="points">Số điểm EXP</option><option value="level">Level</option></select></div>
+                                     <div id="admin-mass-condition-wrapper" style="display: none;"><label class="form-label">Điều kiện</label><div class="input-group mb-3"><select class="form-select" id="admin-mass-operator" style="max-width: 150px;"><option value=">=" selected>Lớn hơn hoặc bằng</option><option value="<=">Nhỏ hơn hoặc bằng</option><option value="==">Bằng</option></select><input type="number" class="form-control" id="admin-mass-condition-value" placeholder="e.g., 10" min="0"></div></div>
                                      <div class="mb-3"><label for="admin-mass-exp-amount" class="form-label">Số lượng EXP để thưởng</label><input type="number" class="form-control" id="admin-mass-exp-amount" placeholder="e.g., 500" required min="1"></div>
                                      <div class="mb-3"><label for="admin-mass-task-name" class="form-label">Nội dung/Lý do thưởng</label><input type="text" class="form-control" id="admin-mass-task-name" placeholder="e.g., Thưởng event Giáng Sinh" required></div>
                                      <div id="admin-mass-award-status" class="mt-3 text-center"></div>
@@ -2060,8 +2120,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let checkinInterval = null;
     let lastVisibleAdminUser = null; // For admin pagination
 
-    // [NEW] Level System Configuration
-    const levelConfig = [
+    // [UPDATED] Level System Configuration - Now treated as a default/fallback
+    let levelConfig = [
         { level: 1, expRequired: 0,         shieldClass: 'level-shield-1', benefit: "Unlock Daily Check-in" },
         { level: 2, expRequired: 15000,     shieldClass: 'level-shield-2', benefit: "Unlock Referral System" },
         { level: 3, expRequired: 50000,     shieldClass: 'level-shield-3', benefit: "+1% EXP bonus on all tasks" },
@@ -2222,6 +2282,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
+    // [UPDATED] to include LEVEL MULTIPLIER
     async function calculateBmassReward(user, settings) {
         if (!user || !settings) return 0;
         
@@ -2233,16 +2294,31 @@ document.addEventListener('DOMContentLoaded', () => {
         const checkinMultiplier = settings.checkinMultiplier ?? 30;
         const expMultiplier = settings.expMultiplier ?? 20;
 
+        // 1. Calculate the base reward
         const baseReward = (refCount * refMultiplier) + (checkinCount * checkinMultiplier) + (expCount * expMultiplier);
 
+        // 2. Get the level multiplier
+        const userLevel = user.level || 1;
+        let levelMultiplier = 1.0;
+        if (settings.levelMultipliers && Array.isArray(settings.levelMultipliers)) {
+            const multiplierData = settings.levelMultipliers.find(m => m.level === userLevel);
+            if (multiplierData && typeof multiplierData.multiplier === 'number') {
+                levelMultiplier = multiplierData.multiplier;
+            }
+        }
+
+        // 3. Apply the level multiplier
+        const finalReward = baseReward * levelMultiplier;
+
+        // 4. Apply confirmation bonus/penalty
         if (user.hasSentConfirmationTx) {
-            return baseReward;
+            return Math.floor(finalReward);
         } else {
-            return Math.floor(baseReward * 0.5);
+            return Math.floor(finalReward * 0.5);
         }
     }
     
-    // [UPDATED] to handle temporary profiles
+    // [UPDATED] to handle temporary profiles & LEVEL BACKFILLING
     async function loadOrCreateUserByAddress(address) {
         if (!address || !db) return;
     
@@ -2359,7 +2435,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof userData.isTemporaryProfile === 'undefined') { updates.isTemporaryProfile = !userData.telegramId; }
             if (typeof userData.level === 'undefined') { updates.level = 1; } // [NEW] Add level to old users
 
-            // [NEW] Check for level up on login
+            // [NEW] Check for level up on login (BACKFILLING LOGIC)
             const calculatedLevel = calculateLevel(userData.points || 0);
             if (userData.level !== calculatedLevel) {
                 updates.level = calculatedLevel;
@@ -2393,10 +2469,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // [NEW] Check and update level after gaining EXP
     async function checkAndUpdateLevel(userAddress, newPoints) {
+        if (!currentUserData) return; // Cannot check level if user data is not loaded
+        const oldLevel = currentUserData.level;
         const newLevel = calculateLevel(newPoints);
-        if (currentUserData.level !== newLevel) {
+        
+        if (oldLevel !== newLevel) {
             // Level up!
-            currentUserData.level = newLevel;
+            currentUserData.level = newLevel; // Update state immediately for UI responsiveness
             try {
                 const userRef = db.collection('users').doc(userAddress);
                 await userRef.update({ level: newLevel });
@@ -2406,9 +2485,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     'success'
                 );
                 // Re-render UI to show new shield and benefits
-                updateLevelUI(currentUserData.level, newPoints);
+                updateLevelUI(newLevel, newPoints);
             } catch(error) {
                 console.error("Failed to update user level in Firestore:", error);
+                currentUserData.level = oldLevel; // Revert state on failure
             }
         }
     }
@@ -2629,12 +2709,11 @@ function updateUIAfterLogin() {
                 }
 
                 newTotalPoints = (userData.points || 0) + rewardConfig.checkinExp;
-                const newLevel = calculateLevel(newTotalPoints);
+                // No need to calculate level here, checkAndUpdateLevel will be called after
                 const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
                 
                 transaction.update(userRef, {
                     points: firebase.firestore.FieldValue.increment(rewardConfig.checkinExp),
-                    level: newLevel, // Update level in the same transaction
                     lastCheckin: newTimestamp,
                     checkinCount: firebase.firestore.FieldValue.increment(1)
                 });
@@ -2648,14 +2727,15 @@ function updateUIAfterLogin() {
             });
 
             showAppToast('Success!', `You've received ${rewardConfig.checkinExp} EXP.`, 'success');
-             // Check if level up occurred
-            if (currentUserData.level !== calculateLevel(newTotalPoints)) {
-                showAppToast('Level Up!', `Congratulations, you've reached Level ${calculateLevel(newTotalPoints)}!`, 'success');
-            }
+            // Update current user data and then check for level up
+            currentUserData.points = newTotalPoints;
+            checkAndUpdateLevel(connectedWalletAddress, newTotalPoints);
+             
         } catch (error) {
             console.error("Check-in failed: ", error);
             showAppToast('Failed', 'An error occurred. Please try again.', 'error');
         } finally {
+            // Refetch data to ensure UI consistency
             const updatedDoc = await userRef.get();
             if(updatedDoc.exists) {
                 currentUserData = updatedDoc.data();
@@ -2793,6 +2873,7 @@ async function fetchAndRenderLeaderboard() {
 
         if (isInitialLoad) {
             lastVisibleAdminUser = null;
+            // [UPDATED] Added Level column header
             adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">Lượt mời</th><th scope="col">Check-in</th><th scope="col">N.vụ Partner HT</th><th scope="col">N.vụ Bắt buộc</th><th scope="col">Level</th><th scope="col">EXP</th><th scope="col">Đã xác nhận 100%</th><th scope="col">Đã yêu cầu</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
         }
         
@@ -2921,6 +3002,7 @@ async function fetchAndRenderLeaderboard() {
             }
             
             const row = tableBody.insertRow();
+            // [UPDATED] Added Level cell
             row.innerHTML = `
                 <td>
                     <div class="d-flex align-items-center">
@@ -3105,6 +3187,7 @@ async function fetchAndRenderLeaderboard() {
             while (true) {
                 let batchQuery;
                 if (conditionType !== 'all') {
+                    // Firestore requires the first orderBy to be on the same field as the where filter
                     batchQuery = query.orderBy(conditionType).orderBy(firebase.firestore.FieldPath.documentId()).limit(BATCH_SIZE);
                 } else {
                     batchQuery = query.orderBy(firebase.firestore.FieldPath.documentId()).limit(BATCH_SIZE);
@@ -3444,14 +3527,14 @@ async function fetchAndRenderLeaderboard() {
         const currentLevel = level || 1;
         const currentExp = exp || 0;
         
-        const levelInfo = levelConfig[currentLevel - 1];
-        const nextLevelInfo = (currentLevel < levelConfig.length) ? levelConfig[currentLevel] : null;
+        const levelInfo = levelConfig.find(l => l.level === currentLevel) || levelConfig[0];
+        const nextLevelInfo = (currentLevel < levelConfig.length) ? levelConfig.find(l => l.level === currentLevel + 1) : null;
 
         // Update Avatar Shield
         const shield = document.getElementById('profile-avatar-shield');
         if (shield) {
             shield.className = 'avatar-shield'; // Reset classes
-            shield.classList.add(levelInfo.shieldClass);
+            shield.classList.add(levelInfo.shieldClass || 'level-shield-1');
         }
 
         // Update Progress Bar and Text
@@ -3468,7 +3551,7 @@ async function fetchAndRenderLeaderboard() {
             // Not max level
             const expForNextLevel = nextLevelInfo.expRequired - levelInfo.expRequired;
             const expProgress = currentExp - levelInfo.expRequired;
-            const progressPercentage = Math.min((expProgress / expForNextLevel) * 100, 100);
+            const progressPercentage = (expForNextLevel > 0) ? Math.min((expProgress / expForNextLevel) * 100, 100) : 100;
 
             nextLevelDisplay.textContent = `LV ${nextLevelInfo.level}`;
             progressBar.style.width = `${progressPercentage}%`;
@@ -3764,10 +3847,12 @@ function renderReferralMilestones() {
             const doc = await docRef.get();
             if (doc.exists) { airdropSettings = doc.data(); } 
             else {
+                // Default settings if none are found
                 airdropSettings = { 
                     isAirdropLive: false, isConfirmationEnabled: false, isClaimingEnabled: false, isSnapshotActive: false,
                     minCheckins: 0, minReferrals: 0, minExp: 0,
-                    refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 20
+                    refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 20,
+                    levelMultipliers: [] // [NEW] Default empty array
                 };
             }
             return airdropSettings;
@@ -3776,7 +3861,8 @@ function renderReferralMilestones() {
             return { 
                 isAirdropLive: false, isConfirmationEnabled: false, isClaimingEnabled: false, isSnapshotActive: false,
                 minCheckins: 0, minReferrals: 0, minExp: 0,
-                refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 20
+                refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 20,
+                levelMultipliers: []
             };
         }
     }
@@ -3816,9 +3902,14 @@ function renderReferralMilestones() {
         const isFullyEligible = isEligibleByStats && mandatoryTasksCompleted;
         const finalReward = isFullyEligible ? await calculateBmassReward(currentUserData, settings) : 0;
 
+        
         document.getElementById('airdrop-ref-count').textContent = (currentUserData.referralCount || 0).toLocaleString();
         document.getElementById('airdrop-checkin-count').textContent = (currentUserData.checkinCount || 0).toLocaleString();
         document.getElementById('airdrop-exp-count').textContent = (currentUserData.points || 0).toLocaleString();
+        
+        // DÒNG MỚI CẦN THÊM VÀO
+        document.getElementById('airdrop-level-display').textContent = (currentUserData.level || 1); 
+
         document.getElementById('airdrop-reward-value').textContent = finalReward.toLocaleString();
 
         const eligibilityStatusEl = document.getElementById('airdrop-eligibility-status');
@@ -4038,6 +4129,7 @@ function renderReferralMilestones() {
         
         await fetchAirdropSettings();
         await fetchRewardSettings();
+        await fetchLevelConfig(); // [NEW] Fetch level settings on init
 
         if (!applyMaintenanceMode(tonConnectUI.account?.address)) {
             handleRouteChange(); 
@@ -4115,9 +4207,17 @@ function renderReferralMilestones() {
         else if (viewToShow === 'admin' && isLoggedIn && isCurrentUserAdmin()){
             adminSectionEl.style.display = 'block';
             navAdmin.classList.add('active');
-            renderAdminPartnerTasks();
-            fetchAndRenderAdminUserList(true); 
+            // Lazy load admin data when the section is shown
+            const adminUserPanel = document.getElementById('admin-panel-users');
+            if (adminUserPanel.style.display !== 'none') {
+                fetchAndRenderAdminUserList(true); 
+            }
+            const adminPartnerPanel = document.getElementById('admin-panel-partner-tasks');
+             if (adminPartnerPanel.style.display !== 'none') {
+                 renderAdminPartnerTasks();
+             }
             maintenanceModeSwitch.checked = systemStatus.isMaintenanceMode;
+            // Fetch and populate airdrop settings
             fetchAirdropSettings().then(settings => {
                  document.getElementById('airdrop-live-switch').checked = settings.isAirdropLive || false;
                  document.getElementById('confirmation-enabled-switch').checked = settings.isConfirmationEnabled || false;
@@ -4129,6 +4229,7 @@ function renderReferralMilestones() {
                  document.getElementById('ref-multiplier-input').value = settings.refMultiplier ?? 50;
                  document.getElementById('checkin-multiplier-input').value = settings.checkinMultiplier ?? 30;
                  document.getElementById('exp-multiplier-input').value = settings.expMultiplier ?? 20;
+                 renderLevelMultipliersUI(settings.levelMultipliers); // [NEW] Render level multipliers
             });
         } else { 
             if (isLoggedIn) { dashboardEl.style.display = 'block'; } 
@@ -4661,9 +4762,11 @@ function renderReferralMilestones() {
         sidebarOverlay.classList.toggle('open');
     };
 
+    // [UPDATED] to include saving level multipliers
     async function saveAirdropSettings() {
+        // ... (phần code thu thập dữ liệu form giữ nguyên) ...
         const isAirdropLive = document.getElementById('airdrop-live-switch').checked;
-        const isConfirmationEnabled = document.getElementById('confirmation-enabled-switch').checked; 
+        const isConfirmationEnabled = document.getElementById('confirmation-enabled-switch').checked;
         const isClaimingEnabled = document.getElementById('claim-enabled-switch').checked;
         const isSnapshotActive = document.getElementById('snapshot-active-switch').checked;
 
@@ -4681,29 +4784,38 @@ function renderReferralMilestones() {
         const checkinMultiplier = parseFloat(document.getElementById('checkin-multiplier-input').value) || 0;
         const expMultiplier = parseFloat(document.getElementById('exp-multiplier-input').value) || 0;
 
+        // [NEW] Collect level multipliers
+        const levelMultipliers = [];
+        document.querySelectorAll('.level-multiplier-item').forEach(item => {
+            const level = parseInt(item.dataset.level, 10);
+            const multiplier = parseFloat(item.querySelector('input').value);
+            if (!isNaN(level) && !isNaN(multiplier)) {
+                levelMultipliers.push({ level, multiplier });
+            }
+        });
+
         if (isNaN(minCheckins) || isNaN(minReferrals) || isNaN(minExp) || isNaN(refMultiplier) || isNaN(checkinMultiplier) || isNaN(expMultiplier)) {
             showAppToast('Lỗi', 'Vui lòng nhập giá trị số hợp lệ.', 'error');
             return;
         }
-        
+
         saveSettingsBtn.disabled = true;
         adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
 
         try {
             const settingsRef = db.collection('admin_settings').doc('airdrop_criteria');
-            const newSettings = { isAirdropLive, isConfirmationEnabled, isClaimingEnabled, isSnapshotActive, minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier };
+            const newSettings = { isAirdropLive, isConfirmationEnabled, isClaimingEnabled, isSnapshotActive, minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier, levelMultipliers };
             await settingsRef.set(newSettings, { merge: true });
-            airdropSettings = newSettings; 
+            airdropSettings = newSettings;
             adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
             showAppToast('Thành công', 'Đã lưu cài đặt Airdrop.', 'success');
-            updateUIAfterLogin();
         } catch (error) {
             console.error("Error saving airdrop settings:", error);
             adminSettingsStatusEl.innerHTML = `<span class="text-danger">Lưu thất bại.</span>`;
             showAppToast('Lỗi', 'Không thể lưu cài đặt.', 'error');
         } finally {
             saveSettingsBtn.disabled = false;
-             setTimeout(() => { adminSettingsStatusEl.innerHTML = ''; }, 3000);
+            setTimeout(() => { adminSettingsStatusEl.innerHTML = ''; }, 3000);
         }
     }
     
@@ -4922,12 +5034,10 @@ function renderReferralMilestones() {
 
                 const userData = userDoc.data();
                 newTotalPoints = (userData.points || 0) + expReward;
-                const newLevel = calculateLevel(newTotalPoints);
                 const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
 
                 transaction.update(userRef, {
                     points: firebase.firestore.FieldValue.increment(expReward),
-                    level: newLevel,
                     partnerTasksCompletedCount: firebase.firestore.FieldValue.increment(1)
                 });
                 transaction.set(completedTaskRef, { completedAt: newTimestamp });
@@ -4942,10 +5052,9 @@ function renderReferralMilestones() {
             
             showAppToast('Success!', `You received +${expReward} EXP from the ${projectName} task.`, 'success');
             
-            // Check for level up after transaction
-            if (currentUserData.level !== calculateLevel(newTotalPoints)) {
-                showAppToast('Level Up!', `Congratulations, you've reached Level ${calculateLevel(newTotalPoints)}!`, 'success');
-            }
+            // Update current user data then check for level up
+            currentUserData.points = newTotalPoints;
+            checkAndUpdateLevel(connectedWalletAddress, newTotalPoints);
 
             if (window.Telegram && window.Telegram.WebApp) {
                 window.Telegram.WebApp.openLink(taskLink);
@@ -4955,7 +5064,7 @@ function renderReferralMilestones() {
             
             const updatedDoc = await userRef.get();
             currentUserData = updatedDoc.data();
-            updateUIAfterLogin(); // This will handle all UI updates including level
+            updateUIAfterLogin(); 
             taskCard.classList.add('completed');
             actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
 
@@ -5336,6 +5445,115 @@ function renderReferralMilestones() {
         `;
         container.appendChild(milestoneDiv);
     }
+    
+    // ===================================================================
+    // [NEW] LEVEL SETTINGS FUNCTIONS
+    // ===================================================================
+
+    async function fetchLevelConfig() {
+        if (!db) return;
+        try {
+            const docRef = db.collection('admin_settings').doc('level_config');
+            const doc = await docRef.get();
+            if (doc.exists) {
+                const data = doc.data();
+                if (data.levels && Array.isArray(data.levels)) {
+                    levelConfig = data.levels.sort((a, b) => a.level - b.level);
+                    console.log("Level config loaded from Firestore:", levelConfig);
+                }
+            } else {
+                // If not found, save the default config to Firestore
+                await docRef.set({ levels: levelConfig });
+                console.log("No level config in Firestore, created with defaults.");
+            }
+        } catch (error) {
+            console.error("Error fetching level config, using defaults:", error);
+        }
+    }
+    
+    function renderLevelSettingsUI() {
+        const adminPanel = document.getElementById('admin-panel-level-settings');
+        if (!adminPanel) return;
+
+        const container = document.getElementById('level-settings-container');
+        container.innerHTML = ''; // Clear existing rows
+
+        (levelConfig || []).forEach((levelData) => {
+            addLevelRow(levelData);
+        });
+    }
+
+    // [NEW] Render Level Multipliers in Airdrop Settings
+    function renderLevelMultipliersUI(savedMultipliers = []) {
+        const container = document.getElementById('admin-level-multipliers-container');
+        container.innerHTML = '';
+
+        levelConfig.forEach(levelInfo => {
+            const savedData = savedMultipliers.find(m => m.level === levelInfo.level);
+            const multiplierValue = savedData ? savedData.multiplier : 1.0;
+
+            const row = document.createElement('div');
+            row.className = 'row g-3 align-items-center mb-2 level-multiplier-item';
+            row.dataset.level = levelInfo.level;
+            row.innerHTML = `
+                <div class="col-4">
+                    <label class="form-label mb-0">Level ${levelInfo.level}</label>
+                </div>
+                <div class="col-8">
+                    <div class="input-group">
+                        <span class="input-group-text">x</span>
+                        <input type="number" class="form-control" value="${multiplierValue}" step="0.1" min="0">
+                    </div>
+                </div>
+            `;
+            container.appendChild(row);
+        });
+    }
+
+
+    function addLevelRow(levelData = {}) {
+        const container = document.getElementById('level-settings-container');
+        const levelDiv = document.createElement('div');
+        levelDiv.className = 'row g-3 align-items-center mb-3 level-item';
+        
+        const currentLevel = levelData.level || (container.children.length + 1);
+        const expRequired = levelData.expRequired ?? '';
+        const benefit = levelData.benefit ?? '';
+
+        levelDiv.innerHTML = `
+            <div class="col-2 col-md-1">
+                <input type="number" class="form-control text-center level-number" value="${currentLevel}" readonly>
+            </div>
+            <div class="col-5 col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text">EXP ≥</span>
+                    <input type="number" class="form-control level-exp" value="${expRequired}" placeholder="EXP yêu cầu" min="0">
+                </div>
+            </div>
+            <div class="col-5 col-md-6">
+                 <input type="text" class="form-control level-benefit" value="${benefit}" placeholder="Mô tả quyền lợi">
+            </div>
+            <div class="col-12 col-md-1 text-end">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-level-btn"><i class="fas fa-trash"></i></button>
+            </div>
+        `;
+        container.appendChild(levelDiv);
+        
+        // Disable editing for Level 1
+        if (currentLevel === 1) {
+            levelDiv.querySelector('.level-exp').readOnly = true;
+            levelDiv.querySelector('.remove-level-btn').style.display = 'none';
+        }
+    }
+    
+    function renumberLevels() {
+        const items = document.querySelectorAll('#level-settings-container .level-item');
+        items.forEach((item, index) => {
+            const levelInput = item.querySelector('.level-number');
+            levelInput.value = index + 1;
+        });
+    }
+
 
     // --- Event Listeners specific to new features ---
 
@@ -5345,6 +5563,15 @@ function renderReferralMilestones() {
         }
         if (e.target && e.target.closest('.remove-milestone-btn')) {
             e.target.closest('.milestone-item').remove();
+        }
+        
+        // [NEW] Level Settings Listeners
+        if (e.target && e.target.id === 'add-level-btn') {
+            addLevelRow();
+        }
+        if (e.target && e.target.closest('.remove-level-btn')) {
+            e.target.closest('.level-item').remove();
+            renumberLevels();
         }
         
         const adminNavButton = e.target.closest('#admin-nav-tabs .nav-link');
@@ -5362,8 +5589,15 @@ function renderReferralMilestones() {
             const targetPanel = document.querySelector(targetId);
             if (targetPanel) {
                 targetPanel.style.display = 'block';
+                // Trigger render functions when a tab is shown
                 if (targetId === '#admin-panel-reward-settings') {
                     renderRewardSettingsUI();
+                } else if (targetId === '#admin-panel-level-settings') {
+                    renderLevelSettingsUI();
+                } else if (targetId === '#admin-panel-users') {
+                    fetchAndRenderAdminUserList(true);
+                } else if (targetId === '#admin-panel-partner-tasks') {
+                    renderAdminPartnerTasks();
                 }
             }
         }
@@ -5401,6 +5635,62 @@ function renderReferralMilestones() {
                 showAppToast('Thành công', 'Cài đặt thưởng đã được cập nhật.', 'success');
             } catch (error) {
                 console.error("Error saving reward settings:", error);
+                statusEl.innerHTML = `<span class="text-danger">Lỗi: ${error.message}</span>`;
+            } finally {
+                saveBtn.disabled = false;
+                setTimeout(() => { statusEl.innerHTML = ''; }, 4000);
+            }
+        }
+        
+        // [NEW] Level Settings Form Submission
+        if (e.target && e.target.id === 'admin-level-settings-form') {
+            e.preventDefault();
+            const saveBtn = document.getElementById('save-level-settings-btn');
+            const statusEl = document.getElementById('admin-level-settings-status');
+            
+            saveBtn.disabled = true;
+            statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
+
+            const newLevels = [];
+            let isValid = true;
+            let lastExp = -1;
+
+            document.querySelectorAll('.level-item').forEach(item => {
+                const level = parseInt(item.querySelector('.level-number').value, 10);
+                const expRequired = parseInt(item.querySelector('.level-exp').value, 10);
+                const benefit = item.querySelector('.level-benefit').value.trim();
+                
+                if (isNaN(level) || isNaN(expRequired)) {
+                    isValid = false;
+                }
+                
+                if (level > 1 && expRequired <= lastExp) {
+                    showAppToast('Lỗi Cấu hình', `EXP yêu cầu cho Level ${level} phải lớn hơn Level ${level - 1}.`, 'error');
+                    isValid = false;
+                }
+                lastExp = expRequired;
+
+                newLevels.push({ 
+                    level, 
+                    expRequired, 
+                    benefit,
+                    shieldClass: `level-shield-${level}` // Auto-generate shield class
+                });
+            });
+            
+            if (!isValid) {
+                 statusEl.innerHTML = `<span class="text-danger">Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.</span>`;
+                 saveBtn.disabled = false;
+                 return;
+            }
+
+            try {
+                await db.collection('admin_settings').doc('level_config').set({ levels: newLevels });
+                levelConfig = newLevels; // Update local config
+                statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu cài đặt level!</span>`;
+                showAppToast('Thành công', 'Cấu hình level đã được cập nhật.', 'success');
+            } catch (error) {
+                console.error("Error saving level settings:", error);
                 statusEl.innerHTML = `<span class="text-danger">Lỗi: ${error.message}</span>`;
             } finally {
                 saveBtn.disabled = false;
