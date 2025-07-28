@@ -1,29 +1,4 @@
-Tuyệt vời! Dưới đây là phiên bản code đã được nâng cấp hoàn chỉnh với hệ thống level, bảng quản lý cho admin, và tất cả các tính năng bạn đã yêu cầu.
 
-**Tóm tắt các thay đổi chính:**
-
-1.  **Hệ thống Level cho người dùng:**
-    *   Người dùng giờ đây sẽ có **Level** dựa trên số **EXP** họ tích lũy được.
-    *   **Ảnh đại diện (Avatar)** của người dùng sẽ có một chiếc "khiên" (shield) viền xung quanh, thay đổi màu sắc và hiệu ứng dựa trên level của họ, tạo cảm giác tự hào và khác biệt.
-    *   Trong trang **Tài khoản**, người dùng sẽ thấy thanh tiến trình level, số EXP cần để lên cấp, và phần thưởng/quyền lợi sẽ nhận được ở cấp độ tiếp theo.
-    *   Khi người dùng lên cấp, một thông báo chúc mừng sẽ hiện ra.
-
-2.  **Cập nhật cho Trang Admin:**
-    *   **Tab "Level Settings" Mới:** Thêm một tab hoàn toàn mới trong Admin Panel, cho phép admin:
-        *   **Tùy chỉnh các mốc Level:** Đặt số EXP yêu cầu cho mỗi cấp.
-        *   **Tùy chỉnh phần thưởng:** Ghi rõ quyền lợi (dưới dạng văn bản) mà người dùng sẽ nhận được ở mỗi cấp.
-        *   Thêm hoặc xóa các cấp độ một cách linh hoạt.
-        *   Lưu tất cả các thay đổi vào cơ sở dữ liệu và hệ thống sẽ tự động áp dụng ngay lập tức.
-    *   **Hiển thị Level trong Danh sách người dùng:** Cột "Level" đã được thêm vào bảng danh sách người dùng để admin dễ dàng theo dõi.
-    *   **Rà soát & Tính toán lại:** Hệ thống được thiết kế để tự động kiểm tra và cập nhật level cho người dùng cũ khi họ đăng nhập, đảm bảo mọi người đều ở đúng cấp độ dựa trên số EXP hiện tại của họ.
-
-3.  **Tích hợp sâu:**
-    *   Mỗi khi người dùng kiếm được EXP (từ check-in, mời bạn, làm nhiệm vụ), hệ thống sẽ tự động kiểm tra xem họ có đủ điểu kiện lên cấp hay không.
-    *   Bảng xếp hạng (Leaderboard) giờ cũng sẽ hiển thị Level của người dùng bên cạnh tên của họ.
-
-Dưới đây là toàn bộ code đã được cập nhật. Bạn có thể thay thế hoàn toàn code cũ của mình bằng code này.
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
