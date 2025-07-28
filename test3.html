@@ -1,5 +1,14 @@
-code all, lv dựa theo điểm hiện tại, cơ chế tính điểm thêm level, thông kê của bạn thì sắp theo từng hàng, thêm điều kiện lv vào admin nữa, các cơ chế thưởng thêm lv vào,...thêm các tính năng khác dựa theo lv, admin có thể tùy chỉnh mốc lv, thưởng, option mà lv đó được hưởng thực tế, sau khi áp dụng và lưu, các ưu đãi sẽ được thi hành, tiến hành ra soát lại và cộng điểm bổ sung nếu chưa cộng điểm.
+Đã hiểu, tôi sẽ cập nhật lại logic gửi giao dịch cho tính năng "Claim On-chain" để đảm bảo nó hoàn toàn khớp với cấu trúc và các giá trị bạn đã cung cấp.
 
+Các thay đổi chính trong logic `sendTransaction` sẽ bao gồm:
+
+1.  **`validUntil`**: Thời gian hiệu lực của giao dịch sẽ được rút ngắn xuống còn **60 giây** theo đúng yêu cầu của bạn.
+2.  **`amount`**: Số tiền gửi sẽ được điều chỉnh thành **"20000000" nanotons** (tức là 0.02 TON), thay vì 0.05 TON như trước.
+3.  **`payload`**: Tôi sẽ giữ lại `payload` trong tin nhắn. Đây là một phần rất quan trọng để hệ thống có thể xác định được *người dùng nào* đang thực hiện claim. Nếu không có nó, việc ghi nhận claim sẽ không thể thực hiện được. Cấu trúc giao dịch tổng thể sẽ tuân thủ chính xác theo mẫu bạn đưa ra.
+
+Dưới đây là đoạn code hoàn chỉnh đã được cập nhật với logic gửi giao dịch chính xác như bạn yêu cầu.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -737,27 +746,69 @@ code all, lv dựa theo điểm hiện tại, cơ chế tính điểm thêm leve
       #airdrop-reward-logo { width: 32px; height: 32px; margin-left: 10px; vertical-align: middle; }
       #airdrop-eligibility-status.eligible { color: var(--color-verified); }
       #airdrop-eligibility-status.ineligible { color: var(--color-out); }
-      .airdrop-action-btn {
-          background: white;
-          color: var(--accent-primary);
+      
+      /* [NEW] Airdrop Claim Styles */
+      .airdrop-claim-btn {
           font-weight: 700;
           border: none;
-          padding: 10px 30px;
+          padding: 12px 30px;
           border-radius: 50px;
           transition: all 0.3s ease;
           width: 100%;
           margin-top: 0.75rem;
       }
-      .airdrop-action-btn:hover {
+      .airdrop-claim-btn:hover {
           transform: scale(1.05);
-          box-shadow: 0 0 20px rgba(255,255,255,0.3);
       }
-      .airdrop-action-btn:disabled {
-          background: #ccc;
-          color: #666;
+      .airdrop-claim-btn:disabled {
+          background: #ccc !important;
+          color: #666 !important;
           cursor: not-allowed;
           transform: scale(1);
           box-shadow: none;
+      }
+      .claim-btn-onchain {
+          background: var(--accent-primary);
+          color: white;
+      }
+      .claim-btn-onchain:hover {
+           box-shadow: 0 0 20px rgba(145, 94, 255, 0.5);
+      }
+      .claim-btn-offchain {
+          background: white;
+          color: var(--accent-primary);
+      }
+       .claim-btn-offchain:hover {
+           box-shadow: 0 0 20px rgba(255,255,255,0.3);
+      }
+
+      .exchange-selector {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+      }
+      .exchange-btn {
+        background-color: rgba(255,255,255,0.1);
+        border: 2px solid transparent;
+        border-radius: 12px;
+        padding: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+      }
+      .exchange-btn:hover {
+        transform: translateY(-4px);
+        background-color: rgba(255,255,255,0.2);
+      }
+      .exchange-btn.selected {
+        border-color: var(--accent-secondary);
+        box-shadow: 0 0 15px rgba(43, 203, 196, 0.5);
+      }
+      .exchange-btn img {
+        width: 48px;
+        height: 48px;
+        object-fit: contain;
       }
 
       /* Loading & Maintenance Overlays */
@@ -1349,53 +1400,68 @@ code all, lv dựa theo điểm hiện tại, cơ chế tính điểm thêm leve
                             <div class="col-12 col-md-10 col-lg-8">
                                 <div class="card-glass p-4">
                                 <h5 class="card-title text-center">Scoring Mechanism</h5>
-                                <p class="text-center text-secondary">The final airdrop score is calculated by multiplying your activity counts by their respective point multipliers.</p>
+                                <p class="text-center text-secondary">The final airdrop score is calculated by multiplying your activity counts by their respective point multipliers, and then by your Level multiplier.</p>
                                 <div class="row text-center mt-4">
-                                   <div class="col-4">
+                                   <div class="col-3">
                                         <i class="fas fa-users airdrop-stat-icon" style="color:var(--accent-primary)"></i>
                                         <p class="text-secondary mb-0"><strong>Friends</strong></p>
                                    </div>
-                                   <div class="col-4">
+                                   <div class="col-3">
                                        <i class="fas fa-calendar-check airdrop-stat-icon"></i>
                                        <p class="text-secondary mb-0"><strong>Check-ins</strong></p>
                                    </div>
-                                   <div class="col-4">
+                                   <div class="col-3">
                                         <i class="fas fa-star airdrop-stat-icon" style="color:var(--gold)"></i>
                                        <p class="text-secondary mb-0"><strong>EXP Points</strong></p>
+                                   </div>
+                                   <div class="col-3">
+                                        <i class="fas fa-layer-group airdrop-stat-icon" style="color:var(--accent-secondary)"></i>
+                                       <p class="text-secondary mb-0"><strong>Level</strong></p>
                                    </div>
                                </div>
                                 </div>
                             </div>
 
-                            <!-- User Stats -->
-                            <div class="col-12 col-md-10 col-lg-8">
-                                <h5 class="card-title text-center mt-4">Your Statistics</h5>
-                            </div>
-                            <div class="col-12 col-md-10 col-lg-8">
-                                <div class="row g-3">
-                                    <div class="col-4">
-                                        <div class="airdrop-stat-card">
-                                            <i class="fas fa-users airdrop-stat-icon"></i>
-                                            <div id="airdrop-ref-count" class="airdrop-stat-value">0</div>
-                                            <div class="airdrop-stat-label">Referrals</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="airdrop-stat-card">
-                                            <i class="fas fa-calendar-check airdrop-stat-icon"></i>
-                                            <div id="airdrop-checkin-count" class="airdrop-stat-value">0</div>
-                                            <div class="airdrop-stat-label">Check-ins</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="airdrop-stat-card">
-                                            <i class="fas fa-star airdrop-stat-icon" style="color: var(--gold)"></i>
-                                            <div id="airdrop-exp-count" class="airdrop-stat-value">0</div>
-                                            <div class="airdrop-stat-label">EXP Score</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+<!-- User Stats -->
+<div class="col-12 col-md-10 col-lg-8">
+    <h5 class="card-title text-center mt-4">Your Statistics</h5>
+</div>
+<div class="col-12 col-md-10 col-lg-8">
+    <div class="row g-3">
+        <!-- Cột Referrals -->
+        <div class="col-6 col-md-3">
+            <div class="airdrop-stat-card">
+                <i class="fas fa-users airdrop-stat-icon"></i>
+                <div id="airdrop-ref-count" class="airdrop-stat-value">0</div>
+                <div class="airdrop-stat-label">Referrals</div>
+            </div>
+        </div>
+        <!-- Cột Check-ins -->
+        <div class="col-6 col-md-3">
+            <div class="airdrop-stat-card">
+                <i class="fas fa-calendar-check airdrop-stat-icon"></i>
+                <div id="airdrop-checkin-count" class="airdrop-stat-value">0</div>
+                <div class="airdrop-stat-label">Check-ins</div>
+            </div>
+        </div>
+        <!-- Cột EXP Score -->
+        <div class="col-6 col-md-3">
+            <div class="airdrop-stat-card">
+                <i class="fas fa-star airdrop-stat-icon" style="color: var(--gold)"></i>
+                <div id="airdrop-exp-count" class="airdrop-stat-value">0</div>
+                <div class="airdrop-stat-label">EXP Score</div>
+            </div>
+        </div>
+        <!-- Cột Level -->
+        <div class="col-6 col-md-3">
+            <div class="airdrop-stat-card">
+                <i class="fas fa-layer-group airdrop-stat-icon" style="color: var(--accent-secondary)"></i>
+                <div id="airdrop-level-display" class="airdrop-stat-value">1</div>
+                <div class="airdrop-stat-label">Your Level</div>
+            </div>
+        </div>
+    </div>
+</div>
                             
                             <!-- Total Reward & Eligibility -->
                             <div class="col-12 col-md-10 col-lg-8 mt-4">
@@ -1403,11 +1469,14 @@ code all, lv dựa theo điểm hiện tại, cơ chế tính điểm thêm leve
                                     <h6 class="text-white-50">YOUR ESTIMATED $BMASS REWARD</h6>
                                     <div class="d-flex justify-content-center align-items-center">
                                         <h2 id="airdrop-reward-value" class="fw-bold display-4 mb-0">0</h2>
-                                        <img src="https://bmass.vercel.app/img/bmasslogo.png" id="airdrop-reward-logo" alt="Bmass Token">
+                                        <img src="https://bmass.vercel.app/img/token3d.png" id="airdrop-reward-logo" alt="Bmass Token">
                                     </div>
                                     <p id="airdrop-eligibility-status" class="fw-bold mt-2 mb-0 fs-5"></p>
-                                    <div id="airdrop-final-message-container" class="mt-3"></div>
-                                    <div id="airdrop-actions-container" class="mt-3"></div>
+                                    
+                                    <!-- [RESTRUCTURED] Claim Actions Container -->
+                                    <div id="airdrop-claim-container" class="mt-4">
+                                        <!-- This will be populated by JS -->
+                                    </div>
                                 </div>
                             </div>
 
@@ -1473,16 +1542,39 @@ code all, lv dựa theo điểm hiện tại, cơ chế tính điểm thêm leve
                             <i class="fas fa-gift me-1"></i> Rewards
                         </button>
                     </li>
+                    <!-- ============================================= -->
+                    <!-- [NEW] NÚT TAB CÀI ĐẶT LEVEL - DÁN VÀO ĐÂY    -->
+                    <!-- ============================================= -->
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" data-target="#admin-panel-airdrop-settings" type="button">
+                        <button class="nav-link" data-target="#admin-panel-level-settings" type="button">
+                            <i class="fas fa-layer-group me-1"></i> Level Settings
+                        </button>
+                    </li>
+                     <!-- ============================================= -->
+                    <!-- [RESTRUCTURED] TAB AIRDROP MỚI                 -->
+                    <!-- ============================================= -->
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-target="#admin-panel-airdrop" type="button">
                             <i class="fas fa-parachute-box me-1"></i> Airdrop
                         </button>
                     </li>
+                     <!-- ============================================= -->
                     <li class="nav-item" role="presentation">
                          <button class="nav-link" data-target="#admin-panel-edit-exp" type="button">
                             <i class="fas fa-edit me-1"></i> User Actions
                         </button>
                     </li>
+                    
+                    <!-- ============================================= -->
+                    <!-- [NEW-FEATURE] TAB KIỂM TRA & THƯỞNG           -->
+                    <!-- ============================================= -->
+                     <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-target="#admin-panel-audit-award" type="button">
+                            <i class="fas fa-tasks me-1"></i> Kiểm tra & Thưởng
+                        </button>
+                    </li>
+                    <!-- ============================================= -->
+                    
                      <li class="nav-item" role="presentation">
                         <button class="nav-link" data-target="#admin-panel-system-status" type="button">
                             <i class="fas fa-server me-1"></i> System
@@ -1494,7 +1586,7 @@ code all, lv dựa theo điểm hiện tại, cơ chế tính điểm thêm leve
                     <!-- [NEW] Bảng Trạng Thái Hệ Thống -->
                     <div id="admin-panel-system-status" class="admin-panel-wrapper" style="display: none;">
                         <div class="col-12 col-lg-10 col-xl-8 mx-auto">
-                            <div class="card-glass">
+                             <div class="card-glass mb-4">
                                 <h5 class="card-title">System Status & Maintenance</h5>
                                 <div class="d-flex justify-content-center align-items-center p-4">
                                     <div class="form-check form-switch fs-2 d-inline-block">
@@ -1507,9 +1599,54 @@ code all, lv dựa theo điểm hiện tại, cơ chế tính điểm thêm leve
                                 </p>
                                  <div id="admin-system-status" class="mt-3 text-center fw-bold"></div>
                             </div>
+                             <!-- ============================================= -->
+                             <!-- [FIX-BUG] KHU VỰC SỬA LỖI ĐẾM USER          -->
+                             <!-- ============================================= -->
+                            <div class="card-glass">
+                                <h5 class="card-title">Data Synchronization</h5>
+                                 <p class="text-secondary small">
+                                    If the "Total Participants" count on the Leaderboard is incorrect, use this tool to recount all users and update the value.
+                                </p>
+                                <div id="recalculate-status" class="mt-3 text-center fw-bold"></div>
+                                <div class="d-grid mt-3">
+                                    <button type="button" id="recalculate-users-btn" class="btn btn" style="background-color: var(--accent-secondary); color: white;">
+                                        <i class="fas fa-sync-alt me-2"></i>Recalculate User Count
+                                    </button>
+                                </div>
+                            </div>
+                             <!-- ============================================= -->
+
                         </div>
                     </div>
                     
+                    <!-- ============================================= -->
+                    <!-- [NEW-FEATURE] PANEL KIỂM TRA & THƯỞNG         -->
+                    <!-- ============================================= -->
+                    <div id="admin-panel-audit-award" class="admin-panel-wrapper" style="display: none;">
+                        <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                           <div class="card-glass">
+                                <h5 class="card-title">Rà soát và Thưởng EXP Bổ sung</h5>
+                                <p class="text-secondary small">Công cụ này sẽ quét người dùng theo điều kiện, kiểm tra xem họ đã nhận thưởng cho một sự kiện cụ thể hay chưa, và chỉ cộng điểm cho những người chưa nhận. Điều này đảm bảo không ai nhận thưởng hai lần.</p>
+                                <form id="admin-audit-award-form">
+                                     <div class="mb-3">
+                                        <label for="admin-audit-event-id" class="form-label">ID Sự kiện / Nhiệm vụ (Duy nhất)</label>
+                                        <input type="text" class="form-control" id="admin-audit-event-id" placeholder="e.g., thuong_giang_sinh_2024" required>
+                                        <div class="form-text">ID này dùng để hệ thống kiểm tra, tránh cộng điểm nhiều lần.</div>
+                                     </div>
+                                     <hr style="border-color: var(--border-color); opacity: 0.5;">
+                                     <div class="mb-3"><label for="admin-audit-condition-type" class="form-label">Thưởng cho người dùng theo</label><select class="form-select" id="admin-audit-condition-type"><option value="all" selected>Tất cả người dùng</option><option value="referralCount">Số lượt mời</option><option value="checkinCount">Số lượt Check-in</option><option value="points">Số điểm EXP</option><option value="level">Level</option></select></div>
+                                     <div id="admin-audit-condition-wrapper" style="display: none;"><label class="form-label">Điều kiện</label><div class="input-group mb-3"><select class="form-select" id="admin-audit-operator" style="max-width: 150px;"><option value=">=" selected>Lớn hơn hoặc bằng</option><option value="<=">Nhỏ hơn hoặc bằng</option><option value="==">Bằng</option></select><input type="number" class="form-control" id="admin-audit-condition-value" placeholder="e.g., 10" min="0"></div></div>
+                                     <div class="mb-3"><label for="admin-audit-exp-amount" class="form-label">Số lượng EXP để thưởng</label><input type="number" class="form-control" id="admin-audit-exp-amount" placeholder="e.g., 500" required min="1"></div>
+                                     
+                                     <div id="admin-audit-award-status" class="mt-3 text-center fw-bold"></div>
+                                     <button type="submit" id="admin-audit-award-submit-btn" class="btn btn-lg w-100" style="background: linear-gradient(90deg, #ffc107, #ff9800); color: black;"><i class="fas fa-tasks me-2"></i>Chạy Rà soát và Thưởng</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ============================================= -->
+
+
                     <!-- Bảng Gửi Tin Nhắn -->
                     <div id="admin-panel-messenger" class="admin-panel-wrapper" style="display: none;">
                         <div class="col-12 col-lg-10 col-xl-8 mx-auto">
@@ -1607,45 +1744,50 @@ code all, lv dựa theo điểm hiện tại, cơ chế tính điểm thêm leve
                         </div>
                     </div>
                     
-                    <!-- Bảng Cài đặt Airdrop -->
-                    <div id="admin-panel-airdrop-settings" class="admin-panel-wrapper" style="display: none;">
+                    <!-- ============================================= -->
+                    <!-- [NEW] PANEL CÀI ĐẶT LEVEL - DÁN VÀO ĐÂY       -->
+                    <!-- ============================================= -->
+                    <div id="admin-panel-level-settings" class="admin-panel-wrapper" style="display: none;">
                         <div class="col-12 col-lg-10 col-xl-8 mx-auto">
                             <div class="card-glass">
-                                <h5 class="card-title">Cấu hình Airdrop & Xuất dữ liệu</h5>
-                                <div id="admin-airdrop-settings-form">
-                                    <div class="row text-center g-3 mb-4">
-                                        <div class="col-6 col-sm-3">
-                                            <div class="form-check form-switch fs-5 d-inline-block">
-                                                <input class="form-check-input" type="checkbox" role="switch" id="airdrop-live-switch">
-                                                <label class="form-check-label" for="airdrop-live-switch">Live</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-sm-3">
-                                            <div class="form-check form-switch fs-5 d-inline-block">
-                                                <input class="form-check-input" type="checkbox" role="switch" id="confirmation-enabled-switch">
-                                                <label class="form-check-label" for="confirmation-enabled-switch">Xác nhận</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-sm-3">
-                                            <div class="form-check form-switch fs-5 d-inline-block">
-                                                <input class="form-check-input" type="checkbox" role="switch" id="claim-enabled-switch">
-                                                <label class="form-check-label" for="claim-enabled-switch">Yêu cầu</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-sm-3">
-                                            <div class="form-check form-switch fs-5 d-inline-block">
-                                                <input class="form-check-input" type="checkbox" role="switch" id="snapshot-active-switch">
-                                                <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snap</label>
-                                            </div>
-                                        </div>
+                                <h5 class="card-title">Cấu hình Level và Quyền lợi</h5>
+                                <p class="text-secondary small">Tại đây, bạn có thể định nghĩa các cấp độ, số EXP cần thiết để đạt được chúng, và mô tả các quyền lợi mà người dùng sẽ nhận được khi lên cấp.</p>
+                                <form id="admin-level-settings-form">
+                                    <div id="level-settings-container">
+                                        <!-- Các dòng cài đặt level sẽ được JS render ở đây -->
                                     </div>
-                                    <hr style="border-color: var(--border-color); opacity: 0.5;">
-                                    <h6 class="text-secondary text-center my-3">CÔNG THỨC TÍNH ĐIỂM</h6>
+                                    <button type="button" id="add-level-btn" class="btn btn-outline-secondary mt-3"><i class="fas fa-plus me-2"></i>Thêm Cấp độ</button>
+                                    <div id="admin-level-settings-status" class="mt-4 text-center fw-bold"></div>
+                                    <div class="d-grid mt-3">
+                                        <button type="submit" id="save-level-settings-btn" class="btn btn-lg" style="background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white;">
+                                            <i class="fas fa-save me-2"></i>Lưu Cài đặt Level
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ============================================= -->
+
+                    <!-- [RESTRUCTURED] Bảng Cài đặt Airdrop -->
+                    <div id="admin-panel-airdrop" class="admin-panel-wrapper" style="display: none;">
+                        <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                            <div class="card-glass mb-4">
+                                <h5 class="card-title">Cấu hình Tính điểm Airdrop</h5>
+                                <form id="admin-airdrop-scoring-form" onsubmit="event.preventDefault();">
+                                    <h6 class="text-secondary text-center my-3">CÔNG THỨC TÍNH ĐIỂM CƠ BẢN</h6>
                                     <div class="row g-3 mb-4">
                                         <div class="col-md-4"><label for="ref-multiplier-input" class="form-label">Điểm mỗi Lượt mời</label><input type="number" class="form-control" id="ref-multiplier-input" value="50" min="0"></div>
                                         <div class="col-md-4"><label for="checkin-multiplier-input" class="form-label">Điểm mỗi Check-in</label><input type="number" class="form-control" id="checkin-multiplier-input" value="30" min="0"></div>
-                                        <div class="col-md-4"><label for="exp-multiplier-input" class="form-label">Điểm mỗi EXP</label><input type="number" class="form-control" id="exp-multiplier-input" value="20" min="0"></div>
+                                        <div class="col-md-4"><label for="exp-multiplier-input" class="form-label">Điểm mỗi EXP</label><input type="number" class="form-control" id="exp-multiplier-input" value="1" min="0" step="0.1"></div>
                                     </div>
+                                    
+                                    <hr style="border-color: var(--border-color); opacity: 0.5;">
+                                    <h6 class="text-secondary text-center my-3">HỆ SỐ THƯỞNG THEO LEVEL (MULTIPLIER)</h6>
+                                    <div id="admin-level-multipliers-container" class="mb-4" style="max-height: 300px; overflow-y: auto; padding-right: 10px;">
+                                        <!-- Hệ số level sẽ được JS render ở đây -->
+                                    </div>
+                                    
                                     <hr style="border-color: var(--border-color); opacity: 0.5;">
                                     <h6 class="text-secondary text-center my-3">ĐIỀU KIỆN TỐI THIỂU</h6>
                                     <div class="row g-3">
@@ -1654,15 +1796,74 @@ code all, lv dựa theo điểm hiện tại, cơ chế tính điểm thêm leve
                                         <div class="col-md-4"><label for="min-exp-input" class="form-label">Tối thiểu EXP</label><input type="number" class="form-control" id="min-exp-input" value="0" min="0"></div>
                                     </div>
                                     <div class="mt-3"><label class="form-label fw-bold" style="color: var(--gold);">ĐIỀU KIỆN NHIỆM VỤ BẮT BUỘC (Tự động áp dụng)</label></div>
-                                    <div id="admin-settings-status" class="mt-3"></div>
-                                    <div class="d-flex gap-3 mt-3">
-                                        <button type="button" id="save-settings-btn" class="btn w-100" style="background-color: var(--accent-secondary); color: white;">Lưu Cài Đặt</button>
-                                        <button type="button" id="export-csv-btn" class="btn btn-outline-light w-100">Xuất File Excel (CSV)</button>
+                                    <div id="admin-scoring-settings-status" class="mt-3"></div>
+                                    <div class="d-grid mt-3">
+                                        <button type="submit" id="save-scoring-settings-btn" class="btn w-100" style="background-color: var(--accent-secondary); color: white;">Lưu Cài Đặt Tính điểm</button>
                                     </div>
-                                </div>
+                                </form>
+                            </div>
+                            
+                            <div class="card-glass">
+                                <h5 class="card-title">Cấu hình & Quản lý Claim Airdrop</h5>
+                                <form id="admin-airdrop-claim-form" onsubmit="event.preventDefault();">
+                                     <div class="row text-center g-3 mb-4">
+                                        <div class="col-6 col-sm-3">
+                                            <div class="form-check form-switch fs-5 d-inline-block">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="airdrop-live-switch">
+                                                <label class="form-check-label" for="airdrop-live-switch">Live</label>
+                                            </div>
+                                        </div>
+                                         <div class="col-6 col-sm-3">
+                                            <div class="form-check form-switch fs-5 d-inline-block">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="snapshot-active-switch">
+                                                <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snap</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-sm-3">
+                                            <div class="form-check form-switch fs-5 d-inline-block">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="claim-edit-switch">
+                                                <label class="form-check-label" for="claim-edit-switch">Sửa</label>
+                                            </div>
+                                        </div>
+                                         <div class="col-6 col-sm-3">
+                                            <div class="form-check form-switch fs-5 d-inline-block">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="notify-sent-switch">
+                                                <label class="form-check-label" for="notify-sent-switch">Báo đã gửi</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                     <h6 class="text-secondary text-center my-3">CÀI ĐẶT PHƯƠNG THỨC CLAIM</h6>
+                                     <div class="row mb-3">
+                                         <div class="col-md-6 mb-3">
+                                             <div class="form-check form-switch">
+                                                 <input class="form-check-input" type="checkbox" role="switch" id="onchain-claim-enabled-switch">
+                                                 <label class="form-check-label" for="onchain-claim-enabled-switch">Cho phép Claim On-chain</label>
+                                             </div>
+                                         </div>
+                                         <div class="col-md-6">
+                                              <div class="form-check form-switch">
+                                                 <input class="form-check-input" type="checkbox" role="switch" id="offchain-claim-enabled-switch">
+                                                 <label class="form-check-label" for="offchain-claim-enabled-switch">Cho phép Claim Off-chain</label>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     <div id="offchain-settings-container" style="display: none;">
+                                         <h6 class="text-secondary">Chọn sàn được hiển thị</h6>
+                                         <div id="exchange-checkboxes-container" class="d-flex flex-wrap gap-3">
+                                            <!-- Checkboxes for exchanges will be rendered here -->
+                                         </div>
+                                     </div>
+                                    <div id="admin-claim-settings-status" class="mt-3"></div>
+                                    <div class="d-flex gap-3 mt-3">
+                                        <button type="submit" id="save-claim-settings-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;">Lưu Cài Đặt Claim</button>
+                                        <button type="button" id="export-claim-csv-btn" class="btn btn-outline-light w-100">Xuất File Claim (CSV)</button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
+
 
                     <!-- Bảng Chỉnh sửa EXP / Mass Award -->
                     <div id="admin-panel-edit-exp" class="admin-panel-wrapper" style="display: none;">
@@ -1681,8 +1882,8 @@ code all, lv dựa theo điểm hiện tại, cơ chế tính điểm thêm leve
                             <div class="card-glass">
                                 <h5 class="card-title">Thưởng EXP Hàng Loạt</h5>
                                 <form id="admin-mass-award-form">
-                                     <div class="mb-3"><label for="admin-mass-condition-type" class="form-label">Thưởng cho người dùng theo</label><select class="form-select" id="admin-mass-condition-type"><option value="all" selected>Tất cả người dùng</option><option value="referralCount">Số lượt mời</option><option value="checkinCount">Số lượt Check-in</option><option value="points">Số điểm EXP</option></select></div>
-                                     <div id="admin-mass-condition-wrapper" style="display: none;"><label class="form-label">Điều kiện</label><div class="input-group mb-3"><select class="form-select" id="admin-mass-operator" style="max-width: 150px;"><option value=">=" selected>Lớn hơn hoặc bằng</option><option value="<=">Nhỏ hơn hoặc bằng</option></select><input type="number" class="form-control" id="admin-mass-condition-value" placeholder="e.g., 10" min="0"></div></div>
+                                     <div class="mb-3"><label for="admin-mass-condition-type" class="form-label">Thưởng cho người dùng theo</label><select class="form-select" id="admin-mass-condition-type"><option value="all" selected>Tất cả người dùng</option><option value="referralCount">Số lượt mời</option><option value="checkinCount">Số lượt Check-in</option><option value="points">Số điểm EXP</option><option value="level">Level</option></select></div>
+                                     <div id="admin-mass-condition-wrapper" style="display: none;"><label class="form-label">Điều kiện</label><div class="input-group mb-3"><select class="form-select" id="admin-mass-operator" style="max-width: 150px;"><option value=">=" selected>Lớn hơn hoặc bằng</option><option value="<=">Nhỏ hơn hoặc bằng</option><option value="==">Bằng</option></select><input type="number" class="form-control" id="admin-mass-condition-value" placeholder="e.g., 10" min="0"></div></div>
                                      <div class="mb-3"><label for="admin-mass-exp-amount" class="form-label">Số lượng EXP để thưởng</label><input type="number" class="form-control" id="admin-mass-exp-amount" placeholder="e.g., 500" required min="1"></div>
                                      <div class="mb-3"><label for="admin-mass-task-name" class="form-label">Nội dung/Lý do thưởng</label><input type="text" class="form-control" id="admin-mass-task-name" placeholder="e.g., Thưởng event Giáng Sinh" required></div>
                                      <div id="admin-mass-award-status" class="mt-3 text-center"></div>
@@ -2008,9 +2209,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const referralInputContainerHero = document.getElementById('referral-input-container-hero');
     const referralCodeInputHero = document.getElementById('referral-code-input-hero');
     const referralCodeSubmitHero = document.getElementById('referral-code-submit-hero');
-    const saveSettingsBtn = document.getElementById('save-settings-btn');
-    const exportCsvBtn = document.getElementById('export-csv-btn');
-    const adminSettingsStatusEl = document.getElementById('admin-settings-status');
     const contactAdminBtn = document.getElementById('contact-admin-btn');
     const contactAdminModal = new bootstrap.Modal(document.getElementById('contactAdminModal'));
     
@@ -2041,6 +2239,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // [NEW] Leaderboard Total Users
     const leaderboardTotalUsersEl = document.getElementById('leaderboard-total-users');
 
+    // [NEW-FEATURE] Audit & Award Elements
+    const adminAuditAwardForm = document.getElementById('admin-audit-award-form');
+    const adminAuditConditionType = document.getElementById('admin-audit-condition-type');
+    const adminAuditConditionWrapper = document.getElementById('admin-audit-condition-wrapper');
+    const adminAuditAwardSubmitBtn = document.getElementById('admin-audit-award-submit-btn');
+    const adminAuditAwardStatus = document.getElementById('admin-audit-award-status');
+
+    // [FIX-BUG] Recalculate Button
+    const recalculateUsersBtn = document.getElementById('recalculate-users-btn');
+    const recalculateStatusEl = document.getElementById('recalculate-status');
+    
+    // [NEW] Admin Airdrop Panel Elements
+    const saveScoringSettingsBtn = document.getElementById('save-scoring-settings-btn');
+    const saveClaimSettingsBtn = document.getElementById('save-claim-settings-btn');
+    const exportClaimCsvBtn = document.getElementById('export-claim-csv-btn');
+    const adminScoringSettingsStatusEl = document.getElementById('admin-scoring-settings-status');
+    const adminClaimSettingsStatusEl = document.getElementById('admin-claim-settings-status');
+    const offchainSettingsContainer = document.getElementById('offchain-settings-container');
+    const offchainClaimEnabledSwitch = document.getElementById('offchain-claim-enabled-switch');
+
+
     const DEFAULT_LOGO_SRC = 'https://bmass.vercel.app/img/bmasslogo.png';
     const GENERIC_WALLET_ICON = 'https://ton.org/download/ton_symbol.png';
     const GENERIC_TASK_ICON = 'https://bmass.vercel.app/img/bmass.png';
@@ -2060,9 +2279,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let storage = null; // Firebase Storage
     let checkinInterval = null;
     let lastVisibleAdminUser = null; // For admin pagination
+    let userAirdropClaimData = null; // [NEW] To store user's claim info
 
-    // [NEW] Level System Configuration
-    const levelConfig = [
+    // [UPDATED] Level System Configuration - Now treated as a default/fallback
+    let levelConfig = [
         { level: 1, expRequired: 0,         shieldClass: 'level-shield-1', benefit: "Unlock Daily Check-in" },
         { level: 2, expRequired: 15000,     shieldClass: 'level-shield-2', benefit: "Unlock Referral System" },
         { level: 3, expRequired: 50000,     shieldClass: 'level-shield-3', benefit: "+1% EXP bonus on all tasks" },
@@ -2088,6 +2308,16 @@ document.addEventListener('DOMContentLoaded', () => {
         ]
     }; // Default values
 
+    // [NEW] Exchange Configuration
+    const exchanges = [
+        { id: 'binance', name: 'Binance', logo: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25659/svg/color/bnb.svg' },
+        { id: 'okx', name: 'OKX', logo: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25659/svg/color/okb.svg' },
+        { id: 'bybit', name: 'Bybit', logo: 'https://seeklogo.com/images/B/bybit-logo-4C32C59437-seeklogo.com.png' },
+        { id: 'bitget', name: 'Bitget', logo: 'https://www.bitget.com/events/turntable/assets/img/logo.29a39626.svg' },
+        { id: 'kucoin', name: 'KuCoin', logo: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25659/svg/color/kcs.svg' },
+        { id: 'gateio', name: 'Gate.io', logo: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25659/svg/color/gt.svg' }
+    ];
+
     // Constants
     const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000;
     const ADMIN_USERS_PER_PAGE = 50;
@@ -2095,14 +2325,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const FIRESTORE_FETCH_BATCH_SIZE = 500; // For fetching all users
     const TELEGRAM_SEND_DELAY_MS = 150; // Delay between each message to avoid rate limits
     
-    const CONFIRM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
-    const REQUEST_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD"; 
-
-    const CONFIRM_AMOUNT_TON = 0.000000001;
-    const CONFIRM_AMOUNT_NANOTONS = String(CONFIRM_AMOUNT_TON * 1e9);
-
-    const REQUEST_AMOUNT_TON = 0.000000001;
-    const REQUEST_AMOUNT_NANOTONS = String(REQUEST_AMOUNT_TON * 1e9);
+    // [UPDATED] On-chain claim constants to match user request
+    const ONCHAIN_CLAIM_WALLET_ADDRESS = "EQABa48hjKzg09hN_HjxOic7r8T1PleIy1dRd8NvZ3922MP0"; // Admin wallet to receive gas fee
+    const ONCHAIN_CLAIM_FEE_TON = 0.02;
+    const ONCHAIN_CLAIM_FEE_NANOTONS = String(ONCHAIN_CLAIM_FEE_TON * 1e9); // This will now be "20000000"
 
     const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
     const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
@@ -2232,18 +2458,28 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const refMultiplier = settings.refMultiplier ?? 50;
         const checkinMultiplier = settings.checkinMultiplier ?? 30;
-        const expMultiplier = settings.expMultiplier ?? 20;
+        const expMultiplier = settings.expMultiplier ?? 1;
 
+        // 1. Calculate the base reward
         const baseReward = (refCount * refMultiplier) + (checkinCount * checkinMultiplier) + (expCount * expMultiplier);
 
-        if (user.hasSentConfirmationTx) {
-            return baseReward;
-        } else {
-            return Math.floor(baseReward * 0.5);
+        // 2. Get the level multiplier
+        const userLevel = user.level || 1;
+        let levelMultiplier = 1.0;
+        if (settings.levelMultipliers && Array.isArray(settings.levelMultipliers)) {
+            const multiplierData = settings.levelMultipliers.find(m => m.level === userLevel);
+            if (multiplierData && typeof multiplierData.multiplier === 'number') {
+                levelMultiplier = multiplierData.multiplier;
+            }
         }
+
+        // 3. Apply the level multiplier
+        const finalReward = baseReward * levelMultiplier;
+
+        return Math.floor(finalReward);
     }
     
-    // [UPDATED] to handle temporary profiles
+    // [UPDATED] to include LEVEL BACKFILLING
     async function loadOrCreateUserByAddress(address) {
         if (!address || !db) return;
     
@@ -2280,8 +2516,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 referralCount: 0,
                 referredBy: null,
                 partnerTasksCompletedCount: 0,
-                hasSentConfirmationTx: false,
-                hasRequestedAirdrop: false,
                 disabledUntil: null,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 notificationsEnabled: true,
@@ -2360,7 +2594,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof userData.isTemporaryProfile === 'undefined') { updates.isTemporaryProfile = !userData.telegramId; }
             if (typeof userData.level === 'undefined') { updates.level = 1; } // [NEW] Add level to old users
 
-            // [NEW] Check for level up on login
+            // [NEW] Check for level up on login (BACKFILLING LOGIC)
             const calculatedLevel = calculateLevel(userData.points || 0);
             if (userData.level !== calculatedLevel) {
                 updates.level = calculatedLevel;
@@ -2394,10 +2628,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // [NEW] Check and update level after gaining EXP
     async function checkAndUpdateLevel(userAddress, newPoints) {
+        if (!currentUserData) return; // Cannot check level if user data is not loaded
+        const oldLevel = currentUserData.level;
         const newLevel = calculateLevel(newPoints);
-        if (currentUserData.level !== newLevel) {
+        
+        if (oldLevel !== newLevel) {
             // Level up!
-            currentUserData.level = newLevel;
+            currentUserData.level = newLevel; // Update state immediately for UI responsiveness
             try {
                 const userRef = db.collection('users').doc(userAddress);
                 await userRef.update({ level: newLevel });
@@ -2407,9 +2644,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     'success'
                 );
                 // Re-render UI to show new shield and benefits
-                updateLevelUI(currentUserData.level, newPoints);
+                updateLevelUI(newLevel, newPoints);
             } catch(error) {
                 console.error("Failed to update user level in Firestore:", error);
+                currentUserData.level = oldLevel; // Revert state on failure
             }
         }
     }
@@ -2630,12 +2868,11 @@ function updateUIAfterLogin() {
                 }
 
                 newTotalPoints = (userData.points || 0) + rewardConfig.checkinExp;
-                const newLevel = calculateLevel(newTotalPoints);
+                // No need to calculate level here, checkAndUpdateLevel will be called after
                 const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
                 
                 transaction.update(userRef, {
                     points: firebase.firestore.FieldValue.increment(rewardConfig.checkinExp),
-                    level: newLevel, // Update level in the same transaction
                     lastCheckin: newTimestamp,
                     checkinCount: firebase.firestore.FieldValue.increment(1)
                 });
@@ -2649,14 +2886,15 @@ function updateUIAfterLogin() {
             });
 
             showAppToast('Success!', `You've received ${rewardConfig.checkinExp} EXP.`, 'success');
-             // Check if level up occurred
-            if (currentUserData.level !== calculateLevel(newTotalPoints)) {
-                showAppToast('Level Up!', `Congratulations, you've reached Level ${calculateLevel(newTotalPoints)}!`, 'success');
-            }
+            // Update current user data and then check for level up
+            currentUserData.points = newTotalPoints;
+            checkAndUpdateLevel(connectedWalletAddress, newTotalPoints);
+             
         } catch (error) {
             console.error("Check-in failed: ", error);
             showAppToast('Failed', 'An error occurred. Please try again.', 'error');
         } finally {
+            // Refetch data to ensure UI consistency
             const updatedDoc = await userRef.get();
             if(updatedDoc.exists) {
                 currentUserData = updatedDoc.data();
@@ -2794,7 +3032,8 @@ async function fetchAndRenderLeaderboard() {
 
         if (isInitialLoad) {
             lastVisibleAdminUser = null;
-            adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">Lượt mời</th><th scope="col">Check-in</th><th scope="col">N.vụ Partner HT</th><th scope="col">N.vụ Bắt buộc</th><th scope="col">Level</th><th scope="col">EXP</th><th scope="col">Đã xác nhận 100%</th><th scope="col">Đã yêu cầu</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
+            // [UPDATED] Added Level column header
+            adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">Lượt mời</th><th scope="col">Check-in</th><th scope="col">N.vụ Partner HT</th><th scope="col">N.vụ Bắt buộc</th><th scope="col">Level</th><th scope="col">EXP</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
         }
         
         const tableBody = adminUserListContainer.querySelector('tbody');
@@ -2833,7 +3072,7 @@ async function fetchAndRenderLeaderboard() {
                 
                 const userDocs = Array.from(usersMap.values());
                  if (userDocs.length === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="13" class="text-center text-secondary p-3">Không tìm thấy người dùng.</td></tr>`;
+                    tableBody.innerHTML = `<tr><td colspan="11" class="text-center text-secondary p-3">Không tìm thấy người dùng.</td></tr>`;
                     return;
                 }
                 renderAdminUserRows(userDocs, tableBody, mandatoryTaskIds);
@@ -2865,7 +3104,7 @@ async function fetchAndRenderLeaderboard() {
 
         } catch (error) {
             console.error("Error fetching user list for admin:", error);
-            tableBody.innerHTML = `<tr><td colspan="13" class="text-center text-danger p-3">Lỗi khi tải danh sách người dùng.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="11" class="text-center text-danger p-3">Lỗi khi tải danh sách người dùng.</td></tr>`;
         } finally {
             adminLoadMoreBtn.disabled = false;
             adminLoadMoreBtn.innerHTML = `Tải thêm`;
@@ -2884,16 +3123,6 @@ async function fetchAndRenderLeaderboard() {
             const avatarUrl = user.photoUrl || GENERIC_WALLET_ICON;
             const joinDate = user.createdAt ? user.createdAt.toDate().toLocaleDateString('vi-VN') : 'N/A';
             
-            const sentTxHtml = `
-                <div class="form-check form-switch d-flex justify-content-center">
-                    <input class="form-check-input admin-tx-status-switch" type="checkbox" role="switch" data-address="${user.address}" ${user.hasSentConfirmationTx ? 'checked' : ''}>
-                </div>`;
-
-            const requestedRewardHtml = `
-                <div class="form-check form-switch d-flex justify-content-center">
-                    <input class="form-check-input admin-request-status-switch" type="checkbox" role="switch" data-address="${user.address}" ${user.hasRequestedAirdrop ? 'checked' : ''}>
-                </div>`;
-
             let statusHtml;
             if (user.disabledUntil && user.disabledUntil.toDate() > new Date()) {
                 statusHtml = `<span class="badge bg-danger">Disabled</span>`;
@@ -2922,6 +3151,7 @@ async function fetchAndRenderLeaderboard() {
             }
             
             const row = tableBody.insertRow();
+            // [UPDATED] Added Level cell, removed tx/request switches
             row.innerHTML = `
                 <td>
                     <div class="d-flex align-items-center">
@@ -2939,54 +3169,10 @@ async function fetchAndRenderLeaderboard() {
                 <td>${mandatoryStatusHtml}</td>
                 <td class="fw-bold">${user.level || 1}</td>
                 <td class="fw-bold" style="color: var(--accent-secondary);">${(user.points || 0).toLocaleString()}</td>
-                <td>${sentTxHtml}</td>
-                <td>${requestedRewardHtml}</td>
                 <td>${statusHtml}</td>
                 <td>${joinDate}</td>
             `;
         });
-    }
-    
-    async function handleAdminTxStatusChange(e) {
-        const switchEl = e.target;
-        const userAddress = switchEl.dataset.address;
-        const newStatus = switchEl.checked;
-        
-        if (!userAddress) return;
-        
-        switchEl.disabled = true;
-        try {
-            const userRef = db.collection('users').doc(userAddress);
-            await userRef.update({ hasSentConfirmationTx: newStatus });
-            showAppToast('Thành Công', `Đã cập nhật trạng thái "Xác nhận 100%" cho ví.`, 'success');
-        } catch (error) {
-            console.error("Failed to update user transaction status:", error);
-            showAppToast('Lỗi', 'Cập nhật thất bại. Vui lòng thử lại.', 'error');
-            switchEl.checked = !newStatus;
-        } finally {
-            switchEl.disabled = false;
-        }
-    }
-    
-    async function handleAdminRequestStatusChange(e) {
-        const switchEl = e.target;
-        const userAddress = switchEl.dataset.address;
-        const newStatus = switchEl.checked;
-        
-        if (!userAddress) return;
-        
-        switchEl.disabled = true;
-        try {
-            const userRef = db.collection('users').doc(userAddress);
-            await userRef.update({ hasRequestedAirdrop: newStatus });
-            showAppToast('Thành Công', `Đã cập nhật trạng thái "Yêu cầu Thưởng".`, 'success');
-        } catch (error) {
-            console.error("Failed to update user request status:", error);
-            showAppToast('Lỗi', 'Cập nhật thất bại.', 'error');
-            switchEl.checked = !newStatus; 
-        } finally {
-            switchEl.disabled = false;
-        }
     }
 
     async function handleAdminExpUpdate(e) {
@@ -3106,6 +3292,7 @@ async function fetchAndRenderLeaderboard() {
             while (true) {
                 let batchQuery;
                 if (conditionType !== 'all') {
+                    // Firestore requires the first orderBy to be on the same field as the where filter
                     batchQuery = query.orderBy(conditionType).orderBy(firebase.firestore.FieldPath.documentId()).limit(BATCH_SIZE);
                 } else {
                     batchQuery = query.orderBy(firebase.firestore.FieldPath.documentId()).limit(BATCH_SIZE);
@@ -3245,48 +3432,69 @@ async function fetchAndRenderLeaderboard() {
         }
     }
     
-    async function sendBulkTelegramMessage() {
+    async function sendBulkTelegramMessage(customMessageGenerator = null) {
         const delay = ms => new Promise(res => setTimeout(res, ms));
+        const apiTokenInput = document.getElementById('telegram-api-token-input');
+        const statusEl = customMessageGenerator ? adminClaimSettingsStatusEl : telegramSenderStatus;
 
-        const apiToken = document.getElementById('telegram-api-token-input').value.trim();
-        const text = document.getElementById('telegram-message-text-input').value.trim();
-        const imageUrl = document.getElementById('telegram-image-url-input').value.trim();
-        const buttonText = document.getElementById('telegram-button-text-input').value.trim();
-        const buttonUrl = document.getElementById('telegram-button-url-input').value.trim();
+        const apiToken = apiTokenInput.value.trim();
+        if (!apiToken) { 
+            showAppToast('Lỗi', 'Vui lòng nhập API Token của bot tại tab Messenger.', 'error');
+            if (customMessageGenerator) { // If called from claim management, provide status
+                 statusEl.innerHTML = `<span class="text-danger">Vui lòng nhập API Token trước.</span>`;
+            }
+            return;
+        }
         
-        if (!apiToken) { showAppToast('Lỗi', 'Vui lòng nhập API Token của bot.', 'error'); return; }
-        if (!text && !imageUrl) { showAppToast('Lỗi', 'Vui lòng nhập văn bản tin nhắn hoặc URL hình ảnh.', 'error'); return; }
-        if ((buttonText && !buttonUrl) || (!buttonText && buttonUrl)) { showAppToast('Lỗi', 'Để tạo nút, vui lòng nhập cả Văn bản và URL cho nút.', 'warning'); return; }
+        let targetUsersQuery;
+        let confirmationMessage;
         
-        sendBulkTelegramMessageBtn.disabled = true;
-        telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lấy danh sách người dùng...`;
+        if (customMessageGenerator) {
+             // Logic for sending claim notifications
+            targetUsersQuery = db.collection('airdrop_claims');
+            confirmationMessage = `Bạn có chắc chắn muốn gửi thông báo "đã nhận airdrop" tới tất cả người dùng đã claim không?`;
+
+        } else {
+            // Logic for general bulk messages
+            targetUsersQuery = db.collection('users').where('notificationsEnabled', '!=', false);
+            confirmationMessage = `CẢNH BÁO: Bạn sắp gửi tin nhắn này cho tất cả người dùng đã bật thông báo. Hành động này KHÔNG THỂ hoàn tác. Bạn có chắc chắn muốn tiếp tục?`;
+        }
+
+        if (!confirm(confirmationMessage)) {
+            return;
+        }
+
+        if (!customMessageGenerator) sendBulkTelegramMessageBtn.disabled = true;
+        statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lấy danh sách người dùng...`;
 
         try {
-            const allUsers = [];
+            const usersWithUid = new Map();
             let lastVisible = null;
             while (true) {
-                let query = db.collection('users').orderBy(firebase.firestore.FieldPath.documentId()).limit(FIRESTORE_FETCH_BATCH_SIZE);
+                let query = targetUsersQuery.orderBy(firebase.firestore.FieldPath.documentId()).limit(FIRESTORE_FETCH_BATCH_SIZE);
                 if (lastVisible) {
                     query = query.startAfter(lastVisible);
                 }
                 const snapshot = await query.get();
                 if (snapshot.empty) break;
-                snapshot.forEach(doc => allUsers.push(doc.data()));
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.userId && !usersWithUid.has(data.userId)) {
+                        usersWithUid.set(data.userId, data);
+                    } else if (data.telegramId && !usersWithUid.has(data.telegramId)) {
+                        usersWithUid.set(data.telegramId, data);
+                    }
+                });
                 lastVisible = snapshot.docs[snapshot.docs.length - 1];
-                telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã lấy được ${allUsers.length} người dùng...`;
+                statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã lấy được ${usersWithUid.size} người dùng...`;
             }
 
-            const usersWithUid = allUsers.filter(user => user.telegramId);
-            const totalWithUid = usersWithUid.length;
-            const usersToNotify = usersWithUid.filter(user => user.notificationsEnabled !== false);
+            const usersToNotify = Array.from(usersWithUid.values());
             const totalToNotify = usersToNotify.length;
 
             if (totalToNotify === 0) {
-                telegramSenderStatus.innerHTML = `<span class="text-warning">Không có người dùng nào bật thông báo.</span>`;
-                return;
-            }
-            
-            if (!confirm(`CẢNH BÁO: Bạn sắp gửi tin nhắn này cho ${totalToNotify} / ${totalWithUid} người dùng. Hành động này KHÔNG THỂ hoàn tác. Bạn có chắc chắn muốn tiếp tục?`)) {
+                statusEl.innerHTML = `<span class="text-warning">Không có người dùng nào để thông báo.</span>`;
                 return;
             }
             
@@ -3296,25 +3504,33 @@ async function fetchAndRenderLeaderboard() {
             
             for (let i = 0; i < totalToNotify; i++) {
                 const user = usersToNotify[i];
-                telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang gửi tin ${i + 1}/${totalToNotify}...`;
-                
-                const body = { chat_id: user.telegramId };
-                let method;
+                statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang gửi tin ${i + 1}/${totalToNotify}...`;
 
-                if (buttonText && buttonUrl) {
-                    body.reply_markup = JSON.stringify({
-                        inline_keyboard: [[{ text: buttonText, url: buttonUrl }]]
-                    });
+                let body, method;
+                if (customMessageGenerator) {
+                    ({ body, method } = customMessageGenerator(user));
+                } else {
+                     const text = document.getElementById('telegram-message-text-input').value.trim();
+                    const imageUrl = document.getElementById('telegram-image-url-input').value.trim();
+                    const buttonText = document.getElementById('telegram-button-text-input').value.trim();
+                    const buttonUrl = document.getElementById('telegram-button-url-input').value.trim();
+                     body = {};
+                     if (buttonText && buttonUrl) {
+                        body.reply_markup = JSON.stringify({
+                            inline_keyboard: [[{ text: buttonText, url: buttonUrl }]]
+                        });
+                    }
+                    if (imageUrl) {
+                        method = 'sendPhoto';
+                        body.photo = imageUrl;
+                        if (text) body.caption = text;
+                    } else {
+                        method = 'sendMessage';
+                        body.text = text;
+                    }
                 }
                 
-                if (imageUrl) {
-                    method = 'sendPhoto';
-                    body.photo = imageUrl;
-                    if (text) body.caption = text;
-                } else {
-                    method = 'sendMessage';
-                    body.text = text;
-                }
+                body.chat_id = user.userId || user.telegramId;
                 
                 try {
                     const response = await fetch(baseUrl + method, {
@@ -3327,26 +3543,26 @@ async function fetchAndRenderLeaderboard() {
                         sentCount++;
                     } else {
                         failedCount++;
-                        console.error(`Failed to send to UID ${user.telegramId}: ${result.description}`);
+                        console.error(`Failed to send to UID ${body.chat_id}: ${result.description}`);
                     }
                 } catch (error) {
                     failedCount++;
-                    console.error(`Network error sending to UID ${user.telegramId}:`, error);
+                    console.error(`Network error sending to UID ${body.chat_id}:`, error);
                 }
 
                 await delay(TELEGRAM_SEND_DELAY_MS);
             }
 
-            telegramSenderStatus.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Hoàn tất! Đã gửi: ${sentCount}. Thất bại: ${failedCount}.</span>`;
+            statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Hoàn tất! Đã gửi: ${sentCount}. Thất bại: ${failedCount}.</span>`;
             showAppToast('Hoàn tất gửi hàng loạt', `Thành công: ${sentCount}, Thất bại: ${failedCount}`, 'success');
 
         } catch (error) {
             console.error("Telegram bulk sender error:", error);
-            telegramSenderStatus.innerHTML = `<span class="text-danger">Gửi hàng loạt thất bại: ${error.message}</span>`;
+            statusEl.innerHTML = `<span class="text-danger">Gửi hàng loạt thất bại: ${error.message}</span>`;
             showAppToast('Thất bại', error.message, 'error');
         } finally {
-            sendBulkTelegramMessageBtn.disabled = false;
-            setTimeout(() => { telegramSenderStatus.innerHTML = ''; }, 10000);
+            if (!customMessageGenerator) sendBulkTelegramMessageBtn.disabled = false;
+            setTimeout(() => { statusEl.innerHTML = ''; }, 10000);
         }
     }
 
@@ -3445,14 +3661,14 @@ async function fetchAndRenderLeaderboard() {
         const currentLevel = level || 1;
         const currentExp = exp || 0;
         
-        const levelInfo = levelConfig[currentLevel - 1];
-        const nextLevelInfo = (currentLevel < levelConfig.length) ? levelConfig[currentLevel] : null;
+        const levelInfo = levelConfig.find(l => l.level === currentLevel) || levelConfig[0];
+        const nextLevelInfo = (currentLevel < levelConfig.length) ? levelConfig.find(l => l.level === currentLevel + 1) : null;
 
         // Update Avatar Shield
         const shield = document.getElementById('profile-avatar-shield');
         if (shield) {
             shield.className = 'avatar-shield'; // Reset classes
-            shield.classList.add(levelInfo.shieldClass);
+            shield.classList.add(levelInfo.shieldClass || 'level-shield-1');
         }
 
         // Update Progress Bar and Text
@@ -3469,7 +3685,7 @@ async function fetchAndRenderLeaderboard() {
             // Not max level
             const expForNextLevel = nextLevelInfo.expRequired - levelInfo.expRequired;
             const expProgress = currentExp - levelInfo.expRequired;
-            const progressPercentage = Math.min((expProgress / expForNextLevel) * 100, 100);
+            const progressPercentage = (expForNextLevel > 0) ? Math.min((expProgress / expForNextLevel) * 100, 100) : 100;
 
             nextLevelDisplay.textContent = `LV ${nextLevelInfo.level}`;
             progressBar.style.width = `${progressPercentage}%`;
@@ -3600,1822 +3816,4 @@ async function fetchAndRenderLeaderboard() {
                 const joinDate = user.createdAt ? user.createdAt.toDate().toLocaleDateString('en-US') : 'N/A';
                 listHtml += `
                     <div class="d-flex align-items-center p-2 mb-2" style="background: rgba(0,0,0,0.2); border-radius: 25px;">
-                        <img src="${avatarUrl}" class="me-3" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;" onerror="this.src='${GENERIC_WALLET_ICON}'">
-                        <div class="flex-grow-1">
-                            <p class="m-0 fw-bold">${displayName}</p>
-                            <p class="m-0 text-secondary" style="font-size: 0.8rem;">Joined on: ${joinDate}</p>
-                        </div>
-                    </div>
-                `;
-            });
-            invitedListPane.innerHTML = listHtml;
-            
-        } catch(error) {
-            console.error("Error fetching invited users:", error);
-            invitedListPane.innerHTML = `<p class="text-danger text-center p-3">Error loading invited users list.</p>`;
-        }
-    }
-    
-async function renderReferralSection() {
-    if (!currentUserData) return;
-    const linksContainer = document.getElementById('referral-links-container');
-    const codesContainer = document.getElementById('referral-codes-container');
-    const referralCountEl = document.getElementById('referral-count');
-    const referredByContainer = document.getElementById('referred-by-container');
-    const referralInputContainer = document.getElementById('referral-input-container');
-    
-    linksContainer.innerHTML = '';
-    codesContainer.innerHTML = '';
-
-    const webLink = `${YOUR_WEB_APP_URL}?ref=${currentUserData.address}`;
-    linksContainer.innerHTML = `
-        <h6 class="mb-2"><i class="fas fa-link me-2"></i>Your Referral Link</h6>
-        <div class="mb-3">
-            <label class="form-label small text-secondary">Web Referral Link:</label>
-            <div class="input-group">
-                <input type="text" class="form-control" value="${webLink}" readonly>
-                <button class="btn btn-outline-secondary copyable-code" data-code="${webLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
-            </div>
-        </div>`;
-    codesContainer.innerHTML = `
-        <h6 class="mb-2"><i class="fas fa-barcode me-2"></i>Your Referral Code</h6>
-         <div class="mb-2">
-            <label class="form-label small text-secondary">Referral Code (Wallet Address):</label>
-            <div class="input-group">
-                <input type="text" class="form-control" value="${currentUserData.address}" readonly>
-                <button class="btn btn-outline-secondary copyable-code" data-code="${currentUserData.address}" title="Copy Code"><i class="fas fa-copy"></i></button>
-            </div>
-        </div>`;
-    
-    if (currentUserData.telegramId) {
-        const miniAppLink = `https://t.me/${YOUR_TELEGRAM_BOT_NAME}/${YOUR_MINI_APP_NAME}?startapp=${currentUserData.telegramId}`;
-         linksContainer.innerHTML += `
-            <div class="mb-2">
-                <label class="form-label small text-secondary">Mini App Referral Link:</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" value="${miniAppLink}" readonly>
-                    <button class="btn btn-outline-secondary copyable-code" data-code="${miniAppLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
-                </div>
-            </div>`;
-        codesContainer.innerHTML += `
-            <div class="mb-2">
-                <label class="form-label small text-secondary">Referral Code (UID):</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" value="${currentUserData.telegramId}" readonly>
-                    <button class="btn btn-outline-secondary copyable-code" data-code="${currentUserData.telegramId}" title="Copy Code"><i class="fas fa-copy"></i></button>
-                </div>
-            </div>`;
-    }
-    
-    if (currentUserData.referredBy) {
-        referralInputContainer.style.display = 'none';
-        referredByContainer.style.display = 'block';
-        referredByContainer.innerHTML = `<div class="skeleton-loader skeleton-line w-75"></div>`;
-        
-        const referrerCode = currentUserData.referredBy;
-        let referrerQuery;
-        if (!isNaN(referrerCode)) {
-            referrerQuery = db.collection('users').where('telegramId', '==', parseInt(referrerCode, 10));
-        } else {
-            referrerQuery = db.collection('users').where('address', '==', referrerCode);
-        }
-        
-        try {
-            const snapshot = await referrerQuery.get();
-            let referrerName = shortenAddress(referrerCode);
-            if (!snapshot.empty) {
-                const referrerData = snapshot.docs[0].data();
-                referrerName = referrerData.fullName || (referrerData.username ? `@${referrerData.username}` : shortenAddress(referrerData.address));
-            }
-            referredByContainer.innerHTML = `
-                <hr style="border-color: var(--border-color); opacity: 0.5;">
-                <h6 class="mb-2 text-secondary"><i class="fas fa-user-check me-2"></i>Your Referrer</h6>
-                <div class="d-flex align-items-center p-2" style="background: rgba(43, 203, 196, 0.1); border-radius: 25px;">
-                    <i class="fas fa-award me-3" style="color: var(--accent-secondary); font-size: 1.5rem;"></i>
-                    <p class="m-0">You were referred by <strong style="color: var(--accent-secondary);">${referrerName}</strong>.</p>
-                </div>`;
-        } catch (error) {
-            console.error("Could not fetch referrer's name", error);
-            referredByContainer.innerHTML = '';
-        }
-
-    } else {
-        referredByContainer.style.display = 'none';
-        if (!airdropSettings?.isSnapshotActive) {
-            referralInputContainer.style.display = 'block';
-        }
-    }
-    
-    referralCountEl.textContent = `${currentUserData.referralCount || 0}`;
-
-    fetchAndRenderInvitedUsers();
-    renderReferralMilestones(); 
-}
-
-
-
-
-function renderReferralMilestones() {
-    const container = document.getElementById('referral-milestones-list-container');
-    if (!container) return; 
-
-    const baseExpDisplay = document.getElementById('referral-base-exp-display');
-    if (baseExpDisplay) {
-        baseExpDisplay.textContent = `${(rewardConfig.baseReferralExp || 5000).toLocaleString()} EXP`;
-    }
-
-    if (!rewardConfig.referralMilestones || rewardConfig.referralMilestones.length === 0) {
-        container.innerHTML = `<p class="text-secondary text-center">No milestones available right now.</p>`;
-        return;
-    }
-
-    let html = '';
-    const userReferralCount = currentUserData?.referralCount || 0;
-
-    rewardConfig.referralMilestones.forEach(milestone => {
-        const isCompleted = userReferralCount >= milestone.required;
-
-        html += `
-        <div class="d-flex align-items-center justify-content-between p-3 mb-2" 
-             style="background: rgba(145, 94, 255, 0.05); border-radius: 12px; border-left: 4px solid ${isCompleted ? 'var(--color-verified)' : 'var(--accent-primary)'}; opacity: ${isCompleted ? '0.7' : '1'};">
-            
-            <div class="d-flex align-items-center">
-                <i class="fas ${isCompleted ? 'fa-check-circle' : 'fa-users'} fa-fw me-3 fs-4" style="color: ${isCompleted ? 'var(--color-verified)' : 'var(--accent-primary)'};"></i>
-                <div>
-                    <h6 class="mb-0">Invite ${milestone.required} Friends</h6>
-                    <small class="text-secondary">${isCompleted ? 'Completed' : `Your progress: ${userReferralCount} / ${milestone.required}`}</small>
-                </div>
-            </div>
-
-            <div class="text-end">
-                <strong class="d-block" style="color: var(--gold);">+${(milestone.bonus).toLocaleString()} EXP</strong>
-                <small class="text-secondary">Bonus Reward</small>
-            </div>
-        </div>
-        `;
-    });
-
-    container.innerHTML = html;
-}
-
-    async function fetchAirdropSettings() {
-        if (airdropSettings) return airdropSettings;
-        try {
-            const docRef = db.collection('admin_settings').doc('airdrop_criteria');
-            const doc = await docRef.get();
-            if (doc.exists) { airdropSettings = doc.data(); } 
-            else {
-                airdropSettings = { 
-                    isAirdropLive: false, isConfirmationEnabled: false, isClaimingEnabled: false, isSnapshotActive: false,
-                    minCheckins: 0, minReferrals: 0, minExp: 0,
-                    refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 20
-                };
-            }
-            return airdropSettings;
-        } catch (error) {
-            console.error("Error fetching airdrop settings:", error);
-            return { 
-                isAirdropLive: false, isConfirmationEnabled: false, isClaimingEnabled: false, isSnapshotActive: false,
-                minCheckins: 0, minReferrals: 0, minExp: 0,
-                refMultiplier: 50, checkinMultiplier: 30, expMultiplier: 20
-            };
-        }
-    }
-    
-    async function renderAirdropSection() {
-        const airdropWrapper = document.getElementById('airdrop-content-wrapper');
-        const comingSoonEl = document.getElementById('airdrop-coming-soon');
-        const loadingEl = document.getElementById('airdrop-content-loading');
-        const loggedInContent = document.getElementById('airdrop-content-logged-in');
-        const loggedOutContent = document.getElementById('airdrop-content-logged-out');
-
-        loadingEl.style.display = 'block';
-        [loggedInContent, loggedOutContent, airdropWrapper, comingSoonEl].forEach(el => el.style.display = 'none');
-
-        const settings = await fetchAirdropSettings();
-
-        if (!settings.isAirdropLive) {
-            loadingEl.style.display = 'none';
-            comingSoonEl.style.display = 'block';
-            return;
-        }
-        
-        airdropWrapper.style.display = 'block';
-
-        if (!currentUserData) {
-            loadingEl.style.display = 'none';
-            loggedOutContent.style.display = 'block';
-            return;
-        }
-        
-        const mandatoryTasksCompleted = await checkMandatoryTasksCompletion(currentUserData.address);
-        
-        const isEligibleByStats = (currentUserData.referralCount || 0) >= settings.minReferrals &&
-                           (currentUserData.checkinCount || 0) >= settings.minCheckins &&
-                           (currentUserData.points || 0) >= settings.minExp;
-        
-        const isFullyEligible = isEligibleByStats && mandatoryTasksCompleted;
-        const finalReward = isFullyEligible ? await calculateBmassReward(currentUserData, settings) : 0;
-
-        document.getElementById('airdrop-ref-count').textContent = (currentUserData.referralCount || 0).toLocaleString();
-        document.getElementById('airdrop-checkin-count').textContent = (currentUserData.checkinCount || 0).toLocaleString();
-        document.getElementById('airdrop-exp-count').textContent = (currentUserData.points || 0).toLocaleString();
-        document.getElementById('airdrop-reward-value').textContent = finalReward.toLocaleString();
-
-        const eligibilityStatusEl = document.getElementById('airdrop-eligibility-status');
-        const actionsContainer = document.getElementById('airdrop-actions-container');
-        const finalMessageContainer = document.getElementById('airdrop-final-message-container');
-        actionsContainer.innerHTML = '';
-        finalMessageContainer.innerHTML = '';
-        
-        if (!isEligibleByStats) {
-            eligibilityStatusEl.textContent = 'YOU ARE NOT ELIGIBLE';
-            eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
-            actionsContainer.innerHTML = `<p class="text-white-50 mt-3">Continue completing tasks to become eligible.</p>`;
-        } else if (!mandatoryTasksCompleted) {
-            eligibilityStatusEl.textContent = 'YOU ARE NOT ELIGIBLE';
-            eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
-            actionsContainer.innerHTML = `<p class="text-warning mt-3">You need to complete all <a href="#partner" style="color: var(--gold); font-weight: bold;">mandatory partner tasks</a> to claim rewards.</p>`;
-        } else if (currentUserData.hasRequestedAirdrop) {
-            eligibilityStatusEl.textContent = '$BMASS CLAIM REQUESTED';
-            eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
-            const friendlyAddress = await getFriendlyAddress(currentUserData.address);
-            finalMessageContainer.innerHTML = `
-                <p class="text-white-50 mt-3">Rewards will be distributed to your address soon.</p>
-                <code class="copyable-address fs-6" data-address="${friendlyAddress}">${shortenAddress(friendlyAddress, 10, 10)}</code>
-            `;
-        } else {
-            const rewardTier = currentUserData.hasSentConfirmationTx ? '100%' : '50%';
-            eligibilityStatusEl.textContent = `YOU ARE ELIGIBLE (${rewardTier})`;
-            eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
-            
-            let buttonsHtml = '';
-
-            if (!currentUserData.hasSentConfirmationTx && !settings.isSnapshotActive && settings.isConfirmationEnabled) {
-                 buttonsHtml += `<p class="text-white-50 mt-3 small">Upgrade your reward tier to <strong class="text-white">100%</strong>.</p>`;
-                 buttonsHtml += `<button id="confirm-button" class="airdrop-action-btn">Claim 100% of $BMASS</button>`;
-            } else if (currentUserData.hasSentConfirmationTx) {
-                 buttonsHtml += `<p class="text-white-50 mt-3 fw-bold" style="color: var(--color-verified)!important;"><i class="fas fa-check-circle me-2"></i>100% Privilege at TGE</p>`;
-            }
-
-            if (!settings.isSnapshotActive && settings.isClaimingEnabled) {
-                buttonsHtml += `<p class="text-white-50 mt-3 small">You are one step away from receiving $BMASS.</p>`;
-                buttonsHtml += `<button id="request-reward-button" class="airdrop-action-btn" style="background: var(--accent-secondary); color: white;">Send Transaction</button>`;
-            } else if (settings.isSnapshotActive) {
-                buttonsHtml += `<p class="mt-3 fw-bold" style="color: var(--gold);"><i class="fas fa-flag-checkered me-2"></i>Final Snapshot!</p><p class="text-white-50">Claiming has ended. Tokens will be distributed soon.</p>`;
-            } else {
-                 buttonsHtml += `<p class="text-white-50 mt-3 fst-italic">Reward claiming will be enabled soon.</p>`;
-            }
-
-            actionsContainer.innerHTML = buttonsHtml;
-            
-            const confirmBtn = document.getElementById('confirm-button');
-            const requestBtn = document.getElementById('request-reward-button');
-            if (confirmBtn) confirmBtn.addEventListener('click', handleConfirmationRequest);
-            if (requestBtn) requestBtn.addEventListener('click', handleAirdropRequest);
-        }
-        
-        loadingEl.style.display = 'none';
-        loggedInContent.style.display = 'block';
-    }
-
-    async function handleConfirmationRequest() {
-        const confirmButton = document.getElementById('confirm-button');
-        if (!confirmButton) return;
-
-        confirmButton.disabled = true;
-        confirmButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
-        
-        const transaction = {
-            validUntil: Math.floor(Date.now() / 1000) + 60,
-            messages: [{
-                address: CONFIRM_WALLET_ADDRESS,
-                amount: CONFIRM_AMOUNT_NANOTONS,
-                payload: btoa(`confirm-100-for-${currentUserData.address}`)
-            }]
-        };
-
-        try {
-            await tonConnectUI.sendTransaction(transaction);
-            
-            const userRef = db.collection('users').doc(currentUserData.address);
-            await userRef.update({ hasSentConfirmationTx: true });
-
-            currentUserData.hasSentConfirmationTx = true;
-            showAppToast('Success', '100% confirmation transaction sent!', 'success');
-            renderAirdropSection();
-
-        } catch (error) {
-            console.error("Confirmation transaction failed:", error);
-            showAppToast('Transaction Failed', 'Please try again.', 'error');
-            confirmButton.disabled = false;
-            confirmButton.textContent = 'Confirm (Get 100%)';
-        }
-    }
-    
-    async function handleAirdropRequest() {
-        const requestButton = document.getElementById('request-reward-button');
-        if (!requestButton) return;
-        
-        requestButton.disabled = true;
-        requestButton.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Requesting...`;
-
-        const transaction = {
-            validUntil: Math.floor(Date.now() / 1000) + 60,
-            messages: [{
-                address: REQUEST_WALLET_ADDRESS,
-                amount: REQUEST_AMOUNT_NANOTONS,
-                payload: btoa(`request-airdrop-for-${currentUserData.address}`)
-            }]
-        };
-
-        try {
-            await tonConnectUI.sendTransaction(transaction);
-            
-            const userRef = db.collection('users').doc(currentUserData.address);
-            await userRef.update({ hasRequestedAirdrop: true });
-
-            currentUserData.hasRequestedAirdrop = true;
-            showAppToast('Request Successful!', 'Your claim request has been recorded.', 'success');
-            renderAirdropSection();
-
-        } catch(error) {
-             console.error("Airdrop request transaction failed:", error);
-            showAppToast('Request Failed', 'Please try again.', 'error');
-            requestButton.disabled = false;
-            requestButton.textContent = 'Request Reward';
-        }
-    }
-
-    function identifyTelegramUser() {
-        try {
-             if (window.Telegram && window.Telegram.WebApp) {
-                const tg = window.Telegram.WebApp;
-                tg.ready();
-
-                if(tg.initDataUnsafe && tg.initDataUnsafe.user){
-                    telegramUserData = tg.initDataUnsafe.user;
-                    const session = { userData: telegramUserData, expiresAt: Date.now() + (24 * 60 * 60 * 1000) };
-                    localStorage.setItem(USER_SESSION_KEY, JSON.stringify(session));
-                    
-                    appLogoImg.src = telegramUserData.photo_url || DEFAULT_LOGO_SRC;
-                    appLogoImg.style.borderRadius = '50%';
-                    appLogoText.textContent = `@${telegramUserData.username}` || telegramUserData.first_name || 'Telegram User';
-                    
-                    const startParam = tg.initDataUnsafe.start_param;
-                    if (startParam) {
-                        if (startParam.startsWith('route-')) {
-                            const route = startParam.split('-')[1];
-                            if (route) {
-                                console.log(`Deep link to route: #${route}`);
-                                window.location.hash = route; 
-                            }
-                        } 
-                        else {
-                            console.log(`Referral code found: ${startParam}`);
-                            sessionStorage.setItem(REFERRAL_SESSION_KEY, startParam);
-                        }
-                    }
-                    
-                    if(tonConnectUI.connected) {
-                        loadOrCreateUserByAddress(tonConnectUI.account.address);
-                    }
-                }
-            }
-        } catch (e) { console.error("Could not initialize Telegram Web App:", e); }
-    }
-    
-    function checkUserSession() {
-        const sessionJSON = localStorage.getItem(USER_SESSION_KEY);
-        if (!sessionJSON) return;
-        try {
-            const session = JSON.parse(sessionJSON);
-            if (Date.now() > session.expiresAt) {
-                localStorage.removeItem(USER_SESSION_KEY);
-                return;
-            }
-            telegramUserData = session.userData;
-            appLogoImg.src = telegramUserData.photo_url || DEFAULT_LOGO_SRC;
-            appLogoImg.style.borderRadius = '50%';
-            appLogoText.textContent = `@${telegramUserData.username}` || telegramUserData.first_name || 'Telegram User';
-        } catch (error) {
-            localStorage.removeItem(USER_SESSION_KEY);
-        }
-    }
-    
-    function captureWebReferral() {
-        try {
-             const params = new URLSearchParams(window.location.search);
-             const refCode = params.get('ref');
-             if (refCode) {
-                sessionStorage.setItem(REFERRAL_SESSION_KEY, refCode);
-                const newUrl = window.location.pathname + window.location.hash;
-                history.replaceState(null, '', newUrl);
-             }
-        } catch(e) { console.error("Error capturing web referral:", e); }
-    }
-
-    async function initializeApp() {
-        showLoadingOverlay('Initializing...');
-        initializeFirebase();
-    
-        await fetchSystemStatus();
-    
-        checkUserSession();
-        captureWebReferral();
-        identifyTelegramUser(); 
-        applyPlatformSpecificStyling();
-        
-        if (window.Telegram && window.Telegram.WebApp) {
-            const tg = window.Telegram.WebApp;
-            tg.BackButton.onClick(() => {
-                window.location.hash = '#dashboard';
-            });
-        }
-        
-        if (!telegramUserData) {
-            appLogoText.textContent = 'Bmass';
-        }
-        
-        await fetchAirdropSettings();
-        await fetchRewardSettings();
-
-        if (!applyMaintenanceMode(tonConnectUI.account?.address)) {
-            handleRouteChange(); 
-        }
-        hideLoadingOverlay();
-    }
-    
-    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ 
-        manifestUrl: 'https://bmass.vercel.app/tonconnect-manifest.json',
-        buttonRootId: 'ton-connect-button-root' 
-    });
-    
-    tonConnectUI.onStatusChange(async (wallet) => {
-        clearInterval(activityRefreshInterval);
-    
-        if (applyMaintenanceMode(wallet ? wallet.account.address : null)) {
-            if (wallet) {
-                tonConnectUI.disconnect();
-            }
-            hideLoadingOverlay();
-            return;
-        }
-
-        if (wallet) {
-            showLoadingOverlay('Connecting wallet...');
-            connectedWalletAddress = wallet.account.address;
-            const friendlyAddress = await getFriendlyAddress(connectedWalletAddress);
-            
-            referralInputContainerHero.style.display = 'none';
-
-            tonConnectButtonRoot.style.display = 'none';
-            customWalletContainer.style.display = 'block';
-            customWalletButton.textContent = shortenAddress(friendlyAddress);
-            copyAddressBtn.dataset.address = friendlyAddress;
-            myAccountBtn.href = `https://tonviewer.com/${friendlyAddress}`;
-
-            await loadOrCreateUserByAddress(connectedWalletAddress);
-            
-        } else {
-            connectedWalletAddress = null;
-            lastFetchedAddress = null;
-            currentUserData = null;
-            currentActivityLogs = [];
-
-            tonConnectButtonRoot.style.display = 'block';
-            customWalletContainer.style.display = 'none';
-            headerExpDisplay.classList.add('d-none');
-            navAdmin.style.display = 'none';
-            
-            if (!sessionStorage.getItem(REFERRAL_SESSION_KEY)){
-                 referralInputContainerHero.style.display = 'block';
-            }
-            
-            handleRouteChange();
-            hideLoadingOverlay();
-        }
-    });
-    
-    const switchView = (viewToShow) => {
-        [dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl, partnerSectionEl, accountSectionEl, leaderboardSectionEl, adminSectionEl, referralSectionEl, airdropSectionEl].forEach(section => {
-            if(section) section.style.display = 'none';
-        });
-        [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(nav => nav.classList.remove('active'));
-
-        const isLoggedIn = !!connectedWalletAddress;
-        [navTask, navPartner, navAccount, navReferral, navAirdrop].forEach(nav => nav.style.display = isLoggedIn ? 'flex' : 'none');
-
-        if (viewToShow === 'account' && isLoggedIn) { accountSectionEl.style.display = 'block'; navAccount.classList.add('active'); } 
-        else if (viewToShow === 'apps') { appStoreSection.style.display = 'block'; navApps.classList.add('active'); } 
-        else if (viewToShow === 'task' && isLoggedIn) { taskSectionEl.style.display = 'block'; navTask.classList.add('active'); } 
-        else if (viewToShow === 'partner' && isLoggedIn) { partnerSectionEl.style.display = 'block'; navPartner.classList.add('active'); renderPartnerSection(); } 
-        else if (viewToShow === 'referral' && isLoggedIn) { referralSectionEl.style.display = 'block'; navReferral.classList.add('active'); } 
-        else if (viewToShow === 'airdrop') { airdropSectionEl.style.display = 'block'; navAirdrop.classList.add('active'); renderAirdropSection(); } 
-        else if (viewToShow === 'leaderboard') { leaderboardSectionEl.style.display = 'block'; navLeaderboard.classList.add('active'); fetchAndRenderLeaderboard(); } 
-        else if (viewToShow === 'admin' && isLoggedIn && isCurrentUserAdmin()){
-            adminSectionEl.style.display = 'block';
-            navAdmin.classList.add('active');
-            renderAdminPartnerTasks();
-            fetchAndRenderAdminUserList(true); 
-            maintenanceModeSwitch.checked = systemStatus.isMaintenanceMode;
-            fetchAirdropSettings().then(settings => {
-                 document.getElementById('airdrop-live-switch').checked = settings.isAirdropLive || false;
-                 document.getElementById('confirmation-enabled-switch').checked = settings.isConfirmationEnabled || false;
-                 document.getElementById('claim-enabled-switch').checked = settings.isClaimingEnabled || false;
-                 document.getElementById('snapshot-active-switch').checked = settings.isSnapshotActive || false;
-                 document.getElementById('min-checkins-input').value = settings.minCheckins || 0;
-                 document.getElementById('min-referrals-input').value = settings.minReferrals || 0;
-                 document.getElementById('min-exp-input').value = settings.minExp || 0;
-                 document.getElementById('ref-multiplier-input').value = settings.refMultiplier ?? 50;
-                 document.getElementById('checkin-multiplier-input').value = settings.checkinMultiplier ?? 30;
-                 document.getElementById('exp-multiplier-input').value = settings.expMultiplier ?? 20;
-            });
-        } else { 
-            if (isLoggedIn) { dashboardEl.style.display = 'block'; } 
-            else { heroEl.style.display = 'flex'; }
-            if (newsSection) newsSection.style.display = 'block';
-            navDashboard.classList.add('active');
-        }
-        if (sidebarMenu.classList.contains('open')) toggleSidebar();
-    };
-    
-    const handleRouteChange = () => {
-        let hash = window.location.hash.substring(1) || 'dashboard';
-        const [path, queryString] = hash.split('?');
-        const tg = window.Telegram?.WebApp;
-        
-        const protectedRoutes = ['task', 'partner', 'account', 'admin', 'referral', 'airdrop', 'leaderboard'];
-        if (!connectedWalletAddress && protectedRoutes.includes(path)) {
-             showAppToast('Wallet Connection Required', 'This feature requires a connected wallet.', 'warning');
-             window.location.hash = '#dashboard';
-             hash = 'dashboard';
-        }
-         
-        if (path === 'admin' && !isCurrentUserAdmin()){
-             showAppToast('Access Denied', 'You do not have permission to access this page.', 'error');
-             window.location.hash = '#dashboard';
-             hash = 'dashboard'; 
-        }
-
-        if (tg) {
-            if (path === 'dashboard' || path === '') {
-                tg.BackButton.hide();
-            } else {
-                tg.BackButton.show();
-            }
-        }
-
-        switchView(path);
-
-        if (path === 'apps') {
-            const params = new URLSearchParams(queryString || '');
-            const searchQuery = params.get('search');
-            appSearchInput.value = searchQuery ? decodeURIComponent(searchQuery) : '';
-            renderApps();
-        }
-    };
-
-    const shortenAddress = (addr, start = 6, end = 6) => addr ? (addr.includes('.') ? addr : `${addr.slice(0, start)}...${addr.slice(-end)}`) : 'Unknown';
-    
-    const handleManualReferralInput = async (e) => {
-        let inputEl, btnEl;
-        if(e.currentTarget.id.includes('hero')) {
-            inputEl = referralCodeInputHero; btnEl = referralCodeSubmitHero;
-        } else {
-            inputEl = referralCodeInput; btnEl = referralCodeSubmit;
-        }
-
-        const code = inputEl.value.trim();
-        if (!code) { showAppToast('Error', 'Please enter an invitation code.', 'warning'); return; }
-
-        if(connectedWalletAddress) { 
-             btnEl.disabled = true;
-             btnEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
-             await applyReferral(code, connectedWalletAddress);
-             const updatedDoc = await db.collection('users').doc(connectedWalletAddress).get();
-             if(updatedDoc.exists) {
-                currentUserData = updatedDoc.data();
-                updateUIAfterLogin();
-             }
-             btnEl.disabled = false;
-             btnEl.textContent = 'Confirm';
-             inputEl.value = '';
-
-        } else {
-            sessionStorage.setItem(REFERRAL_SESSION_KEY, code);
-            showAppToast('Code Saved', 'Your referral code has been saved. Connect your wallet to complete the process.', 'info');
-            inputEl.value = '';
-            referralInputContainerHero.style.display = 'none';
-        }
-    };
-    
-    const formatBalance = (bigIntString, decimals, symbol = '') => {
-        try {
-            const validDecimals = (typeof decimals === 'number' && !isNaN(decimals)) ? decimals : 9;
-            const balance = parseFloat(BigInt(bigIntString)) / (10 ** validDecimals);
-            const formattedNumber = balance.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 6
-            });
-            return `${formattedNumber} ${symbol}`;
-        } catch (e) {
-            return `0 ${symbol}`;
-        }
-    };
-
-    async function getFriendlyAddress(address) {
-        if (!address || typeof address !== 'string' || address.includes('.') || !address.includes(':')) return address;
-        if (addressCache[address]) return addressCache[address];
-        try {
-            const response = await fetch(`https://toncenter.com/api/v2/detectAddress?address=${encodeURIComponent(address)}`);
-            if (!response.ok) throw new Error('API response not OK');
-            const data = await response.json();
-            const friendlyAddress = data?.result?.non_bounceable?.b64url || address;
-            addressCache[address] = friendlyAddress;
-            return friendlyAddress;
-        } catch (error) {
-            console.warn(`Could not convert address ${address}:`, error);
-            return address;
-        }
-    }
-    
-    const getRaw = (addrObj) => addrObj?.raw_form || (typeof addrObj?.address === 'string' ? addrObj.address : null);
-    
-    const setSkeletonLoaders = (isInitial = true) => {
-        portfolioSkeleton.style.display = 'block';
-        portfolioContent.style.display = 'none';
-        mainAssetsContent.innerHTML = skeletonAsset;
-        otherTokensContent.innerHTML = skeletonTx.repeat(3);
-        nftGalleryContent.innerHTML = `<div class="row g-2">${Array(4).fill('<div class="col-3"><div class="skeleton-loader" style="width: 100%; aspect-ratio: 1/1; border-radius: 25px;"></div></div>').join('')}</div>`;
-        if (isInitial) {
-            activityFeedContent.innerHTML = skeletonTx.repeat(5);
-        }
-    };
-    
-    async function renderMainAssets(accountInfo, tonPriceUsd, tonValueUsd, tonValueVnd) {
-        if (!accountInfo) {
-            mainAssetsContent.innerHTML = `<p class="text-danger">Could not load account data.</p>`;
-            return;
-        }
-        const userFriendlyAddress = await getFriendlyAddress(accountInfo.address);
-        const tonBalance = accountInfo.balance / 1e9;
-        const formattedTonBalance = tonBalance.toLocaleString('en-US', { maximumFractionDigits: 6 });
-        const formattedPriceUsd = tonPriceUsd ? `$${tonPriceUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}` : 'N/A';
-        const formattedValueUsd = tonValueUsd ? `$${tonValueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'N/A';
-        const formattedValueVnd = tonValueVnd ? `${tonValueVnd.toLocaleString('vi-VN')} VND` : 'N/A';
-        
-        mainAssetsContent.innerHTML = `
-            <div class="d-flex align-items-center mb-3">
-                <img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;">
-                <div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <span class="text-secondary">Balance</span><strong style="font-size: 1.1rem;">${formattedTonBalance}</strong>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <span class="text-secondary">Current Price</span><strong>${formattedPriceUsd}</strong>
-            </div>
-            <div class="d-flex justify-content-between align-items-center">
-                <span class="text-secondary">Total Value</span>
-                <div class="text-end">
-                    <strong style="font-size: 1.1rem;">${formattedValueUsd}</strong><br>
-                    <small class="text-secondary">${formattedValueVnd}</small>
-                </div>
-            </div>
-            <hr style="border-color: var(--border-color); opacity: 0.5;">
-            <div class="d-flex align-items-center justify-content-between mt-3">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-wallet me-3" style="width: 48px; font-size: 24px; text-align: center; color: var(--accent-secondary);"></i>
-                    <div><h5 class="m-0">Address</h5><p class="m-0 text-secondary">Wallet</p></div>
-                </div>
-                <h6><code class="copyable-address" data-address="${userFriendlyAddress}" title="Click to copy">${shortenAddress(userFriendlyAddress)}</code></h6>
-            </div>
-        `;
-    }
-
-    function renderOtherTokens(jettons) {
-        otherTokensContent.innerHTML = '';
-        if (jettons?.length > 0) {
-            jettons.forEach(j => {
-                const balance = Number(BigInt(j.balance)) / (10 ** (j.jetton.decimals || 9));
-                const verifiedTick = j.jetton.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
-                let valueDisplayHtml;
-                const priceUsdt = j.price?.prices?.USDT;
-                if (priceUsdt) {
-                    const valueUsd = balance * priceUsdt;
-                    valueDisplayHtml = `
-                        <div class="text-end">
-                            <h6 class="m-0">$${valueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h6>
-                            <small class="text-secondary">${balance.toLocaleString('en-US', { maximumFractionDigits: 4 })} ${j.jetton.symbol}</small>
-                        </div>`;
-                } else {
-                    valueDisplayHtml = `<h6 class="m-0">${balance.toLocaleString('en-US', { maximumFractionDigits: 4 })}</h6>`;
-                }
-                otherTokensContent.innerHTML += `
-                    <div class="d-flex align-items-center justify-content-between mb-3 p-2 jetton-item" data-jetton-address="${j.jetton.address}">
-                        <div class="d-flex align-items-center">
-                            <img src="${j.jetton.image}" class="me-3 jetton-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png'">
-                            <div><h6 class="m-0">${j.jetton.symbol}${verifiedTick}</h6></div>
-                        </div>
-                        ${valueDisplayHtml}
-                    </div>`;
-            });
-        } else { otherTokensContent.innerHTML = `<p class="text-secondary">No tokens found.</p>`; }
-    }
-
-    function renderNFTs(nfts) {
-        nftGalleryContent.innerHTML = '';
-        if (nfts?.length > 0) {
-            let html = '<div class="row g-2">';
-            nfts.slice(0, 18).forEach(nft => {
-                const imgUrl = nft.previews?.[nft.previews.length - 1]?.url || nft.metadata?.image || 'https://via.placeholder.com/100';
-                html += `<div class="col-3"><div title="${nft.metadata?.name || 'NFT'}" style="cursor: pointer;"><img src="${imgUrl}" style="width: 100%; border-radius: 25px; aspect-ratio: 1/1; object-fit: cover;" onerror="this.src='https://via.placeholder.com/100'"></div></div>`;
-            });
-            nftGalleryContent.innerHTML = html + '</div>';
-        } else { nftGalleryContent.innerHTML = `<p class="text-secondary">No NFTs found.</p>`; }
-    }
-
-    function renderSingleActivityItem(log) {
-        const statusIcon = log.status === 'ok' ? `<i class="fas fa-check-circle status-icon status-ok"></i>` : `<i class="fas fa-exclamation-circle status-icon status-failed"></i>`;
-        const titleText = log.status !== 'ok' ? `<span class="text-warning">${log.title} (Failed)</span>` : log.title;
-        const colorClass = log.direction === 'in' ? 'amount-in' : 'amount-out';
-        const amountDisplay = log.amount !== null ? `<p class="m-0 fw-bold ${colorClass}">${log.sign} ${log.amount.toLocaleString('en-US', {maximumFractionDigits: 4})} ${log.symbol}</p>` : `<p class="m-0 fw-bold">${log.symbol} Transfer</p>`;
-        const commentDisplay = log.comment ? `<div class="w-100 mt-2"><p class="m-0 text-secondary" style="font-size: 0.8rem; font-style: italic;"><i class="fas fa-comment-dots me-2"></i>${log.comment}</p></div>` : '';
-        const partyAddressHtml = `<code class="copyable-address" data-address="${log.party_full}" title="Click to copy">${log.party}</code>`;
-        return `
-         <div class="d-flex flex-wrap align-items-center py-3 border-bottom border-secondary border-opacity-25">
-            <img src="${log.image}" class="activity-item-icon me-3" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
-            <div class="flex-grow-1"><p class="m-0 fw-bold">${statusIcon}${titleText}</p><p class="m-0 text-secondary" style="font-size: 0.8rem;">${log.party_title}: ${partyAddressHtml}</p></div>
-            <div class="text-end">${amountDisplay}<p class="m-0 text-secondary" style="font-size: 0.8rem;">${new Date(log.timestamp).toLocaleString()}</p></div>
-            ${commentDisplay}
-         </div>`;
-    }
-    
-    async function fetchAndDisplayAccountData(addressToFetch) {
-        const isNewAddress = addressToFetch !== lastFetchedAddress;
-        if (isNewAddress) {
-            currentActivityLogs = [];
-            activityFeedContent.innerHTML = '';
-            lastFetchedAddress = addressToFetch;
-            setSkeletonLoaders(true);
-        } else {
-            setSkeletonLoaders(false);
-        }
-        searchResultsContainer.style.display = 'none';
-        searchInput.value = '';
-        const isMyWallet = connectedWalletAddress && addressToFetch === connectedWalletAddress;
-        backToMyWalletBtn.style.display = isMyWallet ? 'none' : 'block';
-        if (!isMyWallet) clearInterval(activityRefreshInterval);
-        try {
-            const [tonapiResults, coingeckoResult] = await Promise.allSettled([
-                Promise.allSettled([
-                    fetch(`${TON_API_BASE}/accounts/${addressToFetch}`),
-                    fetch(`${TON_API_BASE}/accounts/${addressToFetch}/jettons?currencies=usdt`),
-                    fetch(`${TON_API_BASE}/accounts/${addressToFetch}/nfts?limit=100&indirect_ownership=false`),
-                    fetch(`${TON_API_BASE}/accounts/${addressToFetch}/events?limit=100`)
-                ]),
-                fetch(`${COINGECKO_API_BASE}/simple/price?ids=the-open-network&vs_currencies=usd,vnd`)
-            ]);
-            const [accountResult, jettonsResult, nftsResult, eventsResult] = tonapiResults.value;
-            if (accountResult.status === 'rejected' || !accountResult.value.ok) throw new Error(`Could not fetch account info.`);
-            const accountInfo = await accountResult.value.json();
-            const jettonsInfo = (jettonsResult.status === 'fulfilled' && jettonsResult.value.ok) ? await jettonsResult.value.json() : { balances: [] };
-            const nftsInfo = (nftsResult.status === 'fulfilled' && nftsResult.value.ok) ? await nftsResult.value.json() : { nft_items: [] };
-            const eventsInfo = (eventsResult.status === 'fulfilled' && eventsResult.value.ok) ? await eventsResult.value.json() : { events: [] };
-            const priceData = (coingeckoResult.status === 'fulfilled' && coingeckoResult.value.ok) ? await coingeckoResult.value.json() : {};
-            let totalValueUsd = 0, totalValueVnd = 0, tonValueUsd = 0, tonValueVnd = 0;
-            const tonPriceInfo = priceData['the-open-network'];
-            if (tonPriceInfo && tonPriceInfo.usd && tonPriceInfo.vnd) {
-                const tonBalance = accountInfo.balance / 1e9;
-                tonValueUsd = tonBalance * tonPriceInfo.usd;
-                tonValueVnd = tonBalance * tonPriceInfo.vnd;
-                totalValueUsd += tonValueUsd;
-            totalValueVnd += tonValueVnd;
-            }
-            const usdToVndRate = (tonPriceInfo?.vnd && tonPriceInfo?.usd) ? tonPriceInfo.vnd / tonPriceInfo.usd : 25450;
-            if (jettonsInfo.balances.length > 0) {
-                jettonsInfo.balances.forEach(j => {
-                    const priceUsdt = j.price?.prices?.USDT;
-                    if (priceUsdt) {
-                        const jettonBalance = Number(BigInt(j.balance)) / (10 ** (j.jetton.decimals || 9));
-                        const jettonValueUsd = jettonBalance * priceUsdt;
-                        totalValueUsd += jettonValueUsd;
-                        totalValueVnd += jettonValueUsd * usdToVndRate;
-                    }
-                });
-            }
-            totalValueUsdEl.textContent = `$${totalValueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            totalValueVndEl.textContent = `${totalValueVnd.toLocaleString('vi-VN')} VND`;
-            portfolioSkeleton.style.display = 'none';
-            portfolioContent.style.display = 'block';
-            const newLogs = (eventsInfo.events ?? []).flatMap((event) => parseEvent(event, accountInfo.address));
-            processNewActivity(newLogs);
-            await renderMainAssets(accountInfo, tonPriceInfo?.usd, tonValueUsd, tonValueVnd);
-            renderOtherTokens(jettonsInfo.balances);
-            renderNFTs(nftsInfo.nft_items ?? []);
-            if (nftsResult.status === 'rejected') nftGalleryContent.innerHTML = `<p class="text-warning">Could not load NFTs.</p>`;
-        } catch (error) {
-            console.error("Error fetching account data:", error);
-            mainAssetsContent.innerHTML = `<p class="text-danger"><strong>Error:</strong> ${error.message}</p>`;
-            [otherTokensContent, nftGalleryContent, activityFeedContent].forEach(el => el.innerHTML = `<p class="text-secondary">Data unavailable.</p>`);
-            portfolioSkeleton.style.display = 'none';
-            portfolioContent.style.display = 'block';
-            totalValueUsdEl.textContent = '$ -';
-            totalValueVndEl.textContent = '- VND';
-        }
-    }
-    
-    function processNewActivity(newLogs) {
-        const existingHashes = new Set(currentActivityLogs.map(log => log.hash));
-        const genuinelyNewLogs = newLogs.filter(log => !existingHashes.has(log.hash));
-        if (genuinelyNewLogs.length > 0) {
-            const newLogsHtml = genuinelyNewLogs.map(log => renderSingleActivityItem(log)).join('');
-            activityFeedContent.insertAdjacentHTML('afterbegin', newLogsHtml);
-            currentActivityLogs = [...genuinelyNewLogs, ...currentActivityLogs];
-            showTransactionPopup(genuinelyNewLogs[0]);
-        } else if (currentActivityLogs.length === 0) {
-            const initialLogsHtml = newLogs.slice(0, 50).map(log => renderSingleActivityItem(log)).join('');
-            activityFeedContent.innerHTML = initialLogsHtml;
-            currentActivityLogs = newLogs.slice(0, 50);
-            if (currentActivityLogs.length === 0) {
-                activityFeedContent.innerHTML = `<p class="text-secondary">No recent activity found.</p>`;
-            }
-        }
-    }
-
-    function showTransactionPopup(log) {
-         const amountDisplay = log.amount !== null ? `<strong class="${log.direction === 'in' ? 'amount-in' : 'amount-out'}">${log.sign} ${log.amount.toLocaleString('en-US', {maximumFractionDigits: 4})} ${log.symbol}</strong>` : `a ${log.symbol} transfer`;
-        const actionText = log.direction === 'in' ? `Received ${amountDisplay} from` : `Sent ${amountDisplay} to`;
-        const message = `${actionText} ${log.party}`;
-        showAppToast('New Transaction', message);
-    }
-
-    function parseEvent(event, viewingRawAddress) {
-        const logs = [];
-        if (!event?.actions) return logs;
-        event.actions.forEach((action, actionIndex) => {
-            try {
-                const log = { hash: `${event.event_id}-${actionIndex}`, timestamp: event.timestamp * 1000, status: action.status, amount: null };
-                const isViewingAddress = (partyObj) => getRaw(partyObj) === viewingRawAddress;
-                const processParty = (partyObj) => ({ short: partyObj?.name || shortenAddress(partyObj?.address), full: partyObj?.address });
-                if (action.type === 'TonTransfer' && action.TonTransfer) {
-                    const t = action.TonTransfer;
-                    log.direction = isViewingAddress(t.sender) ? 'out' : 'in';
-                    log.title = "TON Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
-                    log.amount = Number(t.amount) / 1e9;
-                    log.symbol = 'TON'; log.party_title = log.direction === 'out' ? 'To' : 'From';
-                    const partyInfo = processParty(log.direction === 'out' ? t.recipient : t.sender);
-                    log.party = partyInfo.short; log.party_full = partyInfo.full;
-                    log.image = 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
-                    if (log.party) logs.push(log);
-                } else if (action.type === 'JettonTransfer' && action.JettonTransfer) {
-                    const t = action.JettonTransfer;
-                    log.direction = isViewingAddress(t.sender) ? 'out' : 'in';
-                    log.title = "Jetton Transfer"; log.sign = log.direction === 'in' ? '+' : '-';
-                    log.amount = Number(BigInt(t.amount)) / (10 ** (t.jetton?.decimals || 9));
-                    log.symbol = t.jetton?.symbol || 'Token'; log.party_title = log.direction === 'out' ? 'To' : 'From';
-                    const partyInfo = processParty(log.direction === 'out' ? t.recipient : t.sender);
-                    log.party = partyInfo.short; log.party_full = partyInfo.full;
-                    log.image = t.jetton?.image || 'https://ton.org/download/ton_symbol.png'; log.comment = t.comment || null;
-                    if (log.party) logs.push(log);
-                }
-            } catch (e) { console.warn("Could not parse an action:", action, "Error:", e); }
-        });
-        return logs;
-    }
-
-    async function fetchCryptoNews() {
-        if (!newsContentArea) return;
-        newsContentArea.innerHTML = `<div class="news-grid">${skeletonTx.repeat(3)}</div>`;
-        try {
-            const response = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN&limit=6');
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const newsData = await response.json();
-            newsContentArea.innerHTML = '';
-            if (newsData.Type === 100 && newsData.Data?.length > 0) {
-                let newsHtml = '<div class="news-grid">';
-                newsData.Data.forEach(article => {
-                    newsHtml += `
-                    <a href="${article.url}" target="_blank" rel="noopener noreferrer" class="news-card">
-                        <img src="${article.imageurl}" class="news-card-img" onerror="this.style.display='none'">
-                        <div class="news-card-body">
-                            <h3 class="news-card-title">${article.title}</h3>
-                            <p class="news-card-source">${article.source} - ${new Date(article.published_on * 1000).toLocaleDateString()}</p>
-                        </div>
-                    </a>`;
-                });
-                newsContentArea.innerHTML = newsHtml + '</div>';
-            } else { newsContentArea.innerHTML = '<p class="text-secondary text-center">No news found.</p>'; }
-        } catch (error) {
-            console.error("Error fetching crypto news:", error);
-            newsContentArea.innerHTML = '<p class="text-danger text-center">Could not load news feed.</p>';
-        }
-    }
-    
-    async function handleFastSearch() {
-        const query = searchInput.value.trim();
-        if (!query) { searchResultsContainer.style.display = 'none'; return; }
-        if ((query.length >= 48 && query.includes(':')) || query.length === 48 || query.endsWith('.ton')) { fetchAndDisplayAccountData(query); return; }
-        searchResultsContainer.style.display = 'block';
-        searchResultsContainer.innerHTML = `<div class="p-2 text-center text-secondary">${skeletonTx}</div>`;
-        try {
-            const response = await fetch(`${TON_API_BASE}/accounts/search?name=${encodeURIComponent(query)}`);
-            if (!response.ok) throw new Error('Search API failed');
-            const data = await response.json();
-            const results = data.addresses || [];
-            searchResultsContainer.innerHTML = '';
-            if (results.length > 0) {
-                for (const res of results) {
-                    const friendlyAddress = await getFriendlyAddress(res.address);
-                    const isJetton = res.name && res.name.toLowerCase().includes('jetton');
-                    const item = document.createElement('div');
-                    item.className = 'd-flex align-items-center p-2 mb-1 search-result-item';
-                    item.dataset.address = res.address;
-                    item.dataset.type = isJetton ? 'jetton' : 'account';
-                    const imageUrl = res.preview || res.icon || 'https://ton.org/download/ton_symbol.png';
-                    const verifiedTick = res.trust === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
-                    const addressHtml = `<code class="copyable-address" data-address="${friendlyAddress}" title="Click to copy">${shortenAddress(friendlyAddress)}</code>`;
-                    item.innerHTML = `
-                        <img src="${imageUrl}" class="me-3 search-result-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
-                        <div class="flex-grow-1">
-                            <p class="m-0 fw-bold">${res.name || 'Unnamed'} ${verifiedTick}</p>
-                            <p class="m-0 text-secondary" style="font-size: 0.8rem;">${addressHtml}</p>
-                        </div>`;
-                    item.addEventListener('click', (e) => {
-                        if (e.target.classList.contains('copyable-address')) return;
-                        searchResultsContainer.style.display = 'none';
-                        searchInput.value = '';
-                        if (item.dataset.type === 'jetton') {
-                            showJettonDetails(item.dataset.address);
-                        } else {
-                            fetchAndDisplayAccountData(item.dataset.address);
-                        }
-                    });
-                    searchResultsContainer.appendChild(item);
-                }
-            } else { searchResultsContainer.innerHTML = '<p class="text-secondary text-center p-3">No results.</p>'; }
-        } catch (error) {
-            console.error('Error during search:', error);
-            searchResultsContainer.innerHTML = '<p class="text-danger text-center p-3">Search failed.</p>';
-        }
-    }
-    
-    async function showJettonDetails(jettonAddress) {
-        jettonDetailModal.show();
-        const headerEl = document.getElementById('jetton-modal-header-content');
-        const metadataEl = document.getElementById('metadata-tab-pane');
-        const historyEl = document.getElementById('history-tab-pane');
-        const holdersEl = document.getElementById('holders-tab-pane');
-        const holdersTabBtn = document.getElementById('holders-tab');
-        if (holdersTabBtn) holdersTabBtn.textContent = 'Holders';
-        headerEl.innerHTML = `<h5 class="modal-title">Loading Jetton...</h5>`;
-        [metadataEl, historyEl, holdersEl].forEach(el => el.innerHTML = `<div class="w-100 text-center p-5">${skeletonTx}</div>`);
-        const [metadataRes, historyRes, holdersRes] = await Promise.allSettled([
-            fetch(`${TON_API_BASE}/jettons/${jettonAddress}`),
-            fetch(`${TON_API_BASE}/accounts/${jettonAddress}/events?limit=100`),
-            fetch(`${TON_API_BASE}/jettons/${jettonAddress}/holders?limit=100`)
-        ]);
-        let jettonMetadata = null;
-        if (metadataRes.status === 'fulfilled' && metadataRes.value.ok) {
-            const data = await metadataRes.value.json();
-            jettonMetadata = data.metadata;
-            if (holdersTabBtn && data.holders_count) holdersTabBtn.textContent = `Holders (${data.holders_count.toLocaleString('en-US')})`;
-            const friendlyJettonAddress = await getFriendlyAddress(jettonMetadata.address);
-            const verifiedTick = data.verification === 'whitelist' ? `<i class="fas fa-check-circle verified-tick" title="Verified"></i>` : '';
-            headerEl.innerHTML = `<img src="${jettonMetadata.image}" class="me-3 jetton-item-img" onerror="this.src='https://ton.org/download/ton_symbol.png'"><h5 class="modal-title">${jettonMetadata.name} (${jettonMetadata.symbol}) ${verifiedTick}</h5>`;
-            const addressHtml = `<code class="copyable-address" data-address="${friendlyJettonAddress}" title="Click to copy">${shortenAddress(friendlyJettonAddress, 10, 10)}</code>`;
-            const totalSupply = formatBalance(data.total_supply, jettonMetadata.decimals, jettonMetadata.symbol);
-            metadataEl.innerHTML = `<p class="mb-3">${jettonMetadata.description || 'No description.'}</p><div class="row g-3"><div class="col-12"><span class="metadata-key">Address:</span> <span class="fs-sm text-break">${addressHtml}</span></div><div class="col-md-6"><span class="metadata-key">Decimals:</span> ${jettonMetadata.decimals}</div><div class="col-md-6"><span class="metadata-key">Mintable:</span> ${data.mintable ? 'Yes' : 'No'}</div><div class="col-12"><span class="metadata-key">Total Supply:</span> ${totalSupply}</div></div>`;
-        } else { metadataEl.innerHTML = `<p class="text-danger">Failed to load metadata.</p>`; }
-
-        if (historyRes.status === 'fulfilled' && historyRes.value.ok) {
-            const data = await historyRes.value.json();
-            const historyLogs = (data.events ?? []).flatMap((e) => parseEvent(e, jettonAddress));
-            if (historyLogs.length > 0) {
-                historyEl.innerHTML = '';
-                historyLogs.slice(0, 50).forEach(log => {
-                   const partyAddressHtml = `<code class="copyable-address" data-address="${log.party_full}" title="Click to copy">${shortenAddress(log.party)}</code>`;
-                   historyEl.innerHTML += `<div class="d-flex flex-wrap justify-content-between align-items-center p-2 border-bottom border-secondary border-opacity-25"><div><small>${log.title} to/from ${partyAddressHtml}</small></div><div class="text-end"><small class="${log.direction === 'in' ? 'amount-in' : 'amount-out'}">${log.sign} ${log.amount.toLocaleString()}</small><br><small class="text-secondary">${new Date(log.timestamp).toLocaleDateString()}</small></div></div>`;
-                });
-            } else { historyEl.innerHTML = `<p class="text-secondary text-center p-3">No history.</p>`; }
-        } else { historyEl.innerHTML = `<p class="text-danger">Failed to load history.</p>`; }
-
-        if (holdersRes.status === 'fulfilled' && holdersRes.value.ok) {
-            const data = await holdersRes.value.json();
-            const decimals = jettonMetadata?.decimals;
-            const symbol = jettonMetadata?.symbol || '';
-            if (data.addresses?.length > 0) {
-                let tableHtml = `<table class="table table-hover align-middle"><thead><tr><th scope="col" style="width: 5%;">#</th><th scope="col">Holder</th><th scope="col" class="text-end">Balance</th></tr></thead><tbody>`;
-                for (const [index, holder] of data.addresses.entries()) {
-                    const ownerWalletAddress = holder.owner.address;
-                    const friendlyDisplayAddress = await getFriendlyAddress(ownerWalletAddress);
-                    const displayName = holder.owner.name ? `<strong>${holder.owner.name}</strong>` : `<code class="copyable-address" data-address="${friendlyDisplayAddress}" title="Click to copy">${shortenAddress(friendlyDisplayAddress)}</code>`;
-                    const fullAddressHtml = holder.owner.name ? `<br><small class="text-secondary"><code class="copyable-address" data-address="${friendlyDisplayAddress}" title="Click to copy">${shortenAddress(friendlyDisplayAddress, 10, 10)}</code></small>` : '';
-                    tableHtml += `<tr><th scope="row">${index + 1}</th><td>${displayName}${fullAddressHtml}</td><td class="text-end fw-bold">${formatBalance(holder.balance, decimals, symbol)}</td></tr>`;
-                }
-                tableHtml += `</tbody></table>`;
-                holdersEl.innerHTML = tableHtml;
-            } else { holdersEl.innerHTML = `<p class="text-secondary text-center p-3">No holders.</p>`; }
-        } else { holdersEl.innerHTML = `<p class="text-danger">Failed to load holders.</p>`; }
-    }
-
-    const renderApps = () => {
-        if (!appGrid || typeof appsData === 'undefined') return;
-        const searchTerm = appSearchInput.value.toLowerCase();
-        const activeFilter = appFilterControls.querySelector('.app-filter-btn.active').dataset.filter;
-        let filteredApps = appsData.filter(app => 
-            (activeFilter === 'all' || app.category.includes(activeFilter)) &&
-            (!searchTerm || app.name.toLowerCase().includes(searchTerm))
-        );
-        appGrid.innerHTML = '';
-        if (filteredApps.length === 0) {
-            appGrid.innerHTML = `<div class="col-12 text-center mt-4"><p class="text-secondary fs-5">No applications found.</p></div>`;
-            return;
-        }
-        filteredApps.forEach(app => {
-            const appCard = document.createElement('div');
-            appCard.className = 'col';
-            appCard.innerHTML = `<a href="${app.link}" target="_blank" rel="noopener noreferrer" class="app-item"><div class="app-item-img-wrapper"><img src="${app.image}" alt="${app.name} logo" class="app-item-img" onerror="this.src='https://via.placeholder.com/90?text=App';"></div><span class="app-item-name">${app.name}</span></a>`;
-            appGrid.appendChild(appCard);
-        });
-    };
-
-    function showAppToast(header, message, type = 'info') {
-        document.querySelector('.toast-notification')?.remove();
-        const toast = document.createElement('div');
-        toast.className = 'toast-notification';
-        let iconClass = 'fas fa-info-circle';
-        if (type === 'success') iconClass = 'fas fa-check-circle';
-        if (type === 'error') iconClass = 'fas fa-times-circle';
-        if (type === 'warning') iconClass = 'fas fa-exclamation-triangle';
-        toast.innerHTML = `<div class="toast-notification-header"><i class="${iconClass} me-2"></i> ${header}</div><p class="m-0">${message}</p>`;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.classList.add('show'), 100);
-        const hideTimeout = setTimeout(() => { toast.classList.remove('show'); toast.addEventListener('transitionend', () => toast.remove(), { once: true }); }, 5000);
-        toast.addEventListener('click', () => { clearTimeout(hideTimeout); toast.classList.remove('show'); toast.addEventListener('transitionend', () => toast.remove(), { once: true }); }, { once: true });
-    }
-    
-    const toggleSidebar = () => {
-        hamburgerBtn.classList.toggle('open');
-        sidebarMenu.classList.toggle('open');
-        sidebarOverlay.classList.toggle('open');
-    };
-
-    async function saveAirdropSettings() {
-        const isAirdropLive = document.getElementById('airdrop-live-switch').checked;
-        const isConfirmationEnabled = document.getElementById('confirmation-enabled-switch').checked; 
-        const isClaimingEnabled = document.getElementById('claim-enabled-switch').checked;
-        const isSnapshotActive = document.getElementById('snapshot-active-switch').checked;
-
-        if (isSnapshotActive && !airdropSettings?.isSnapshotActive) {
-            if (!confirm("CẢNH BÁO: Bạn sắp kích hoạt Snapshot. Hành động này sẽ DỪNG tất cả các hoạt động kiếm điểm. Hành động này không thể hoàn tác. Bạn có chắc chắn muốn tiếp tục không?")) {
-                document.getElementById('snapshot-active-switch').checked = false;
-                return;
-            }
-        }
-
-        const minCheckins = parseInt(document.getElementById('min-checkins-input').value, 10);
-        const minReferrals = parseInt(document.getElementById('min-referrals-input').value, 10);
-        const minExp = parseInt(document.getElementById('min-exp-input').value, 10);
-        const refMultiplier = parseFloat(document.getElementById('ref-multiplier-input').value) || 0;
-        const checkinMultiplier = parseFloat(document.getElementById('checkin-multiplier-input').value) || 0;
-        const expMultiplier = parseFloat(document.getElementById('exp-multiplier-input').value) || 0;
-
-        if (isNaN(minCheckins) || isNaN(minReferrals) || isNaN(minExp) || isNaN(refMultiplier) || isNaN(checkinMultiplier) || isNaN(expMultiplier)) {
-            showAppToast('Lỗi', 'Vui lòng nhập giá trị số hợp lệ.', 'error');
-            return;
-        }
-        
-        saveSettingsBtn.disabled = true;
-        adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
-
-        try {
-            const settingsRef = db.collection('admin_settings').doc('airdrop_criteria');
-            const newSettings = { isAirdropLive, isConfirmationEnabled, isClaimingEnabled, isSnapshotActive, minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier };
-            await settingsRef.set(newSettings, { merge: true });
-            airdropSettings = newSettings; 
-            adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
-            showAppToast('Thành công', 'Đã lưu cài đặt Airdrop.', 'success');
-            updateUIAfterLogin();
-        } catch (error) {
-            console.error("Error saving airdrop settings:", error);
-            adminSettingsStatusEl.innerHTML = `<span class="text-danger">Lưu thất bại.</span>`;
-            showAppToast('Lỗi', 'Không thể lưu cài đặt.', 'error');
-        } finally {
-            saveSettingsBtn.disabled = false;
-             setTimeout(() => { adminSettingsStatusEl.innerHTML = ''; }, 3000);
-        }
-    }
-    
-    async function exportAirdropData() {
-        exportCsvBtn.disabled = true;
-        adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang chuẩn bị dữ liệu...`;
-        
-        try {
-            const settings = await fetchAirdropSettings();
-            
-            const finalAirdropList = [];
-            let lastVisible = null;
-            let processedCount = 0;
-
-            while (true) {
-                let query = db.collection('users').orderBy(firebase.firestore.FieldPath.documentId()).limit(500);
-                if(lastVisible) {
-                    query = query.startAfter(lastVisible);
-                }
-                const snapshot = await query.get();
-                if (snapshot.empty) break;
-
-                const userDocs = snapshot.docs;
-                const eligibilityPromises = userDocs.map(doc => {
-                    const user = doc.data();
-                    
-                    const processUser = async () => {
-                        const isEligibleByStats = (user.referralCount || 0) >= settings.minReferrals &&
-                                                (user.checkinCount || 0) >= settings.minCheckins &&
-                                                (user.points || 0) >= settings.minExp;
-                        
-                        if (isEligibleByStats && user.hasRequestedAirdrop) {
-                            const mandatoryTasksCompleted = await checkMandatoryTasksCompletion(user.address);
-                            if (mandatoryTasksCompleted) {
-                                const finalReward = await calculateBmassReward(user, settings);
-                                if (finalReward > 0) {
-                                    return { address: user.address, reward: finalReward };
-                                }
-                            }
-                        }
-                        return null;
-                    };
-                    return processUser();
-                });
-
-                const results = await Promise.all(eligibilityPromises);
-                results.forEach(result => {
-                    if (result) {
-                        finalAirdropList.push(result);
-                    }
-                });
-
-                processedCount += userDocs.length;
-                adminSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã xử lý ${processedCount} người dùng...`;
-
-                if (userDocs.length < 500) break; 
-                lastVisible = userDocs[userDocs.length - 1];
-            }
-            
-            adminSettingsStatusEl.innerHTML = `<i class="fas fa-file-csv me-2"></i>Đang tạo file...`;
-            
-            if (finalAirdropList.length === 0) {
-                showAppToast('Thông báo', 'Không có người dùng nào đủ điều kiện và yêu cầu nhận Airdrop.', 'info');
-                adminSettingsStatusEl.innerHTML = `<span class="text-warning">Không có ai yêu cầu.</span>`;
-                return;
-            }
-
-            let csvContent = "address,quantity\n";
-            finalAirdropList.forEach(item => {
-                csvContent += `${item.address},${item.reward}\n`;
-            });
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            const airdropDate = new Date().toISOString().slice(0, 10);
-            link.setAttribute("download", `airdrop-request-list-${airdropDate}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            showAppToast('Thành công', `Đã xuất ${finalAirdropList.length} người dùng đã yêu cầu.`, 'success');
-            adminSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã xuất file thành công!</span>`;
-
-        } catch (error) {
-            console.error("Error exporting airdrop data:", error);
-            showAppToast('Lỗi', 'Không thể xuất dữ liệu.', 'error');
-            adminSettingsStatusEl.innerHTML = `<span class="text-danger">Xuất file thất bại.</span>`;
-        } finally {
-            exportCsvBtn.disabled = false;
-            setTimeout(() => { adminSettingsStatusEl.innerHTML = ''; }, 4000);
-        }
-    }
-    
-    async function renderPartnerSection() {
-        if (!partnerTasksContainer || !db || !connectedWalletAddress) return;
-        partnerTasksContainer.innerHTML = skeletonTx.repeat(3);
-        
-        try {
-            const tasksSnapshot = await db.collection('partner_tasks').orderBy('createdAt', 'desc').get();
-            const completedTasksSnapshot = await db.collection('users').doc(connectedWalletAddress).collection('completed_partner_tasks').get();
-            
-            const completedTaskIds = new Set(completedTasksSnapshot.docs.map(doc => doc.id));
-            
-            if (tasksSnapshot.empty) {
-                partnerTasksContainer.innerHTML = `<p class="text-secondary text-center p-3">No partner tasks available yet.</p>`;
-                return;
-            }
-            
-            let mandatoryHtml = '';
-            let normalHtml = '';
-            
-            tasksSnapshot.forEach((doc, index) => {
-                const task = doc.data();
-                task.id = doc.id;
-                const isCompleted = completedTaskIds.has(task.id);
-                const isDescLong = task.description.length > 100;
-
-                const cardHtml = `
-                    <div 
-                       class="partner-task-card ${task.taskType === 'mandatory' ? 'mandatory' : ''} ${isCompleted ? 'completed' : ''}"
-                       data-task-id="${task.id}" data-exp="${task.expReward}" data-name="${task.projectName}" data-link="${task.taskLink}" style="animation-delay: ${index * 70}ms">
-                        
-                        <div class="partner-task-top">
-                            <img src="${task.imageUrl || GENERIC_TASK_ICON}" class="partner-task-img" onerror="this.src='${GENERIC_TASK_ICON}'">
-                            
-                            <div class="partner-task-body">
-                                <h4 class="partner-task-title">
-                                    ${task.projectName}
-                                    ${task.taskType === 'mandatory' ? '<i class="fas fa-star mandatory-icon" title="Mandatory Task"></i>' : ''}
-                                </h4>
-                                <p class="partner-task-desc">${task.description}</p>
-                                ${isDescLong ? '<button class="task-details-toggle">View Details</button>' : ''}
-                            </div>
-                        </div>
-                        
-                        <div class="partner-task-action-bar">
-                            ${isCompleted ? '<i class="fas fa-check-circle me-2"></i>Completed' : `+${task.expReward.toLocaleString()} EXP`}
-                        </div>
-                    </div>
-                `;
-                
-                if (task.taskType === 'mandatory') {
-                    mandatoryHtml += cardHtml;
-                } else {
-                    normalHtml += cardHtml;
-                }
-            });
-            
-            partnerTasksContainer.innerHTML = mandatoryHtml + normalHtml;
-            
-        } catch (error) {
-            console.error("Error rendering partner tasks:", error);
-            partnerTasksContainer.innerHTML = `<p class="text-danger text-center p-3">Error loading partner tasks.</p>`;
-        }
-    }
-
-    function handlePartnerCardClick(e) {
-        const toggleBtn = e.target.closest('.task-details-toggle');
-        const taskCard = e.target.closest('.partner-task-card');
-
-        if (toggleBtn) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const desc = toggleBtn.previousElementSibling;
-            desc.classList.toggle('expanded');
-            toggleBtn.textContent = desc.classList.contains('expanded') ? 'Collapse' : 'View Details';
-            return;
-        }
-
-        if (taskCard) {
-            handlePartnerTaskCompletion(e, taskCard);
-        }
-    }
-
-    async function handlePartnerTaskCompletion(e, taskCard) {
-        if (airdropSettings?.isSnapshotActive) {
-            showAppToast('Halted', 'Point-earning activities are paused.', 'warning');
-            e.preventDefault();
-            return;
-        }
-        
-        if (taskCard.classList.contains('completed')) {
-            e.preventDefault();
-            return;
-        }
-
-        e.preventDefault();
-
-        const taskId = taskCard.dataset.taskId;
-        const expReward = parseInt(taskCard.dataset.exp, 10);
-        const projectName = taskCard.dataset.name;
-        const taskLink = taskCard.dataset.link;
-
-        if (!taskId || isNaN(expReward)) return;
-
-        const actionBar = taskCard.querySelector('.partner-task-action-bar');
-        actionBar.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
-        
-        try {
-            const userRef = db.collection('users').doc(connectedWalletAddress);
-            const completedTaskRef = userRef.collection('completed_partner_tasks').doc(taskId);
-            
-            let newTotalPoints;
-            await db.runTransaction(async (transaction) => {
-                const [userDoc, completedDoc] = await Promise.all([
-                    transaction.get(userRef),
-                    transaction.get(completedTaskRef)
-                ]);
-
-                if (!userDoc.exists) throw new Error("User not found.");
-                if (completedDoc.exists) throw new Error("Task already completed.");
-
-                const userData = userDoc.data();
-                newTotalPoints = (userData.points || 0) + expReward;
-                const newLevel = calculateLevel(newTotalPoints);
-                const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
-
-                transaction.update(userRef, {
-                    points: firebase.firestore.FieldValue.increment(expReward),
-                    level: newLevel,
-                    partnerTasksCompletedCount: firebase.firestore.FieldValue.increment(1)
-                });
-                transaction.set(completedTaskRef, { completedAt: newTimestamp });
-                const historyRef = userRef.collection('task_history').doc();
-                transaction.set(historyRef, {
-                    taskName: 'Partner Task',
-                    projectName: projectName,
-                    exp: expReward,
-                    timestamp: newTimestamp
-                });
-            });
-            
-            showAppToast('Success!', `You received +${expReward} EXP from the ${projectName} task.`, 'success');
-            
-            // Check for level up after transaction
-            if (currentUserData.level !== calculateLevel(newTotalPoints)) {
-                showAppToast('Level Up!', `Congratulations, you've reached Level ${calculateLevel(newTotalPoints)}!`, 'success');
-            }
-
-            if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.openLink(taskLink);
-            } else {
-                window.open(taskLink, '_blank');
-            }
-            
-            const updatedDoc = await userRef.get();
-            currentUserData = updatedDoc.data();
-            updateUIAfterLogin(); // This will handle all UI updates including level
-            taskCard.classList.add('completed');
-            actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
-
-        } catch (error) {
-            if (error.message.includes("Task already completed.")) {
-                 taskCard.classList.add('completed');
-                 actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
-            } else {
-                console.error("Failed to complete partner task:", error);
-                showAppToast('Error', 'Could not complete the task. Please try again.', 'error');
-                actionBar.innerHTML = `+${expReward.toLocaleString()} EXP`; 
-            }
-        }
-    }
-    
-    async function handleAdminPartnerTaskSave(e) {
-        e.preventDefault();
-        if (!db || !storage) return;
-
-        const taskId = partnerTaskIdInput.value.trim();
-        const projectName = document.getElementById('partner-task-name-input').value.trim();
-        const description = document.getElementById('partner-task-desc-input').value.trim();
-        const imageUpload = document.getElementById('partner-task-img-upload').files[0];
-        const imageUrlInput = document.getElementById('partner-task-img-url').value.trim();
-        const taskLink = document.getElementById('partner-task-link-input').value.trim();
-        const expReward = parseInt(document.getElementById('partner-task-exp-input').value, 10);
-        const taskType = document.getElementById('partner-task-type-select').value;
-        
-        if (!projectName || !description || !taskLink || isNaN(expReward)) {
-            showAppToast('Lỗi', 'Vui lòng điền đầy đủ các trường bắt buộc.', 'error');
-            return;
-        }
-        if (!imageUpload && !imageUrlInput && !taskId) {
-             showAppToast('Lỗi', 'Vui lòng tải lên ảnh hoặc cung cấp URL ảnh.', 'error');
-            return;
-        }
-
-        partnerTaskSaveBtn.disabled = true;
-        adminPartnerTaskStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...`;
-        
-        try {
-            let imageUrl = imageUrlInput;
-            if (imageUpload) {
-                const storageRef = storage.ref(`partner_tasks/${Date.now()}_${imageUpload.name}`);
-                const uploadTask = await storageRef.put(imageUpload);
-                imageUrl = await uploadTask.ref.getDownloadURL();
-            }
-            
-            const taskData = {
-                projectName, description, taskLink, expReward, taskType
-            };
-            
-            if (imageUrl) { taskData.imageUrl = imageUrl; }
-
-            if (taskId) {
-                await db.collection('partner_tasks').doc(taskId).update(taskData);
-                showAppToast('Thành công', 'Đã cập nhật nhiệm vụ đối tác.', 'success');
-            } else {
-                taskData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                await db.collection('partner_tasks').add(taskData);
-                showAppToast('Thành công', 'Đã thêm nhiệm vụ đối tác mới.', 'success');
-            }
-            
-            clearPartnerTaskForm();
-            renderAdminPartnerTasks();
-
-        } catch (error) {
-            console.error("Error saving partner task:", error);
-            showAppToast('Thất bại', 'Đã xảy ra lỗi khi lưu nhiệm vụ.', 'error');
-        } finally {
-            partnerTaskSaveBtn.disabled = false;
-            adminPartnerTaskStatus.innerHTML = '';
-        }
-    }
-    
-    function clearPartnerTaskForm() {
-        adminPartnerTaskForm.reset();
-        partnerTaskIdInput.value = '';
-        partnerTaskSaveBtn.textContent = 'Lưu Nhiệm Vụ';
-    }
-    
-    async function renderAdminPartnerTasks() {
-        if (!adminPartnerTasksList || !db) return;
-        adminPartnerTasksList.innerHTML = skeletonTx;
-        
-        try {
-            const snapshot = await db.collection('partner_tasks').orderBy('createdAt', 'desc').get();
-            if (snapshot.empty) {
-                adminPartnerTasksList.innerHTML = `<p class="text-secondary text-center p-3">Chưa có nhiệm vụ nào.</p>`;
-                return;
-            }
-            
-            let tableHtml = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem; white-space: normal;">
-                <thead><tr>
-                    <th>Ảnh</th><th>Tên dự án</th><th>Loại</th><th>EXP</th><th>Hành động</th>
-                </tr></thead><tbody>`;
-            
-            snapshot.forEach(doc => {
-                const task = doc.data();
-                const typeBadge = task.taskType === 'mandatory'
-                    ? `<span class="badge" style="background-color: var(--gold); color: #000;">Bắt buộc</span>`
-                    : `<span class="badge bg-secondary">Thường</span>`;
-                    
-                tableHtml += `
-                    <tr data-id="${doc.id}">
-                        <td><img src="${task.imageUrl || GENERIC_TASK_ICON}" class="table-img-preview" onerror="this.src='${GENERIC_TASK_ICON}'"></td>
-                        <td style="white-space: normal;"><strong>${task.projectName}</strong><br><small class="text-secondary">${task.description}</small></td>
-                        <td>${typeBadge}</td>
-                        <td class="fw-bold">${task.expReward.toLocaleString()}</td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-light admin-edit-partner-task-btn" title="Chỉnh sửa"><i class="fas fa-pencil-alt"></i></button>
-                            <button class="btn btn-sm btn-outline-danger admin-delete-partner-task-btn" title="Xóa"><i class="fas fa-trash-alt"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-            
-            tableHtml += '</tbody></table>';
-            adminPartnerTasksList.innerHTML = tableHtml;
-
-        } catch (error) {
-            console.error("Error rendering admin partner tasks:", error);
-            adminPartnerTasksList.innerHTML = `<p class="text-danger text-center p-3">Lỗi tải danh sách nhiệm vụ.</p>`;
-        }
-    }
-    
-    async function handleAdminPartnerTaskActions(e) {
-        const editBtn = e.target.closest('.admin-edit-partner-task-btn');
-        const deleteBtn = e.target.closest('.admin-delete-partner-task-btn');
-
-        if (!editBtn && !deleteBtn) return;
-        
-        const row = e.target.closest('tr');
-        const taskId = row.dataset.id;
-        
-        if (deleteBtn) {
-            if (!confirm(`Bạn có chắc chắn muốn xóa nhiệm vụ này?`)) {
-                return;
-            }
-            try {
-                await db.collection('partner_tasks').doc(taskId).delete();
-                showAppToast('Thành công', 'Đã xóa nhiệm vụ.', 'success');
-                renderAdminPartnerTasks();
-            } catch (error) {
-                console.error("Error deleting partner task:", error);
-                showAppToast('Lỗi', 'Không thể xóa nhiệm vụ.', 'error');
-            }
-        } else if (editBtn) {
-            try {
-                const docSnap = await db.collection('partner_tasks').doc(taskId).get();
-                if (docSnap.exists) {
-                    const task = docSnap.data();
-                    partnerTaskIdInput.value = taskId;
-                    document.getElementById('partner-task-name-input').value = task.projectName || '';
-                    document.getElementById('partner-task-desc-input').value = task.description || '';
-                    document.getElementById('partner-task-img-url').value = task.imageUrl || '';
-                    document.getElementById('partner-task-link-input').value = task.taskLink || '';
-                    document.getElementById('partner-task-exp-input').value = task.expReward || 0;
-                    document.getElementById('partner-task-type-select').value = task.taskType || 'normal';
-                    
-                    partnerTaskSaveBtn.textContent = 'Cập nhật Nhiệm Vụ';
-                    adminPartnerTaskForm.scrollIntoView({ behavior: 'smooth' });
-                }
-            } catch (error) {
-                console.error("Error fetching task for edit:", error);
-                showAppToast('Lỗi', 'Không thể tải dữ liệu để chỉnh sửa.', 'error');
-            }
-        }
-    }
-    
-    async function handleMaintenanceToggle(e) {
-        const isEnabled = e.target.checked;
-        const confirmationMessage = isEnabled
-            ? "CẢNH BÁO: Bạn sắp bật chế độ bảo trì. Tất cả người dùng sẽ bị chặn truy cập. Tiếp tục?"
-            : "Bạn có chắc muốn tắt chế độ bảo trì và cho phép người dùng truy cập lại không?";
-
-        if (!confirm(confirmationMessage)) {
-            e.target.checked = !isEnabled; 
-            return;
-        }
-        
-        maintenanceModeSwitch.disabled = true;
-        adminSystemStatus.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Cập nhật...`;
-        try {
-            await db.collection('admin_settings').doc('system_status').set({ isMaintenanceMode: isEnabled });
-            systemStatus.isMaintenanceMode = isEnabled;
-            showAppToast('Thành công', `Chế độ bảo trì đã được ${isEnabled ? 'BẬT' : 'TẮT'}.`, 'success');
-            adminSystemStatus.innerHTML = `<span class="text-success">Đã cập nhật thành công!</span>`;
-            setTimeout(() => window.location.reload(), 1500);
-        } catch (error) {
-            console.error("Error updating maintenance mode:", error);
-            showAppToast('Lỗi', 'Không thể cập nhật trạng thái hệ thống.', 'error');
-            adminSystemStatus.innerHTML = `<span class="text-danger">Cập nhật thất bại.</span>`;
-            e.target.checked = !isEnabled;
-        } finally {
-            maintenanceModeSwitch.disabled = false;
-        }
-    }
-
-
-    // --- Event Listeners ---
-    hamburgerBtn.addEventListener('click', toggleSidebar);
-    sidebarOverlay.addEventListener('click', toggleSidebar);
-    fullLogoutBtn.addEventListener('click', handleFullLogout);
-    disconnectWalletBtn.addEventListener('click', handleDisconnectWallet);
-    checkinButton.addEventListener('click', handleCheckin);
-    popupCheckinButton.addEventListener('click', handleCheckin);
-    if (adminExpForm) adminExpForm.addEventListener('submit', handleAdminExpUpdate);
-    if (sendBulkTelegramMessageBtn) sendBulkTelegramMessageBtn.addEventListener('click', sendBulkTelegramMessage);
-
-    if (adminMassAwardForm) adminMassAwardForm.addEventListener('submit', handleMassAward);
-    if (adminMassConditionType) {
-        adminMassConditionType.addEventListener('change', (e) => {
-            if (e.target.value === 'all') {
-                adminMassConditionWrapper.style.display = 'none';
-            } else {
-                adminMassConditionWrapper.style.display = 'block';
-            }
-        });
-    }
-
-    if(adminUserListContainer) adminUserListContainer.addEventListener('change', (e) => {
-        if (e.target.classList.contains('admin-tx-status-switch')) {
-            handleAdminTxStatusChange(e);
-        } else if (e.target.classList.contains('admin-request-status-switch')) {
-            handleAdminRequestStatusChange(e);
-        }
-    });
-    
-    if (adminDisableBtn) adminDisableBtn.addEventListener('click', () => updateUserStatus(false));
-    if (adminEnableBtn) adminEnableBtn.addEventListener('click', () => updateUserStatus(true));
-
-    if (adminLoadMoreBtn) adminLoadMoreBtn.addEventListener('click', () => fetchAndRenderAdminUserList(false));
-    referralCodeSubmit.addEventListener('click', handleManualReferralInput);
-    referralCodeSubmitHero.addEventListener('click', handleManualReferralInput);
-    if(saveSettingsBtn) saveSettingsBtn.addEventListener('click', saveAirdropSettings);
-    if(exportCsvBtn) exportCsvBtn.addEventListener('click', exportAirdropData);
-    if (adminUserSearchInput) {
-        adminUserSearchInput.addEventListener('input', () => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                fetchAndRenderAdminUserList(true);
-            }, 500); 
-        });
-    }
-    
-    if (partnerTasksContainer) partnerTasksContainer.addEventListener('click', handlePartnerCardClick);
-    if (adminPartnerTaskForm) adminPartnerTaskForm.addEventListener('submit', handleAdminPartnerTaskSave);
-    if (partnerTaskClearBtn) partnerTaskClearBtn.addEventListener('click', clearPartnerTaskForm);
-    if (adminPartnerTasksList) adminPartnerTasksList.addEventListener('click', handleAdminPartnerTaskActions);
-
-    customWalletButton.addEventListener('click', () => { walletDropdown.style.display = walletDropdown.style.display === 'block' ? 'none' : 'block'; });
-    copyAddressBtn.addEventListener('click', (e) => { e.preventDefault(); const address = e.currentTarget.dataset.address; const textSpan = e.currentTarget.querySelector('span'); if (address) navigator.clipboard.writeText(address).then(() => { textSpan.textContent = 'Copied!'; setTimeout(() => { textSpan.textContent = 'Copy Address'; }, 2000); }); });
-    searchButton.addEventListener('click', handleFastSearch);
-    searchInput.addEventListener('keyup', (e) => { clearTimeout(searchTimeout); if (e.key === 'Enter') handleFastSearch(); else searchTimeout = setTimeout(handleFastSearch, 300); });
-    backToMyWalletBtn.addEventListener('click', () => { if (connectedWalletAddress) fetchAndDisplayAccountData(connectedWalletAddress); });
-    otherTokensContent.addEventListener('click', (e) => { const jettonItem = e.target.closest('.jetton-item'); if (jettonItem) showJettonDetails(jettonItem.dataset.jettonAddress); });
-    
-    if (saveEmailBtn) saveEmailBtn.addEventListener('click', handleEmailUpdate);
-    if (saveTempProfileBtn) saveTempProfileBtn.addEventListener('click', handleTempProfileSave);
-    if (maintenanceModeSwitch) maintenanceModeSwitch.addEventListener('change', handleMaintenanceToggle);
-    document.getElementById('temp-avatar-upload').addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                document.getElementById('temp-avatar-preview').src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    document.body.addEventListener('click', (e) => { 
-        const copyAddressTarget = e.target.closest('.copyable-address');
-        const copyCodeTarget = e.target.closest('.copyable-code');
-
-        if (copyAddressTarget?.dataset?.address) { 
-            const target = copyAddressTarget;
-            navigator.clipboard.writeText(target.dataset.address).then(() => { const originalText = target.textContent; target.textContent = 'Copied!'; target.classList.add('copied'); setTimeout(() => { target.textContent = originalText; target.classList.remove('copied'); }, 1500); }); 
-        } else if (copyCodeTarget?.dataset?.code) {
-             const target = copyCodeTarget;
-             navigator.clipboard.writeText(target.dataset.code).then(() => { showAppToast('Success', 'Copied to clipboard!', 'success') }); 
-        }
-        
-        if (!customWalletContainer?.contains(e.target)) walletDropdown.style.display = 'none'; 
-        if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none'; 
-    });
-    
-    document.body.addEventListener('change', e => {
-        if (e.target.id === 'notifications-toggle') {
-            handleNotificationToggle(e);
-        }
-    });
-
-    [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(link => link.addEventListener('click', (e) => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
-    appSearchInput.addEventListener('input', () => { renderApps(); const searchTerm = appSearchInput.value.trim(); const newUrl = searchTerm ? `#apps?search=${encodeURIComponent(searchTerm)}` : '#apps'; history.replaceState(null, '', newUrl); });
-    appSearchButton.addEventListener('click', renderApps);
-    appSearchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') renderApps(); });
-    appFilterControls.addEventListener('click', (e) => { const target = e.target.closest('.app-filter-btn'); if (target) { appFilterControls.querySelector('.active').classList.remove('active'); target.classList.add('active'); renderApps(); } });
-    window.addEventListener('hashchange', handleRouteChange);
-    
-    contactAdminBtn.addEventListener('click', () => contactAdminModal.show());
-
-    const heroConnectButton = document.createElement('button');
-    heroConnectButton.className = 'btn px-5 py-3';
-    heroConnectButton.style = 'background-color: var(--accent-primary); color: white; font-weight: 600;';
-    heroConnectButton.textContent = 'Connect Wallet';
-    heroConnectButton.addEventListener('click', () => tonConnectUI.openModal());
-    connectWalletHeroBtnContainer.appendChild(heroConnectButton);
-    
-    function applyPlatformSpecificStyling() {
-        if (window.Telegram && window.Telegram.WebApp) {
-            const platform = window.Telegram.WebApp.platform;
-            const body = document.body;
-            body.classList.remove('platform-ios', 'platform-android', 'platform-desktop');
-            
-            console.log(`Detected platform: ${platform}`);
-            switch (platform) {
-                case 'ios': body.classList.add('platform-ios'); break;
-                case 'android': body.classList.add('platform-android'); break;
-                default: body.classList.add('platform-desktop'); break;
-            }
-        }
-    }
-
-    async function fetchRewardSettings() {
-        if (!db) return;
-        try {
-            const docRef = db.collection('admin_settings').doc('reward_config');
-            const doc = await docRef.get();
-            if (doc.exists) {
-                const data = doc.data();
-                if (data.referralMilestones && Array.isArray(data.referralMilestones)) {
-                    data.referralMilestones.sort((a, b) => a.required - b.required);
-                }
-                rewardConfig = data;
-                console.log("Reward settings loaded from Firestore:", rewardConfig);
-            } else {
-                await docRef.set(rewardConfig);
-                console.log("No reward settings in Firestore, created with defaults.");
-            }
-        } catch (error) {
-            console.error("Error fetching reward settings:", error);
-        }
-    }
-
-    function renderRewardSettingsUI() {
-        const adminPanel = document.getElementById('admin-panel-reward-settings');
-        if (!adminPanel) return;
-
-        document.getElementById('checkin-exp-input').value = rewardConfig.checkinExp;
-        document.getElementById('base-referral-exp-input').value = rewardConfig.baseReferralExp;
-        
-        const container = document.getElementById('referral-milestones-container');
-        container.innerHTML = ''; 
-
-        (rewardConfig.referralMilestones || []).forEach((milestone) => {
-            addMilestoneRow(milestone.required, milestone.bonus);
-        });
-    }
-
-    function addMilestoneRow(required = '', bonus = '') {
-        const container = document.getElementById('referral-milestones-container');
-        const milestoneDiv = document.createElement('div');
-        milestoneDiv.className = 'row g-3 align-items-center mb-2 milestone-item';
-        milestoneDiv.innerHTML = `
-            <div class="col">
-                <label class="form-label small d-md-none">Mốc (lượt mời)</label>
-                <input type="number" class="form-control milestone-required" value="${required}" placeholder="Số lượt mời" min="1">
-            </div>
-            <div class="col">
-                <label class="form-label small d-md-none">Thưởng thêm (EXP)</label>
-                <input type="number" class="form-control milestone-bonus" value="${bonus}" placeholder="EXP thưởng thêm" min="0">
-            </div>
-            <div class="col-auto">
-                <button type="button" class="btn btn-sm btn-outline-danger remove-milestone-btn mt-md-4"><i class="fas fa-trash"></i></button>
-            </div>
-        `;
-        container.appendChild(milestoneDiv);
-    }
-
-    // --- Event Listeners specific to new features ---
-
-    document.addEventListener('click', (e) => {
-        if (e.target && e.target.id === 'add-milestone-btn') {
-            addMilestoneRow();
-        }
-        if (e.target && e.target.closest('.remove-milestone-btn')) {
-            e.target.closest('.milestone-item').remove();
-        }
-        
-        const adminNavButton = e.target.closest('#admin-nav-tabs .nav-link');
-        if (adminNavButton) {
-            const targetId = adminNavButton.dataset.target;
-            if (!targetId) return;
-
-            document.querySelectorAll('#admin-nav-tabs .nav-link').forEach(btn => btn.classList.remove('active'));
-            adminNavButton.classList.add('active');
-
-            document.querySelectorAll('.admin-panel-wrapper').forEach(panel => {
-                panel.style.display = 'none';
-            });
-
-            const targetPanel = document.querySelector(targetId);
-            if (targetPanel) {
-                targetPanel.style.display = 'block';
-                if (targetId === '#admin-panel-reward-settings') {
-                    renderRewardSettingsUI();
-                }
-            }
-        }
-    });
-
-    document.addEventListener('submit', async (e) => {
-        if (e.target && e.target.id === 'admin-reward-settings-form') {
-            e.preventDefault();
-            const saveBtn = document.getElementById('save-reward-settings-btn');
-            const statusEl = document.getElementById('admin-reward-settings-status');
-            
-            saveBtn.disabled = true;
-            statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
-
-            const newSettings = {
-                checkinExp: parseInt(document.getElementById('checkin-exp-input').value, 10) || 0,
-                baseReferralExp: parseInt(document.getElementById('base-referral-exp-input').value, 10) || 0,
-                referralMilestones: []
-            };
-
-            document.querySelectorAll('.milestone-item').forEach(item => {
-                const required = parseInt(item.querySelector('.milestone-required').value, 10);
-                const bonus = parseInt(item.querySelector('.milestone-bonus').value, 10);
-                if (!isNaN(required) && required > 0 && !isNaN(bonus)) {
-                    newSettings.referralMilestones.push({ required, bonus });
-                }
-            });
-            
-            newSettings.referralMilestones.sort((a,b) => a.required - b.required);
-
-            try {
-                await db.collection('admin_settings').doc('reward_config').set(newSettings);
-                rewardConfig = newSettings; 
-                statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu cài đặt!</span>`;
-                showAppToast('Thành công', 'Cài đặt thưởng đã được cập nhật.', 'success');
-            } catch (error) {
-                console.error("Error saving reward settings:", error);
-                statusEl.innerHTML = `<span class="text-danger">Lỗi: ${error.message}</span>`;
-            } finally {
-                saveBtn.disabled = false;
-                setTimeout(() => { statusEl.innerHTML = ''; }, 4000);
-            }
-        }
-    });
-
-    // --- App Initialization ---
-    fetchCryptoNews();
-    initializeApp();
-    
-});
-</script>
-
-</body>
-</html>
+                        <img src="${avatarUrl}" class="me-3" style="width: 48px; height: 48px
