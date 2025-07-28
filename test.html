@@ -4712,17 +4712,17 @@ function renderReferralMilestones() {
         } else { otherTokensContent.innerHTML = `<p class="text-secondary">No tokens found.</p>`; }
     }
 
-    function renderNFTs(nfts) {
+ function renderNFTs(nfts) {
         nftGalleryContent.innerHTML = '';
         if (nfts?.length > 0) {
             let html = '<div class="row g-2">';
             nfts.slice(0, 18).forEach(nft => {
-const imgUrl = nft.previews?.[nft.previews.length - 1]?.url || nft.metadata?.image || 'https://via.placeholder.com/100';
-html += <div class="col-3"><div title="${nft.metadata?.name || 'NFT'}" style="cursor: pointer;"><img src="${imgUrl}" style="width: 100%; border-radius: 25px; aspect-ratio: 1/1; object-fit: cover;" onerror="this.src='https://via.placeholder.com/100'"></div></div>;
-});
-nftGalleryContent.innerHTML = html + '</div>';
-} else { nftGalleryContent.innerHTML = <p class="text-secondary">No NFTs found.</p>; }
-}
+                const imgUrl = nft.previews?.[nft.previews.length - 1]?.url || nft.metadata?.image || 'https://via.placeholder.com/100';
+                html += `<div class="col-3"><div title="${nft.metadata?.name || 'NFT'}" style="cursor: pointer;"><img src="${imgUrl}" style="width: 100%; border-radius: 25px; aspect-ratio: 1/1; object-fit: cover;" onerror="this.src='https://via.placeholder.com/100'"></div></div>`;
+            });
+            nftGalleryContent.innerHTML = html + '</div>';
+        } else { nftGalleryContent.innerHTML = `<p class="text-secondary">No NFTs found.</p>`; }
+    }
 
 Generated code
 function renderSingleActivityItem(log) {
