@@ -1,4 +1,29 @@
+Tuyệt vời! Dưới đây là phiên bản code đã được nâng cấp hoàn chỉnh với hệ thống level, bảng quản lý cho admin, và tất cả các tính năng bạn đã yêu cầu.
 
+**Tóm tắt các thay đổi chính:**
+
+1.  **Hệ thống Level cho người dùng:**
+    *   Người dùng giờ đây sẽ có **Level** dựa trên số **EXP** họ tích lũy được.
+    *   **Ảnh đại diện (Avatar)** của người dùng sẽ có một chiếc "khiên" (shield) viền xung quanh, thay đổi màu sắc và hiệu ứng dựa trên level của họ, tạo cảm giác tự hào và khác biệt.
+    *   Trong trang **Tài khoản**, người dùng sẽ thấy thanh tiến trình level, số EXP cần để lên cấp, và phần thưởng/quyền lợi sẽ nhận được ở cấp độ tiếp theo.
+    *   Khi người dùng lên cấp, một thông báo chúc mừng sẽ hiện ra.
+
+2.  **Cập nhật cho Trang Admin:**
+    *   **Tab "Level Settings" Mới:** Thêm một tab hoàn toàn mới trong Admin Panel, cho phép admin:
+        *   **Tùy chỉnh các mốc Level:** Đặt số EXP yêu cầu cho mỗi cấp.
+        *   **Tùy chỉnh phần thưởng:** Ghi rõ quyền lợi (dưới dạng văn bản) mà người dùng sẽ nhận được ở mỗi cấp.
+        *   Thêm hoặc xóa các cấp độ một cách linh hoạt.
+        *   Lưu tất cả các thay đổi vào cơ sở dữ liệu và hệ thống sẽ tự động áp dụng ngay lập tức.
+    *   **Hiển thị Level trong Danh sách người dùng:** Cột "Level" đã được thêm vào bảng danh sách người dùng để admin dễ dàng theo dõi.
+    *   **Rà soát & Tính toán lại:** Hệ thống được thiết kế để tự động kiểm tra và cập nhật level cho người dùng cũ khi họ đăng nhập, đảm bảo mọi người đều ở đúng cấp độ dựa trên số EXP hiện tại của họ.
+
+3.  **Tích hợp sâu:**
+    *   Mỗi khi người dùng kiếm được EXP (từ check-in, mời bạn, làm nhiệm vụ), hệ thống sẽ tự động kiểm tra xem họ có đủ điểu kiện lên cấp hay không.
+    *   Bảng xếp hạng (Leaderboard) giờ cũng sẽ hiển thị Level của người dùng bên cạnh tên của họ.
+
+Dưới đây là toàn bộ code đã được cập nhật. Bạn có thể thay thế hoàn toàn code cũ của mình bằng code này.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -83,6 +108,18 @@
           from { background-position: 200% center; }
           to { background-position: -200% center; }
       }
+
+      /* [NEW] Keyframes for Level Shields */
+        @keyframes shield-pulse-gold {
+            0% { box-shadow: 0 0 15px 0px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 25px 8px rgba(255, 215, 0, 0.7); }
+            100% { box-shadow: 0 0 15px 0px rgba(255, 215, 0, 0.5); }
+        }
+
+        @keyframes shield-rotate-gradient {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
 
       /* =================================================================== */
@@ -208,8 +245,110 @@
       }
       
       .hero-section .highlight, .login-section .highlight { color: var(--accent-primary); }
-
       
+    
+      /* ============================================= */
+      /* [NEW] AVATAR & LEVEL SYSTEM STYLES            */
+      /* ============================================= */
+      .profile-avatar-wrapper {
+          position: relative;
+          width: 128px;
+          height: 128px;
+          margin: 0 auto 1.5rem; /* Tăng margin bottom */
+      }
+
+      .profile-avatar {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          object-fit: cover;
+          position: relative; /* Đảm bảo avatar nằm trên shield background */
+          z-index: 2;
+      }
+
+      .avatar-shield {
+          position: absolute;
+          top: -6px; /* Điều chỉnh để tạo khoảng cách cho viền */
+          left: -6px;
+          width: calc(100% + 12px);
+          height: calc(100% + 12px);
+          border-radius: 50%;
+          z-index: 1;
+          transition: all 0.5s ease-in-out;
+          background-clip: padding-box; /* Quan trọng để background không tràn vào trong */
+          border: 4px solid transparent; /* Viền trong suốt mặc định */
+      }
+
+      .avatar-shield::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          border-radius: 50%;
+          padding: 4px; /* Độ dày của viền gradient */
+          background: var(--border-color); /* Màu nền mặc định */
+          -webkit-mask: 
+              linear-gradient(#fff 0 0) content-box, 
+              linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          transition: all 0.5s ease-in-out;
+      }
+
+      /* Level 1: Bronze */
+      .level-shield-1::before { background: var(--bronze); }
+      /* Level 2: Silver */
+      .level-shield-2::before { background: var(--silver); }
+      /* Level 3: Basic Accent */
+      .level-shield-3::before { background: var(--accent-secondary); }
+      /* Level 4: Primary Accent */
+      .level-shield-4::before { background: var(--accent-primary); }
+      /* Level 5: Simple Gradient */
+      .level-shield-5::before { background: linear-gradient(45deg, var(--accent-secondary), var(--accent-primary)); }
+      /* Level 6: Enhanced Gradient */
+      .level-shield-6::before { background: linear-gradient(90deg, #2BCBC4, #915EFF, #f977b8); }
+      /* Level 7: Pulsing Accent */
+      .level-shield-7 { animation: shield-pulse-gold 2.5s infinite; }
+      .level-shield-7::before { background: linear-gradient(135deg, var(--accent-primary), var(--gold)); }
+      /* Level 8: Gold */
+      .level-shield-8 { animation: shield-pulse-gold 2s infinite; }
+      .level-shield-8::before { background: var(--gold); }
+      /* Level 9: Rotating Gradient */
+      .level-shield-9::after {
+          content: '';
+          position: absolute;
+          top: -8px; left: -8px; right: -8px; bottom: -8px;
+          background: conic-gradient(from var(--angle), #915EFF, #2BCBC4, #f977b8, #915EFF);
+          border-radius: 50%;
+          animation: shield-rotate-gradient 4s linear infinite;
+          z-index: -1;
+          filter: blur(5px);
+      }
+      .level-shield-9::before { background: linear-gradient(45deg, #915EFF, #2BCBC4); }
+      /* Level 10: MAX - Ultimate Rotating Rainbow */
+      .level-shield-10 { animation: shield-pulse-gold 1.5s infinite; }
+      .level-shield-10::after {
+          content: '';
+          position: absolute;
+          top: -10px; left: -10px; right: -10px; bottom: -10px;
+          background: conic-gradient(from var(--angle), #ff2257, #ffdd57, #57ffab, #57d1ff, #a257ff, #ff2257);
+          border-radius: 50%;
+          animation: shield-rotate-gradient 3s linear infinite;
+          z-index: -1;
+          filter: blur(8px);
+          opacity: 0.8;
+      }
+      .level-shield-10::before { background: linear-gradient(315deg, #ffdd57, #a257ff, #57d1ff); }
+      
+      .progress { transition: all 0.4s ease; }
+      .progress-bar { transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+      /* ============================================= */
+      /* END OF AVATAR & LEVEL SYSTEM STYLES           */
+      /* ============================================= */
+
+
       /* =================================================================== */
       /* UI COMPONENTS & WIDGETS
       /* =================================================================== */
@@ -464,6 +603,19 @@
           box-shadow: 0 0 20px rgba(145, 94, 255, 0.4);
           transform: scale(1.03);
       }
+    
+       /* [NEW] Leaderboard Summary */
+      #leaderboard-summary {
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+      }
+      #leaderboard-summary .total-users-count {
+        font-weight: 700;
+        color: var(--accent-secondary);
+      }
+
 
       /* Form Styles */
       .form-control, .form-select {
@@ -485,6 +637,51 @@
           border-color: var(--border-color);
           color: var(--accent-secondary);
       }
+      
+      /* [NEW] Avatar Upload UI */
+        .avatar-upload-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1rem;
+        }
+        .avatar-upload-container .avatar-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            object-fit: cover;
+            transition: filter 0.3s ease;
+        }
+        .avatar-upload-container .avatar-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .avatar-upload-container:hover .avatar-overlay {
+            opacity: 1;
+        }
+        .avatar-upload-container:hover .avatar-preview {
+            filter: brightness(0.7);
+        }
+        .avatar-upload-container .avatar-overlay i {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
 
       /* Admin Panel */
       #admin-section .table {
@@ -524,6 +721,14 @@
       #admin-load-more-btn:hover { background-color: var(--accent-secondary); color: white; transform: scale(1.05); }
       #admin-user-list-container .form-check-input:checked { background-color: var(--color-verified); border-color: var(--color-verified); }
       #admin-user-list-container .form-switch .form-check-input { height: 1.25em; width: 2.25em; }
+    
+     /* [NEW] Scrollable Admin User List */
+      #admin-user-list-container {
+        max-height: 70vh; /* Set a max height */
+        overflow-y: auto;  /* Enable vertical scroll */
+        /* The table-responsive class will handle horizontal scroll */
+      }
+
 
       /* Airdrop Page */
       .airdrop-stat-card {
@@ -579,8 +784,8 @@
           box-shadow: none;
       }
 
-      /* Loading Overlay */
-      #loading-overlay {
+      /* Loading & Maintenance Overlays */
+      #loading-overlay, #maintenance-overlay {
           position: fixed;
           top: 0;
           left: 0;
@@ -599,13 +804,29 @@
           opacity: 0;
           transition: visibility 0s 0.3s, opacity 0.3s ease;
       }
-      #loading-overlay.visible {
+      #loading-overlay.visible, #maintenance-overlay.visible {
           visibility: visible;
           opacity: 1;
           transition: opacity 0.3s ease;
       }
-      #loading-overlay .spinner-border {
-          animation: spin 1s linear infinite; /* Use custom spin */
+      #loading-overlay .spinner-border, #maintenance-overlay .spinner-border {
+          animation: spin 1s linear infinite;
+      }
+      #maintenance-overlay h2 {
+          color: var(--text-primary);
+      }
+      #admin-maintenance-banner {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background: linear-gradient(90deg, var(--gold), var(--color-failed));
+        color: #000;
+        text-align: center;
+        padding: 5px;
+        font-weight: 600;
+        z-index: 10000;
+        font-size: 0.9rem;
       }
 
 
@@ -707,12 +928,58 @@
       .platform-ios .toast-notification { top: 90px !important; }
       .platform-android .toast-notification { top: 65px !important; }
       
-      .platform-ios #sidebar-menu { padding-top: 150px !important; }
-      .platform-android #sidebar-menu { padding-top: 140px !important; }
+      .platform-ios #sidebar-menu { padding-top: 90px !important; }
+      .platform-android #sidebar-menu { padding-top: 65px !important; }
+    
+    
+    /* [NEW & UPDATED] Admin Navigation Styles */
+    /* Styling cho Bố cục Tab Admin */
+    #admin-nav-tabs {
+        border-bottom-color: var(--border-color);
+        margin-bottom: 2rem;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+    }
+     #admin-nav-tabs::-webkit-scrollbar { height: 4px; }
+     #admin-nav-tabs::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
+
+    #admin-nav-tabs .nav-link {
+        background: transparent;
+        border-color: transparent;
+        color: var(--text-secondary);
+        transition: var(--transition-smooth);
+        font-weight: 500;
+        padding: 0.75rem 1.25rem;
+        white-space: nowrap;
+    }
+    #admin-nav-tabs .nav-link.active {
+        color: var(--accent-primary);
+        background-color: rgba(145, 94, 255, 0.1);
+        border-color: var(--border-color) var(--border-color) transparent var(--border-color);
+        border-bottom: 2px solid var(--accent-primary);
+    }
+    #admin-nav-tabs .nav-link:not(.active):hover {
+        color: var(--text-primary);
+        transform: translateY(-2px);
+        border-color: var(--border-color);
+    }
     </style>
 </head>
 <body>
-    <!-- The rest of your HTML body remains exactly the same. -->
+    <!-- [NEW] Maintenance Overlay -->
+    <div id="maintenance-overlay">
+        <div class="text-center">
+            <i class="fas fa-tools fa-3x mb-4" style="color: var(--accent-primary);"></i>
+            <h2 class="mb-3">Under Maintenance</h2>
+            <p>Bmass is currently undergoing scheduled maintenance.<br>We'll be back online shortly. Thank you for your patience!</p>
+        </div>
+    </div>
+
+    <!-- [NEW] Admin-only Maintenance Banner -->
+    <div id="admin-maintenance-banner" style="display: none;">
+        <i class="fas fa-exclamation-triangle me-2"></i> MAINTENANCE MODE IS ACTIVE
+    </div>
+
     <div id="loading-overlay">
         <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
           <span class="visually-hidden">Loading...</span>
@@ -722,35 +989,35 @@
     
     <div id="sidebar-overlay"></div>
     <nav id="sidebar-menu" class="sidebar">
-<div class="sidebar-nav">
-    <a href="#dashboard" class="sidebar-link active" id="nav-dashboard">
-        <i class="fas fa-wallet fa-fw me-3"></i>Wallet
-    </a>
-    <a href="#apps" class="sidebar-link" id="nav-apps">
-        <i class="fas fa-th-large fa-fw me-3"></i>Apps
-    </a>
-    <a href="#task" class="sidebar-link" id="nav-task">
-        <i class="fas fa-history fa-fw me-3"></i>History
-    </a>
-    <a href="#partner" class="sidebar-link" id="nav-partner">
-        <i class="fas fa-list-check fa-fw me-3"></i>Tasks
-    </a>
-    <a href="#referral" class="sidebar-link" id="nav-referral">
-        <i class="fas fa-users fa-fw me-3"></i>Referral
-    </a>
-    <a href="#airdrop" class="sidebar-link" id="nav-airdrop">
-        <i class="fas fa-parachute-box fa-fw me-3"></i>Airdrop
-    </a>
-    <a href="#leaderboard" class="sidebar-link" id="nav-leaderboard">
-        <i class="fas fa-trophy fa-fw me-3"></i>Leaderboard
-    </a>
-    <a href="#account" class="sidebar-link" id="nav-account">
-        <i class="fas fa-user-circle fa-fw me-3"></i>Account
-    </a>
-    <a href="#admin" class="sidebar-link" id="nav-admin" style="display: none;">
-        <i class="fas fa-user-shield fa-fw me-3"></i>Admin
-    </a>
-</div>
+        <div class="sidebar-nav">
+            <a href="#dashboard" class="sidebar-link active" id="nav-dashboard">
+                <i class="fas fa-wallet fa-fw me-3"></i>Wallet
+            </a>
+            <a href="#apps" class="sidebar-link" id="nav-apps">
+                <i class="fas fa-th-large fa-fw me-3"></i>Apps
+            </a>
+            <a href="#task" class="sidebar-link" id="nav-task">
+                <i class="fas fa-history fa-fw me-3"></i>History
+            </a>
+            <a href="#partner" class="sidebar-link" id="nav-partner">
+                <i class="fas fa-list-check fa-fw me-3"></i>Tasks
+            </a>
+            <a href="#referral" class="sidebar-link" id="nav-referral">
+                <i class="fas fa-users fa-fw me-3"></i>Referral
+            </a>
+            <a href="#airdrop" class="sidebar-link" id="nav-airdrop">
+                <i class="fas fa-parachute-box fa-fw me-3"></i>Airdrop
+            </a>
+            <a href="#leaderboard" class="sidebar-link" id="nav-leaderboard">
+                <i class="fas fa-trophy fa-fw me-3"></i>Leaderboard
+            </a>
+            <a href="#account" class="sidebar-link" id="nav-account">
+                <i class="fas fa-user-circle fa-fw me-3"></i>Account
+            </a>
+            <a href="#admin" class="sidebar-link" id="nav-admin" style="display: none;">
+                <i class="fas fa-user-shield fa-fw me-3"></i>Admin
+            </a>
+        </div>
         
         <div class="sidebar-wallet-connect">
             <div class="position-relative">
@@ -794,13 +1061,43 @@
                 <div class="row justify-content-center">
                     <div class="col-12 col-md-10 col-lg-8 col-xl-6">
                         <div class="card-glass p-4 text-center">
-                            <img id="profile-photo" src="" alt="User Photo" class="rounded-circle mb-3" style="width: 120px; height: 120px; border: 3px solid var(--accent-primary);">
+                            
+                            <!-- [MODIFIED] AVATAR SECTION WITH SHIELD -->
+                            <div class="profile-avatar-wrapper mx-auto mb-3">
+                                <img id="profile-photo" src="" alt="User Photo" class="profile-avatar">
+                                <div id="profile-avatar-shield" class="avatar-shield"></div>
+                            </div>
+                            <!-- END OF MODIFIED AVATAR SECTION -->
+                            
                             <h3 id="profile-fullname" class="fw-bold"></h3>
                             <p id="profile-username" class="text-secondary fs-5"></p>
+
+                             <!-- [NEW] LEVEL PROGRESS SECTION -->
+                            <div id="level-progress-container" class="px-3 my-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span id="current-level-display" class="fw-bold"></span>
+                                    <span id="next-level-display" class="text-secondary"></span>
+                                </div>
+                                <div class="progress" style="height: 10px; background-color: var(--border-color);">
+                                    <div id="level-progress-bar" class="progress-bar" role="progressbar" style="width: 0%; background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));"></div>
+                                </div>
+                                <div class="text-center text-secondary mt-1 small" id="level-exp-display"></div>
+                            </div>
+                             <!-- END OF NEW LEVEL PROGRESS SECTION -->
+
                             <hr style="border-color: var(--border-color); opacity: 0.5;">
+                            
                             <div id="profile-details" class="text-start p-2">
                                 <!-- User details rendered by JS -->
                             </div>
+
+                            <!-- [NEW] NEXT LEVEL PERK DISPLAY -->
+                            <div id="next-level-perk-container" class="card-glass p-3 mt-4 text-center" style="background-color: rgba(255, 215, 0, 0.1); border-color: rgba(255, 215, 0, 0.3);">
+                                <h6 class="text-secondary mb-2">Next Level Perk <i class="fas fa-arrow-up"></i></h6>
+                                <p id="next-level-perk" class="m-0 fw-bold" style="color: var(--gold);"></p>
+                            </div>
+                            <!-- END OF NEW NEXT LEVEL PERK DISPLAY -->
+
                             <div class="d-grid gap-2 mt-4">
                                 <button id="contact-admin-btn" class="btn btn-outline-secondary">
                                     <i class="fab fa-telegram-plane me-2"></i>Contact Admin
@@ -945,8 +1242,7 @@
                             <!-- Daily Check-in -->
                             <h5 class="card-title">Tasks and History</h5>
                             <div id="daily-checkin-content" class="d-flex justify-content-between align-items-center">
-                                <p class="mb-0">Check-in to receive <strong style="color: var(--accent-primary);">+10 EXP</strong>.</p>
-                                <button id="checkin-button" class="btn px-4 py-2" style="background-color: var(--accent-secondary); color: white; font-weight: 600; flex-shrink: 0; min-width: 130px;" disabled>
+<p class="mb-0">Check-in to receive <strong style="color: var(--accent-primary);" id="checkin-exp-display">+1000 EXP</strong>.</p>                                <button id="checkin-button" class="btn px-4 py-2" style="background-color: var(--accent-secondary); color: white; font-weight: 600; flex-shrink: 0; min-width: 130px;" disabled>
                                     <i class="fas fa-spinner fa-spin me-2"></i>Wait...
                                 </button>
                             </div>
@@ -984,16 +1280,38 @@
             </div>
         </main>
         
-        <main id="referral-section" style="display: none;">
-             <div class="container">
-                <div class="text-center mb-5">
-                    <h1 class="mb-2" style="font-weight: 700;">Invite Friends</h1>
-                    <p class="lead text-secondary col-md-8 mx-auto">Invite friends to join and you both get a reward. Receive <strong style="color: var(--accent-secondary);">200 EXP</strong> for each successful referral!</p>
+<main id="referral-section" style="display: none;">
+     <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="mb-2" style="font-weight: 700;">Invite Friends</h1>
+            <p class="lead text-secondary col-md-8 mx-auto">Invite friends to join and you both get a reward. Receive <strong style="color: var(--accent-secondary);" id="referral-base-exp-display">5000 EXP</strong> for each successful referral!</p>
+        </div>
+
+        <!-- ============================================= -->
+        <!-- [NEW] KHỐI HIỂN THỊ MỐC THƯỞNG - DÁN VÀO ĐÂY -->
+        <!-- ============================================= -->
+        <div class="row justify-content-center g-4 mb-4">
+            <div class="col-12 col-md-10 col-lg-8">
+                <div class="card-glass">
+                    <h5 class="card-title"><i class="fas fa-gem me-2"></i>Referral Milestones</h5>
+                    <p class="text-secondary small">Invite more friends to unlock huge bonus rewards!</p>
+                    <div id="referral-milestones-list-container">
+                        <!-- Danh sách mốc thưởng sẽ được JS render ở đây -->
+                        <div class="skeleton-loader skeleton-line w-100 mb-2"></div>
+                        <div class="skeleton-loader skeleton-line w-75 mb-2"></div>
+                        <div class="skeleton-loader skeleton-line w-50"></div>
+                    </div>
                 </div>
-                <div class="row justify-content-center g-4">
-                    <div class="col-12 col-md-10 col-lg-8">
-                        <div class="card-glass">
-                            <ul class="nav nav-tabs" id="referralTab" role="tablist">
+            </div>
+        </div>
+        <!-- ============================================= -->
+        <!-- KẾT THÚC KHỐI MỚI                             -->
+        <!-- ============================================= -->
+
+        <div class="row justify-content-center g-4">
+            <div class="col-12 col-md-10 col-lg-8">
+                <div class="card-glass">
+                    <ul class="nav nav-tabs" id="referralTab" role="tablist">
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link active" id="my-codes-tab" data-bs-toggle="tab" data-bs-target="#my-codes-pane" type="button" role="tab"><i class="fas fa-link me-2"></i>My Codes</button>
                                 </li>
@@ -1134,7 +1452,17 @@
             <div class="container">
                 <div class="text-center mb-5">
                     <h1 class="mb-2" style="font-weight: 700;">Leaderboard</h1>
-                    <p class="lead text-secondary col-md-8 mx-auto">Celebrating our most active users. Keep earning EXP to climb the ranks!</p>
+                    <!-- [NEW] Leaderboard Summary -->
+                    <div id="leaderboard-summary">
+                        <p class="lead text-secondary col-md-8 mx-auto">
+                            Celebrating our most active users. Keep earning EXP to climb the ranks!
+                            <br>
+                            <span id="leaderboard-total-users">
+                                <i class="fas fa-users me-2"></i>Total Participants: 
+                                <span class="total-users-count">...</span>
+                            </span>
+                        </p>
+                    </div>
                 </div>
                 <div id="leaderboard-list" class="leaderboard-list"></div>
             </div>
@@ -1146,317 +1474,351 @@
                     <h1 class="mb-2" style="font-weight: 700;">Admin Panel</h1>
                     <p class="lead text-secondary col-md-8 mx-auto">Công cụ quản lý người dùng và sự kiện.</p>
                 </div>
+
+                <!-- [BỐ CỤC 1] Dạng Tab -->
+                <ul class="nav nav-tabs" id="admin-nav-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" data-target="#admin-panel-users" type="button">
+                            <i class="fas fa-users me-1"></i> User List
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-target="#admin-panel-partner-tasks" type="button">
+                            <i class="fas fa-handshake me-1"></i> Partner Tasks
+                        </button>
+                    </li>
+                     <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-target="#admin-panel-messenger" type="button">
+                            <i class="fab fa-telegram-plane me-1"></i> Messenger
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-target="#admin-panel-reward-settings" type="button">
+                            <i class="fas fa-gift me-1"></i> Rewards
+                        </button>
+                    </li>
+                    <!-- ============================================= -->
+                    <!-- [NEW] NÚT TAB CÀI ĐẶT LEVEL - DÁN VÀO ĐÂY    -->
+                    <!-- ============================================= -->
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-target="#admin-panel-level-settings" type="button">
+                            <i class="fas fa-layer-group me-1"></i> Level Settings
+                        </button>
+                    </li>
+                    <!-- ============================================= -->
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-target="#admin-panel-airdrop-settings" type="button">
+                            <i class="fas fa-parachute-box me-1"></i> Airdrop
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                         <button class="nav-link" data-target="#admin-panel-edit-exp" type="button">
+                            <i class="fas fa-edit me-1"></i> User Actions
+                        </button>
+                    </li>
+                     <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-target="#admin-panel-system-status" type="button">
+                            <i class="fas fa-server me-1"></i> System
+                        </button>
+                    </li>
+                </ul>
+
                 <div class="row justify-content-center g-4">
-                    <!-- ============================================= -->
-                    <!-- NEW: TELEGRAM BULK MESSENGER PANEL            -->
-                    <!-- ============================================= -->
-                     <div class="col-12 col-lg-10 col-xl-8">
-                        <div class="card-glass">
-                            <h5 class="card-title">Gửi Tin Nhắn Hàng Loạt qua Telegram</h5>
-                            <p class="text-secondary small">Soạn một tin nhắn và gửi đến TẤT CẢ người dùng đã liên kết tài khoản Telegram (có UID) trong hệ thống.</p>
-                            <form id="admin-telegram-sender-form">
-                                <div class="mb-3">
-                                    <label for="telegram-api-token-input" class="form-label">Telegram Bot API Token</label>
-                                    <input type="password" class="form-control" id="telegram-api-token-input" placeholder="Dán API Token của bot vào đây" required>
+                    <!-- [NEW] Bảng Trạng Thái Hệ Thống -->
+                    <div id="admin-panel-system-status" class="admin-panel-wrapper" style="display: none;">
+                        <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                            <div class="card-glass">
+                                <h5 class="card-title">System Status & Maintenance</h5>
+                                <div class="d-flex justify-content-center align-items-center p-4">
+                                    <div class="form-check form-switch fs-2 d-inline-block">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="maintenance-mode-switch" style="width: 4em; height: 2em;">
+                                        <label class="form-check-label ms-3" for="maintenance-mode-switch" style="color: var(--color-out);">Maintenance Mode</label>
+                                    </div>
                                 </div>
+                                <p class="text-center text-secondary small">
+                                    WARNING: Activating maintenance mode will block access for all non-admin users.
+                                </p>
+                                 <div id="admin-system-status" class="mt-3 text-center fw-bold"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bảng Gửi Tin Nhắn -->
+                    <div id="admin-panel-messenger" class="admin-panel-wrapper" style="display: none;">
+                        <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                            <div class="card-glass">
+                                <h5 class="card-title">Gửi Tin Nhắn Hàng Loạt qua Telegram</h5>
+                                <form id="admin-telegram-sender-form">
+                                    <div class="mb-3">
+                                        <label for="telegram-api-token-input" class="form-label">Telegram Bot API Token</label>
+                                        <input type="password" class="form-control" id="telegram-api-token-input" placeholder="Dán API Token của bot vào đây" required>
+                                    </div>
+                                    <hr style="border-color: var(--border-color); opacity: 0.5;">
+                                    <h6 class="text-secondary mb-3">NỘI DUNG TIN NHẮN</h6>
+                                    <div class="mb-3">
+                                        <label for="telegram-image-url-input" class="form-label">URL Hình ảnh (Tùy chọn)</label>
+                                        <input type="url" class="form-control" id="telegram-image-url-input" placeholder="https://example.com/image.png">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="telegram-message-text-input" class="form-label">Văn bản tin nhắn / Chú thích ảnh</label>
+                                        <textarea class="form-control" id="telegram-message-text-input" rows="4"></textarea>
+                                    </div>
+                                    <h6 class="text-secondary my-3">NÚT BẤM (TÙY CHỌN)</h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="telegram-button-text-input" class="form-label">Văn bản trên nút</label>
+                                            <input type="text" class="form-control" id="telegram-button-text-input">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="telegram-button-url-input" class="form-label">URL của nút</label>
+                                            <input type="url" class="form-control" id="telegram-button-url-input">
+                                        </div>
+                                    </div>
+                                    <div id="telegram-sender-status" class="mt-3 text-center fw-bold"></div>
+                                    <div class="d-grid mt-3">
+                                        <button type="button" id="send-bulk-telegram-message-btn" class="btn btn-lg" style="background: linear-gradient(90deg, #0088cc, #00aaff); color: white;">
+                                            <i class="fab fa-telegram-plane me-2"></i>Gửi Hàng Loạt
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
 
+                    <!-- Bảng Nhiệm Vụ Partner -->
+                    <div id="admin-panel-partner-tasks" class="admin-panel-wrapper" style="display: none;">
+                         <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                            <div class="card-glass">
+                                <h5 class="card-title">Quản lý Nhiệm vụ Partner</h5>
+                                <form id="admin-partner-task-form">
+                                     <input type="hidden" id="partner-task-id-input">
+                                    <div class="mb-3">
+                                        <label for="partner-task-name-input" class="form-label">Tên dự án</label>
+                                        <input type="text" class="form-control" id="partner-task-name-input" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="partner-task-desc-input" class="form-label">Mô tả ngắn</label>
+                                        <textarea class="form-control" id="partner-task-desc-input" rows="2" required></textarea>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="partner-task-img-upload" class="form-label">Tải ảnh lên</label>
+                                            <input class="form-control" type="file" id="partner-task-img-upload" accept="image/*">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="partner-task-img-url" class="form-label">Hoặc dán Link ảnh</label>
+                                            <input type="url" class="form-control" id="partner-task-img-url" placeholder="https://...">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="partner-task-link-input" class="form-label">Link nhiệm vụ</label>
+                                        <input type="url" class="form-control" id="partner-task-link-input" required placeholder="https://...">
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="partner-task-exp-input" class="form-label">EXP Thưởng</label>
+                                            <input type="number" class="form-control" id="partner-task-exp-input" required min="0">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="partner-task-type-select" class="form-label">Loại nhiệm vụ</label>
+                                            <select class="form-select" id="partner-task-type-select">
+                                                <option value="normal" selected>Thông thường</option>
+                                                <option value="mandatory">Bắt buộc (Ghim)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div id="admin-partner-task-status" class="mt-3 text-center"></div>
+                                    <div class="d-flex gap-3 mt-3">
+                                        <button type="submit" id="partner-task-save-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;">Lưu Nhiệm Vụ</button>
+                                        <button type="button" id="partner-task-clear-btn" class="btn btn-outline-secondary w-50">Làm mới</button>
+                                    </div>
+                                </form>
                                 <hr style="border-color: var(--border-color); opacity: 0.5; margin: 2rem 0;">
-                                <h6 class="text-secondary mb-3">NỘI DUNG TIN NHẮN</h6>
-                                <div class="mb-3">
-                                    <label for="telegram-image-url-input" class="form-label">URL Hình ảnh (Tùy chọn)</label>
-                                    <input type="url" class="form-control" id="telegram-image-url-input" placeholder="https://example.com/image.png">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="telegram-message-text-input" class="form-label">Văn bản tin nhắn / Chú thích ảnh</label>
-                                    <textarea class="form-control" id="telegram-message-text-input" rows="4" placeholder="Nhập nội dung tin nhắn của bạn..."></textarea>
-                                </div>
-                                <h6 class="text-secondary my-3">NÚT BẤM (TÙY CHỌN)</h6>
-                                <div class="row g-3">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="telegram-button-text-input" class="form-label">Văn bản trên nút</label>
-                                        <input type="text" class="form-control" id="telegram-button-text-input" placeholder="e.g., Mở liên kết">
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="telegram-button-url-input" class="form-label">URL của nút</label>
-                                        <input type="url" class="form-control" id="telegram-button-url-input" placeholder="https://t.me/your_channel">
-                                    </div>
-                                </div>
-
-                                <div id="telegram-sender-status" class="mt-3 text-center fw-bold"></div>
-
-                                <div class="d-grid mt-3">
-                                    <button type="button" id="send-bulk-telegram-message-btn" class="btn btn-lg" style="background: linear-gradient(90deg, #0088cc, #00aaff); color: white;">
-                                        <i class="fab fa-telegram-plane me-2"></i>Gửi Hàng Loạt cho Tất Cả User
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- ============================================= -->
-                    <!-- ADMIN PARTNER TASK MANAGEMENT                 -->
-                    <!-- ============================================= -->
-                     <div class="col-12 col-lg-10 col-xl-8">
-                        <div class="card-glass">
-                            <h5 class="card-title">Quản lý Nhiệm vụ Partner</h5>
-                            <form id="admin-partner-task-form">
-                                <input type="hidden" id="partner-task-id-input">
-                                <div class="mb-3">
-                                    <label for="partner-task-name-input" class="form-label">Tên dự án</label>
-                                    <input type="text" class="form-control" id="partner-task-name-input" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="partner-task-desc-input" class="form-label">Mô tả ngắn</label>
-                                    <textarea class="form-control" id="partner-task-desc-input" rows="2" required></textarea>
-                                </div>
-                                <div class="row g-3">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="partner-task-img-upload" class="form-label">Tải ảnh lên</label>
-                                        <input class="form-control" type="file" id="partner-task-img-upload" accept="image/*">
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="partner-task-img-url" class="form-label">Hoặc dán Link ảnh</label>
-                                        <input type="url" class="form-control" id="partner-task-img-url" placeholder="https://...">
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="partner-task-link-input" class="form-label">Link nhiệm vụ</label>
-                                    <input type="url" class="form-control" id="partner-task-link-input" required placeholder="https://...">
-                                </div>
-                                <div class="row g-3">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="partner-task-exp-input" class="form-label">EXP Thưởng</label>
-                                        <input type="number" class="form-control" id="partner-task-exp-input" required min="0">
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="partner-task-type-select" class="form-label">Loại nhiệm vụ</label>
-                                        <select class="form-select" id="partner-task-type-select">
-                                            <option value="normal" selected>Thông thường</option>
-                                            <option value="mandatory">Bắt buộc (Ghim)</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div id="admin-partner-task-status" class="mt-3 text-center"></div>
-                                <div class="d-flex gap-3 mt-3">
-                                    <button type="submit" id="partner-task-save-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;">Lưu Nhiệm Vụ</button>
-                                    <button type="button" id="partner-task-clear-btn" class="btn btn-outline-secondary w-50">Làm mới</button>
-                                </div>
-                            </form>
-                            <hr style="border-color: var(--border-color); opacity: 0.5; margin: 2rem 0;">
-                            <h5 class="card-title">Danh sách Nhiệm vụ Partner</h5>
-                            <div id="admin-partner-tasks-list" class="table-responsive">
-                                <!-- Admin partner tasks table will be rendered here -->
+                                <h5 class="card-title">Danh sách Nhiệm vụ Partner</h5>
+                                <div id="admin-partner-tasks-list" class="table-responsive"></div>
                             </div>
-                        </div>
-                    </div>
-
-                     <div class="col-12 col-lg-10 col-xl-8">
-                        <div class="card-glass">
-                            <h5 class="card-title">Cấu hình Airdrop & Xuất dữ liệu</h5>
-                            <div id="admin-airdrop-settings-form">
-                                <div class="row text-center g-3 mb-4">
-                                    <div class="col-6 col-sm-3">
-                                        <div class="form-check form-switch fs-5 d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="airdrop-live-switch">
-                                            <label class="form-check-label" for="airdrop-live-switch">Live</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-sm-3">
-                                        <div class="form-check form-switch fs-5 d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="confirmation-enabled-switch">
-                                            <label class="form-check-label" for="confirmation-enabled-switch">Xác nhận</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-sm-3">
-                                        <div class="form-check form-switch fs-5 d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="claim-enabled-switch">
-                                            <label class="form-check-label" for="claim-enabled-switch">Yêu cầu</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-sm-3">
-                                        <div class="form-check form-switch fs-5 d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="snapshot-active-switch">
-                                            <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snap</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <hr style="border-color: var(--border-color); opacity: 0.5;">
-                                <h6 class="text-secondary text-center my-3">CÔNG THỨC TÍNH ĐIỂM</h6>
-                                <div class="row g-3 mb-4">
-                                     <div class="col-md-4">
-                                        <label for="ref-multiplier-input" class="form-label">Điểm mỗi Lượt mời</label>
-                                        <input type="number" class="form-control" id="ref-multiplier-input" value="50" min="0">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="checkin-multiplier-input" class="form-label">Điểm mỗi Check-in</label>
-                                        <input type="number" class="form-control" id="checkin-multiplier-input" value="30" min="0">
-                                    </div>
-                                     <div class="col-md-4">
-                                        <label for="exp-multiplier-input" class="form-label">Điểm mỗi EXP</label>
-                                        <input type="number" class="form-control" id="exp-multiplier-input" value="20" min="0">
-                                    </div>
-                                </div>
-
-                                <hr style="border-color: var(--border-color); opacity: 0.5;">
-                                <h6 class="text-secondary text-center my-3">ĐIỀU KIỆN TỐI THIỂU</h6>
-                                <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <label for="min-checkins-input" class="form-label">Tối thiểu Check-in</label>
-                                        <input type="number" class="form-control" id="min-checkins-input" value="0" min="0">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="min-referrals-input" class="form-label">Tối thiểu Lượt mời</label>
-                                        <input type="number" class="form-control" id="min-referrals-input" value="0" min="0">
-                                    </div>
-                                     <div class="col-md-4">
-                                        <label for="min-exp-input" class="form-label">Tối thiểu EXP</label>
-                                        <input type="number" class="form-control" id="min-exp-input" value="0" min="0">
-                                    </div>
-                                </div>
-                                <div class="mt-3">
-                                     <label for="min-exp-input" class="form-label fw-bold" style="color: var(--gold);">ĐIỀU KIỆN NHIỆM VỤ BẮT BUỘC (Tự động áp dụng)</label>
-                                </div>
-                                <div id="admin-settings-status" class="mt-3"></div>
-                                <div class="d-flex gap-3 mt-3">
-                                    <button type="button" id="save-settings-btn" class="btn w-100" style="background-color: var(--accent-secondary); color: white;">Lưu Cài Đặt</button>
-                                    <button type="button" id="export-csv-btn" class="btn btn-outline-light w-100">Xuất File Excel (CSV)</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-lg-10 col-xl-8">
-                        <div class="card-glass">
-                            <h5 class="card-title">Chỉnh sửa EXP cho một User</h5>
-                            <form id="admin-exp-form">
-                                <div class="mb-3">
-                                    <label for="admin-target-type" class="form-label">Loại định danh</label>
-                                    <select class="form-select" id="admin-target-type">
-                                        <option value="uid" selected>UID (Telegram ID)</option>
-                                        <option value="address">Address (Raw)</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-target-value" class="form-label">Giá trị định danh</label>
-                                    <input type="text" class="form-control" id="admin-target-value" placeholder="Nhập UID hoặc địa chỉ ví..." required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-action-type" class="form-label">Hành động</label>
-                                    <select class="form-select" id="admin-action-type">
-                                        <option value="add" selected>Cộng EXP</option>
-                                        <option value="subtract">Trừ EXP</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-exp-amount" class="form-label">Số lượng EXP</label>
-                                    <input type="number" class="form-control" id="admin-exp-amount" placeholder="e.g., 100" required min="1">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-task-name" class="form-label">Lý do (Task Name)</label>
-                                    <input type="text" class="form-control" id="admin-task-name" placeholder="e.g., Thưởng event" required>
-                                </div>
-                                <button type="submit" id="admin-submit-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;">
-                                    <i class="fas fa-check me-2"></i>Xác nhận
-                                </button>
-                            </form>
                         </div>
                     </div>
                     
-                    <!-- [NEW] THƯỞNG EXP HÀNG LOẠT -->
-                    <div class="col-12 col-lg-10 col-xl-8">
-                        <div class="card-glass">
-                            <h5 class="card-title">Thưởng EXP Hàng Loạt</h5>
-                            <form id="admin-mass-award-form">
-                                <div class="mb-3">
-                                    <label for="admin-mass-condition-type" class="form-label">Thưởng cho người dùng theo</label>
-                                    <select class="form-select" id="admin-mass-condition-type">
-                                        <option value="all" selected>Tất cả người dùng</option>
-                                        <option value="referralCount">Số lượt mời</option>
-                                        <option value="checkinCount">Số lượt Check-in</option>
-                                        <option value="points">Số điểm EXP</option>
-                                    </select>
-                                </div>
-                                <div id="admin-mass-condition-wrapper" style="display: none;">
-                                    <label class="form-label">Điều kiện</label>
-                                    <div class="input-group mb-3">
-                                        <select class="form-select" id="admin-mass-operator" style="max-width: 150px;">
-                                            <option value=">=" selected>Lớn hơn hoặc bằng</option>
-                                            <option value="<=">Nhỏ hơn hoặc bằng</option>
-                                        </select>
-                                        <input type="number" class="form-control" id="admin-mass-condition-value" placeholder="e.g., 10" min="0">
+                    <!-- ============================================= -->
+                    <!-- [NEW] PANEL CÀI ĐẶT LEVEL - DÁN VÀO ĐÂY       -->
+                    <!-- ============================================= -->
+                    <div id="admin-panel-level-settings" class="admin-panel-wrapper" style="display: none;">
+                        <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                            <div class="card-glass">
+                                <h5 class="card-title">Cấu hình Level và Quyền lợi</h5>
+                                <p class="text-secondary small">Tại đây, bạn có thể định nghĩa các cấp độ, số EXP cần thiết để đạt được chúng, và mô tả các quyền lợi mà người dùng sẽ nhận được khi lên cấp.</p>
+                                <form id="admin-level-settings-form">
+                                    <div id="level-settings-container">
+                                        <!-- Các dòng cài đặt level sẽ được JS render ở đây -->
+                                    </div>
+                                    <button type="button" id="add-level-btn" class="btn btn-outline-secondary mt-3"><i class="fas fa-plus me-2"></i>Thêm Cấp độ</button>
+                                    <div id="admin-level-settings-status" class="mt-4 text-center fw-bold"></div>
+                                    <div class="d-grid mt-3">
+                                        <button type="submit" id="save-level-settings-btn" class="btn btn-lg" style="background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white;">
+                                            <i class="fas fa-save me-2"></i>Lưu Cài đặt Level
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ============================================= -->
+
+                    <!-- Bảng Cài đặt Airdrop -->
+                    <div id="admin-panel-airdrop-settings" class="admin-panel-wrapper" style="display: none;">
+                        <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                            <div class="card-glass">
+                                <h5 class="card-title">Cấu hình Airdrop & Xuất dữ liệu</h5>
+                                <div id="admin-airdrop-settings-form">
+                                    <div class="row text-center g-3 mb-4">
+                                        <div class="col-6 col-sm-3">
+                                            <div class="form-check form-switch fs-5 d-inline-block">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="airdrop-live-switch">
+                                                <label class="form-check-label" for="airdrop-live-switch">Live</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-sm-3">
+                                            <div class="form-check form-switch fs-5 d-inline-block">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="confirmation-enabled-switch">
+                                                <label class="form-check-label" for="confirmation-enabled-switch">Xác nhận</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-sm-3">
+                                            <div class="form-check form-switch fs-5 d-inline-block">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="claim-enabled-switch">
+                                                <label class="form-check-label" for="claim-enabled-switch">Yêu cầu</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-sm-3">
+                                            <div class="form-check form-switch fs-5 d-inline-block">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="snapshot-active-switch">
+                                                <label class="form-check-label" for="snapshot-active-switch" style="color: var(--color-out);">Snap</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr style="border-color: var(--border-color); opacity: 0.5;">
+                                    <h6 class="text-secondary text-center my-3">CÔNG THỨC TÍNH ĐIỂM</h6>
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-4"><label for="ref-multiplier-input" class="form-label">Điểm mỗi Lượt mời</label><input type="number" class="form-control" id="ref-multiplier-input" value="50" min="0"></div>
+                                        <div class="col-md-4"><label for="checkin-multiplier-input" class="form-label">Điểm mỗi Check-in</label><input type="number" class="form-control" id="checkin-multiplier-input" value="30" min="0"></div>
+                                        <div class="col-md-4"><label for="exp-multiplier-input" class="form-label">Điểm mỗi EXP</label><input type="number" class="form-control" id="exp-multiplier-input" value="20" min="0"></div>
+                                    </div>
+                                    <hr style="border-color: var(--border-color); opacity: 0.5;">
+                                    <h6 class="text-secondary text-center my-3">ĐIỀU KIỆN TỐI THIỂU</h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-4"><label for="min-checkins-input" class="form-label">Tối thiểu Check-in</label><input type="number" class="form-control" id="min-checkins-input" value="0" min="0"></div>
+                                        <div class="col-md-4"><label for="min-referrals-input" class="form-label">Tối thiểu Lượt mời</label><input type="number" class="form-control" id="min-referrals-input" value="0" min="0"></div>
+                                        <div class="col-md-4"><label for="min-exp-input" class="form-label">Tối thiểu EXP</label><input type="number" class="form-control" id="min-exp-input" value="0" min="0"></div>
+                                    </div>
+                                    <div class="mt-3"><label class="form-label fw-bold" style="color: var(--gold);">ĐIỀU KIỆN NHIỆM VỤ BẮT BUỘC (Tự động áp dụng)</label></div>
+                                    <div id="admin-settings-status" class="mt-3"></div>
+                                    <div class="d-flex gap-3 mt-3">
+                                        <button type="button" id="save-settings-btn" class="btn w-100" style="background-color: var(--accent-secondary); color: white;">Lưu Cài Đặt</button>
+                                        <button type="button" id="export-csv-btn" class="btn btn-outline-light w-100">Xuất File Excel (CSV)</button>
                                     </div>
                                 </div>
-                                
-                                <div class="mb-3">
-                                    <label for="admin-mass-exp-amount" class="form-label">Số lượng EXP để thưởng</label>
-                                    <input type="number" class="form-control" id="admin-mass-exp-amount" placeholder="e.g., 500" required min="1">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-mass-task-name" class="form-label">Nội dung/Lý do thưởng</label>
-                                    <input type="text" class="form-control" id="admin-mass-task-name" placeholder="e.g., Thưởng event Giáng Sinh" required>
-                                </div>
-                                
-                                <div id="admin-mass-award-status" class="mt-3 text-center"></div>
+                            </div>
+                        </div>
+                    </div>
 
-                                <button type="submit" id="admin-mass-award-submit-btn" class="btn w-100" style="background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white;">
-                                    <i class="fas fa-gifts me-2"></i>Thực Hiện Thưởng Hàng Loạt
+                    <!-- Bảng Chỉnh sửa EXP / Mass Award -->
+                    <div id="admin-panel-edit-exp" class="admin-panel-wrapper" style="display: none;">
+                        <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                           <div class="card-glass mb-4">
+                                <h5 class="card-title">Chỉnh sửa EXP cho một User</h5>
+                                <form id="admin-exp-form">
+                                     <div class="mb-3"><label for="admin-target-type" class="form-label">Loại định danh</label><select class="form-select" id="admin-target-type"><option value="uid" selected>UID (Telegram ID)</option><option value="address">Address (Raw)</option></select></div>
+                                     <div class="mb-3"><label for="admin-target-value" class="form-label">Giá trị định danh</label><input type="text" class="form-control" id="admin-target-value" placeholder="Nhập UID hoặc địa chỉ ví..." required></div>
+                                     <div class="mb-3"><label for="admin-action-type" class="form-label">Hành động</label><select class="form-select" id="admin-action-type"><option value="add" selected>Cộng EXP</option><option value="subtract">Trừ EXP</option></select></div>
+                                     <div class="mb-3"><label for="admin-exp-amount" class="form-label">Số lượng EXP</label><input type="number" class="form-control" id="admin-exp-amount" placeholder="e.g., 100" required min="1"></div>
+                                     <div class="mb-3"><label for="admin-task-name" class="form-label">Lý do (Task Name)</label><input type="text" class="form-control" id="admin-task-name" placeholder="e.g., Thưởng event" required></div>
+                                     <button type="submit" id="admin-submit-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;"><i class="fas fa-check me-2"></i>Xác nhận</button>
+                                </form>
+                            </div>
+                            <div class="card-glass">
+                                <h5 class="card-title">Thưởng EXP Hàng Loạt</h5>
+                                <form id="admin-mass-award-form">
+                                     <div class="mb-3"><label for="admin-mass-condition-type" class="form-label">Thưởng cho người dùng theo</label><select class="form-select" id="admin-mass-condition-type"><option value="all" selected>Tất cả người dùng</option><option value="referralCount">Số lượt mời</option><option value="checkinCount">Số lượt Check-in</option><option value="points">Số điểm EXP</option></select></div>
+                                     <div id="admin-mass-condition-wrapper" style="display: none;"><label class="form-label">Điều kiện</label><div class="input-group mb-3"><select class="form-select" id="admin-mass-operator" style="max-width: 150px;"><option value=">=" selected>Lớn hơn hoặc bằng</option><option value="<=">Nhỏ hơn hoặc bằng</option></select><input type="number" class="form-control" id="admin-mass-condition-value" placeholder="e.g., 10" min="0"></div></div>
+                                     <div class="mb-3"><label for="admin-mass-exp-amount" class="form-label">Số lượng EXP để thưởng</label><input type="number" class="form-control" id="admin-mass-exp-amount" placeholder="e.g., 500" required min="1"></div>
+                                     <div class="mb-3"><label for="admin-mass-task-name" class="form-label">Nội dung/Lý do thưởng</label><input type="text" class="form-control" id="admin-mass-task-name" placeholder="e.g., Thưởng event Giáng Sinh" required></div>
+                                     <div id="admin-mass-award-status" class="mt-3 text-center"></div>
+                                     <button type="submit" id="admin-mass-award-submit-btn" class="btn w-100" style="background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white;"><i class="fas fa-gifts me-2"></i>Thực Hiện Thưởng Hàng Loạt</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bảng Trạng Thái Tài Khoản -->
+                    <div id="admin-panel-account-status" class="admin-panel-wrapper" style="display: none;">
+                        <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                            <div class="card-glass">
+                                <h5 class="card-title">Quản lý Trạng thái Tài khoản</h5>
+                                 <form id="admin-disable-form">
+                                     <div class="mb-3"><label for="admin-disable-target-type" class="form-label">Loại định danh</label><select class="form-select" id="admin-disable-target-type"><option value="uid" selected>UID (Telegram ID)</option><option value="address">Address (Raw)</option></select></div>
+                                     <div class="mb-3"><label for="admin-disable-target-value" class="form-label">Giá trị định danh</label><input type="text" class="form-control" id="admin-disable-target-value" placeholder="Nhập UID hoặc địa chỉ ví..." required></div>
+                                     <div class="mb-3"><label for="admin-disable-duration" class="form-label">Thời gian vô hiệu hoá (ngày)</label><input type="number" class="form-control" id="admin-disable-duration" placeholder="e.g., 7 (để trống nếu muốn mở khoá)" min="0"></div>
+                                     <div class="d-flex gap-3"><button type="button" id="admin-disable-btn" class="btn w-100" style="background-color: var(--color-out); color: white;"><i class="fas fa-user-lock me-2"></i>Vô hiệu hoá</button><button type="button" id="admin-enable-btn" class="btn w-100" style="background-color: var(--color-verified); color: white;"><i class="fas fa-user-check me-2"></i>Mở khoá</button></div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bảng Danh sách User (Mặc định hiển thị) -->
+                    <div id="admin-panel-users" class="admin-panel-wrapper">
+                         <div class="col-12">
+                            <div class="card-glass">
+                                <h5 class="card-title">Danh sách Người dùng</h5>
+                                <div class="mb-3">
+                                    <input type="text" id="admin-user-search-input" class="form-control" placeholder="Tìm theo Tên, UID, hoặc Địa chỉ ví...">
+                                </div>
+                                <div id="admin-user-list-container" class="table-responsive"></div>
+                                <div class="text-center mt-3">
+                                    <button id="admin-load-more-btn" class="btn btn-outline-secondary" style="display: none;">Tải thêm</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bảng Cài đặt Thưởng -->
+            <div id="admin-panel-reward-settings" class="admin-panel-wrapper" style="display: none;">
+                <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+                    <div class="card-glass">
+                        <h5 class="card-title">Cấu hình Phần thưởng EXP</h5>
+                        <form id="admin-reward-settings-form">
+                            <h6 class="text-secondary mb-3">Cài đặt Cơ bản</h6>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label for="checkin-exp-input" class="form-label">EXP mỗi lần Check-in</label>
+                                    <input type="number" class="form-control" id="checkin-exp-input" min="0">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="base-referral-exp-input" class="form-label">EXP cơ bản mỗi lượt mời</label>
+                                    <input type="number" class="form-control" id="base-referral-exp-input" min="0">
+                                </div>
+                            </div>
+                            <hr style="border-color: var(--border-color); opacity: 0.5;">
+                            <h6 class="text-secondary my-3">Các Mốc Thưởng Thêm Khi Mời Bạn</h6>
+                            <div id="referral-milestones-container"></div>
+                            <button type="button" id="add-milestone-btn" class="btn btn-outline-secondary mt-3"><i class="fas fa-plus me-2"></i>Thêm Mốc</button>
+                            <div id="admin-reward-settings-status" class="mt-4 text-center fw-bold"></div>
+                            <div class="d-grid mt-3">
+                                <button type="submit" id="save-reward-settings-btn" class="btn btn-lg" style="background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); color: white;">
+                                    <i class="fas fa-save me-2"></i>Lưu Cài đặt
                                 </button>
-                            </form>
-                        </div>
-                    </div>
-                    
-                    <div class="col-12 col-lg-10 col-xl-8">
-                        <div class="card-glass">
-                            <h5 class="card-title">Quản lý Trạng thái Tài khoản</h5>
-                             <form id="admin-disable-form">
-                                <div class="mb-3">
-                                    <label for="admin-disable-target-type" class="form-label">Loại định danh</label>
-                                    <select class="form-select" id="admin-disable-target-type">
-                                        <option value="uid" selected>UID (Telegram ID)</option>
-                                        <option value="address">Address (Raw)</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-disable-target-value" class="form-label">Giá trị định danh</label>
-                                    <input type="text" class="form-control" id="admin-disable-target-value" placeholder="Nhập UID hoặc địa chỉ ví..." required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="admin-disable-duration" class="form-label">Thời gian vô hiệu hoá (ngày)</label>
-                                    <input type="number" class="form-control" id="admin-disable-duration" placeholder="e.g., 7 (để trống nếu muốn mở khoá)" min="0">
-                                </div>
-                                <div class="d-flex gap-3">
-                                    <button type="button" id="admin-disable-btn" class="btn w-100" style="background-color: var(--color-out); color: white;">
-                                        <i class="fas fa-user-lock me-2"></i>Vô hiệu hoá
-                                    </button>
-                                     <button type="button" id="admin-enable-btn" class="btn w-100" style="background-color: var(--color-verified); color: white;">
-                                        <i class="fas fa-user-check me-2"></i>Mở khoá
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="col-12">
-                        <div class="card-glass">
-                            <h5 class="card-title">Danh sách Người dùng</h5>
-                            <div class="mb-3">
-                                <input type="text" id="admin-user-search-input" class="form-control" placeholder="Tìm theo Tên, UID, hoặc Địa chỉ ví...">
                             </div>
-                            <div id="admin-user-list-container" class="table-responsive">
-                                <!-- JS renders table here -->
-                            </div>
-                            <div class="text-center mt-3">
-                                <button id="admin-load-more-btn" class="btn btn-outline-secondary" style="display: none;">Tải thêm</button>
-                            </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </main>
     </div>
 
+    <!-- [MODIFIED] All Modals below -->
+    
     <!-- Jetton Detail Modal -->
     <div class="modal fade" id="jettonDetailModal" tabindex="-1" aria-labelledby="jettonDetailModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -1519,11 +1881,92 @@
         </div>
     </div>
 
+    <!-- [NEW] Email Update Modal -->
+    <div class="modal fade" id="emailUpdateModal" tabindex="-1" aria-labelledby="emailUpdateModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="emailUpdateModalLabel"><i class="fas fa-envelope me-2"></i>Update Email</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-secondary small">Please enter your email address. This is optional and used for account recovery or important notifications.</p>
+                    <form id="email-update-form">
+                        <div class="mb-3">
+                            <label for="email-input" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email-input" placeholder="you@example.com" required>
+                        </div>
+                        <div id="email-update-status" class="text-center"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="save-email-btn" class="btn" style="background-color: var(--accent-primary); color: white;">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- [UPDATED] Temporary Profile Setup Modal with better UI -->
+    <div class="modal fade" id="profileSetupModal" tabindex="-1" aria-labelledby="profileSetupModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="profileSetupModalLabel"><i class="fas fa-user-edit me-2"></i>Setup Your Profile</h5>
+                </div>
+                <div class="modal-body">
+                    <p class="text-secondary small">Since you're joining from the web, please set up a temporary profile. This will be updated automatically when you log in via the Telegram Mini App.</p>
+                    <form id="profile-setup-form">
+                        <div class="text-center mb-3">
+                            <label for="temp-avatar-upload" class="avatar-upload-container">
+                                <img id="temp-avatar-preview" src="https://bmass.vercel.app/img/bmasslogo.png" alt="Avatar Preview" class="avatar-preview">
+                                <div class="avatar-overlay">
+                                    <i class="fas fa-camera"></i>
+                                    <span>Change</span>
+                                </div>
+                            </label>
+                            <input type="file" id="temp-avatar-upload" accept="image/*" style="display: none;">
+                        </div>
+                        <div class="mb-3">
+                            <label for="temp-fullname-input" class="form-label">Display Name</label>
+                            <input type="text" class="form-control" id="temp-fullname-input" placeholder="Enter your name" required>
+                        </div>
+                        <div id="profile-setup-status" class="text-center"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="save-temp-profile-btn" class="btn w-100" style="background-color: var(--accent-primary); color: white;">Save and Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/apps-data.js"></script>
     
+
+
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    // --- START OF DOMCONTENTLOADED ---
+
+    document.addEventListener('touchmove', function (event) {
+      if (event.scale !== 1) { event.preventDefault(); }
+    }, { passive: false });
+
+    // Chặn double-tap để zoom
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function (event) {
+      const now = (new Date()).getTime();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+
+
+    
     const TON_API_BASE = 'https://tonapi.io/v2';
     const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
     const USER_SESSION_KEY = 'BmassUserSession';
@@ -1540,6 +1983,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Element Selectors
     const loadingOverlay = document.getElementById('loading-overlay');
+    const maintenanceOverlay = document.getElementById('maintenance-overlay');
+    const adminMaintenanceBanner = document.getElementById('admin-maintenance-banner');
     const accountSectionEl = document.getElementById('account-section');
     const dashboardEl = document.getElementById('dashboard');
     const heroEl = document.getElementById('hero-section');
@@ -1589,6 +2034,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const appFilterControls = document.getElementById('app-filter-controls');
     const jettonDetailModalEl = document.getElementById('jettonDetailModal');
     const jettonDetailModal = new bootstrap.Modal(jettonDetailModalEl);
+    const emailUpdateModalEl = document.getElementById('emailUpdateModal');
+    const emailUpdateModal = new bootstrap.Modal(emailUpdateModalEl);
+    const saveEmailBtn = document.getElementById('save-email-btn');
+    const profileSetupModalEl = document.getElementById('profileSetupModal');
+    const profileSetupModal = new bootstrap.Modal(profileSetupModalEl);
+    const saveTempProfileBtn = document.getElementById('save-temp-profile-btn');
     const portfolioContent = document.getElementById('portfolio-overview-content');
     const portfolioSkeleton = document.getElementById('portfolio-overview-skeleton');
     const totalValueUsdEl = document.getElementById('total-value-usd');
@@ -1640,9 +2091,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Telegram Sender Elements
     const sendBulkTelegramMessageBtn = document.getElementById('send-bulk-telegram-message-btn');
     const telegramSenderStatus = document.getElementById('telegram-sender-status');
+    
+    // [NEW] Maintenance Mode Switch
+    const maintenanceModeSwitch = document.getElementById('maintenance-mode-switch');
+    const adminSystemStatus = document.getElementById('admin-system-status');
+    
+    // [NEW] Leaderboard Total Users
+    const leaderboardTotalUsersEl = document.getElementById('leaderboard-total-users');
 
-
-    const DEFAULT_LOGO_SRC = 'https://bmass.vercel.app/img/logo_viewc.png';
+    const DEFAULT_LOGO_SRC = 'https://bmass.vercel.app/img/bmasslogo.png';
     const GENERIC_WALLET_ICON = 'https://ton.org/download/ton_symbol.png';
     const GENERIC_TASK_ICON = 'https://bmass.vercel.app/img/bmass.png';
 
@@ -1651,6 +2108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let connectedWalletAddress = null; // Raw address from wallet
     let currentUserData = null; // Full user profile from Firestore
     let airdropSettings = null; // Will hold all airdrop settings from admin
+    let systemStatus = { isMaintenanceMode: false }; // [NEW] System status
     let lastFetchedAddress = null;
     let currentActivityLogs = [];
     let activityRefreshInterval = null;
@@ -1661,9 +2119,34 @@ document.addEventListener('DOMContentLoaded', () => {
     let checkinInterval = null;
     let lastVisibleAdminUser = null; // For admin pagination
 
+    // [UPDATED] Level System Configuration - Now treated as a default/fallback
+    let levelConfig = [
+        { level: 1, expRequired: 0,         shieldClass: 'level-shield-1', benefit: "Unlock Daily Check-in" },
+        { level: 2, expRequired: 15000,     shieldClass: 'level-shield-2', benefit: "Unlock Referral System" },
+        { level: 3, expRequired: 50000,     shieldClass: 'level-shield-3', benefit: "+1% EXP bonus on all tasks" },
+        { level: 4, expRequired: 100000,    shieldClass: 'level-shield-4', benefit: "Access to special partner tasks" },
+        { level: 5, expRequired: 200000,    shieldClass: 'level-shield-5', benefit: "+2% EXP bonus & priority support" },
+        { level: 6, expRequired: 400000,    shieldClass: 'level-shield-6', benefit: "Unique role in community" },
+        { level: 7, expRequired: 700000,    shieldClass: 'level-shield-7', benefit: "Early access to new features" },
+        { level: 8, expRequired: 1200000,   shieldClass: 'level-shield-8', benefit: "Higher Airdrop multiplier" },
+        { level: 9, expRequired: 2000000,   shieldClass: 'level-shield-9', benefit: "Direct line to the dev team" },
+        { level: 10, expRequired: 5000000,  shieldClass: 'level-shield-10', benefit: "Legendary status & surprise rewards" }
+    ];
+
+    // [NEW] Reward Configuration Variable
+    let rewardConfig = {
+        checkinExp: 1000,
+        baseReferralExp: 5000,
+        referralMilestones: [
+            { required: 5, bonus: 10000 },
+            { required: 10, bonus: 25000 },
+            { required: 25, bonus: 70000 },
+            { required: 50, bonus: 150000 },
+            { required: 100, bonus: 500000 }
+        ]
+    }; // Default values
+
     // Constants
-    const REFERRAL_REWARD = 200;
-    const CHECKIN_REWARD = 10;
     const CHECKIN_COOLDOWN = 24 * 60 * 60 * 1000;
     const ADMIN_USERS_PER_PAGE = 50;
     const BATCH_SIZE = 200; // For mass award processing
@@ -1673,7 +2156,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const CONFIRM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD";
     const REQUEST_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD"; 
 
-    // --- [NEW] Clearer Transaction Amounts ---
     const CONFIRM_AMOUNT_TON = 0.000000001;
     const CONFIRM_AMOUNT_NANOTONS = String(CONFIRM_AMOUNT_TON * 1e9);
 
@@ -1712,9 +2194,51 @@ document.addEventListener('DOMContentLoaded', () => {
     function hideLoadingOverlay() {
         loadingOverlay.classList.remove('visible');
     }
+    
+    // [NEW] Fetch system status
+    async function fetchSystemStatus() {
+        if (!db) return { isMaintenanceMode: false };
+        try {
+            const doc = await db.collection('admin_settings').doc('system_status').get();
+            if (doc.exists) {
+                systemStatus = doc.data();
+            } else {
+                // If it doesn't exist, create it with default false value
+                await db.collection('admin_settings').doc('system_status').set({ isMaintenanceMode: false });
+                systemStatus = { isMaintenanceMode: false };
+            }
+        } catch (error) {
+            console.error("Error fetching system status:", error);
+            systemStatus = { isMaintenanceMode: false }; // Default to off on error
+        }
+        return systemStatus;
+    }
+    
+    // [UPDATED] Check and apply maintenance mode
+    function applyMaintenanceMode(walletAddress = null) {
+        if (systemStatus.isMaintenanceMode) {
+            // Allow admin access by checking the specific wallet address
+            const isWalletAdmin = walletAddress === ADMIN_ADDRESS;
+            if (isWalletAdmin) {
+                adminMaintenanceBanner.style.display = 'block';
+                return false; // Admin is not blocked
+            } else {
+                maintenanceOverlay.classList.add('visible');
+                return true; // App flow should stop for non-admins
+            }
+        } else {
+             maintenanceOverlay.classList.remove('visible');
+             adminMaintenanceBanner.style.display = 'none';
+        }
+        return false; // App flow can continue
+    }
+
 
     async function onUserAuthenticated() {
         hideLoadingOverlay();
+        
+        // [UPDATED] Re-check maintenance mode now that we know if user is admin
+        if(applyMaintenanceMode(connectedWalletAddress)) return;
         
         updateUIAfterLogin();
         await fetchAndDisplayAccountData(connectedWalletAddress);
@@ -1726,6 +2250,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function isCurrentUserAdmin() {
+        if(systemStatus.isMaintenanceMode && connectedWalletAddress === ADMIN_ADDRESS){
+            return true;
+        }
         if (!currentUserData) return false;
         const isAdminByAddress = currentUserData.address === ADMIN_ADDRESS;
         const isAdminByUID = currentUserData.telegramId === ADMIN_UID;
@@ -1733,11 +2260,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function checkMandatoryTasksCompletion(userAddress) {
-        if (!db) return true; // Fail open if db is not ready
+        if (!db) return true;
 
         const mandatoryTasksSnapshot = await db.collection('partner_tasks').where('taskType', '==', 'mandatory').get();
         if (mandatoryTasksSnapshot.empty) {
-            return true; // No mandatory tasks exist
+            return true;
         }
         
         const mandatoryTaskIds = new Set(mandatoryTasksSnapshot.docs.map(doc => doc.id));
@@ -1747,11 +2274,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         for (const taskId of mandatoryTaskIds) {
             if (!completedTaskIds.has(taskId)) {
-                return false; // Found a mandatory task that is not completed
+                return false;
             }
         }
 
-        return true; // All mandatory tasks are completed
+        return true;
     }
 
     async function calculateBmassReward(user, settings) {
@@ -1774,22 +2301,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    // [UPDATED] to handle temporary profiles & LEVEL BACKFILLING
     async function loadOrCreateUserByAddress(address) {
         if (!address || !db) return;
-
+    
         showLoadingOverlay('Authenticating and syncing...');
-
+    
+        // Logic to prevent TG account hijacking
         if (telegramUserData) {
             const uidQuery = db.collection('users').where('telegramId', '==', telegramUserData.id).limit(1);
             const uidSnapshot = await uidQuery.get();
-
+    
             if (!uidSnapshot.empty) {
                 const existingUserDoc = uidSnapshot.docs[0];
                 const existingUserData = existingUserDoc.data();
-                
                 if (existingUserData.address !== address) {
                     hideLoadingOverlay();
-                    showAppToast('Link Error', `This Telegram account is already linked with another wallet. Please use the correct connected wallet.`, 'error');
+                    showAppToast('Link Error', `This Telegram account is already linked with another wallet.`, 'error');
                     handleFullLogout();
                     return;
                 }
@@ -1797,65 +2325,107 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         const userRef = db.collection('users').doc(address);
-        const doc = await userRef.get();
-
+        let doc = await userRef.get();
+    
         if (!doc.exists) {
             console.log(`Creating new user profile for address: ${address}`);
             const newUser = {
-                address: address, points: 0, lastCheckin: null, checkinCount: 0,
-                referralCount: 0, referredBy: null, partnerTasksCompletedCount: 0,
-                hasSentConfirmationTx: false, hasRequestedAirdrop: false,
-                disabledUntil: null, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                address: address,
+                points: 0,
+                level: 1, // [NEW] Initialize level
+                lastCheckin: null,
+                checkinCount: 0,
+                referralCount: 0,
+                referredBy: null,
+                partnerTasksCompletedCount: 0,
+                hasSentConfirmationTx: false,
+                hasRequestedAirdrop: false,
+                disabledUntil: null,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                notificationsEnabled: true,
+                email: null,
                 telegramId: telegramUserData ? telegramUserData.id : null,
                 username: telegramUserData ? (telegramUserData.username || `user${telegramUserData.id}`) : null,
                 fullName: telegramUserData ? `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim() : null,
-                photoUrl: telegramUserData ? (telegramUserData.photo_url || DEFAULT_LOGO_SRC) : null,
-                notificationsEnabled: true // Default to enabled
+                photoUrl: telegramUserData ? telegramUserData.photo_url : null,
+                temporaryFullName: null,
+                temporaryPhotoUrl: null,
+                isTemporaryProfile: !telegramUserData
             };
+    
             await userRef.set(newUser);
             currentUserData = newUser;
+            
+            const metadataRef = db.collection('admin_settings').doc('metadata');
+            await metadataRef.set({ 
+                userCount: firebase.firestore.FieldValue.increment(1) 
+            }, { merge: true });
+
+    
+            if (newUser.isTemporaryProfile) {
+                hideLoadingOverlay();
+                profileSetupModal.show();
+                return; 
+            }
             
             const referrerCode = sessionStorage.getItem(REFERRAL_SESSION_KEY);
             if (referrerCode) {
                 await applyReferral(referrerCode, address);
-                sessionStorage.removeItem(REFERRAL_SESSION_KEY);
+                 // Re-fetch user data after referral to get updated points
+                doc = await userRef.get();
+                currentUserData = doc.data();
             }
-
+    
         } else {
             let userData = doc.data();
-
+    
             if (userData.disabledUntil && userData.disabledUntil.toDate() > new Date()) {
                 hideLoadingOverlay();
                 showAppToast('Account Disabled', `Your account is temporarily disabled until ${userData.disabledUntil.toDate().toLocaleString('en-US')}.`, 'error');
                 handleFullLogout();
                 return;
             }
-
+    
             if (telegramUserData && userData.telegramId && userData.telegramId !== telegramUserData.id) {
                 hideLoadingOverlay();
                 const ownerUsername = userData.username ? `@${userData.username}` : 'another user';
-                showAppToast('Ownership Error', `This wallet already belongs to ${ownerUsername}. Please connect with your own wallet.`, 'error');
+                showAppToast('Ownership Error', `This wallet already belongs to ${ownerUsername}.`, 'error');
                 handleFullLogout();
                 return;
             }
-
+    
             const updates = {};
-            if (telegramUserData && !userData.telegramId) {
+            if (telegramUserData && userData.isTemporaryProfile) {
                 Object.assign(updates, {
                     telegramId: telegramUserData.id,
                     username: telegramUserData.username || `user${telegramUserData.id}`,
                     fullName: `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim(),
-                    photoUrl: telegramUserData.photo_url || DEFAULT_LOGO_SRC,
+                    photoUrl: telegramUserData.photo_url || null,
+                    isTemporaryProfile: false 
+                });
+            }
+    
+            if (telegramUserData && !userData.telegramId) {
+                 Object.assign(updates, {
+                    telegramId: telegramUserData.id,
+                    username: telegramUserData.username || `user${telegramUserData.id}`,
+                    fullName: `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim(),
+                    photoUrl: telegramUserData.photo_url || null,
                 });
             }
             
-            if (typeof userData.hasRequestedAirdrop === 'undefined') { updates.hasRequestedAirdrop = false; }
-            if (typeof userData.hasSentConfirmationTx === 'undefined') { updates.hasSentConfirmationTx = false; }
-            if (typeof userData.partnerTasksCompletedCount === 'undefined') { updates.partnerTasksCompletedCount = 0; }
-            if (typeof userData.notificationsEnabled === 'undefined') { updates.notificationsEnabled = true; } // Add if missing
+            if (typeof userData.email === 'undefined') { updates.email = null; }
+            if (typeof userData.isTemporaryProfile === 'undefined') { updates.isTemporaryProfile = !userData.telegramId; }
+            if (typeof userData.level === 'undefined') { updates.level = 1; } // [NEW] Add level to old users
 
+            // [NEW] Check for level up on login (BACKFILLING LOGIC)
+            const calculatedLevel = calculateLevel(userData.points || 0);
+            if (userData.level !== calculatedLevel) {
+                updates.level = calculatedLevel;
+            }
+    
             if (Object.keys(updates).length > 0) {
-                 console.log(`Updating existing user profile with Telegram data:`, updates);
+                 console.log(`Updating existing user profile:`, updates);
                  await userRef.update(updates);
                  userData = { ...userData, ...updates };
             }
@@ -1866,6 +2436,47 @@ document.addEventListener('DOMContentLoaded', () => {
         await onUserAuthenticated();
     }
     
+    // [NEW] Level Calculation Function
+    function calculateLevel(exp) {
+        if (typeof exp !== 'number' || exp < 0) return 1;
+        let currentLevel = 1;
+        // Iterate backwards to find the highest level achieved
+        for (let i = levelConfig.length - 1; i >= 0; i--) {
+            if (exp >= levelConfig[i].expRequired) {
+                currentLevel = levelConfig[i].level;
+                break;
+            }
+        }
+        return currentLevel;
+    }
+    
+    // [NEW] Check and update level after gaining EXP
+    async function checkAndUpdateLevel(userAddress, newPoints) {
+        if (!currentUserData) return; // Cannot check level if user data is not loaded
+        const oldLevel = currentUserData.level;
+        const newLevel = calculateLevel(newPoints);
+        
+        if (oldLevel !== newLevel) {
+            // Level up!
+            currentUserData.level = newLevel; // Update state immediately for UI responsiveness
+            try {
+                const userRef = db.collection('users').doc(userAddress);
+                await userRef.update({ level: newLevel });
+                showAppToast(
+                    'Level Up!', 
+                    `Congratulations, you've reached Level ${newLevel}!`, 
+                    'success'
+                );
+                // Re-render UI to show new shield and benefits
+                updateLevelUI(newLevel, newPoints);
+            } catch(error) {
+                console.error("Failed to update user level in Firestore:", error);
+                currentUserData.level = oldLevel; // Revert state on failure
+            }
+        }
+    }
+
+
     async function applyReferral(referrerCode, newAddress) {
         if (airdropSettings?.isSnapshotActive) {
             showAppToast('Halted', 'Point-earning activities are paused due to the snapshot.', 'warning');
@@ -1896,77 +2507,116 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const referrerDoc = snapshot.docs[0];
             const referrerRef = referrerDoc.ref;
-            const referrerData = referrerDoc.data();
             
-            if (referrerData.address === newAddress) {
+            if (referrerDoc.data().address === newAddress) {
                 showAppToast('Error', 'You cannot refer yourself.', 'warning');
                 return;
             }
 
-            const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
-            
             await db.runTransaction(async (transaction) => {
                 const freshReferrerDoc = await transaction.get(referrerRef);
+                const newUserDoc = await transaction.get(db.collection('users').doc(newAddress));
+
                 if (!freshReferrerDoc.exists) throw "Referrer does not exist in the transaction";
+                if (!newUserDoc.exists) throw "New user does not exist in the transaction";
+
+                const referrerData = freshReferrerDoc.data();
+                const newUserData = newUserDoc.data();
+                
+                const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+                const newReferralCount = (referrerData.referralCount || 0) + 1;
+                let totalRewardForReferrer = rewardConfig.baseReferralExp;
+                let milestoneBonus = 0;
+                
+                const milestoneReached = rewardConfig.referralMilestones.find(m => m.required === newReferralCount);
+                if (milestoneReached) {
+                    milestoneBonus = milestoneReached.bonus;
+                    totalRewardForReferrer += milestoneBonus;
+                }
+
+                // Calculate referrer's new points and level
+                const referrerNewPoints = (referrerData.points || 0) + totalRewardForReferrer;
+                const referrerNewLevel = calculateLevel(referrerNewPoints);
                 
                 transaction.update(referrerRef, {
-                    points: firebase.firestore.FieldValue.increment(REFERRAL_REWARD),
-                    referralCount: firebase.firestore.FieldValue.increment(1)
+                    points: firebase.firestore.FieldValue.increment(totalRewardForReferrer),
+                    referralCount: firebase.firestore.FieldValue.increment(1),
+                    level: referrerNewLevel // Update referrer's level
                 });
                 
                 const referrerHistoryRef = referrerRef.collection('task_history').doc();
                 transaction.set(referrerHistoryRef, {
                     taskName: 'Invited a friend',
-                    exp: REFERRAL_REWARD,
+                    exp: rewardConfig.baseReferralExp,
                     timestamp: newTimestamp,
                     referredUser: newAddress 
                 });
+
+                if (milestoneBonus > 0) {
+                    const milestoneHistoryRef = referrerRef.collection('task_history').doc();
+                    transaction.set(milestoneHistoryRef, {
+                        taskName: `Referral Milestone (${newReferralCount} invites)`,
+                        exp: milestoneBonus,
+                        timestamp: newTimestamp
+                    });
+                }
                 
-                const newUserRef = db.collection('users').doc(newAddress);
-                transaction.update(newUserRef, { 
+                // Calculate new user's new points and level
+                const newUserNewPoints = (newUserData.points || 0) + rewardConfig.baseReferralExp;
+                const newUserNewLevel = calculateLevel(newUserNewPoints);
+
+                transaction.update(db.collection('users').doc(newAddress), { 
                     referredBy: String(referrerCode),
-                    points: firebase.firestore.FieldValue.increment(REFERRAL_REWARD)
+                    points: firebase.firestore.FieldValue.increment(rewardConfig.baseReferralExp),
+                    level: newUserNewLevel // Update new user's level
                 });
 
-                const newUserHistoryRef = newUserRef.collection('task_history').doc();
+                const newUserHistoryRef = db.collection('users').doc(newAddress).collection('task_history').doc();
                 transaction.set(newUserHistoryRef, {
                     taskName: 'Entered referral code',
-                    exp: REFERRAL_REWARD,
+                    exp: rewardConfig.baseReferralExp,
                     timestamp: newTimestamp,
                     referrer: String(referrerCode)
                 });
             });
             
-            showAppToast(`Referral Bonus!`, `You and your referrer both received ${REFERRAL_REWARD} EXP.`, 'success');
+            showAppToast(`Referral Bonus!`, `You and your referrer both received rewards.`, 'success');
 
         } catch (error) {
             console.error("Failed to apply referral:", error);
             showAppToast('Error', 'Could not apply referral code. Please try again.', 'error');
         }
     }
-
-    function updateUIAfterLogin() {
-        if (!currentUserData) return;
-        
-        headerExpDisplay.classList.remove('d-none');
-        updateExpBalances(currentUserData.points || 0);
-        updateCheckinUI(currentUserData);
-        fetchTaskHistory();
-        renderAccountSection();
-        renderReferralSection();
-        
-        handleRouteChange(); 
-        
-        if (isCurrentUserAdmin()) {
-            navAdmin.style.display = 'block';
-        } else {
-            navAdmin.style.display = 'none';
-        }
-    }
     
-     function updateExpBalances(newExp) {
-        taskExpBalanceEl.textContent = newExp;
-        headerExpBalanceEl.textContent = newExp;
+function updateUIAfterLogin() {
+    if (!currentUserData) return;
+    
+    // [NEW] CẬP NHẬT ĐỘNG HIỂN THỊ EXP THƯỞNG CHO CHECK-IN
+    const checkinExpDisplay = document.getElementById('checkin-exp-display');
+    if (checkinExpDisplay) {
+        checkinExpDisplay.textContent = `+${(rewardConfig.checkinExp || 1000).toLocaleString()} EXP`;
+    }
+
+    headerExpDisplay.classList.remove('d-none');
+    updateExpBalances(currentUserData.points || 0);
+    updateCheckinUI(currentUserData);
+    fetchTaskHistory();
+    renderAccountSection();
+    renderReferralSection();
+    updateLevelUI(currentUserData.level, currentUserData.points); // [NEW] Update level UI on login
+    
+    handleRouteChange(); 
+    
+    if (isCurrentUserAdmin()) {
+        navAdmin.style.display = 'block';
+    } else {
+        navAdmin.style.display = 'none';
+    }
+}
+    
+    function updateExpBalances(newExp) {
+        taskExpBalanceEl.textContent = newExp.toLocaleString();
+        headerExpBalanceEl.textContent = newExp.toLocaleString();
     }
 
     function updateCheckinUI(userData) {
@@ -2028,6 +2678,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const userRef = db.collection('users').doc(connectedWalletAddress);
         
         try {
+            let newTotalPoints;
             await db.runTransaction(async (transaction) => {
                 const userDoc = await transaction.get(userRef);
                 if (!userDoc.exists) throw "User document not found!";
@@ -2040,25 +2691,34 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
+                newTotalPoints = (userData.points || 0) + rewardConfig.checkinExp;
+                // No need to calculate level here, checkAndUpdateLevel will be called after
                 const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+                
                 transaction.update(userRef, {
-                    points: firebase.firestore.FieldValue.increment(CHECKIN_REWARD),
+                    points: firebase.firestore.FieldValue.increment(rewardConfig.checkinExp),
                     lastCheckin: newTimestamp,
                     checkinCount: firebase.firestore.FieldValue.increment(1)
                 });
-                
+            
                 const historyRef = userRef.collection('task_history').doc();
                 transaction.set(historyRef, {
                     taskName: 'Daily Check-in',
-                    exp: CHECKIN_REWARD,
+                    exp: rewardConfig.checkinExp,
                     timestamp: newTimestamp
                 });
             });
-            showAppToast('Success!', `You've received ${CHECKIN_REWARD} EXP.`, 'success');
+
+            showAppToast('Success!', `You've received ${rewardConfig.checkinExp} EXP.`, 'success');
+            // Update current user data and then check for level up
+            currentUserData.points = newTotalPoints;
+            checkAndUpdateLevel(connectedWalletAddress, newTotalPoints);
+             
         } catch (error) {
             console.error("Check-in failed: ", error);
             showAppToast('Failed', 'An error occurred. Please try again.', 'error');
         } finally {
+            // Refetch data to ensure UI consistency
             const updatedDoc = await userRef.get();
             if(updatedDoc.exists) {
                 currentUserData = updatedDoc.data();
@@ -2097,7 +2757,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const expAmount = item.exp;
                 const expClass = expAmount >= 0 ? 'amount-in' : 'amount-out';
                 const expSign = expAmount > 0 ? '+' : '';
-                const expDisplay = `<strong class="${expClass}">${expSign}${expAmount} EXP</strong>`;
+                const expDisplay = `<strong class="${expClass}">${expSign}${expAmount.toLocaleString()} EXP</strong>`;
                 const taskTitle = item.taskName === 'Partner Task' ? `${item.taskName}: ${item.projectName}` : item.taskName;
 
                 historyHtml += `
@@ -2118,54 +2778,75 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function fetchAndRenderLeaderboard() {
-        if (!db) initializeFirebase();
+async function fetchAndRenderLeaderboard() {
+    if (!db) initializeFirebase();
 
-        const listContainer = document.getElementById('leaderboard-list');
-        const skeletonItem = `<div class="leaderboard-item"><div class="skeleton-loader leaderboard-rank" style="height: 24px; width: 40px; border-radius: 25px;"></div><img class="skeleton-loader leaderboard-avatar"><div class="flex-grow-1"><div class="skeleton-loader skeleton-line w-50"></div></div><div class="skeleton-loader skeleton-line" style="width: 80px;"></div></div>`;
-        listContainer.innerHTML = skeletonItem.repeat(7);
+    const listContainer = document.getElementById('leaderboard-list');
+    const totalParticipantsContainer = document.getElementById('leaderboard-total-users');
+    const totalUsersCountSpan = totalParticipantsContainer.querySelector('.total-users-count');
+    
+    const skeletonItem = `<div class="leaderboard-item"><div class="skeleton-loader leaderboard-rank" style="height: 24px; width: 40px; border-radius: 25px;"></div><img class="skeleton-loader leaderboard-avatar"><div class="flex-grow-1"><div class="skeleton-loader skeleton-line w-50"></div></div><div class="skeleton-loader skeleton-line" style="width: 80px;"></div></div>`;
+    listContainer.innerHTML = skeletonItem.repeat(7);
+    totalUsersCountSpan.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
 
-        try {
-            const snapshot = await db.collection('users').orderBy('points', 'desc').limit(50).get();
-            listContainer.innerHTML = '';
-
-            if (snapshot.empty) {
-                listContainer.innerHTML = `<p class="text-secondary text-center p-3">No one is on the leaderboard yet. Be the first!</p>`;
-                return;
-            }
-            
-            let rank = 1;
-            snapshot.forEach(doc => {
-                const user = doc.data();
-                const displayName = user.fullName || (user.username ? `@${user.username}`: shortenAddress(user.address));
-                const avatarUrl = user.photoUrl || GENERIC_WALLET_ICON;
-                const isCurrentUser = connectedWalletAddress && user.address === connectedWalletAddress;
-
-                let rankDisplay, rankClass = ''; 
-                if (rank === 1) { rankClass = 'rank-1'; rankDisplay = `<i class="fas fa-medal rank-icon"></i>`; } 
-                else if (rank === 2) { rankClass = 'rank-2'; rankDisplay = `<i class="fas fa-medal rank-icon"></i>`; } 
-                else if (rank === 3) { rankClass = 'rank-3'; rankDisplay = `<i class="fas fa-medal rank-icon"></i>`; } 
-                else { rankDisplay = `#${rank}`; }
-
-                const item = document.createElement('div');
-                item.className = `leaderboard-item ${isCurrentUser ? 'current-user' : ''} ${rankClass}`;
-                
-                item.innerHTML = `
-                    <div class="leaderboard-rank">${rankDisplay}</div>
-                    <img src="${avatarUrl}" class="leaderboard-avatar" onerror="this.src='${GENERIC_WALLET_ICON}'">
-                    <div class="leaderboard-name text-truncate">${displayName}</div>
-                    <div class="leaderboard-exp">${(user.points || 0).toLocaleString()} EXP</div>
-                `;
-                
-                listContainer.appendChild(item);
-                rank++;
-            });
-
-        } catch (error) {
-            console.error("Error fetching leaderboard:", error);
-            listContainer.innerHTML = `<p class="text-danger text-center p-3">Could not load the leaderboard. Please try again later.</p>`;
+    try {
+        const [leaderboardSnapshot, metadataDoc] = await Promise.all([
+            db.collection('users').orderBy('points', 'desc').limit(50).get(),
+            db.collection('admin_settings').doc('metadata').get()
+        ]);
+        
+        if (metadataDoc.exists) {
+            totalUsersCountSpan.textContent = (metadataDoc.data().userCount || 0).toLocaleString();
+        } else {
+            totalUsersCountSpan.textContent = 'N/A';
         }
+
+        listContainer.innerHTML = '';
+
+        if (leaderboardSnapshot.empty) {
+            listContainer.innerHTML = `<p class="text-secondary text-center p-3">No one is on the leaderboard yet. Be the first!</p>`;
+            return;
+        }
+        
+        let rank = 1;
+        leaderboardSnapshot.forEach(doc => {
+            const user = doc.data();
+            const displayName = user.fullName || (user.username ? `@${user.username}`: shortenAddress(user.address));
+            const avatarUrl = user.photoUrl || GENERIC_WALLET_ICON;
+            const isCurrentUser = connectedWalletAddress && user.address === connectedWalletAddress;
+
+            let rankDisplay, rankClass = ''; 
+            if (rank === 1) { rankClass = 'rank-1'; rankDisplay = `<i class="fas fa-medal rank-icon"></i>`; } 
+            else if (rank === 2) { rankClass = 'rank-2'; rankDisplay = `<i class="fas fa-medal rank-icon"></i>`; } 
+            else if (rank === 3) { rankClass = 'rank-3'; rankDisplay = `<i class="fas fa-medal rank-icon"></i>`; } 
+            else { rankDisplay = `#${rank}`; }
+
+            const item = document.createElement('div');
+            item.className = `leaderboard-item ${isCurrentUser ? 'current-user' : ''} ${rankClass}`;
+            
+            // [NEW] Add Level next to the name
+            const levelBadge = `<span class="badge ms-2" style="background-color: var(--accent-primary);">LV ${user.level || 1}</span>`;
+
+            item.innerHTML = `
+                <div class="leaderboard-rank">${rankDisplay}</div>
+                <img src="${avatarUrl}" class="leaderboard-avatar" onerror="this.src='${GENERIC_WALLET_ICON}'">
+                <div class="leaderboard-name text-truncate d-flex align-items-center">
+                    <span class="text-truncate">${displayName}</span>
+                    ${levelBadge}
+                </div>
+                <div class="leaderboard-exp">${(user.points || 0).toLocaleString()} EXP</div>
+            `;
+            
+            listContainer.appendChild(item);
+            rank++;
+        });
+
+    } catch (error) {
+        console.error("Error fetching leaderboard:", error);
+        listContainer.innerHTML = `<p class="text-danger text-center p-3">Could not load the leaderboard. Please try again later.</p>`;
+        totalUsersCountSpan.textContent = 'Error';
     }
+}
     
     async function fetchAndRenderAdminUserList(isInitialLoad = true) {
         if (!adminUserListContainer || !db) return;
@@ -2175,7 +2856,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (isInitialLoad) {
             lastVisibleAdminUser = null;
-            adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">Lượt mời</th><th scope="col">Check-in</th><th scope="col">N.vụ Partner HT</th><th scope="col">N.vụ Bắt buộc</th><th scope="col">EXP</th><th scope="col">Đã xác nhận 100%</th><th scope="col">Đã yêu cầu</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
+            // [UPDATED] Added Level column header
+            adminUserListContainer.innerHTML = `<table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;" id="admin-user-table"><thead><tr><th scope="col">User</th><th scope="col">Wallet Address</th><th scope="col">UID</th><th scope="col">Lượt mời</th><th scope="col">Check-in</th><th scope="col">N.vụ Partner HT</th><th scope="col">N.vụ Bắt buộc</th><th scope="col">Level</th><th scope="col">EXP</th><th scope="col">Đã xác nhận 100%</th><th scope="col">Đã yêu cầu</th><th scope="col">Account Status</th><th scope="col">Joined</th></tr></thead><tbody></tbody></table>`;
         }
         
         const tableBody = adminUserListContainer.querySelector('tbody');
@@ -2214,7 +2896,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const userDocs = Array.from(usersMap.values());
                  if (userDocs.length === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="12" class="text-center text-secondary p-3">Không tìm thấy người dùng.</td></tr>`;
+                    tableBody.innerHTML = `<tr><td colspan="13" class="text-center text-secondary p-3">Không tìm thấy người dùng.</td></tr>`;
                     return;
                 }
                 renderAdminUserRows(userDocs, tableBody, mandatoryTaskIds);
@@ -2246,7 +2928,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error("Error fetching user list for admin:", error);
-            tableBody.innerHTML = `<tr><td colspan="12" class="text-center text-danger p-3">Lỗi khi tải danh sách người dùng.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="13" class="text-center text-danger p-3">Lỗi khi tải danh sách người dùng.</td></tr>`;
         } finally {
             adminLoadMoreBtn.disabled = false;
             adminLoadMoreBtn.innerHTML = `Tải thêm`;
@@ -2303,6 +2985,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             const row = tableBody.insertRow();
+            // [UPDATED] Added Level cell
             row.innerHTML = `
                 <td>
                     <div class="d-flex align-items-center">
@@ -2318,6 +3001,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${user.checkinCount || 0}</td>
                 <td>${user.partnerTasksCompletedCount || 0}</td>
                 <td>${mandatoryStatusHtml}</td>
+                <td class="fw-bold">${user.level || 1}</td>
                 <td class="fw-bold" style="color: var(--accent-secondary);">${(user.points || 0).toLocaleString()}</td>
                 <td>${sentTxHtml}</td>
                 <td>${requestedRewardHtml}</td>
@@ -2411,10 +3095,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const freshUserDoc = await transaction.get(userRef);
                 if (!freshUserDoc.exists) throw "User document not found in transaction!";
                 
+                const userData = freshUserDoc.data();
+                const newTotalPoints = (userData.points || 0) + finalExpChange;
+                const newLevel = calculateLevel(newTotalPoints);
                 const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
                 
                 transaction.update(userRef, { 
-                    points: firebase.firestore.FieldValue.increment(finalExpChange) 
+                    points: firebase.firestore.FieldValue.increment(finalExpChange),
+                    level: newLevel // Update level in transaction
                 });
                 
                 const historyRef = userRef.collection('task_history').doc();
@@ -2497,24 +3185,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 
                 lastVisible = snapshot.docs[snapshot.docs.length - 1];
-                const batch = db.batch();
+                const writeBatch = db.batch();
                 const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
 
                 snapshot.forEach(doc => {
                     const userRef = doc.ref;
-                    batch.update(userRef, { 
-                        points: firebase.firestore.FieldValue.increment(expAmount) 
+                    const userData = doc.data();
+                    const newTotalPoints = (userData.points || 0) + expAmount;
+                    const newLevel = calculateLevel(newTotalPoints);
+
+                    writeBatch.update(userRef, { 
+                        points: firebase.firestore.FieldValue.increment(expAmount),
+                        level: newLevel
                     });
 
                     const historyRef = userRef.collection('task_history').doc();
-                    batch.set(historyRef, {
+                    writeBatch.set(historyRef, {
                         taskName: taskName,
                         exp: expAmount,
                         timestamp: newTimestamp
                     });
                 });
 
-                await batch.commit();
+                await writeBatch.commit();
                 totalProcessed += snapshot.size;
                 adminMassAwardStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã xử lý ${totalProcessed} người dùng...`;
             }
@@ -2595,7 +3288,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // --- [NEW] Notification Toggle Handler ---
     async function handleNotificationToggle(e) {
         if (!currentUserData || !db) return;
 
@@ -2611,13 +3303,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Failed to update notification settings:', error);
             showAppToast('Error', 'Could not save your setting. Please try again.', 'error');
-            toggle.checked = !newStatus; // Revert the toggle on failure
+            toggle.checked = !newStatus;
         } finally {
             toggle.disabled = false;
         }
     }
     
-    // --- [UPDATED] TELEGRAM BULK SENDER FUNCTION ---
     async function sendBulkTelegramMessage() {
         const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -2632,7 +3323,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if ((buttonText && !buttonUrl) || (!buttonText && buttonUrl)) { showAppToast('Lỗi', 'Để tạo nút, vui lòng nhập cả Văn bản và URL cho nút.', 'warning'); return; }
         
         sendBulkTelegramMessageBtn.disabled = true;
-        telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lấy danh sách người dùng từ cơ sở dữ liệu...`;
+        telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lấy danh sách người dùng...`;
 
         try {
             const allUsers = [];
@@ -2651,15 +3342,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const usersWithUid = allUsers.filter(user => user.telegramId);
             const totalWithUid = usersWithUid.length;
-            const usersToNotify = usersWithUid.filter(user => user.notificationsEnabled !== false); // Default to true
+            const usersToNotify = usersWithUid.filter(user => user.notificationsEnabled !== false);
             const totalToNotify = usersToNotify.length;
 
             if (totalToNotify === 0) {
-                telegramSenderStatus.innerHTML = `<span class="text-warning">Không tìm thấy người dùng nào bật thông báo.</span>`;
+                telegramSenderStatus.innerHTML = `<span class="text-warning">Không có người dùng nào bật thông báo.</span>`;
                 return;
             }
             
-            if (!confirm(`CẢNH BÁO: Bạn sắp gửi tin nhắn này cho ${totalToNotify} / ${totalWithUid} người dùng đã bật thông báo. Hành động này KHÔNG THỂ hoàn tác. Bạn có chắc chắn muốn tiếp tục?`)) {
+            if (!confirm(`CẢNH BÁO: Bạn sắp gửi tin nhắn này cho ${totalToNotify} / ${totalWithUid} người dùng. Hành động này KHÔNG THỂ hoàn tác. Bạn có chắc chắn muốn tiếp tục?`)) {
                 return;
             }
             
@@ -2669,7 +3360,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             for (let i = 0; i < totalToNotify; i++) {
                 const user = usersToNotify[i];
-                telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang gửi tin ${i + 1}/${totalToNotify}... (UID: ${user.telegramId})`;
+                telegramSenderStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang gửi tin ${i + 1}/${totalToNotify}...`;
                 
                 const body = { chat_id: user.telegramId };
                 let method;
@@ -2745,51 +3436,202 @@ document.addEventListener('DOMContentLoaded', () => {
         walletDropdown.style.display = 'none';
     }
     
-    // --- [UPDATED] Render Account Section ---
     function renderAccountSection() {
         const profilePhoto = document.getElementById('profile-photo');
         const profileFullname = document.getElementById('profile-fullname');
         const profileUsername = document.getElementById('profile-username');
         const profileDetails = document.getElementById('profile-details');
-
-        if (!currentUserData || !currentUserData.telegramId) {
-            if(accountSectionEl.style.display === 'block') {
-                document.querySelector('#account-section .container').innerHTML = `<div class="text-center p-5 card-glass"><h3 class="text-secondary">Account information is only available when accessed from the Mini App.</h3><p class="text-secondary">Please connect your wallet within the Mini App to sync your data.</p></div>`;
-            }
-            return;
-        }
-        
-        profilePhoto.src = currentUserData.photoUrl || DEFAULT_LOGO_SRC;
-        profileFullname.textContent = currentUserData.fullName || 'Anonymous';
-        profileUsername.textContent = currentUserData.username ? `@${currentUserData.username}` : 'No username';
-
+    
+        if (!currentUserData) return;
+    
+        const displayName = currentUserData.fullName || currentUserData.temporaryFullName || 'Anonymous User';
+        const displayPhoto = currentUserData.photoUrl || currentUserData.temporaryPhotoUrl || DEFAULT_LOGO_SRC;
+        const displayUsername = currentUserData.username ? `@${currentUserData.username}` : (currentUserData.isTemporaryProfile ? 'Web User' : 'No username');
+    
+        profilePhoto.src = displayPhoto;
+        profileFullname.textContent = displayName;
+        profileUsername.textContent = displayUsername;
+    
+        const emailDisplay = currentUserData.email
+            ? `<span>${currentUserData.email}</span>`
+            : `<span class="text-secondary">Not set</span>`;
+    
         profileDetails.innerHTML = `
-            <div class="d-flex justify-content-between mb-2">
-                <span class="metadata-key">Telegram ID:</span>
-                <span>${currentUserData.telegramId}</span>
-            </div>
-             <div class="d-flex justify-content-between mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="metadata-key">Address:</span>
                 <span class="copyable-address" data-address="${currentUserData.address}" title="Click to copy">${shortenAddress(currentUserData.address)}</span>
             </div>
+            ${currentUserData.telegramId ? `
+            <div class="d-flex justify-content-between mb-2">
+                <span class="metadata-key">Telegram ID:</span>
+                <span>${currentUserData.telegramId}</span>
+            </div>` : ''}
             <hr style="border-color: var(--border-color); opacity: 0.5; margin: 1rem 0;">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-envelope fa-fw me-2 metadata-key"></i>
+                    <span class="metadata-key">Email</span>
+                </div>
+                <div>
+                    ${emailDisplay}
+                    <button id="edit-email-btn" class="btn btn-sm btn-link p-0 ms-2"><i class="fas fa-pencil-alt"></i></button>
+                </div>
+            </div>
             <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
                     <i class="fas fa-bell fa-fw me-2 metadata-key"></i>
                     <span class="metadata-key">Notifications</span>
                 </div>
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="notifications-toggle" style="width: 3.5em; height: 1.75em; cursor: pointer;">
+                    <input class="form-check-input" type="checkbox" role="switch" id="notifications-toggle" style="width: 3.5em; height: 1.75em; cursor: pointer;" ${!currentUserData.telegramId ? 'disabled' : ''}>
                 </div>
             </div>
         `;
         
-        // Set the toggle state
         const notificationsToggle = document.getElementById('notifications-toggle');
         if (notificationsToggle) {
-            notificationsToggle.checked = currentUserData.notificationsEnabled !== false; // Default to true
+            notificationsToggle.checked = currentUserData.notificationsEnabled !== false;
+        }
+    
+        document.getElementById('edit-email-btn').addEventListener('click', () => {
+            document.getElementById('email-input').value = currentUserData.email || '';
+            emailUpdateModal.show();
+        });
+
+        // [NEW] Update level UI when rendering account section
+        updateLevelUI(currentUserData.level, currentUserData.points);
+    }
+
+    // [NEW] Function to update all Level-related UI elements
+    function updateLevelUI(level, exp) {
+        if (!accountSectionEl.style.display === 'none') return; // Only update if visible
+        
+        const currentLevel = level || 1;
+        const currentExp = exp || 0;
+        
+        const levelInfo = levelConfig.find(l => l.level === currentLevel) || levelConfig[0];
+        const nextLevelInfo = (currentLevel < levelConfig.length) ? levelConfig.find(l => l.level === currentLevel + 1) : null;
+
+        // Update Avatar Shield
+        const shield = document.getElementById('profile-avatar-shield');
+        if (shield) {
+            shield.className = 'avatar-shield'; // Reset classes
+            shield.classList.add(levelInfo.shieldClass || 'level-shield-1');
+        }
+
+        // Update Progress Bar and Text
+        const currentLevelDisplay = document.getElementById('current-level-display');
+        const nextLevelDisplay = document.getElementById('next-level-display');
+        const progressBar = document.getElementById('level-progress-bar');
+        const expDisplay = document.getElementById('level-exp-display');
+        const perkContainer = document.getElementById('next-level-perk-container');
+        const perkText = document.getElementById('next-level-perk');
+
+        currentLevelDisplay.textContent = `LV ${currentLevel}`;
+
+        if (nextLevelInfo) {
+            // Not max level
+            const expForNextLevel = nextLevelInfo.expRequired - levelInfo.expRequired;
+            const expProgress = currentExp - levelInfo.expRequired;
+            const progressPercentage = (expForNextLevel > 0) ? Math.min((expProgress / expForNextLevel) * 100, 100) : 100;
+
+            nextLevelDisplay.textContent = `LV ${nextLevelInfo.level}`;
+            progressBar.style.width = `${progressPercentage}%`;
+            expDisplay.textContent = `${expProgress.toLocaleString()} / ${expForNextLevel.toLocaleString()} EXP`;
+            perkText.textContent = nextLevelInfo.benefit;
+            perkContainer.style.display = 'block';
+
+        } else {
+            // Max level
+            nextLevelDisplay.textContent = 'MAX';
+            progressBar.style.width = '100%';
+            expDisplay.textContent = 'You have reached the maximum level!';
+            perkContainer.style.display = 'none';
         }
     }
+    
+    async function handleEmailUpdate() {
+        if (!currentUserData || !db) return;
+    
+        const emailInput = document.getElementById('email-input');
+        const newEmail = emailInput.value.trim();
+        const statusEl = document.getElementById('email-update-status');
+    
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (newEmail && !emailRegex.test(newEmail)) {
+            statusEl.innerHTML = `<span class="text-danger">Invalid email format.</span>`;
+            return;
+        }
+    
+        saveEmailBtn.disabled = true;
+        statusEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+    
+        try {
+            const userRef = db.collection('users').doc(currentUserData.address);
+            await userRef.update({ email: newEmail || null }); 
+            currentUserData.email = newEmail || null;
+            showAppToast('Success', 'Email updated successfully.', 'success');
+            emailUpdateModal.hide();
+            renderAccountSection(); 
+        } catch (error) {
+            console.error('Failed to update email:', error);
+            statusEl.innerHTML = `<span class="text-danger">Failed to save. Please try again.</span>`;
+            showAppToast('Error', 'Could not update your email.', 'error');
+        } finally {
+            saveEmailBtn.disabled = false;
+        }
+    }
+    
+    async function handleTempProfileSave() {
+        if (!currentUserData || !storage) return;
+    
+        const nameInput = document.getElementById('temp-fullname-input');
+        const avatarFile = document.getElementById('temp-avatar-upload').files[0];
+        const statusEl = document.getElementById('profile-setup-status');
+    
+        const newName = nameInput.value.trim();
+        if (!newName) {
+            statusEl.innerHTML = `<span class="text-danger">Display name is required.</span>`;
+            return;
+        }
+    
+        saveTempProfileBtn.disabled = true;
+        statusEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Saving...`;
+    
+        try {
+            const updates = { temporaryFullName: newName };
+    
+            if (avatarFile) {
+                const storageRef = storage.ref(`temp_avatars/${currentUserData.address}/${Date.now()}_${avatarFile.name}`);
+                const uploadTask = await storageRef.put(avatarFile);
+                updates.temporaryPhotoUrl = await uploadTask.ref.getDownloadURL();
+            }
+    
+            const userRef = db.collection('users').doc(currentUserData.address);
+            await userRef.update(updates);
+    
+            currentUserData = { ...currentUserData, ...updates };
+            profileSetupModal.hide();
+            
+            showAppToast('Profile Set!', 'Welcome to Bmass!', 'success');
+            const referrerCode = sessionStorage.getItem(REFERRAL_SESSION_KEY);
+            if (referrerCode) {
+                await applyReferral(referrerCode, currentUserData.address);
+                // Re-fetch user data after referral to get updated points
+                const doc = await userRef.get();
+                currentUserData = doc.data();
+            }
+            await onUserAuthenticated();
+    
+        } catch (error) {
+            console.error("Failed to save temporary profile:", error);
+            statusEl.innerHTML = `<span class="text-danger">Save failed. Please try again.</span>`;
+            showAppToast('Error', 'Could not save your profile.', 'error');
+        } finally {
+            saveTempProfileBtn.disabled = false;
+        }
+    }
+
     
     async function fetchAndRenderInvitedUsers() {
         const invitedListPane = document.getElementById('invited-list-pane');
@@ -2811,7 +3653,7 @@ document.addEventListener('DOMContentLoaded', () => {
             uidSnapshot.forEach(doc => invitedUsers.set(doc.id, doc.data()));
 
             if (invitedUsers.size === 0) {
-                invitedListPane.innerHTML = `<p class="text-secondary text-center p-3">You haven't invited anyone yet. Share your code now!</p>`;
+                invitedListPane.innerHTML = `<p class="text-secondary text-center p-3">You haven't invited anyone yet.</p>`;
                 return;
             }
 
@@ -2838,99 +3680,147 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    async function renderReferralSection() {
-        if (!currentUserData) return;
-        const linksContainer = document.getElementById('referral-links-container');
-        const codesContainer = document.getElementById('referral-codes-container');
-        const referralCountEl = document.getElementById('referral-count');
-        const referredByContainer = document.getElementById('referred-by-container');
-        const referralInputContainer = document.getElementById('referral-input-container');
-        
-        linksContainer.innerHTML = '';
-        codesContainer.innerHTML = '';
+async function renderReferralSection() {
+    if (!currentUserData) return;
+    const linksContainer = document.getElementById('referral-links-container');
+    const codesContainer = document.getElementById('referral-codes-container');
+    const referralCountEl = document.getElementById('referral-count');
+    const referredByContainer = document.getElementById('referred-by-container');
+    const referralInputContainer = document.getElementById('referral-input-container');
+    
+    linksContainer.innerHTML = '';
+    codesContainer.innerHTML = '';
 
-        const webLink = `${YOUR_WEB_APP_URL}?ref=${currentUserData.address}`;
-        linksContainer.innerHTML = `
-            <h6 class="mb-2"><i class="fas fa-link me-2"></i>Your Referral Link</h6>
-            <div class="mb-3">
-                <label class="form-label small text-secondary">Web Referral Link:</label>
+    const webLink = `${YOUR_WEB_APP_URL}?ref=${currentUserData.address}`;
+    linksContainer.innerHTML = `
+        <h6 class="mb-2"><i class="fas fa-link me-2"></i>Your Referral Link</h6>
+        <div class="mb-3">
+            <label class="form-label small text-secondary">Web Referral Link:</label>
+            <div class="input-group">
+                <input type="text" class="form-control" value="${webLink}" readonly>
+                <button class="btn btn-outline-secondary copyable-code" data-code="${webLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
+            </div>
+        </div>`;
+    codesContainer.innerHTML = `
+        <h6 class="mb-2"><i class="fas fa-barcode me-2"></i>Your Referral Code</h6>
+         <div class="mb-2">
+            <label class="form-label small text-secondary">Referral Code (Wallet Address):</label>
+            <div class="input-group">
+                <input type="text" class="form-control" value="${currentUserData.address}" readonly>
+                <button class="btn btn-outline-secondary copyable-code" data-code="${currentUserData.address}" title="Copy Code"><i class="fas fa-copy"></i></button>
+            </div>
+        </div>`;
+    
+    if (currentUserData.telegramId) {
+        const miniAppLink = `https://t.me/${YOUR_TELEGRAM_BOT_NAME}/${YOUR_MINI_APP_NAME}?startapp=${currentUserData.telegramId}`;
+         linksContainer.innerHTML += `
+            <div class="mb-2">
+                <label class="form-label small text-secondary">Mini App Referral Link:</label>
                 <div class="input-group">
-                    <input type="text" class="form-control" value="${webLink}" readonly>
-                    <button class="btn btn-outline-secondary copyable-code" data-code="${webLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
+                    <input type="text" class="form-control" value="${miniAppLink}" readonly>
+                    <button class="btn btn-outline-secondary copyable-code" data-code="${miniAppLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
                 </div>
             </div>`;
-        codesContainer.innerHTML = `
-            <h6 class="mb-2"><i class="fas fa-barcode me-2"></i>Your Referral Code</h6>
-             <div class="mb-2">
-                <label class="form-label small text-secondary">Referral Code (Wallet Address):</label>
+        codesContainer.innerHTML += `
+            <div class="mb-2">
+                <label class="form-label small text-secondary">Referral Code (UID):</label>
                 <div class="input-group">
-                    <input type="text" class="form-control" value="${currentUserData.address}" readonly>
-                    <button class="btn btn-outline-secondary copyable-code" data-code="${currentUserData.address}" title="Copy Code"><i class="fas fa-copy"></i></button>
+                    <input type="text" class="form-control" value="${currentUserData.telegramId}" readonly>
+                    <button class="btn btn-outline-secondary copyable-code" data-code="${currentUserData.telegramId}" title="Copy Code"><i class="fas fa-copy"></i></button>
                 </div>
             </div>`;
-        
-        if (currentUserData.telegramId) {
-            const miniAppLink = `https://t.me/${YOUR_TELEGRAM_BOT_NAME}/${YOUR_MINI_APP_NAME}?startapp=${currentUserData.telegramId}`;
-             linksContainer.innerHTML += `
-                <div class="mb-2">
-                    <label class="form-label small text-secondary">Mini App Referral Link:</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" value="${miniAppLink}" readonly>
-                        <button class="btn btn-outline-secondary copyable-code" data-code="${miniAppLink}" title="Copy Link"><i class="fas fa-copy"></i></button>
-                    </div>
-                </div>`;
-            codesContainer.innerHTML += `
-                <div class="mb-2">
-                    <label class="form-label small text-secondary">Referral Code (UID):</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" value="${currentUserData.telegramId}" readonly>
-                        <button class="btn btn-outline-secondary copyable-code" data-code="${currentUserData.telegramId}" title="Copy Code"><i class="fas fa-copy"></i></button>
-                    </div>
-                </div>`;
-        }
-        
-        if (currentUserData.referredBy) {
-            referralInputContainer.style.display = 'none';
-            referredByContainer.style.display = 'block';
-            referredByContainer.innerHTML = `<div class="skeleton-loader skeleton-line w-75"></div>`; // Placeholder
-            
-            const referrerCode = currentUserData.referredBy;
-            let referrerQuery;
-            if (!isNaN(referrerCode)) {
-                referrerQuery = db.collection('users').where('telegramId', '==', parseInt(referrerCode, 10));
-            } else {
-                referrerQuery = db.collection('users').where('address', '==', referrerCode);
-            }
-            
-            try {
-                const snapshot = await referrerQuery.get();
-                let referrerName = shortenAddress(referrerCode);
-                if (!snapshot.empty) {
-                    const referrerData = snapshot.docs[0].data();
-                    referrerName = referrerData.fullName || (referrerData.username ? `@${referrerData.username}` : shortenAddress(referrerData.address));
-                }
-                referredByContainer.innerHTML = `
-                    <hr style="border-color: var(--border-color); opacity: 0.5;">
-                    <h6 class="mb-2 text-secondary"><i class="fas fa-user-check me-2"></i>Your Referrer</h6>
-                    <div class="d-flex align-items-center p-2" style="background: rgba(43, 203, 196, 0.1); border-radius: 25px;">
-                        <i class="fas fa-award me-3" style="color: var(--accent-secondary); font-size: 1.5rem;"></i>
-                        <p class="m-0">You were referred by <strong style="color: var(--accent-secondary);">${referrerName}</strong>.</p>
-                    </div>`;
-            } catch (error) {
-                console.error("Could not fetch referrer's name", error);
-                referredByContainer.innerHTML = '';
-            }
-
-        } else {
-            referredByContainer.style.display = 'none';
-            if (!airdropSettings?.isSnapshotActive) {
-                referralInputContainer.style.display = 'block';
-            }
-        }
-        
-        referralCountEl.textContent = `${currentUserData.referralCount || 0}`;
-        fetchAndRenderInvitedUsers();
     }
+    
+    if (currentUserData.referredBy) {
+        referralInputContainer.style.display = 'none';
+        referredByContainer.style.display = 'block';
+        referredByContainer.innerHTML = `<div class="skeleton-loader skeleton-line w-75"></div>`;
+        
+        const referrerCode = currentUserData.referredBy;
+        let referrerQuery;
+        if (!isNaN(referrerCode)) {
+            referrerQuery = db.collection('users').where('telegramId', '==', parseInt(referrerCode, 10));
+        } else {
+            referrerQuery = db.collection('users').where('address', '==', referrerCode);
+        }
+        
+        try {
+            const snapshot = await referrerQuery.get();
+            let referrerName = shortenAddress(referrerCode);
+            if (!snapshot.empty) {
+                const referrerData = snapshot.docs[0].data();
+                referrerName = referrerData.fullName || (referrerData.username ? `@${referrerData.username}` : shortenAddress(referrerData.address));
+            }
+            referredByContainer.innerHTML = `
+                <hr style="border-color: var(--border-color); opacity: 0.5;">
+                <h6 class="mb-2 text-secondary"><i class="fas fa-user-check me-2"></i>Your Referrer</h6>
+                <div class="d-flex align-items-center p-2" style="background: rgba(43, 203, 196, 0.1); border-radius: 25px;">
+                    <i class="fas fa-award me-3" style="color: var(--accent-secondary); font-size: 1.5rem;"></i>
+                    <p class="m-0">You were referred by <strong style="color: var(--accent-secondary);">${referrerName}</strong>.</p>
+                </div>`;
+        } catch (error) {
+            console.error("Could not fetch referrer's name", error);
+            referredByContainer.innerHTML = '';
+        }
+
+    } else {
+        referredByContainer.style.display = 'none';
+        if (!airdropSettings?.isSnapshotActive) {
+            referralInputContainer.style.display = 'block';
+        }
+    }
+    
+    referralCountEl.textContent = `${currentUserData.referralCount || 0}`;
+
+    fetchAndRenderInvitedUsers();
+    renderReferralMilestones(); 
+}
+
+
+
+
+function renderReferralMilestones() {
+    const container = document.getElementById('referral-milestones-list-container');
+    if (!container) return; 
+
+    const baseExpDisplay = document.getElementById('referral-base-exp-display');
+    if (baseExpDisplay) {
+        baseExpDisplay.textContent = `${(rewardConfig.baseReferralExp || 5000).toLocaleString()} EXP`;
+    }
+
+    if (!rewardConfig.referralMilestones || rewardConfig.referralMilestones.length === 0) {
+        container.innerHTML = `<p class="text-secondary text-center">No milestones available right now.</p>`;
+        return;
+    }
+
+    let html = '';
+    const userReferralCount = currentUserData?.referralCount || 0;
+
+    rewardConfig.referralMilestones.forEach(milestone => {
+        const isCompleted = userReferralCount >= milestone.required;
+
+        html += `
+        <div class="d-flex align-items-center justify-content-between p-3 mb-2" 
+             style="background: rgba(145, 94, 255, 0.05); border-radius: 12px; border-left: 4px solid ${isCompleted ? 'var(--color-verified)' : 'var(--accent-primary)'}; opacity: ${isCompleted ? '0.7' : '1'};">
+            
+            <div class="d-flex align-items-center">
+                <i class="fas ${isCompleted ? 'fa-check-circle' : 'fa-users'} fa-fw me-3 fs-4" style="color: ${isCompleted ? 'var(--color-verified)' : 'var(--accent-primary)'};"></i>
+                <div>
+                    <h6 class="mb-0">Invite ${milestone.required} Friends</h6>
+                    <small class="text-secondary">${isCompleted ? 'Completed' : `Your progress: ${userReferralCount} / ${milestone.required}`}</small>
+                </div>
+            </div>
+
+            <div class="text-end">
+                <strong class="d-block" style="color: var(--gold);">+${(milestone.bonus).toLocaleString()} EXP</strong>
+                <small class="text-secondary">Bonus Reward</small>
+            </div>
+        </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
 
     async function fetchAirdropSettings() {
         if (airdropSettings) return airdropSettings;
@@ -3005,7 +3895,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isEligibleByStats) {
             eligibilityStatusEl.textContent = 'YOU ARE NOT ELIGIBLE';
             eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
-            actionsContainer.innerHTML = `<p class="text-white-50 mt-3">Continue completing tasks to become eligible for the airdrop.</p>`;
+            actionsContainer.innerHTML = `<p class="text-white-50 mt-3">Continue completing tasks to become eligible.</p>`;
         } else if (!mandatoryTasksCompleted) {
             eligibilityStatusEl.textContent = 'YOU ARE NOT ELIGIBLE';
             eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 ineligible';
@@ -3018,7 +3908,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p class="text-white-50 mt-3">Rewards will be distributed to your address soon.</p>
                 <code class="copyable-address fs-6" data-address="${friendlyAddress}">${shortenAddress(friendlyAddress, 10, 10)}</code>
             `;
-        } else { // Fully eligible and hasn't requested
+        } else {
             const rewardTier = currentUserData.hasSentConfirmationTx ? '100%' : '50%';
             eligibilityStatusEl.textContent = `YOU ARE ELIGIBLE (${rewardTier})`;
             eligibilityStatusEl.className = 'fw-bold mt-2 mb-0 fs-5 eligible';
@@ -3033,10 +3923,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (!settings.isSnapshotActive && settings.isClaimingEnabled) {
-                buttonsHtml += `<p class="text-white-50 mt-3 small">You are one step away from receiving $BMASS. Add your name to the reward distribution list.</p>`;
+                buttonsHtml += `<p class="text-white-50 mt-3 small">You are one step away from receiving $BMASS.</p>`;
                 buttonsHtml += `<button id="request-reward-button" class="airdrop-action-btn" style="background: var(--accent-secondary); color: white;">Send Transaction</button>`;
             } else if (settings.isSnapshotActive) {
-                buttonsHtml += `<p class="mt-3 fw-bold" style="color: var(--gold);"><i class="fas fa-flag-checkered me-2"></i>Final Snapshot!</p><p class="text-white-50">Claiming has ended. Tokens will be distributed soon to those who requested.</p>`;
+                buttonsHtml += `<p class="mt-3 fw-bold" style="color: var(--gold);"><i class="fas fa-flag-checkered me-2"></i>Final Snapshot!</p><p class="text-white-50">Claiming has ended. Tokens will be distributed soon.</p>`;
             } else {
                  buttonsHtml += `<p class="text-white-50 mt-3 fst-italic">Reward claiming will be enabled soon.</p>`;
             }
@@ -3121,7 +4011,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-        function identifyTelegramUser() {
+    function identifyTelegramUser() {
         try {
              if (window.Telegram && window.Telegram.WebApp) {
                 const tg = window.Telegram.WebApp;
@@ -3136,25 +4026,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     appLogoImg.style.borderRadius = '50%';
                     appLogoText.textContent = `@${telegramUserData.username}` || telegramUserData.first_name || 'Telegram User';
                     
-                    // [THAY ĐỔI] - BẮT ĐẦU LOGIC XỬ LÝ DEEP LINK
                     const startParam = tg.initDataUnsafe.start_param;
                     if (startParam) {
-                        // Ưu tiên xử lý deep link cho route
                         if (startParam.startsWith('route-')) {
-                            const route = startParam.split('-')[1]; // Lấy ra 'task' từ 'route-task'
+                            const route = startParam.split('-')[1];
                             if (route) {
                                 console.log(`Deep link to route: #${route}`);
-                                // Đặt hash để kích hoạt handleRouteChange()
                                 window.location.hash = route; 
                             }
                         } 
-                        // Nếu không phải route, thì đó là mã giới thiệu (logic cũ)
                         else {
                             console.log(`Referral code found: ${startParam}`);
                             sessionStorage.setItem(REFERRAL_SESSION_KEY, startParam);
                         }
                     }
-                    // [THAY ĐỔI] - KẾT THÚC LOGIC XỬ LÝ DEEP LINK
                     
                     if(tonConnectUI.connected) {
                         loadOrCreateUserByAddress(tonConnectUI.account.address);
@@ -3194,24 +4079,21 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(e) { console.error("Error capturing web referral:", e); }
     }
 
-        // --- PHIÊN BẢN MỚI ---
     async function initializeApp() {
+        showLoadingOverlay('Initializing...');
+        initializeFirebase();
+    
+        await fetchSystemStatus();
+    
         checkUserSession();
         captureWebReferral();
         identifyTelegramUser(); 
-
-        // [MỚI] Gọi hàm áp dụng style theo nền tảng
         applyPlatformSpecificStyling();
         
-        // [MỚI] Cấu hình chức năng cho nút Back Button
         if (window.Telegram && window.Telegram.WebApp) {
             const tg = window.Telegram.WebApp;
-            
-            // Định nghĩa hành động khi người dùng nhấn nút Back
             tg.BackButton.onClick(() => {
-                // Chuyển hướng về trang chủ
                 window.location.hash = '#dashboard';
-                // Không cần gọi handleRouteChange() ở đây vì sự kiện hashchange sẽ tự động làm điều đó
             });
         }
         
@@ -3219,11 +4101,16 @@ document.addEventListener('DOMContentLoaded', () => {
             appLogoText.textContent = 'Bmass';
         }
         
-        initializeFirebase();
         await fetchAirdropSettings();
-        handleRouteChange(); // Gọi hàm này để kiểm tra route ban đầu và thiết lập nút Back
-    }
+        await fetchRewardSettings();
+        await fetchLevelConfig(); // [NEW] Fetch level settings on init
 
+        if (!applyMaintenanceMode(tonConnectUI.account?.address)) {
+            handleRouteChange(); 
+        }
+        hideLoadingOverlay();
+    }
+    
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ 
         manifestUrl: 'https://bmass.vercel.app/tonconnect-manifest.json',
         buttonRootId: 'ton-connect-button-root' 
@@ -3231,6 +4118,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     tonConnectUI.onStatusChange(async (wallet) => {
         clearInterval(activityRefreshInterval);
+    
+        if (applyMaintenanceMode(wallet ? wallet.account.address : null)) {
+            if (wallet) {
+                tonConnectUI.disconnect();
+            }
+            hideLoadingOverlay();
+            return;
+        }
 
         if (wallet) {
             showLoadingOverlay('Connecting wallet...');
@@ -3274,7 +4169,7 @@ document.addEventListener('DOMContentLoaded', () => {
         [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(nav => nav.classList.remove('active'));
 
         const isLoggedIn = !!connectedWalletAddress;
-        [navTask, navPartner, navAccount, navReferral, navAirdrop].forEach(nav => nav.style.display = isLoggedIn ? 'block' : 'none');
+        [navTask, navPartner, navAccount, navReferral, navAirdrop].forEach(nav => nav.style.display = isLoggedIn ? 'flex' : 'none');
 
         if (viewToShow === 'account' && isLoggedIn) { accountSectionEl.style.display = 'block'; navAccount.classList.add('active'); } 
         else if (viewToShow === 'apps') { appStoreSection.style.display = 'block'; navApps.classList.add('active'); } 
@@ -3286,8 +4181,16 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (viewToShow === 'admin' && isLoggedIn && isCurrentUserAdmin()){
             adminSectionEl.style.display = 'block';
             navAdmin.classList.add('active');
-            renderAdminPartnerTasks();
-            fetchAndRenderAdminUserList(true); 
+            // Lazy load admin data when the section is shown
+            const adminUserPanel = document.getElementById('admin-panel-users');
+            if (adminUserPanel.style.display !== 'none') {
+                fetchAndRenderAdminUserList(true); 
+            }
+            const adminPartnerPanel = document.getElementById('admin-panel-partner-tasks');
+             if (adminPartnerPanel.style.display !== 'none') {
+                 renderAdminPartnerTasks();
+             }
+            maintenanceModeSwitch.checked = systemStatus.isMaintenanceMode;
             fetchAirdropSettings().then(settings => {
                  document.getElementById('airdrop-live-switch').checked = settings.isAirdropLive || false;
                  document.getElementById('confirmation-enabled-switch').checked = settings.isConfirmationEnabled || false;
@@ -3309,11 +4212,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sidebarMenu.classList.contains('open')) toggleSidebar();
     };
     
-        // --- PHIÊN BẢN MỚI ---
     const handleRouteChange = () => {
         let hash = window.location.hash.substring(1) || 'dashboard';
         const [path, queryString] = hash.split('?');
-        const tg = window.Telegram?.WebApp; // [ĐÃ SỬA] Lấy đối tượng WebApp một cách an toàn
+        const tg = window.Telegram?.WebApp;
         
         const protectedRoutes = ['task', 'partner', 'account', 'admin', 'referral', 'airdrop', 'leaderboard'];
         if (!connectedWalletAddress && protectedRoutes.includes(path)) {
@@ -3328,13 +4230,10 @@ document.addEventListener('DOMContentLoaded', () => {
              hash = 'dashboard'; 
         }
 
-        // [MỚI] Logic quản lý nút Back Button
         if (tg) {
             if (path === 'dashboard' || path === '') {
-                // Nếu đang ở trang chủ, ẩn nút Back
                 tg.BackButton.hide();
             } else {
-                // Nếu ở các trang khác, hiện nút Back
                 tg.BackButton.show();
             }
         }
@@ -3564,7 +4463,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tonValueUsd = tonBalance * tonPriceInfo.usd;
                 tonValueVnd = tonBalance * tonPriceInfo.vnd;
                 totalValueUsd += tonValueUsd;
-                totalValueVnd += tonValueVnd;
+            totalValueVnd += tonValueVnd;
             }
             const usdToVndRate = (tonPriceInfo?.vnd && tonPriceInfo?.usd) ? tonPriceInfo.vnd / tonPriceInfo.usd : 25450;
             if (jettonsInfo.balances.length > 0) {
@@ -3629,7 +4528,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!event?.actions) return logs;
         event.actions.forEach((action, actionIndex) => {
             try {
-                const log = { hash: `${event.hash}-${actionIndex}`, timestamp: event.timestamp * 1000, status: action.status, amount: null };
+                const log = { hash: `${event.event_id}-${actionIndex}`, timestamp: event.timestamp * 1000, status: action.status, amount: null };
                 const isViewingAddress = (partyObj) => getRaw(partyObj) === viewingRawAddress;
                 const processParty = (partyObj) => ({ short: partyObj?.name || shortenAddress(partyObj?.address), full: partyObj?.address });
                 if (action.type === 'TonTransfer' && action.TonTransfer) {
@@ -3717,15 +4616,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>`;
                     item.addEventListener('click', (e) => {
                         if (e.target.classList.contains('copyable-address')) return;
-                        searchResultsContainer.style.display = 'none';
-                        searchInput.value = '';
-                        if (item.dataset.type === 'jetton') {
-                            showJettonDetails(item.dataset.address);
-                        } else {
-                            fetchAndDisplayAccountData(item.dataset.address);
-                        }
-                    });
-                    searchResultsContainer.appendChild(item);
+                                            searchResultsContainer.appendChild(item);
                 }
             } else { searchResultsContainer.innerHTML = '<p class="text-secondary text-center p-3">No results.</p>'; }
         } catch (error) {
@@ -3779,7 +4670,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const decimals = jettonMetadata?.decimals;
             const symbol = jettonMetadata?.symbol || '';
             if (data.addresses?.length > 0) {
-                let tableHtml = `<table class="table table-hover align-middle"><thead><tr><th scope="col" style="width: 5%;">#100</th><th scope="col">Holder</th><th scope="col" class="text-end">Balance</th></tr></thead><tbody>`;
+                let tableHtml = `<table class="table table-hover align-middle"><thead><tr><th scope="col" style="width: 5%;">#</th><th scope="col">Holder</th><th scope="col" class="text-end">Balance</th></tr></thead><tbody>`;
                 for (const [index, holder] of data.addresses.entries()) {
                     const ownerWalletAddress = holder.owner.address;
                     const friendlyDisplayAddress = await getFriendlyAddress(ownerWalletAddress);
@@ -3842,7 +4733,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isSnapshotActive = document.getElementById('snapshot-active-switch').checked;
 
         if (isSnapshotActive && !airdropSettings?.isSnapshotActive) {
-            if (!confirm("CẢNH BÁO: Bạn sắp kích hoạt Snapshot. Hành động này sẽ DỪNG tất cả các hoạt động kiếm điểm và CHỐT dữ liệu. Hành động này không thể hoàn tác. Bạn có chắc chắn muốn tiếp tục không?")) {
+            if (!confirm("CẢNH BÁO: Bạn sắp kích hoạt Snapshot. Hành động này sẽ DỪNG tất cả các hoạt động kiếm điểm. Hành động này không thể hoàn tác. Bạn có chắc chắn muốn tiếp tục không?")) {
                 document.getElementById('snapshot-active-switch').checked = false;
                 return;
             }
@@ -3985,7 +4876,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const completedTaskIds = new Set(completedTasksSnapshot.docs.map(doc => doc.id));
             
             if (tasksSnapshot.empty) {
-                partnerTasksContainer.innerHTML = `<p class="text-secondary text-center p-3">No partner tasks available yet. Check back later!</p>`;
+                partnerTasksContainer.innerHTML = `<p class="text-secondary text-center p-3">No partner tasks available yet.</p>`;
                 return;
             }
             
@@ -3999,9 +4890,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const isDescLong = task.description.length > 100;
 
                 const cardHtml = `
-                    <a href="${task.taskLink}" target="_blank" rel="noopener noreferrer" 
+                    <div 
                        class="partner-task-card ${task.taskType === 'mandatory' ? 'mandatory' : ''} ${isCompleted ? 'completed' : ''}"
-                       data-task-id="${task.id}" data-exp="${task.expReward}" data-name="${task.projectName}" style="animation-delay: ${index * 70}ms">
+                       data-task-id="${task.id}" data-exp="${task.expReward}" data-name="${task.projectName}" data-link="${task.taskLink}" style="animation-delay: ${index * 70}ms">
                         
                         <div class="partner-task-top">
                             <img src="${task.imageUrl || GENERIC_TASK_ICON}" class="partner-task-img" onerror="this.src='${GENERIC_TASK_ICON}'">
@@ -4017,9 +4908,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         
                         <div class="partner-task-action-bar">
-                            ${isCompleted ? '<i class="fas fa-check-circle me-2"></i>Completed' : `+${task.expReward} EXP`}
+                            ${isCompleted ? '<i class="fas fa-check-circle me-2"></i>Completed' : `+${task.expReward.toLocaleString()} EXP`}
                         </div>
-                    </a>
+                    </div>
                 `;
                 
                 if (task.taskType === 'mandatory') {
@@ -4033,7 +4924,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
         } catch (error) {
             console.error("Error rendering partner tasks:", error);
-            partnerTasksContainer.innerHTML = `<p class="text-danger text-center p-3">Error loading partner tasks. Please try again.</p>`;
+            partnerTasksContainer.innerHTML = `<p class="text-danger text-center p-3">Error loading partner tasks.</p>`;
         }
     }
 
@@ -4056,82 +4947,91 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-async function handlePartnerTaskCompletion(e, taskCard) {
-    if (airdropSettings?.isSnapshotActive) {
-        showAppToast('Halted', 'Point-earning activities are paused due to the snapshot.', 'warning');
-        e.preventDefault();
-        return;
-    }
-    
-    if (taskCard.classList.contains('completed')) {
-        e.preventDefault();
-        return;
-    }
-
-    e.preventDefault();
-
-    const taskId = taskCard.dataset.taskId;
-    const expReward = parseInt(taskCard.dataset.exp, 10);
-    const projectName = taskCard.dataset.name;
-    const taskLink = taskCard.href;
-
-    if (!taskId || isNaN(expReward)) return;
-
-    const actionBar = taskCard.querySelector('.partner-task-action-bar');
-    actionBar.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
-    
-    try {
-        const userRef = db.collection('users').doc(connectedWalletAddress);
-        const completedTaskRef = userRef.collection('completed_partner_tasks').doc(taskId);
+    async function handlePartnerTaskCompletion(e, taskCard) {
+        if (airdropSettings?.isSnapshotActive) {
+            showAppToast('Halted', 'Point-earning activities are paused.', 'warning');
+            e.preventDefault();
+            return;
+        }
         
-        await db.runTransaction(async (transaction) => {
-            const completedDoc = await transaction.get(completedTaskRef);
-            if (completedDoc.exists) {
-                throw new Error("Task already completed.");
+        if (taskCard.classList.contains('completed')) {
+            e.preventDefault();
+            return;
+        }
+
+        e.preventDefault();
+
+        const taskId = taskCard.dataset.taskId;
+        const expReward = parseInt(taskCard.dataset.exp, 10);
+        const projectName = taskCard.dataset.name;
+        const taskLink = taskCard.dataset.link;
+
+        if (!taskId || isNaN(expReward)) return;
+
+        const actionBar = taskCard.querySelector('.partner-task-action-bar');
+        actionBar.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+        
+        try {
+            const userRef = db.collection('users').doc(connectedWalletAddress);
+            const completedTaskRef = userRef.collection('completed_partner_tasks').doc(taskId);
+            
+            let newTotalPoints;
+            await db.runTransaction(async (transaction) => {
+                const [userDoc, completedDoc] = await Promise.all([
+                    transaction.get(userRef),
+                    transaction.get(completedTaskRef)
+                ]);
+
+                if (!userDoc.exists) throw new Error("User not found.");
+                if (completedDoc.exists) throw new Error("Task already completed.");
+
+                const userData = userDoc.data();
+                newTotalPoints = (userData.points || 0) + expReward;
+                const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+
+                transaction.update(userRef, {
+                    points: firebase.firestore.FieldValue.increment(expReward),
+                    partnerTasksCompletedCount: firebase.firestore.FieldValue.increment(1)
+                });
+                transaction.set(completedTaskRef, { completedAt: newTimestamp });
+                const historyRef = userRef.collection('task_history').doc();
+                transaction.set(historyRef, {
+                    taskName: 'Partner Task',
+                    projectName: projectName,
+                    exp: expReward,
+                    timestamp: newTimestamp
+                });
+            });
+            
+            showAppToast('Success!', `You received +${expReward} EXP from the ${projectName} task.`, 'success');
+            
+            // Update current user data then check for level up
+            currentUserData.points = newTotalPoints;
+            checkAndUpdateLevel(connectedWalletAddress, newTotalPoints);
+
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.openLink(taskLink);
+            } else {
+                window.open(taskLink, '_blank');
             }
-            const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
-            transaction.update(userRef, {
-                points: firebase.firestore.FieldValue.increment(expReward),
-                partnerTasksCompletedCount: firebase.firestore.FieldValue.increment(1)
-            });
-            transaction.set(completedTaskRef, { completedAt: newTimestamp });
-            const historyRef = userRef.collection('task_history').doc();
-            transaction.set(historyRef, {
-                taskName: 'Partner Task',
-                projectName: projectName,
-                exp: expReward,
-                timestamp: newTimestamp
-            });
-        });
-        
-        showAppToast('Success!', `You received +${expReward} EXP from the ${projectName} task.`, 'success');
-        
-        // [LÝ DO] Dùng window.open() bị chặn trên iOS Mini App.
-        // [GIẢI PHÁP] Sử dụng API của Telegram Web App để đảm bảo tương thích.
-        if (window.Telegram && window.Telegram.WebApp) {
-            window.Telegram.WebApp.openLink(taskLink);
-        } else {
-            // Phương án dự phòng cho trình duyệt web thông thường.
-            window.open(taskLink, '_blank');
-        }
-        
-        const updatedDoc = await userRef.get();
-        currentUserData = updatedDoc.data();
-        updateExpBalances(currentUserData.points);
-        taskCard.classList.add('completed');
-        actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
+            
+            const updatedDoc = await userRef.get();
+            currentUserData = updatedDoc.data();
+            updateUIAfterLogin(); 
+            taskCard.classList.add('completed');
+            actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
 
-    } catch (error) {
-        if (error.message.includes("Task already completed.")) {
-             taskCard.classList.add('completed');
-             actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
-        } else {
-            console.error("Failed to complete partner task:", error);
-            showAppToast('Error', 'Could not complete the task. Please try again.', 'error');
-            actionBar.innerHTML = `+${expReward} EXP`; 
+        } catch (error) {
+            if (error.message.includes("Task already completed.")) {
+                 taskCard.classList.add('completed');
+                 actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
+            } else {
+                console.error("Failed to complete partner task:", error);
+                showAppToast('Error', 'Could not complete the task. Please try again.', 'error');
+                actionBar.innerHTML = `+${expReward.toLocaleString()} EXP`; 
+            }
         }
     }
-}
     
     async function handleAdminPartnerTaskSave(e) {
         e.preventDefault();
@@ -4226,7 +5126,7 @@ async function handlePartnerTaskCompletion(e, taskCard) {
                         <td><img src="${task.imageUrl || GENERIC_TASK_ICON}" class="table-img-preview" onerror="this.src='${GENERIC_TASK_ICON}'"></td>
                         <td style="white-space: normal;"><strong>${task.projectName}</strong><br><small class="text-secondary">${task.description}</small></td>
                         <td>${typeBadge}</td>
-                        <td class="fw-bold">${task.expReward}</td>
+                        <td class="fw-bold">${task.expReward.toLocaleString()}</td>
                         <td>
                             <button class="btn btn-sm btn-outline-light admin-edit-partner-task-btn" title="Chỉnh sửa"><i class="fas fa-pencil-alt"></i></button>
                             <button class="btn btn-sm btn-outline-danger admin-delete-partner-task-btn" title="Xóa"><i class="fas fa-trash-alt"></i></button>
@@ -4254,7 +5154,7 @@ async function handlePartnerTaskCompletion(e, taskCard) {
         const taskId = row.dataset.id;
         
         if (deleteBtn) {
-            if (!confirm(`Bạn có chắc chắn muốn xóa nhiệm vụ này? Hành động này không thể hoàn tác.`)) {
+            if (!confirm(`Bạn có chắc chắn muốn xóa nhiệm vụ này?`)) {
                 return;
             }
             try {
@@ -4287,6 +5187,36 @@ async function handlePartnerTaskCompletion(e, taskCard) {
             }
         }
     }
+    
+    async function handleMaintenanceToggle(e) {
+        const isEnabled = e.target.checked;
+        const confirmationMessage = isEnabled
+            ? "CẢNH BÁO: Bạn sắp bật chế độ bảo trì. Tất cả người dùng sẽ bị chặn truy cập. Tiếp tục?"
+            : "Bạn có chắc muốn tắt chế độ bảo trì và cho phép người dùng truy cập lại không?";
+
+        if (!confirm(confirmationMessage)) {
+            e.target.checked = !isEnabled; 
+            return;
+        }
+        
+        maintenanceModeSwitch.disabled = true;
+        adminSystemStatus.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Cập nhật...`;
+        try {
+            await db.collection('admin_settings').doc('system_status').set({ isMaintenanceMode: isEnabled });
+            systemStatus.isMaintenanceMode = isEnabled;
+            showAppToast('Thành công', `Chế độ bảo trì đã được ${isEnabled ? 'BẬT' : 'TẮT'}.`, 'success');
+            adminSystemStatus.innerHTML = `<span class="text-success">Đã cập nhật thành công!</span>`;
+            setTimeout(() => window.location.reload(), 1500);
+        } catch (error) {
+            console.error("Error updating maintenance mode:", error);
+            showAppToast('Lỗi', 'Không thể cập nhật trạng thái hệ thống.', 'error');
+            adminSystemStatus.innerHTML = `<span class="text-danger">Cập nhật thất bại.</span>`;
+            e.target.checked = !isEnabled;
+        } finally {
+            maintenanceModeSwitch.disabled = false;
+        }
+    }
+
 
     // --- Event Listeners ---
     hamburgerBtn.addEventListener('click', toggleSidebar);
@@ -4346,6 +5276,20 @@ async function handlePartnerTaskCompletion(e, taskCard) {
     backToMyWalletBtn.addEventListener('click', () => { if (connectedWalletAddress) fetchAndDisplayAccountData(connectedWalletAddress); });
     otherTokensContent.addEventListener('click', (e) => { const jettonItem = e.target.closest('.jetton-item'); if (jettonItem) showJettonDetails(jettonItem.dataset.jettonAddress); });
     
+    if (saveEmailBtn) saveEmailBtn.addEventListener('click', handleEmailUpdate);
+    if (saveTempProfileBtn) saveTempProfileBtn.addEventListener('click', handleTempProfileSave);
+    if (maintenanceModeSwitch) maintenanceModeSwitch.addEventListener('change', handleMaintenanceToggle);
+    document.getElementById('temp-avatar-upload').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                document.getElementById('temp-avatar-preview').src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
     document.body.addEventListener('click', (e) => { 
         const copyAddressTarget = e.target.closest('.copyable-address');
         const copyCodeTarget = e.target.closest('.copyable-code');
@@ -4362,7 +5306,6 @@ async function handlePartnerTaskCompletion(e, taskCard) {
         if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none'; 
     });
     
-    // --- [UPDATED] Event listener with notification toggle ---
     document.body.addEventListener('change', e => {
         if (e.target.id === 'notifications-toggle') {
             handleNotificationToggle(e);
@@ -4385,37 +5328,308 @@ async function handlePartnerTaskCompletion(e, taskCard) {
     heroConnectButton.addEventListener('click', () => tonConnectUI.openModal());
     connectWalletHeroBtnContainer.appendChild(heroConnectButton);
     
-    // --- App Initialization ---
-    fetchCryptoNews();
-    initializeApp();
-});
-
-
     function applyPlatformSpecificStyling() {
-        // Chỉ chạy nếu đang ở trong môi trường Telegram Mini App
         if (window.Telegram && window.Telegram.WebApp) {
             const platform = window.Telegram.WebApp.platform;
             const body = document.body;
-
-            // Xóa các class cũ để tránh bị trùng lặp
             body.classList.remove('platform-ios', 'platform-android', 'platform-desktop');
             
             console.log(`Detected platform: ${platform}`);
-
             switch (platform) {
-                case 'ios':
-                    body.classList.add('platform-ios');
-                    break;
-                case 'android':
-                    body.classList.add('platform-android');
-                    break;
-                // Bạn có thể thêm các trường hợp khác như 'macos', 'windows', 'web' nếu cần
-                default:
-                    body.classList.add('platform-desktop');
-                    break;
+                case 'ios': body.classList.add('platform-ios'); break;
+                case 'android': body.classList.add('platform-android'); break;
+                default: body.classList.add('platform-desktop'); break;
             }
         }
     }
-    </script>
+
+    async function fetchRewardSettings() {
+        if (!db) return;
+        try {
+            const docRef = db.collection('admin_settings').doc('reward_config');
+            const doc = await docRef.get();
+            if (doc.exists) {
+                const data = doc.data();
+                if (data.referralMilestones && Array.isArray(data.referralMilestones)) {
+                    data.referralMilestones.sort((a, b) => a.required - b.required);
+                }
+                rewardConfig = data;
+                console.log("Reward settings loaded from Firestore:", rewardConfig);
+            } else {
+                await docRef.set(rewardConfig);
+                console.log("No reward settings in Firestore, created with defaults.");
+            }
+        } catch (error) {
+            console.error("Error fetching reward settings:", error);
+        }
+    }
+
+    function renderRewardSettingsUI() {
+        const adminPanel = document.getElementById('admin-panel-reward-settings');
+        if (!adminPanel) return;
+
+        document.getElementById('checkin-exp-input').value = rewardConfig.checkinExp;
+        document.getElementById('base-referral-exp-input').value = rewardConfig.baseReferralExp;
+        
+        const container = document.getElementById('referral-milestones-container');
+        container.innerHTML = ''; 
+
+        (rewardConfig.referralMilestones || []).forEach((milestone) => {
+            addMilestoneRow(milestone.required, milestone.bonus);
+        });
+    }
+
+    function addMilestoneRow(required = '', bonus = '') {
+        const container = document.getElementById('referral-milestones-container');
+        const milestoneDiv = document.createElement('div');
+        milestoneDiv.className = 'row g-3 align-items-center mb-2 milestone-item';
+        milestoneDiv.innerHTML = `
+            <div class="col">
+                <label class="form-label small d-md-none">Mốc (lượt mời)</label>
+                <input type="number" class="form-control milestone-required" value="${required}" placeholder="Số lượt mời" min="1">
+            </div>
+            <div class="col">
+                <label class="form-label small d-md-none">Thưởng thêm (EXP)</label>
+                <input type="number" class="form-control milestone-bonus" value="${bonus}" placeholder="EXP thưởng thêm" min="0">
+            </div>
+            <div class="col-auto">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-milestone-btn mt-md-4"><i class="fas fa-trash"></i></button>
+            </div>
+        `;
+        container.appendChild(milestoneDiv);
+    }
+    
+    // ===================================================================
+    // [NEW] LEVEL SETTINGS FUNCTIONS
+    // ===================================================================
+
+    async function fetchLevelConfig() {
+        if (!db) return;
+        try {
+            const docRef = db.collection('admin_settings').doc('level_config');
+            const doc = await docRef.get();
+            if (doc.exists) {
+                const data = doc.data();
+                if (data.levels && Array.isArray(data.levels)) {
+                    levelConfig = data.levels.sort((a, b) => a.level - b.level);
+                    console.log("Level config loaded from Firestore:", levelConfig);
+                }
+            } else {
+                // If not found, save the default config to Firestore
+                await docRef.set({ levels: levelConfig });
+                console.log("No level config in Firestore, created with defaults.");
+            }
+        } catch (error) {
+            console.error("Error fetching level config, using defaults:", error);
+        }
+    }
+    
+    function renderLevelSettingsUI() {
+        const adminPanel = document.getElementById('admin-panel-level-settings');
+        if (!adminPanel) return;
+
+        const container = document.getElementById('level-settings-container');
+        container.innerHTML = ''; // Clear existing rows
+
+        (levelConfig || []).forEach((levelData) => {
+            addLevelRow(levelData);
+        });
+    }
+
+    function addLevelRow(levelData = {}) {
+        const container = document.getElementById('level-settings-container');
+        const levelDiv = document.createElement('div');
+        levelDiv.className = 'row g-3 align-items-center mb-3 level-item';
+        
+        const currentLevel = levelData.level || (container.children.length + 1);
+        const expRequired = levelData.expRequired ?? '';
+        const benefit = levelData.benefit ?? '';
+
+        levelDiv.innerHTML = `
+            <div class="col-2 col-md-1">
+                <input type="number" class="form-control text-center level-number" value="${currentLevel}" readonly>
+            </div>
+            <div class="col-5 col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text">EXP ≥</span>
+                    <input type="number" class="form-control level-exp" value="${expRequired}" placeholder="EXP yêu cầu" min="0">
+                </div>
+            </div>
+            <div class="col-5 col-md-6">
+                 <input type="text" class="form-control level-benefit" value="${benefit}" placeholder="Mô tả quyền lợi">
+            </div>
+            <div class="col-12 col-md-1 text-end">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-level-btn"><i class="fas fa-trash"></i></button>
+            </div>
+        `;
+        container.appendChild(levelDiv);
+        
+        // Disable editing for Level 1
+        if (currentLevel === 1) {
+            levelDiv.querySelector('.level-exp').readOnly = true;
+            levelDiv.querySelector('.remove-level-btn').style.display = 'none';
+        }
+    }
+    
+    function renumberLevels() {
+        const items = document.querySelectorAll('#level-settings-container .level-item');
+        items.forEach((item, index) => {
+            const levelInput = item.querySelector('.level-number');
+            levelInput.value = index + 1;
+        });
+    }
+
+
+    // --- Event Listeners specific to new features ---
+
+    document.addEventListener('click', (e) => {
+        if (e.target && e.target.id === 'add-milestone-btn') {
+            addMilestoneRow();
+        }
+        if (e.target && e.target.closest('.remove-milestone-btn')) {
+            e.target.closest('.milestone-item').remove();
+        }
+        
+        // [NEW] Level Settings Listeners
+        if (e.target && e.target.id === 'add-level-btn') {
+            addLevelRow();
+        }
+        if (e.target && e.target.closest('.remove-level-btn')) {
+            e.target.closest('.level-item').remove();
+            renumberLevels();
+        }
+        
+        const adminNavButton = e.target.closest('#admin-nav-tabs .nav-link');
+        if (adminNavButton) {
+            const targetId = adminNavButton.dataset.target;
+            if (!targetId) return;
+
+            document.querySelectorAll('#admin-nav-tabs .nav-link').forEach(btn => btn.classList.remove('active'));
+            adminNavButton.classList.add('active');
+
+            document.querySelectorAll('.admin-panel-wrapper').forEach(panel => {
+                panel.style.display = 'none';
+            });
+
+            const targetPanel = document.querySelector(targetId);
+            if (targetPanel) {
+                targetPanel.style.display = 'block';
+                // Trigger render functions when a tab is shown
+                if (targetId === '#admin-panel-reward-settings') {
+                    renderRewardSettingsUI();
+                } else if (targetId === '#admin-panel-level-settings') {
+                    renderLevelSettingsUI();
+                } else if (targetId === '#admin-panel-users') {
+                    fetchAndRenderAdminUserList(true);
+                } else if (targetId === '#admin-panel-partner-tasks') {
+                    renderAdminPartnerTasks();
+                }
+            }
+        }
+    });
+
+    document.addEventListener('submit', async (e) => {
+        if (e.target && e.target.id === 'admin-reward-settings-form') {
+            e.preventDefault();
+            const saveBtn = document.getElementById('save-reward-settings-btn');
+            const statusEl = document.getElementById('admin-reward-settings-status');
+            
+            saveBtn.disabled = true;
+            statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
+
+            const newSettings = {
+                checkinExp: parseInt(document.getElementById('checkin-exp-input').value, 10) || 0,
+                baseReferralExp: parseInt(document.getElementById('base-referral-exp-input').value, 10) || 0,
+                referralMilestones: []
+            };
+
+            document.querySelectorAll('.milestone-item').forEach(item => {
+                const required = parseInt(item.querySelector('.milestone-required').value, 10);
+                const bonus = parseInt(item.querySelector('.milestone-bonus').value, 10);
+                if (!isNaN(required) && required > 0 && !isNaN(bonus)) {
+                    newSettings.referralMilestones.push({ required, bonus });
+                }
+            });
+            
+            newSettings.referralMilestones.sort((a,b) => a.required - b.required);
+
+            try {
+                await db.collection('admin_settings').doc('reward_config').set(newSettings);
+                rewardConfig = newSettings; 
+                statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu cài đặt!</span>`;
+                showAppToast('Thành công', 'Cài đặt thưởng đã được cập nhật.', 'success');
+            } catch (error) {
+                console.error("Error saving reward settings:", error);
+                statusEl.innerHTML = `<span class="text-danger">Lỗi: ${error.message}</span>`;
+            } finally {
+                saveBtn.disabled = false;
+                setTimeout(() => { statusEl.innerHTML = ''; }, 4000);
+            }
+        }
+        
+        // [NEW] Level Settings Form Submission
+        if (e.target && e.target.id === 'admin-level-settings-form') {
+            e.preventDefault();
+            const saveBtn = document.getElementById('save-level-settings-btn');
+            const statusEl = document.getElementById('admin-level-settings-status');
+            
+            saveBtn.disabled = true;
+            statusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
+
+            const newLevels = [];
+            let isValid = true;
+            let lastExp = -1;
+
+            document.querySelectorAll('.level-item').forEach(item => {
+                const level = parseInt(item.querySelector('.level-number').value, 10);
+                const expRequired = parseInt(item.querySelector('.level-exp').value, 10);
+                const benefit = item.querySelector('.level-benefit').value.trim();
+                
+                if (isNaN(level) || isNaN(expRequired)) {
+                    isValid = false;
+                }
+                
+                if (level > 1 && expRequired <= lastExp) {
+                    showAppToast('Lỗi Cấu hình', `EXP yêu cầu cho Level ${level} phải lớn hơn Level ${level - 1}.`, 'error');
+                    isValid = false;
+                }
+                lastExp = expRequired;
+
+                newLevels.push({ 
+                    level, 
+                    expRequired, 
+                    benefit,
+                    shieldClass: `level-shield-${level}` // Auto-generate shield class
+                });
+            });
+            
+            if (!isValid) {
+                 statusEl.innerHTML = `<span class="text-danger">Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.</span>`;
+                 saveBtn.disabled = false;
+                 return;
+            }
+
+            try {
+                await db.collection('admin_settings').doc('level_config').set({ levels: newLevels });
+                levelConfig = newLevels; // Update local config
+                statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu cài đặt level!</span>`;
+                showAppToast('Thành công', 'Cấu hình level đã được cập nhật.', 'success');
+            } catch (error) {
+                console.error("Error saving level settings:", error);
+                statusEl.innerHTML = `<span class="text-danger">Lỗi: ${error.message}</span>`;
+            } finally {
+                saveBtn.disabled = false;
+                setTimeout(() => { statusEl.innerHTML = ''; }, 4000);
+            }
+        }
+    });
+
+    // --- App Initialization ---
+    fetchCryptoNews();
+    initializeApp();
+    
+});
+</script>
+
 </body>
 </html>
