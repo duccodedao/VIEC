@@ -4724,22 +4724,21 @@ function renderReferralMilestones() {
         } else { nftGalleryContent.innerHTML = `<p class="text-secondary">No NFTs found.</p>`; }
     }
 
-
-function renderSingleActivityItem(log) {
-    const statusIcon = log.status === 'ok' ? `<i class="fas fa-check-circle status-icon status-ok"></i>` : `<i class="fas fa-exclamation-circle status-icon status-failed"></i>`;
-    const titleText = log.status !== 'ok' ? `<span class="text-warning">${log.title} (Failed)</span>` : log.title;
-    const colorClass = log.direction === 'in' ? 'amount-in' : 'amount-out';
-    const amountDisplay = log.amount !== null ? `<p class="m-0 fw-bold ${colorClass}">${log.sign} ${log.amount.toLocaleString('en-US', {maximumFractionDigits: 4})} ${log.symbol}</p>` : `<p class="m-0 fw-bold">${log.symbol} Transfer</p>`;
-    const commentDisplay = log.comment ? `<div class="w-100 mt-2"><p class="m-0 text-secondary" style="font-size: 0.8rem; font-style: italic;"><i class="fas fa-comment-dots me-2"></i>${log.comment}</p></div>` : '';
-    const partyAddressHtml = `<code class="copyable-address" data-address="${log.party_full}" title="Click to copy">${log.party}</code>`;
-    return `
-     <div class="d-flex flex-wrap align-items-center py-3 border-bottom border-secondary border-opacity-25">
-        <img src="${log.image}" class="activity-item-icon me-3" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
-        <div class="flex-grow-1"><p class="m-0 fw-bold">${statusIcon}${titleText}</p><p class="m-0 text-secondary" style="font-size: 0.8rem;">${log.party_title}: ${partyAddressHtml}</p></div>
-        <div class="text-end">${amountDisplay}<p class="m-0 text-secondary" style="font-size: 0.8rem;">${new Date(log.timestamp).toLocaleString()}</p></div>
-        ${commentDisplay}
-     </div>`;
-}
+    function renderSingleActivityItem(log) {
+        const statusIcon = log.status === 'ok' ? `<i class="fas fa-check-circle status-icon status-ok"></i>` : `<i class="fas fa-exclamation-circle status-icon status-failed"></i>`;
+        const titleText = log.status !== 'ok' ? `<span class="text-warning">${log.title} (Failed)</span>` : log.title;
+        const colorClass = log.direction === 'in' ? 'amount-in' : 'amount-out';
+        const amountDisplay = log.amount !== null ? `<p class="m-0 fw-bold ${colorClass}">${log.sign} ${log.amount.toLocaleString('en-US', {maximumFractionDigits: 4})} ${log.symbol}</p>` : `<p class="m-0 fw-bold">${log.symbol} Transfer</p>`;
+        const commentDisplay = log.comment ? `<div class="w-100 mt-2"><p class="m-0 text-secondary" style="font-size: 0.8rem; font-style: italic;"><i class="fas fa-comment-dots me-2"></i>${log.comment}</p></div>` : '';
+        const partyAddressHtml = `<code class="copyable-address" data-address="${log.party_full}" title="Click to copy">${log.party}</code>`;
+        return `
+         <div class="d-flex flex-wrap align-items-center py-3 border-bottom border-secondary border-opacity-25">
+            <img src="${log.image}" class="activity-item-icon me-3" onerror="this.src='https://ton.org/download/ton_symbol.png'"/>
+            <div class="flex-grow-1"><p class="m-0 fw-bold">${statusIcon}${titleText}</p><p class="m-0 text-secondary" style="font-size: 0.8rem;">${log.party_title}: ${partyAddressHtml}</p></div>
+            <div class="text-end">${amountDisplay}<p class="m-0 text-secondary" style="font-size: 0.8rem;">${new Date(log.timestamp).toLocaleString()}</p></div>
+            ${commentDisplay}
+         </div>`;
+    }
 
 async function fetchAndDisplayAccountData(addressToFetch) {
     const isNewAddress = addressToFetch !== lastFetchedAddress;
