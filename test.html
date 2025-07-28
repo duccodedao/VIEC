@@ -896,42 +896,22 @@
     </nav>
     
     <div class="main-container">
-<!-- TÌM KHỐI HEADER NÀY -->
-<header class="header">
-    <a href="#" class="header-logo" id="app-logo-container">
-        <img id="app-logo-img" src="https://bmass.vercel.app/img/bmasslogo.png" alt="App Logo">
-        <span id="app-logo-text"></span>
-    </a>
-
-    <!-- SỬA ĐỔI KHỐI DIV BÊN DƯỚI -->
-    <div class="d-flex align-items-center gap-3">
-        
-        <!-- ============================================= -->
-        <!-- [NEW] KHỐI HIỂN THỊ TRẠNG THÁI USER           -->
-        <!-- ============================================= -->
-        <div id="user-status-display" class="d-none d-md-block text-end" style="font-size: 0.8rem; line-height: 1.2;">
-            <div>
-                <i class="fas fa-circle me-1" style="color: var(--color-verified); font-size: 0.6rem;"></i>
-                <span id="online-users-count">...</span>
-                <span>Online</span>
+        <header class="header">
+            <a href="#" class="header-logo" id="app-logo-container">
+                <img id="app-logo-img" src="https://bmass.vercel.app/img/bmasslogo.png" alt="App Logo">
+                <span id="app-logo-text"></span>
+            </a>
+            <div class="d-flex align-items-center gap-3">
+                <div id="header-exp-display" class="d-none" style="color: var(--accent-secondary); font-weight: 600;">
+                    EXP: <span id="header-exp-balance">0</span>
+                </div>
+                <button id="hamburger-menu-btn" class="hamburger-btn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
-            <div class="text-secondary">
-                <span id="total-users-count">...</span>
-                <span>Total Users</span>
-            </div>
-        </div>
-        <!-- ============================================= -->
-
-        <div id="header-exp-display" class="d-none" style="color: var(--accent-secondary); font-weight: 600;">
-            EXP: <span id="header-exp-balance">0</span>
-        </div>
-        <button id="hamburger-menu-btn" class="hamburger-btn">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
-    </div>
-</header>
+        </header>
         
         <main id="account-section" style="display: none;">
             <div class="container">
@@ -1587,30 +1567,6 @@
                          <div class="col-12">
                             <div class="card-glass">
                                 <h5 class="card-title">Danh sách Người dùng</h5>
-
-
-
-            <div class="row g-3 mb-4 text-center">
-                <div class="col-md-6">
-                    <div class="airdrop-stat-card py-3">
-                        <div id="analytics-total-visits" class="airdrop-stat-value">...</div>
-                        <div class="airdrop-stat-label">Tổng Lượt Truy Cập</div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="airdrop-stat-card py-3">
-                        <div id="analytics-today-visits" class="airdrop-stat-value">...</div>
-                        <div class="airdrop-stat-label">Truy Cập Hôm Nay</div>
-                    </div>
-                </div>
-            </div>
-            <hr style="border-color: var(--border-color); opacity: 0.5; margin-bottom: 1.5rem;">
-            <!-- ============================================= -->
-
-
-
-
-                                
                                 <div class="mb-3">
                                     <input type="text" id="admin-user-search-input" class="form-control" placeholder="Tìm theo Tên, UID, hoặc Địa chỉ ví...">
                                 </div>
@@ -1959,7 +1915,7 @@ document.addEventListener('touchmove', function (event) {
     let storage = null; // Firebase Storage
     let checkinInterval = null;
     let lastVisibleAdminUser = null; // For admin pagination
-    let heartbeatInterval = null;
+
     // [NEW] Reward Configuration Variable
     let rewardConfig = {
         checkinExp: 1000,
@@ -2021,110 +1977,6 @@ document.addEventListener('touchmove', function (event) {
     function hideLoadingOverlay() {
         loadingOverlay.classList.remove('visible');
     }
-
-
-
-
-
-
-
-
-
-// ======================================================
-// [NEW] HÀM GHI LẠI LƯỢT TRUY CẬP
-// ======================================================
-async function recordUserVisit() {
-    if (!db) return;
-
-    // Lấy ngày hiện tại theo định dạng YYYY-MM-DD
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    const dateString = `${year}-${month}-${day}`;
-
-    const analyticsRef = db.collection('admin_settings').doc('app_analytics');
-
-    try {
-        // Sử dụng batch để cập nhật nhiều trường cùng lúc
-        const batch = db.batch();
-
-        // Tăng tổng lượt truy cập
-        batch.set(analyticsRef, { 
-            totalVisits: firebase.firestore.FieldValue.increment(1) 
-        }, { merge: true });
-
-        // Tăng lượt truy cập cho ngày hôm nay
-        // Sử dụng dot notation để cập nhật một trường trong map
-        const dailyVisitsField = `visitsByDate.${dateString}`;
-        batch.update(analyticsRef, { 
-            [dailyVisitsField]: firebase.firestore.FieldValue.increment(1) 
-        });
-        
-        await batch.commit();
-        console.log("User visit recorded for", dateString);
-
-    } catch (error) {
-        // Nếu lỗi xảy ra (thường là do tài liệu chưa tồn tại), hãy tạo nó
-        if (error.code === 'not-found' || error.message.includes('No document to update')) {
-            const initialData = {
-                totalVisits: 1,
-                visitsByDate: {
-                    [dateString]: 1
-                }
-            };
-            await analyticsRef.set(initialData);
-            console.log("Analytics document created and first visit recorded.");
-        } else {
-            console.error("Error recording user visit:", error);
-        }
-    }
-}
-
-
-// ======================================================
-// [NEW] HÀM HIỂN THỊ DỮ LIỆU THỐNG KÊ
-// ======================================================
-async function displayAnalytics() {
-    if (!db) return;
-
-    const totalVisitsEl = document.getElementById('analytics-total-visits');
-    const todayVisitsEl = document.getElementById('analytics-today-visits');
-    if (!totalVisitsEl || !todayVisitsEl) return;
-
-    // Lấy ngày hôm nay
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    const dateString = `${year}-${month}-${day}`;
-
-    try {
-        const analyticsRef = db.collection('admin_settings').doc('app_analytics');
-        const doc = await analyticsRef.get();
-
-        if (doc.exists) {
-            const data = doc.data();
-            totalVisitsEl.textContent = (data.totalVisits || 0).toLocaleString();
-            todayVisitsEl.textContent = (data.visitsByDate?.[dateString] || 0).toLocaleString();
-        } else {
-            totalVisitsEl.textContent = '0';
-            todayVisitsEl.textContent = '0';
-        }
-    } catch (error) {
-        console.error("Error displaying analytics:", error);
-        totalVisitsEl.textContent = 'Error';
-        todayVisitsEl.textContent = 'Error';
-    }
-}
-
-
-
-
-
-
-
-
     
     // [NEW] Fetch system status
     async function fetchSystemStatus() {
@@ -2165,27 +2017,20 @@ async function displayAnalytics() {
     }
 
 
-async function onUserAuthenticated() {
-    hideLoadingOverlay();
-     // [NEW] GHI LẠI LƯỢT TRUY CẬP
-    recordUserVisit();
-
-    const userStatusDisplay = document.getElementById('user-status-display');
-    
-    // [NEW] HIỂN THỊ KHỐI TRẠNG THÁI USER
-    const userStatusDisplay = document.getElementById('user-status-display');
-    if (userStatusDisplay) {
-        userStatusDisplay.classList.remove('d-none');
+    async function onUserAuthenticated() {
+        hideLoadingOverlay();
+        
+        // [UPDATED] Re-check maintenance mode now that we know if user is admin
+        if(applyMaintenanceMode(connectedWalletAddress)) return;
+        
+        updateUIAfterLogin();
+        await fetchAndDisplayAccountData(connectedWalletAddress);
+        activityRefreshInterval = setInterval(() => {
+            if (lastFetchedAddress === connectedWalletAddress) {
+                fetchAndDisplayAccountData(connectedWalletAddress);
+            }
+        }, 30000);
     }
-    
-    updateUIAfterLogin();
-    await fetchAndDisplayAccountData(connectedWalletAddress);
-    activityRefreshInterval = setInterval(() => {
-        if (lastFetchedAddress === connectedWalletAddress) {
-            fetchAndDisplayAccountData(connectedWalletAddress);
-        }
-    }, 30000);
-}
     
     function isCurrentUserAdmin() {
         if(systemStatus.isMaintenanceMode && connectedWalletAddress === ADMIN_ADDRESS){
@@ -2266,45 +2111,39 @@ async function onUserAuthenticated() {
         const doc = await userRef.get();
     
         if (!doc.exists) {
-    console.log(`Creating new user profile for address: ${address}`);
-    const newUser = {
-        address: address,
-        points: 0,
-        lastCheckin: null,
-        checkinCount: 0,
-        referralCount: 0,
-        referredBy: null,
-        partnerTasksCompletedCount: 0,
-        hasSentConfirmationTx: false,
-        hasRequestedAirdrop: false,
-        disabledUntil: null,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        
-        // ===============================================
-        // [FIX] THÊM TRƯỜNG lastSeen VÀO ĐÂY
-        // ===============================================
-        lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
-        // ===============================================
-
-        notificationsEnabled: true,
-        email: null,
-        telegramId: telegramUserData ? telegramUserData.id : null,
-        username: telegramUserData ? (telegramUserData.username || `user${telegramUserData.id}`) : null,
-        fullName: telegramUserData ? `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim() : null,
-        photoUrl: telegramUserData ? telegramUserData.photo_url : null,
-        temporaryFullName: null,
-        temporaryPhotoUrl: null,
-        isTemporaryProfile: !telegramUserData
-    };
-
-    await userRef.set(newUser);
-    currentUserData = newUser;
+            console.log(`Creating new user profile for address: ${address}`);
+            const newUser = {
+                address: address,
+                points: 0,
+                lastCheckin: null,
+                checkinCount: 0,
+                referralCount: 0,
+                referredBy: null,
+                partnerTasksCompletedCount: 0,
+                hasSentConfirmationTx: false,
+                hasRequestedAirdrop: false,
+                disabledUntil: null,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                notificationsEnabled: true,
+                email: null,
+                // Handle official vs temporary profile data
+                telegramId: telegramUserData ? telegramUserData.id : null,
+                username: telegramUserData ? (telegramUserData.username || `user${telegramUserData.id}`) : null,
+                fullName: telegramUserData ? `${telegramUserData.first_name || ''} ${telegramUserData.last_name || ''}`.trim() : null,
+                photoUrl: telegramUserData ? telegramUserData.photo_url : null,
+                temporaryFullName: null,
+                temporaryPhotoUrl: null,
+                isTemporaryProfile: !telegramUserData
+            };
     
-    // [FIX] Increment total user count - MÃ CỦA BẠN ĐÃ ĐÚNG Ở ĐÂY
-    const metadataRef = db.collection('admin_settings').doc('metadata');
-    await metadataRef.set({ 
-        userCount: firebase.firestore.FieldValue.increment(1) 
-    }, { merge: true });
+            await userRef.set(newUser);
+            currentUserData = newUser;
+            
+            // [FIX] Increment total user count
+            const metadataRef = db.collection('admin_settings').doc('metadata');
+            await metadataRef.set({ 
+                userCount: firebase.firestore.FieldValue.increment(1) 
+            }, { merge: true });
 
     
             // If it's a new web user, prompt for temporary profile setup
@@ -3925,7 +3764,7 @@ function renderReferralMilestones() {
     async function initializeApp() {
         showLoadingOverlay('Initializing...');
         initializeFirebase();
-    
+        updateAndDisplayVisitorCount();
         await fetchSystemStatus();
         // The check is now deferred until after wallet connection
     
@@ -3961,55 +3800,54 @@ function renderReferralMilestones() {
     });
     
     // [UPDATED] to handle maintenance mode correctly on status change
-   tonConnectUI.onStatusChange(async (wallet) => {
-    // Luôn xóa các bộ đếm thời gian cũ khi trạng thái thay đổi
-    if (heartbeatInterval) clearInterval(heartbeatInterval);
-    if (activityRefreshInterval) clearInterval(activityRefreshInterval);
-
-    if (wallet) {
-        showLoadingOverlay('Connecting wallet...');
-        connectedWalletAddress = wallet.account.address;
-        const friendlyAddress = await getFriendlyAddress(connectedWalletAddress);
-        
-        referralInputContainerHero.style.display = 'none';
-        tonConnectButtonRoot.style.display = 'none';
-        customWalletContainer.style.display = 'block';
-        customWalletButton.textContent = shortenAddress(friendlyAddress);
-        copyAddressBtn.dataset.address = friendlyAddress;
-        myAccountBtn.href = `https://tonviewer.com/${friendlyAddress}`;
-
-        await loadOrCreateUserByAddress(connectedWalletAddress);
-        
-        // [NEW] BẮT ĐẦU GỬI HEARTBEAT SAU KHI ĐĂNG NHẬP THÀNH CÔNG
-        // Chỉ bắt đầu nếu user không ở trong modal tạo profile tạm thời
-        if (!currentUserData.isTemporaryProfile) {
-            updateUserPresence(); // Gửi ngay lần đầu
-            heartbeatInterval = setInterval(updateUserPresence, 60 * 1000); // Lặp lại mỗi phút
+    tonConnectUI.onStatusChange(async (wallet) => {
+        clearInterval(activityRefreshInterval);
+    
+        // FIRST: Check maintenance status with the new wallet info
+        if (applyMaintenanceMode(wallet ? wallet.account.address : null)) {
+            // If maintenance is on and this is not an admin, we stop here.
+            // Disconnect if they were trying to connect, to prevent a stuck state.
+            if (wallet) {
+                tonConnectUI.disconnect();
+            }
+            hideLoadingOverlay();
+            return;
         }
 
-    } else {
-        connectedWalletAddress = null;
-        lastFetchedAddress = null;
-        currentUserData = null;
-        currentActivityLogs = [];
+        if (wallet) {
+            showLoadingOverlay('Connecting wallet...');
+            connectedWalletAddress = wallet.account.address;
+            const friendlyAddress = await getFriendlyAddress(connectedWalletAddress);
+            
+            referralInputContainerHero.style.display = 'none';
 
-        tonConnectButtonRoot.style.display = 'block';
-        customWalletContainer.style.display = 'none';
-        headerExpDisplay.classList.add('d-none');
-        navAdmin.style.display = 'none';
-        
-        // [NEW] ẨN HIỂN THỊ TRẠNG THÁI KHI LOGOUT
-        const userStatusDisplay = document.getElementById('user-status-display');
-        if (userStatusDisplay) userStatusDisplay.classList.add('d-none');
-        
-        if (!sessionStorage.getItem(REFERRAL_SESSION_KEY)){
-             referralInputContainerHero.style.display = 'block';
+            tonConnectButtonRoot.style.display = 'none';
+            customWalletContainer.style.display = 'block';
+            customWalletButton.textContent = shortenAddress(friendlyAddress);
+            copyAddressBtn.dataset.address = friendlyAddress;
+            myAccountBtn.href = `https://tonviewer.com/${friendlyAddress}`;
+
+            await loadOrCreateUserByAddress(connectedWalletAddress);
+            
+        } else {
+            connectedWalletAddress = null;
+            lastFetchedAddress = null;
+            currentUserData = null;
+            currentActivityLogs = [];
+
+            tonConnectButtonRoot.style.display = 'block';
+            customWalletContainer.style.display = 'none';
+            headerExpDisplay.classList.add('d-none');
+            navAdmin.style.display = 'none';
+            
+            if (!sessionStorage.getItem(REFERRAL_SESSION_KEY)){
+                 referralInputContainerHero.style.display = 'block';
+            }
+            
+            handleRouteChange();
+            hideLoadingOverlay();
         }
-        
-        handleRouteChange();
-        hideLoadingOverlay();
-    }
-});
+    });
     
     const switchView = (viewToShow) => {
         [dashboardEl, heroEl, newsSection, appStoreSection, taskSectionEl, partnerSectionEl, accountSectionEl, leaderboardSectionEl, adminSectionEl, referralSectionEl, airdropSectionEl].forEach(section => {
@@ -4030,7 +3868,6 @@ function renderReferralMilestones() {
         else if (viewToShow === 'admin' && isLoggedIn && isCurrentUserAdmin()){
             adminSectionEl.style.display = 'block';
             navAdmin.classList.add('active');
-            displayAnalytics();
             renderAdminPartnerTasks();
             fetchAndRenderAdminUserList(true); 
             // Fetch and set admin panel switch states
@@ -5319,50 +5156,6 @@ function renderReferralMilestones() {
         }
     });
 
-
-    // ======================================================
-// [NEW] HÀM GỬI HEARTBEAT VÀ ĐẾM USER
-// ======================================================
-async function updateUserPresence() {
-    if (!db || !currentUserData?.address) return;
-
-    // Gửi "nhịp tim" lên Firestore
-    const userRef = db.collection('users').doc(currentUserData.address);
-    await userRef.update({
-        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    // Đếm số người dùng online và tổng số
-    try {
-        const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000); // Mốc thời gian 2 phút trước
-
-        // Tạo 2 truy vấn song song
-        const [onlineSnapshot, totalSnapshot] = await Promise.all([
-            db.collection('users').where('lastSeen', '>', twoMinutesAgo).get(),
-            db.collection('admin_settings').doc('user_stats').get() // Lấy từ bộ đếm (cách tối ưu)
-        ]);
-        
-        // Hiển thị số người online
-        const onlineCountEl = document.getElementById('online-users-count');
-        if (onlineCountEl) {
-            onlineCountEl.textContent = onlineSnapshot.size.toLocaleString();
-        }
-        
-        // Hiển thị tổng số người dùng
-        const totalCountEl = document.getElementById('total-users-count');
-        if (totalCountEl) {
-            if (totalSnapshot.exists && totalSnapshot.data().totalUsers) {
-                totalCountEl.textContent = totalSnapshot.data().totalUsers.toLocaleString();
-            } else {
-                totalCountEl.textContent = 'N/A'; // Nếu chưa có bộ đếm
-            }
-        }
-
-    } catch (error) {
-        console.warn("Could not update user presence count:", error);
-    }
-}
-
     // --- App Initialization ---
     fetchCryptoNews();
     initializeApp();
@@ -5372,6 +5165,88 @@ async function updateUserPresence() {
 
 
 
+
+
+
+    <!-- ========== BỘ ĐẾM LƯỢT TRUY CẬP ========== -->
+<div id="visitor-counter" style="position: fixed; bottom: 10px; right: 10px; background: var(--card-color); color: var(--text-secondary); padding: 8px 15px; border-radius: 12px; font-size: 0.8rem; border: 1px solid var(--border-color); z-index: 1000; text-align: right;">
+    <div><i class="fas fa-globe-americas fa-fw"></i> Tổng: <span id="total-visits">...</span></div>
+    <div><i class="fas fa-calendar-day fa-fw"></i> Hôm nay: <span id="today-visits">...</span></div>
+</div>
+<!-- ============================================= -->
+        // Biến cờ để đảm bảo chỉ đếm một lần mỗi khi tải trang
+let hasCountedVisit = false;
+
+/**
+ * Cập nhật và hiển thị số lượt truy cập từ Firestore.
+ * Sử dụng transaction để đảm bảo an toàn dữ liệu khi có nhiều truy cập cùng lúc.
+ */
+async function updateAndDisplayVisitorCount() {
+    // Nếu đã đếm trong phiên tải trang này, không làm gì cả
+    if (hasCountedVisit || !db) {
+        return;
+    }
+    // Đánh dấu là đã bắt đầu quá trình đếm
+    hasCountedVisit = true;
+
+    // Lấy ngày hiện tại theo định dạng YYYY-MM-DD
+    const today = new Date().toISOString().slice(0, 10);
+    const trafficRef = db.collection('bmass_analytics').doc('traffic_stats');
+
+    const totalVisitsEl = document.getElementById('total-visits');
+    const todayVisitsEl = document.getElementById('today-visits');
+
+    try {
+        // Chạy một transaction để cập nhật các bộ đếm một cách an toàn
+        await db.runTransaction(async (transaction) => {
+            const trafficDoc = await transaction.get(trafficRef);
+
+            if (!trafficDoc.exists) {
+                // Nếu document chưa tồn tại, tạo mới với giá trị ban đầu
+                transaction.set(trafficRef, {
+                    total: 1,
+                    daily: {
+                        [today]: 1
+                    }
+                });
+                return { total: 1, today: 1 };
+            } else {
+                // Nếu document đã tồn tại, cập nhật các giá trị
+                const data = trafficDoc.data();
+                const newTotal = (data.total || 0) + 1;
+                const newTodayCount = ((data.daily && data.daily[today]) || 0) + 1;
+
+                const updates = {
+                    total: newTotal,
+                    [`daily.${today}`]: newTodayCount // Sử dụng dot notation để cập nhật field lồng nhau
+                };
+                
+                transaction.update(trafficRef, updates);
+                return { total: newTotal, today: newTodayCount };
+            }
+        });
+
+        // Sau khi transaction thành công, đọc lại dữ liệu để hiển thị
+        const updatedDoc = await trafficRef.get();
+        if (updatedDoc.exists) {
+            const data = updatedDoc.data();
+            if (totalVisitsEl) {
+                totalVisitsEl.textContent = (data.total || 0).toLocaleString('vi-VN');
+            }
+            if (todayVisitsEl) {
+                todayVisitsEl.textContent = (data.daily[today] || 0).toLocaleString('vi-VN');
+            }
+        }
+
+    } catch (error) {
+        console.error("Lỗi khi cập nhật bộ đếm lượt truy cập:", error);
+        // Có thể ẩn bộ đếm nếu có lỗi
+        const counterElement = document.getElementById('visitor-counter');
+        if (counterElement) {
+            counterElement.style.display = 'none';
+        }
+    }
+}
 </script>
 
 </body>
