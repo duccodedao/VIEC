@@ -3,100 +3,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tính Số Tháng và Ngày</title>
+    <title>Bmass - Gửi TON An Toàn (Demo)</title>
+
+    <!-- 1. Nhúng thư viện TonConnect UI -->
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+
+    <!-- 2. Nhúng CSS để giao diện trông đẹp hơn -->
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f2f2f2;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background-color: #f4f6f8;
+            color: #333;
         }
         .container {
             background-color: white;
-            padding: 20px;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        #tonconnect-button-container {
+            /* Container cho nút kết nối */
+        }
+        #send-form-container {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 0.75rem;
             border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            width: 400px;
-            text-align: center;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+            font-size: 1rem;
         }
-        input[type="number"] {
-            width: 80px;
-            padding: 5px;
-            margin: 10px;
-            text-align: center;
-            font-size: 16px;
-        }
-        input[type="button"] {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
+        button {
+            width: 100%;
+            padding: 0.75rem;
             border: none;
-            border-radius: 5px;
+            background-color: #007aff;
+            color: white;
+            font-weight: 600;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
+            transition: background-color 0.2s;
+            font-size: 1rem;
         }
-        input[type="button"]:hover {
-            background-color: #45a049;
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
-        .result {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
+        #status {
+            margin-top: 1rem;
+            text-align: center;
+            font-weight: 500;
+            word-wrap: break-word;
+        }
+        .note {
+            background-color: #eef5ff;
+            border-left: 4px solid #007aff;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h2>Tính Tháng và Ngày</h2>
-        <label for="day">Ngày (DD):</label>
-        <input type="number" id="day" min="1" max="31" placeholder="DD">
-        <br>
-        <label for="month">Tháng (MM):</label>
-        <input type="number" id="month" min="1" max="12" placeholder="MM">
-        <br>
-        <label for="year">Năm (YY):</label>
-        <input type="number" id="year" min="0" max="99" placeholder="YY">
-        <br>
-        <input type="button" value="Tính Toán" onclick="calculateDifference()">
-        <div class="result" id="result"></div>
+        <div class="header">
+            <h1>Gửi TON An Toàn</h1>
+            <!-- Nút kết nối ví sẽ được thư viện tự động chèn vào đây -->
+            <div id="tonconnect-button-container"></div>
+        </div>
+
+        <!-- Form gửi TON, chỉ hiển thị sau khi kết nối ví -->
+        <div id="send-form-container" style="display: none;">
+            <div class="form-group">
+                <label for="recipient-address">Địa chỉ người nhận:</label>
+                <input type="text" id="recipient-address" placeholder="Dán địa chỉ ví TON của người nhận">
+            </div>
+            <div class="form-group">
+                <label for="amount-to-send">Số lượng TON:</label>
+                <input type="number" id="amount-to-send" placeholder="Ví dụ: 0.1">
+            </div>
+            <button id="send-button">Gửi TON</button>
+            <div id="status"></div>
+        </div>
+
+        <div class="note">
+            <strong>Ghi chú:</strong> Đây là bản demo về cách một dApp (ứng dụng phi tập trung) yêu cầu ví của bạn thực hiện một giao dịch một cách an toàn. Ứng dụng này không bao giờ thấy hoặc lưu trữ khóa bí mật của bạn.
+        </div>
     </div>
 
+    <!-- 3. Toàn bộ logic Javascript -->
     <script>
-        function calculateDifference() {
-            const day = parseInt(document.getElementById('day').value);
-            const month = parseInt(document.getElementById('month').value);
-            const year = parseInt(document.getElementById('year').value);
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- HẰNG SỐ CẤU HÌNH ---
 
-            // Convert year if input is 2 digits
-            const currentYear = new Date().getFullYear();
-            const fullYear = year < 50 ? 2000 + year : 1900 + year;
+            // URL đến tệp manifest.json.
+            // Trong một dự án thực tế, bạn sẽ host tệp này trên domain của mình.
+            // Để demo, chúng ta dùng một URL được host sẵn.
+            const MANIFEST_URL = 'https://gist.githubusercontent.com/siandreev/75f1b274c4954f67c50e4a78739d22de/raw/tonconnect-manifest.json';
+            const NANO_TONS_IN_ONE_TON = 1000000000;
 
-            // Create the date object for the input date
-            const inputDate = new Date(fullYear, month - 1, day);
+            // --- KHỞI TẠO TON CONNECT UI ---
+            const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+                manifestUrl: MANIFEST_URL,
+                buttonRootId: 'tonconnect-button-container'
+            });
 
-            if (isNaN(inputDate.getTime())) {
-                document.getElementById('result').innerText = "Ngày tháng không hợp lệ!";
-                return;
-            }
+            // --- LẤY CÁC THÀNH PHẦN TỪ GIAO DIỆN (DOM ELEMENTS) ---
+            const sendFormContainer = document.getElementById('send-form-container');
+            const recipientAddressInput = document.getElementById('recipient-address');
+            const amountInput = document.getElementById('amount-to-send');
+            const sendButton = document.getElementById('send-button');
+            const statusDiv = document.getElementById('status');
 
-            const currentDate = new Date();
+            // --- LẮNG NGHE SỰ THAY ĐỔI TRẠNG THÁI KẾT NỐI VÍ ---
+            tonConnectUI.onStatusChange(wallet => {
+                if (wallet) {
+                    // Nếu đã kết nối, hiển thị form gửi
+                    sendFormContainer.style.display = 'block';
+                    const friendlyAddress = wallet.account.address;
+                    statusDiv.textContent = `Đã kết nối với: ${friendlyAddress.slice(0, 6)}...${friendlyAddress.slice(-4)}`;
+                } else {
+                    // Nếu đã ngắt kết nối, ẩn form
+                    sendFormContainer.style.display = 'none';
+                    statusDiv.textContent = '';
+                }
+            });
 
-            // Calculate the difference in months and days
-            const diffTime = currentDate - inputDate;
-            const diffDate = new Date(diffTime);
+            // --- XỬ LÝ KHI NGƯỜI DÙNG NHẤN NÚT "GỬI TON" ---
+            sendButton.addEventListener('click', async () => {
+                // 1. Kiểm tra các điều kiện đầu vào
+                const recipientAddress = recipientAddressInput.value.trim();
+                const amountStr = amountInput.value.trim();
 
-            const yearsDifference = diffDate.getUTCFullYear() - 1970; // Convert from Unix Epoch
-            const monthsDifference = diffDate.getUTCMonth();
-            const daysDifference = diffDate.getUTCDate() - 1; // Adjust days correctly
+                if (!tonConnectUI.connected) {
+                    statusDiv.textContent = 'Lỗi: Vui lòng kết nối ví trước.';
+                    return;
+                }
+                if (!recipientAddress || !amountStr) {
+                    statusDiv.textContent = 'Lỗi: Vui lòng nhập đầy đủ thông tin.';
+                    return;
+                }
 
-            // Show the result
-            document.getElementById('result').innerText = `Đã ${yearsDifference} năm, ${monthsDifference} tháng, và ${daysDifference} ngày kể từ ngày bạn nhập.`;
-        }
+                const amount = parseFloat(amountStr);
+                if (isNaN(amount) || amount <= 0) {
+                    statusDiv.textContent = 'Lỗi: Số lượng TON không hợp lệ.';
+                    return;
+                }
+
+                // 2. Cập nhật giao diện để báo cho người dùng biết đang xử lý
+                sendButton.disabled = true;
+                statusDiv.textContent = '⏳ Đang chuẩn bị giao dịch...';
+
+                try {
+                    // 3. Chuẩn bị đối tượng giao dịch
+                    // Đây là bước quan trọng nhất trong "Cách 2".
+                    // Chúng ta chỉ tạo một "bản nháp" của giao dịch.
+
+                    // Chuyển đổi số lượng TON sang đơn vị nhỏ nhất (nanoTON)
+                    const amountInNano = Math.round(amount * NANO_TONS_IN_ONE_TON).toString();
+
+                    const transaction = {
+                        validUntil: Math.floor(Date.now() / 1000) + 360, // Giao dịch hợp lệ trong 6 phút
+                        messages: [
+                            {
+                                address: recipientAddress, // Địa chỉ người nhận
+                                amount: amountInNano       // Số lượng nanoTON
+                                // Đối với gửi Jetton, chúng ta cần thêm một trường 'payload' ở đây
+                            }
+                        ]
+                    };
+
+                    // 4. GỬI YÊU CẦU GIAO DỊCH ĐẾN VÍ CỦA NGƯỜI DÙNG
+                    // Ví của họ (vd: Tonkeeper) sẽ hiện lên một pop-up để xác nhận.
+                    // Ứng dụng web không bao giờ thấy khóa bí mật.
+                    statusDiv.textContent = '📲 Vui lòng xác nhận giao dịch trên ví của bạn...';
+                    const result = await tonConnectUI.sendTransaction(transaction);
+
+                    // 5. Xử lý kết quả trả về từ ví
+                    statusDiv.innerHTML = `✅ Giao dịch đã được gửi! Đang chờ xác nhận trên blockchain... <br>Bạn có thể kiểm tra trên <a href="https://tonscan.org/tx/${result.boc}" target="_blank" rel="noopener noreferrer">Tonscan</a>.`;
+
+                    // Xóa form sau khi gửi thành công
+                    recipientAddressInput.value = '';
+                    amountInput.value = '';
+
+                } catch (error) {
+                    console.error('Lỗi khi gửi giao dịch:', error);
+                    let errorMessage = 'Giao dịch đã bị hủy.';
+                    if (typeof error === 'object' && error !== null && 'message' in error) {
+                        if (error.message.includes('User rejects')) {
+                           errorMessage = 'Người dùng đã từ chối giao dịch.';
+                        } else if (error.message.includes('BadUrl')) {
+                           errorMessage = 'Địa chỉ người nhận không hợp lệ.';
+                        }
+                    }
+                    statusDiv.textContent = `❌ Lỗi: ${errorMessage}`;
+                } finally {
+                    // Dù thành công hay thất bại, hãy kích hoạt lại nút bấm
+                    sendButton.disabled = false;
+                }
+            });
+        });
     </script>
+
 </body>
 </html>
