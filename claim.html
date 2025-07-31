@@ -2483,7 +2483,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/apps-data.js"></script>
-    
+
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     // --- START OF DOMCONTENTLOADED ---
@@ -6114,7 +6115,7 @@ async function exportFilteredAirdropClaimData() {
                 });
             });
             
-            showAppToast('Success!', `You received +${expReward} EXP from the ${projectName} task.`, 'success');
+    showAppToast('Success!', `You received +${expReward} EXP from the ${projectName} task.`, 'success');
             
             // Update current user data then check for level up
             currentUserData.points = newTotalPoints;
@@ -6125,7 +6126,7 @@ async function exportFilteredAirdropClaimData() {
             } else {
                 window.open(taskLink, '_blank');
             }
-                       
+            
             const updatedDoc = await userRef.get();
             currentUserData = updatedDoc.data();
             updateUIAfterLogin(); 
@@ -6139,7 +6140,7 @@ async function exportFilteredAirdropClaimData() {
             } else {
                 console.error("Failed to complete partner task:", error);
                 showAppToast('Error', 'Could not complete the task. Please try again.', 'error');
-                actionBar.innerHTML = `+${expReward.toLocaleString()} EXP`; 
+ actionBar.innerHTML = `+${expReward.toLocaleString()} EXP`; 
             }
         }
     }
@@ -7837,5 +7838,6 @@ async function exportFilteredAirdropClaimData() {
 
 </script>
 </body>
-</html>             
-            
+</html>
+
+        
