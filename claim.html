@@ -4865,10 +4865,10 @@ if (!hash && connectedWalletAddress) hash = 'dashboard';
 if (!hash && !connectedWalletAddress) hash = 'hero-section';
 if (hash === 'dashboard' && !connectedWalletAddress) hash = 'hero-section';
 
-if (path === 'admin' && !isCurrentUserAdmin()){
-showAppToast('Access Denied', 'You do not have permission to access this page.', 'error');
-window.location.hash = '#dashboard';
-hash = 'dashboard';
+if (hash === 'admin' && !isCurrentUserAdmin()){ 
+    showAppToast('Access Denied', 'You do not have permission to access this page.', 'error');
+    window.location.hash = '#dashboard';
+    hash = 'dashboard';
 }
 
 switch (hash) {
