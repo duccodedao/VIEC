@@ -1,22 +1,4 @@
-Tuyệt vời! Dưới đây là phiên bản cập nhật của mã nguồn, tích hợp đầy đủ các tính năng bạn yêu cầu:
 
-1.  **Thưởng Hàng Loạt Thông Minh Hơn**:
-    *   **Tự động tạo ID Sự kiện**: Mỗi lần admin sử dụng tính năng "Thưởng EXP Hàng Loạt", một ID sự kiện duy nhất (ví dụ: `mass_award_1678886400000`) sẽ được tự động tạo ra và ghi vào lịch sử của người dùng. Điều này giúp phân biệt các đợt thưởng khác nhau.
-    *   **Kiểm tra Thời gian Tham gia**: Hệ thống sẽ tự động chỉ thưởng cho những người dùng đã đăng ký (`createdAt`) *trước* thời điểm admin bắt đầu thực hiện thưởng. Điều này đảm bảo tính công bằng, không thưởng cho những người tham gia sau khi sự kiện đã được công bố.
-    *   **Chống Thưởng Trùng Lặp**: Tính năng "Rà soát và Thưởng" được giữ nguyên và cải tiến, đảm bảo một người dùng không bao giờ nhận thưởng cho cùng một ID sự kiện hai lần.
-
-2.  **Lịch sử Hoạt động của Admin**:
-    *   Một tab mới có tên **"Admin Log"** đã được thêm vào khu vực quản trị.
-    *   Tất cả các hành động quan trọng của admin—từ thưởng EXP (cá nhân, hàng loạt, rà soát), thay đổi trạng thái người dùng, cập nhật cài đặt, đến quản lý nhiệm vụ—đều được tự động ghi lại.
-    *   Lịch sử này bao gồm thông tin chi tiết về ai đã thực hiện, hành động là gì, và các thông số liên quan, giúp việc quản lý và đối soát trở nên minh bạch và dễ dàng.
-
-3.  **Phản hồi Rung trên Telegram**:
-    *   Khi người dùng nhấn vào một mục trên thanh điều hướng bên (sidebar/taskbar) trong ứng dụng Telegram Mini App, thiết bị sẽ rung nhẹ.
-    *   Tính năng này sử dụng API `HapticFeedback` của Telegram, mang lại trải nghiệm người dùng hiện đại và tương tác hơn.
-
-Dưới đây là mã nguồn đã được cập nhật. Bạn có thể thay thế toàn bộ tệp HTML của mình bằng mã này.
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
