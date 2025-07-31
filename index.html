@@ -41,7 +41,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family/Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
       /* =================================================================== */
       /* [NEW VERSION] ROOT VARIABLES & KEYFRAME ANIMATIONS
@@ -701,7 +701,7 @@
       #admin-user-list-container .form-switch .form-check-input { height: 1.25em; width: 2.25em; }
     
      /* [NEW] Scrollable Admin User List */
-      #admin-user-list-container, #admin-claim-list-container {
+      #admin-user-list-container, #admin-claim-list-container, #admin-log-list-container {
         max-height: 70vh; /* Set a max height */
         overflow-y: auto;  /* Enable vertical scroll */
         /* The table-responsive class will handle horizontal scroll */
@@ -1779,6 +1779,14 @@
                     </li>
                     <!-- ============================================= -->
                     
+                    <!-- ========== [NEW] ADMIN LOG TAB ========== -->
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-target="#admin-panel-activity-log" type="button">
+                            <i class="fas fa-history me-1"></i> Lịch sử Admin
+                        </button>
+                    </li>
+                    <!-- ========================================= -->
+
                      <li class="nav-item" role="presentation">
                         <button class="nav-link" data-target="#admin-panel-system-status" type="button">
                             <i class="fas fa-server me-1"></i> System
@@ -1830,12 +1838,12 @@
                         <div class="col-12 col-lg-10 col-xl-8 mx-auto">
                            <div class="card-glass">
                                 <h5 class="card-title">Rà soát và Thưởng EXP Bổ sung</h5>
-                                <p class="text-secondary small">Công cụ này sẽ quét người dùng theo điều kiện, kiểm tra xem họ đã nhận thưởng cho một sự kiện cụ thể hay chưa, và chỉ cộng điểm cho những người chưa nhận. Điều này đảm bảo không ai nhận thưởng hai lần.</p>
+                                <p class="text-secondary small">Công cụ này sẽ quét người dùng theo điều kiện, kiểm tra xem họ đã nhận thưởng cho một sự kiện cụ thể hay chưa và có tham gia trước thời điểm thưởng không, sau đó chỉ cộng điểm cho những người hợp lệ. Điều này đảm bảo tính công bằng và chính xác.</p>
                                 <form id="admin-audit-award-form">
                                      <div class="mb-3">
                                         <label for="admin-audit-event-id" class="form-label">ID Sự kiện / Nhiệm vụ (Duy nhất)</label>
                                         <input type="text" class="form-control" id="admin-audit-event-id" placeholder="e.g., thuong_giang_sinh_2024" required>
-                                        <div class="form-text">ID này dùng để hệ thống kiểm tra, tránh cộng điểm nhiều lần.</div>
+                                        <div class="form-text">ID này dùng để hệ thống kiểm tra, tránh cộng điểm nhiều lần và ghi log.</div>
                                      </div>
                                      <hr style="border-color: var(--border-color); opacity: 0.5;">
                                      <div class="mb-3"><label for="admin-audit-condition-type" class="form-label">Thưởng cho người dùng theo</label><select class="form-select" id="admin-audit-condition-type"><option value="all" selected>Tất cả người dùng</option><option value="referralCount">Số lượt mời</option><option value="checkinCount">Số lượt Check-in</option><option value="points">Số điểm EXP</option><option value="level">Level</option></select></div>
@@ -1849,6 +1857,22 @@
                         </div>
                     </div>
                     <!-- ============================================= -->
+
+                    <!-- ========== [NEW] ADMIN LOG PANEL ========== -->
+                    <div id="admin-panel-activity-log" class="admin-panel-wrapper" style="display: none;">
+                        <div class="col-12">
+                           <div class="card-glass">
+                                <h5 class="card-title">Lịch sử Hoạt động Admin</h5>
+                                <div id="admin-log-list-container" class="table-responsive">
+                                    <!-- Log content will be rendered here by JS -->
+                                </div>
+                                <div class="text-center mt-3">
+                                    <button id="admin-load-more-logs-btn" class="btn btn-outline-secondary" style="display: none;">Tải thêm</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ========================================= -->
 
 
                     <!-- Bảng Gửi Tin Nhắn -->
@@ -2469,6 +2493,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminLoadMoreClaimsBtn = document.getElementById('admin-load-more-claims-btn');
     const adminClaimFilterControls = document.getElementById('admin-claim-filter-controls');
 
+    // ========== [NEW] ADMIN LOG SELECTORS ==========
+    const adminLogListContainer = document.getElementById('admin-log-list-container');
+    const adminLoadMoreLogsBtn = document.getElementById('admin-load-more-logs-btn');
+    // ============================================
+
 
     const DEFAULT_LOGO_SRC = 'https://bmass.vercel.app/img/bmasslogo.png';
     const GENERIC_WALLET_ICON = 'https://ton.org/download/ton_symbol.png';
@@ -2490,6 +2519,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let checkinInterval = null;
     let lastVisibleAdminUser = null; // For admin pagination
     let lastVisibleAdminClaim = null; // For admin claim list pagination
+    let lastVisibleAdminLog = null; // For admin log pagination
     let userAirdropClaimData = null; // [NEW] To store user's claim info
 
     // [UPDATED] Level System Configuration - Now treated as a default/fallback
@@ -2502,7 +2532,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { level: 6, expRequired: 400000,    shieldClass: 'level-shield-6', benefit: "Unique role in community" },
         { level: 7, expRequired: 700000,    shieldClass: 'level-shield-7', benefit: "Early access to new features" },
         { level: 8, expRequired: 1200000,   shieldClass: 'level-shield-8', benefit: "Higher Airdrop multiplier" },
-        { level: 9, expRequired: 2000000,   shieldClass: 'level-shield-9', benefit: "Direct line to the dev team" },
+        { level: 9, expRequired: 2000000,  shieldClass: 'level-shield-9', benefit: "Direct line to the dev team" },
         { level: 10, expRequired: 5000000,  shieldClass: 'level-shield-10', benefit: "Legendary status & surprise rewards" }
     ];
 
@@ -3502,7 +3532,7 @@ async function fetchAndRenderAdminClaimList(isInitialLoad = true) {
                 detailsHtml = `<code class="copyable-address" data-address="${claim.claimAddress}" title="Click to copy">${shortenAddress(claim.claimAddress)}</code>`;
             } else {
                 detailsHtml = `<strong>Địa chỉ:</strong> <code class="text-break">${claim.claimAddress}</code>
-                               ${claim.memo ? `<br><strong>Memo/Tag:</strong> <code>${claim.memo}</code>` : ''}`;
+                               ${claim.memo ? `<br><strong>Memo/Tag:</strong> code>${claim.memo}</code>` : ''}`;
             }
 
             const methodBadge = claim.method === 'onchain' ?
@@ -3667,6 +3697,10 @@ async function fetchAndRenderAdminClaimList(isInitialLoad = true) {
                     timestamp: newTimestamp
                 });
             });
+
+            // ========== [NEW] LOG ADMIN ACTION ==========
+            await logAdminAction('SINGLE_EXP_EDIT', { targetType, targetValue, actionType, expAmount, taskName, targetUserName: userDoc.data().fullName });
+            // ===========================================
             
             showAppToast('Thành công', `Đã cập nhật EXP cho người dùng ${userDoc.data().fullName || targetValue}.`, 'success');
             adminExpForm.reset();
@@ -3681,6 +3715,7 @@ async function fetchAndRenderAdminClaimList(isInitialLoad = true) {
         }
     }
     
+    // ========== [UPDATED] WITH EVENT ID & ADMIN LOGGING ==========
     async function handleMassAward(e) {
         e.preventDefault();
         if (!db) { showAppToast('Lỗi', 'Chưa kết nối cơ sở dữ liệu.', 'error'); return; }
@@ -3705,7 +3740,9 @@ async function fetchAndRenderAdminClaimList(isInitialLoad = true) {
             return;
         }
         
-        const confirmationMessage = `Bạn có chắc chắn muốn cộng ${expAmount} EXP với lý do "${taskName}" cho tất cả người dùng thỏa mãn điều kiện không? Hành động này KHÔNG THỂ hoàn tác.`;
+        // [NEW] Automatically generate a unique event ID
+        const eventId = `mass_award_${taskName.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}`;
+        const confirmationMessage = `Bạn có chắc chắn muốn cộng ${expAmount} EXP với lý do "${taskName}" cho tất cả người dùng thỏa mãn điều kiện không? \n\nID Sự kiện: ${eventId} \n\nHành động này KHÔNG THỂ hoàn tác.`;
         if (!confirm(confirmationMessage)) {
             return;
         }
@@ -3756,10 +3793,12 @@ async function fetchAndRenderAdminClaimList(isInitialLoad = true) {
                     });
 
                     const historyRef = userRef.collection('task_history').doc();
+                    // [UPDATED] Add eventId to the history record
                     writeBatch.set(historyRef, {
                         taskName: taskName,
                         exp: expAmount,
-                        timestamp: newTimestamp
+                        timestamp: newTimestamp,
+                        eventId: eventId 
                     });
                 });
 
@@ -3767,6 +3806,10 @@ async function fetchAndRenderAdminClaimList(isInitialLoad = true) {
                 totalProcessed += snapshot.size;
                 adminMassAwardStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã xử lý ${totalProcessed} người dùng...`;
             }
+
+            // ========== [NEW] LOG ADMIN ACTION ==========
+            await logAdminAction('MASS_AWARD', { eventId, conditionType, operator, conditionValue, expAmount, taskName, totalProcessed });
+            // ===========================================
             
             adminMassAwardStatus.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Hoàn tất! Đã thưởng cho ${totalProcessed} người dùng.</span>`;
             showAppToast('Thành Công', `Đã hoàn tất việc thưởng EXP hàng loạt.`, 'success');
@@ -3823,11 +3866,13 @@ async function fetchAndRenderAdminClaimList(isInitialLoad = true) {
             if (enable) {
                 updateData = { disabledUntil: null };
                 successMessage = `Đã mở khoá tài khoản ${userDoc.data().fullName || targetValue}.`;
+                 await logAdminAction('USER_STATUS_CHANGE', { targetUserName: userDoc.data().fullName, action: 'Enabled' });
             } else {
                 const banEndMillis = Date.now() + (durationDays * 24 * 60 * 60 * 1000);
                 const banEndTimestamp = firebase.firestore.Timestamp.fromMillis(banEndMillis);
                 updateData = { disabledUntil: banEndTimestamp };
                 successMessage = `Đã vô hiệu hoá tài khoản ${userDoc.data().fullName || targetValue} trong ${durationDays} ngày.`;
+                await logAdminAction('USER_STATUS_CHANGE', { targetUserName: userDoc.data().fullName, action: 'Disabled', durationDays: durationDays });
             }
             
             await userRef.update(updateData);
@@ -3985,6 +4030,14 @@ async function fetchAndRenderAdminClaimList(isInitialLoad = true) {
 
                 await delay(TELEGRAM_SEND_DELAY_MS);
             }
+            // ========== [NEW] LOG ADMIN ACTION ==========
+            if (customMessageGenerator) {
+                await logAdminAction('NOTIFY_AIRDROP_SENT', { totalAttempted: totalToNotify, successCount: sentCount, failedCount: failedCount });
+            } else {
+                const text = document.getElementById('telegram-message-text-input').value.trim();
+                await logAdminAction('BULK_MESSAGE', { messageText: text, totalAttempted: totalToNotify, successCount: sentCount, failedCount: failedCount });
+            }
+            // ===========================================
 
             statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Hoàn tất! Đã gửi: ${sentCount}. Thất bại: ${failedCount}.</span>`;
             showAppToast('Hoàn tất gửi hàng loạt', `Thành công: ${sentCount}, Thất bại: ${failedCount}`, 'success');
@@ -4971,6 +5024,13 @@ function renderReferralMilestones() {
              if (adminPartnerPanel.style.display !== 'none') {
                  renderAdminPartnerTasks();
              }
+            // ========== [NEW] TRIGGER ADMIN LOG FETCH ==========
+            const adminLogPanel = document.getElementById('admin-panel-activity-log');
+            if (adminLogPanel && adminLogPanel.style.display !== 'none') {
+                fetchAndRenderAdminLogs(true);
+            }
+            // ===============================================
+
             maintenanceModeSwitch.checked = systemStatus.isMaintenanceMode;
             // Fetch and populate airdrop settings
             fetchAirdropSettings().then(settings => {
@@ -6072,6 +6132,9 @@ async function exportFilteredAirdropClaimData() {
         try {
             await db.collection('admin_settings').doc('system_status').set({ isMaintenanceMode: isEnabled });
             systemStatus.isMaintenanceMode = isEnabled;
+
+             await logAdminAction('MAINTENANCE_MODE', { status: isEnabled ? 'ON' : 'OFF' });
+
             showAppToast('Thành công', `Chế độ bảo trì đã được ${isEnabled ? 'BẬT' : 'TẮT'}.`, 'success');
             adminSystemStatus.innerHTML = `<span class="text-success">Đã cập nhật thành công!</span>`;
             setTimeout(() => window.location.reload(), 1500);
@@ -6102,6 +6165,8 @@ async function exportFilteredAirdropClaimData() {
                 userCount: totalUsers
             }, { merge: true });
 
+            await logAdminAction('RECALCULATE_USERS', { newCount: totalUsers });
+
             recalculateStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Hoàn tất! Tổng số người dùng: ${totalUsers.toLocaleString()}</span>`;
             showAppToast('Thành công', `Đã cập nhật tổng số người dùng thành ${totalUsers.toLocaleString()}.`, 'success');
 
@@ -6115,7 +6180,7 @@ async function exportFilteredAirdropClaimData() {
         }
     }
 
-    // [NEW-FEATURE] Function to handle Audit & Award
+    // [UPDATED] Function to handle Audit & Award with time check
     async function handleAuditAndAward(e) {
         e.preventDefault();
         if (!db) { showAppToast('Lỗi', 'Chưa kết nối cơ sở dữ liệu.', 'error'); return; }
@@ -6129,28 +6194,27 @@ async function exportFilteredAirdropClaimData() {
         const operator = document.getElementById('admin-audit-operator').value;
         const conditionValue = parseInt(document.getElementById('admin-audit-condition-value').value, 10);
         const expAmount = parseInt(document.getElementById('admin-audit-exp-amount').value, 10);
-        const taskName = eventId; // Use eventId as task name for history
+        const taskName = `Audit: ${eventId}`; 
 
-        if (!eventId || !taskName || isNaN(expAmount) || expAmount <= 0) {
+        if (!eventId || isNaN(expAmount) || expAmount <= 0) {
             showAppToast('Lỗi', 'Vui lòng điền đầy đủ và chính xác các trường.', 'error');
             return;
         }
-
         if (conditionType !== 'all' && isNaN(conditionValue)) {
             showAppToast('Lỗi', 'Vui lòng nhập giá trị điều kiện hợp lệ.', 'error');
             return;
         }
         
         const confirmationMessage = `Bạn có chắc chắn muốn chạy rà soát cho sự kiện "${eventId}" và cộng ${expAmount} EXP cho những người dùng đủ điều kiện nhưng chưa nhận thưởng không? Hành động này KHÔNG THỂ hoàn tác.`;
-        if (!confirm(confirmationMessage)) {
-            return;
-        }
+        if (!confirm(confirmationMessage)) { return; }
 
         adminAuditAwardSubmitBtn.disabled = true;
         adminAuditAwardStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Bắt đầu quá trình rà soát...`;
+        
+        const auditStartTime = new Date(); // [NEW] Record start time for fairness check
 
         try {
-            let query = db.collection('users');
+            let query = db.collection('users').where('createdAt', '<', auditStartTime); // [NEW] Fairness check
             if (conditionType !== 'all') {
                 query = query.where(conditionType, operator, conditionValue);
             }
@@ -6160,13 +6224,7 @@ async function exportFilteredAirdropClaimData() {
             let totalAwarded = 0;
             
             while (true) {
-                let batchQuery;
-                 if (conditionType !== 'all') {
-                    batchQuery = query.orderBy(conditionType).orderBy(firebase.firestore.FieldPath.documentId()).limit(BATCH_SIZE);
-                } else {
-                    batchQuery = query.orderBy(firebase.firestore.FieldPath.documentId()).limit(BATCH_SIZE);
-                }
-                
+                let batchQuery = query.orderBy('createdAt').limit(BATCH_SIZE);
                 if (lastVisible) {
                     batchQuery = batchQuery.startAfter(lastVisible);
                 }
@@ -6175,18 +6233,14 @@ async function exportFilteredAirdropClaimData() {
                 if (snapshot.empty) break;
                 
                 lastVisible = snapshot.docs[snapshot.docs.length - 1];
-                
                 const usersToProcess = snapshot.docs;
-                const newTimestamp = firebase.firestore.FieldValue.serverTimestamp();
-
-                // Process users in the current batch
+                
                 for (const userDoc of usersToProcess) {
                     const userRef = userDoc.ref;
                     const historyCheckQuery = userRef.collection('task_history').where('eventId', '==', eventId).limit(1);
                     const historySnapshot = await historyCheckQuery.get();
 
                     if (historySnapshot.empty) {
-                        // User hasn't received this award yet, so grant it
                         const userData = userDoc.data();
                         const newTotalPoints = (userData.points || 0) + expAmount;
                         const newLevel = calculateLevel(newTotalPoints);
@@ -6196,26 +6250,25 @@ async function exportFilteredAirdropClaimData() {
                             points: firebase.firestore.FieldValue.increment(expAmount),
                             level: newLevel
                         });
-
                         const historyRef = userRef.collection('task_history').doc();
                         writeBatch.set(historyRef, {
                             taskName: taskName,
                             exp: expAmount,
-                            timestamp: newTimestamp,
-                            eventId: eventId // IMPORTANT: Store the eventId for future checks
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                            eventId: eventId
                         });
-
                         await writeBatch.commit();
                         totalAwarded++;
                     }
                 }
-
                 totalProcessed += snapshot.size;
-                adminAuditAwardStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã xử lý ${totalProcessed} người dùng... Đã thưởng cho ${totalAwarded} người.`;
+                adminAuditAwardStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đã xử lý ${totalProcessed} user... Đã thưởng cho ${totalAwarded} người.`;
             }
+
+            await logAdminAction('AUDIT_AND_AWARD', { eventId, conditionType, operator, conditionValue, expAmount, totalProcessed, totalAwarded });
             
             adminAuditAwardStatus.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Hoàn tất! Đã rà soát ${totalProcessed} người dùng và thưởng bổ sung cho ${totalAwarded} người.</span>`;
-            showAppToast('Thành Công', `Đã hoàn tất rà soát.`, 'success');
+            showAppToast('Thành Công', 'Đã hoàn tất rà soát.', 'success');
 
         } catch (error) {
             console.error("Audit and Award failed:", error);
@@ -6255,6 +6308,8 @@ async function exportFilteredAirdropClaimData() {
 
     if (adminLoadMoreBtn) adminLoadMoreBtn.addEventListener('click', () => fetchAndRenderAdminUserList(false));
     if (adminLoadMoreClaimsBtn) adminLoadMoreClaimsBtn.addEventListener('click', () => fetchAndRenderAdminClaimList(false));
+    if (adminLoadMoreLogsBtn) adminLoadMoreLogsBtn.addEventListener('click', () => fetchAndRenderAdminLogs(false)); // [NEW]
+
     if (adminClaimFilterControls) adminClaimFilterControls.addEventListener('click', (e) => {
         const target = e.target.closest('.app-filter-btn');
         if (target) {
@@ -6332,7 +6387,17 @@ async function exportFilteredAirdropClaimData() {
         }
     });
 
-    [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(link => link.addEventListener('click', (e) => { if (sidebarMenu.classList.contains('open')) toggleSidebar(); }));
+    [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(link => {
+        link.addEventListener('click', (e) => { 
+            // ========== [NEW] HAPTIC FEEDBACK ==========
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light'); 
+            }
+            // ============================================
+            if (sidebarMenu.classList.contains('open')) toggleSidebar(); 
+        });
+    });
+
     appSearchInput.addEventListener('input', () => { renderApps(); const searchTerm = appSearchInput.value.trim(); const newUrl = searchTerm ? `#apps?search=${encodeURIComponent(searchTerm)}` : '#apps'; history.replaceState(null, '', newUrl); });
     appSearchButton.addEventListener('click', renderApps);
     appSearchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') renderApps(); });
@@ -6544,6 +6609,93 @@ async function exportFilteredAirdropClaimData() {
         });
     }
 
+    // ========== [NEW] ADMIN LOGGING FUNCTIONS ==========
+    async function logAdminAction(actionType, details) {
+        if (!db || !currentUserData || !isCurrentUserAdmin()) return;
+
+        try {
+            const logEntry = {
+                adminId: currentUserData.telegramId || 'N/A',
+                adminName: currentUserData.fullName || 'N/A',
+                action: actionType,
+                details: details, // This will be an object with relevant info
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            await db.collection('admin_logs').add(logEntry);
+        } catch (error) {
+            console.error("Failed to log admin action:", error);
+        }
+    }
+
+    async function fetchAndRenderAdminLogs(isInitialLoad = true) {
+        if (!adminLogListContainer || !db) return;
+
+        adminLoadMoreLogsBtn.disabled = true;
+        adminLoadMoreLogsBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Loading...`;
+
+        if (isInitialLoad) {
+            lastVisibleAdminLog = null;
+            adminLogListContainer.innerHTML = `
+                <table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;">
+                    <thead><tr>
+                        <th>Admin</th>
+                        <th>Hành động</th>
+                        <th>Chi tiết</th>
+                        <th>Thời gian</th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>`;
+        }
+
+        const tableBody = adminLogListContainer.querySelector('tbody');
+        if (isInitialLoad) tableBody.innerHTML = '';
+
+        try {
+            let query = db.collection('admin_logs').orderBy('timestamp', 'desc').limit(ADMIN_LIST_PER_PAGE);
+            if (!isInitialLoad && lastVisibleAdminLog) {
+                query = query.startAfter(lastVisibleAdminLog);
+            }
+            const snapshot = await query.get();
+
+            if (snapshot.empty && isInitialLoad) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="text-center text-secondary p-3">Không có hoạt động nào được ghi lại.</td></tr>`;
+                adminLoadMoreLogsBtn.style.display = 'none';
+                return;
+            }
+
+            lastVisibleAdminLog = snapshot.docs[snapshot.docs.length - 1];
+
+            snapshot.forEach(doc => {
+                const log = doc.data();
+                const logDate = log.timestamp ? log.timestamp.toDate().toLocaleString('vi-VN') : 'N/A';
+                
+                let detailsHtml = '';
+                // Format details for readability
+                for (const [key, value] of Object.entries(log.details)) {
+                    detailsHtml += `<strong>${key}:</strong> ${value}<br>`;
+                }
+
+                const row = tableBody.insertRow();
+                row.innerHTML = `
+                    <td>${log.adminName} (${log.adminId})</td>
+                    <td><span class="badge bg-secondary">${log.action}</span></td>
+                    <td style="white-space: normal; max-width: 400px;">${detailsHtml}</td>
+                    <td>${logDate}</td>
+                `;
+            });
+
+            adminLoadMoreLogsBtn.style.display = snapshot.docs.length < ADMIN_LIST_PER_PAGE ? 'none' : 'block';
+
+        } catch (error) {
+            console.error("Error fetching admin logs:", error);
+            tableBody.innerHTML = `<tr><td colspan="4" class="text-center text-danger p-3">Lỗi khi tải lịch sử.</td></tr>`;
+        } finally {
+            adminLoadMoreLogsBtn.disabled = false;
+            adminLoadMoreLogsBtn.innerHTML = 'Tải thêm';
+        }
+    }
+    // ===============================================
+
 
     // --- Event Listeners specific to new features ---
 
@@ -6586,9 +6738,11 @@ async function exportFilteredAirdropClaimData() {
                     renderLevelSettingsUI();
                 } else if (targetId === '#admin-panel-users') {
                     fetchAndRenderAdminUserList(true);
-                } else if (targetId === '#admin-panel-claim-list') { // [NEW]
+                } else if (targetId === '#admin-panel-claim-list') { 
                     renderAdminClaimFilters();
                     fetchAndRenderAdminClaimList(true);
+                } else if (targetId === '#admin-panel-activity-log') { // [NEW]
+                    fetchAndRenderAdminLogs(true);
                 } else if (targetId === '#admin-panel-partner-tasks') {
                     renderAdminPartnerTasks();
                 } else if (targetId === '#admin-panel-airdrop') {
