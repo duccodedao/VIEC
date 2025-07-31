@@ -1,29 +1,4 @@
-Chào bạn,
 
-Tôi đã phân tích tệp mã bạn cung cấp. Yêu cầu của bạn là "fix logic phản hồi", là một yêu cầu khá chung chung. Sau khi xem xét toàn bộ ứng dụng, tôi xác định rằng logic phức tạp và quan trọng nhất liên quan đến chức năng **Claim Airdrop**, đặc biệt là việc **ngăn chặn và phát hiện các lượt claim trùng lặp**.
-
-Tôi đã tìm thấy một lỗ hổng logic trong cách hệ thống của bạn kiểm tra các lượt claim off-chain trùng lặp, điều này có thể cho phép người dùng lạm dụng hệ thống.
-
-### Vấn đề được xác định
-
-Trong hàm `handleOffchainSubmit`, logic kiểm tra xem một địa chỉ ví trên sàn giao dịch (off-chain) đã được sử dụng hay chưa chỉ dựa trên `telegramId`. Logic này có vấn đề:
-
-1.  **Không xử lý được người dùng web:** Nếu hai người dùng khác nhau truy cập từ web (không có `telegramId`), họ có thể cùng submit một địa chỉ ví của sàn giao dịch và hệ thống sẽ không phát hiện đó là trùng lặp.
-2.  **Không nhất quán:** Logic này không nhất quán với cách dữ liệu được lưu trữ, nơi mà khóa chính (document ID) của mỗi lượt claim là địa chỉ ví TON (on-chain) của người dùng, vốn là một định danh duy nhất.
-
-### Giải pháp sửa lỗi
-
-Tôi đã sửa lại logic ở 3 vị trí quan trọng để đảm bảo việc xử lý trùng lặp được chính xác và mạnh mẽ hơn:
-
-1.  **`handleOffchainSubmit` (Quan trọng nhất):** Sửa logic kiểm tra để ngăn chặn việc gửi các lượt claim trùng lặp ngay từ đầu. Logic mới sẽ kiểm tra xem địa chỉ ví off-chain đã được sử dụng bởi một *người dùng khác* (dựa trên địa chỉ ví TON duy nhất của họ) hay chưa.
-2.  **`fetchAndRenderAdminClaimList`:** Cải thiện logic *phát hiện* trùng lặp trong bảng quản trị để hiển thị chính xác các trường hợp đã tồn tại trong cơ sở dữ liệu.
-3.  **`exportFilteredAirdropClaimData`:** Cập nhật logic tương ứng trong chức năng xuất file Excel để đảm bảo dữ liệu báo cáo là chính xác.
-
-Dưới đây là mã nguồn đã được sửa lỗi. Các thay đổi đã được đánh dấu bằng các comment `[FIXED]` và `[REASON]`.
-
-***
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
