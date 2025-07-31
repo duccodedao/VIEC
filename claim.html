@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>The Bmass Experience</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Bmass Experience</title>
 
 <!-- Meta SEO -->
 <meta name="description" content="Bmass: The ultimate Web3 experience. Discover top Mini Apps and manage your TON assets intuitively.">
@@ -1727,14 +1727,15 @@
                     <p class="lead text-secondary col-md-8 mx-auto">Công cụ quản lý người dùng và sự kiện.</p>
                 </div>
 
-                <!-- Bố cục Tab Admin -->
+                <!-- [BỐ CỤC 1] Dạng Tab -->
                 <ul class="nav nav-tabs" id="admin-nav-tabs" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" data-target="#admin-panel-users" type="button">
                             <i class="fas fa-users me-1"></i> User List
                         </button>
                     </li>
-                     <li class="nav-item" role="presentation">
+                     <!-- [NEW] Claim List Tab -->
+                    <li class="nav-item" role="presentation">
                         <button class="nav-link" data-target="#admin-panel-claim-list" type="button">
                             <i class="fas fa-clipboard-check me-1"></i> Claim List
                         </button>
@@ -1754,35 +1755,39 @@
                             <i class="fas fa-gift me-1"></i> Rewards
                         </button>
                     </li>
+                    <!-- ============================================= -->
+                    <!-- [NEW] NÚT TAB CÀI ĐẶT LEVEL - DÁN VÀO ĐÂY    -->
+                    <!-- ============================================= -->
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" data-target="#admin-panel-level-settings" type="button">
                             <i class="fas fa-layer-group me-1"></i> Level Settings
                         </button>
                     </li>
+                     <!-- ============================================= -->
+                    <!-- [RESTRUCTURED] TAB AIRDROP MỚI                 -->
+                    <!-- ============================================= -->
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" data-target="#admin-panel-airdrop" type="button">
                             <i class="fas fa-parachute-box me-1"></i> Airdrop
                         </button>
                     </li>
-                     <li class="nav-item" role="presentation">
+                     <!-- ============================================= -->
+                    <li class="nav-item" role="presentation">
                          <button class="nav-link" data-target="#admin-panel-edit-exp" type="button">
                             <i class="fas fa-edit me-1"></i> User Actions
                         </button>
                     </li>
+                    
+                    <!-- ============================================= -->
+                    <!-- [NEW-FEATURE] TAB KIỂM TRA & THƯỞNG           -->
+                    <!-- ============================================= -->
                      <li class="nav-item" role="presentation">
                         <button class="nav-link" data-target="#admin-panel-audit-award" type="button">
                             <i class="fas fa-tasks me-1"></i> Kiểm tra & Thưởng
                         </button>
                     </li>
                     <!-- ============================================= -->
-                    <!-- [NEW] TAB LỊCH SỬ HOẠT ĐỘNG ADMIN           -->
-                    <!-- ============================================= -->
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" data-target="#admin-panel-logs" type="button">
-                            <i class="fas fa-history me-1"></i> Admin Log
-                        </button>
-                    </li>
-                    <!-- ============================================= -->
+                    
                      <li class="nav-item" role="presentation">
                         <button class="nav-link" data-target="#admin-panel-system-status" type="button">
                             <i class="fas fa-server me-1"></i> System
@@ -1791,26 +1796,7 @@
                 </ul>
 
                 <div class="row justify-content-center g-4">
-                    <!-- ============================================= -->
-                    <!-- [NEW] PANEL LỊCH SỬ HOẠT ĐỘNG ADMIN         -->
-                    <!-- ============================================= -->
-                    <div id="admin-panel-logs" class="admin-panel-wrapper" style="display: none;">
-                        <div class="col-12">
-                           <div class="card-glass">
-                               <h5 class="card-title">Lịch sử Hoạt động Admin</h5>
-                               <p class="text-secondary small">Tất cả các hành động quản trị quan trọng được ghi lại tại đây.</p>
-                               <div id="admin-log-list-container" class="table-responsive">
-                                   <!-- Log entries will be rendered here -->
-                               </div>
-                               <div class="text-center mt-3">
-                                   <button id="admin-load-more-logs-btn" class="btn btn-outline-secondary" style="display: none;">Tải thêm</button>
-                               </div>
-                           </div>
-                       </div>
-                    </div>
-                    <!-- ============================================= -->
-
-                    <!-- Bảng Trạng Thái Hệ Thống -->
+                    <!-- [NEW] Bảng Trạng Thái Hệ Thống -->
                     <div id="admin-panel-system-status" class="admin-panel-wrapper" style="display: none;">
                         <div class="col-12 col-lg-10 col-xl-8 mx-auto">
                              <div class="card-glass mb-4">
@@ -1826,6 +1812,9 @@
                                 </p>
                                  <div id="admin-system-status" class="mt-3 text-center fw-bold"></div>
                             </div>
+                             <!-- ============================================= -->
+                             <!-- [FIX-BUG] KHU VỰC SỬA LỖI ĐẾM USER          -->
+                             <!-- ============================================= -->
                             <div class="card-glass">
                                 <h5 class="card-title">Data Synchronization</h5>
                                  <p class="text-secondary small">
@@ -1838,15 +1827,19 @@
                                     </button>
                                 </div>
                             </div>
+                             <!-- ============================================= -->
+
                         </div>
                     </div>
                     
-                    <!-- PANEL KIỂM TRA & THƯỞNG -->
+                    <!-- ============================================= -->
+                    <!-- [NEW-FEATURE] PANEL KIỂM TRA & THƯỞNG         -->
+                    <!-- ============================================= -->
                     <div id="admin-panel-audit-award" class="admin-panel-wrapper" style="display: none;">
                         <div class="col-12 col-lg-10 col-xl-8 mx-auto">
                            <div class="card-glass">
                                 <h5 class="card-title">Rà soát và Thưởng EXP Bổ sung</h5>
-                                <p class="text-secondary small">Công cụ này sẽ quét người dùng theo điều kiện, kiểm tra xem họ đã nhận thưởng cho một sự kiện cụ thể hay chưa, và chỉ cộng điểm cho những người chưa nhận và đã tham gia trước thời điểm rà soát. Điều này đảm bảo tính công bằng và chính xác.</p>
+                                <p class="text-secondary small">Công cụ này sẽ quét người dùng theo điều kiện, kiểm tra xem họ đã nhận thưởng cho một sự kiện cụ thể hay chưa, và chỉ cộng điểm cho những người chưa nhận. Điều này đảm bảo không ai nhận thưởng hai lần.</p>
                                 <form id="admin-audit-award-form">
                                      <div class="mb-3">
                                         <label for="admin-audit-event-id" class="form-label">ID Sự kiện / Nhiệm vụ (Duy nhất)</label>
@@ -1864,6 +1857,8 @@
                             </div>
                         </div>
                     </div>
+                    <!-- ============================================= -->
+
 
                     <!-- Bảng Gửi Tin Nhắn -->
                     <div id="admin-panel-messenger" class="admin-panel-wrapper" style="display: none;">
@@ -1962,7 +1957,9 @@
                         </div>
                     </div>
                     
-                    <!-- PANEL CÀI ĐẶT LEVEL -->
+                    <!-- ============================================= -->
+                    <!-- [NEW] PANEL CÀI ĐẶT LEVEL - DÁN VÀO ĐÂY       -->
+                    <!-- ============================================= -->
                     <div id="admin-panel-level-settings" class="admin-panel-wrapper" style="display: none;">
                         <div class="col-12 col-lg-10 col-xl-8 mx-auto">
                             <div class="card-glass">
@@ -1983,8 +1980,9 @@
                             </div>
                         </div>
                     </div>
+                    <!-- ============================================= -->
 
-                    <!-- Bảng Cài đặt Airdrop -->
+                    <!-- [RESTRUCTURED] Bảng Cài đặt Airdrop -->
                     <div id="admin-panel-airdrop" class="admin-panel-wrapper" style="display: none;">
                         <div class="col-12 col-lg-10 col-xl-8 mx-auto">
                             <div class="card-glass mb-4">
@@ -2318,9 +2316,16 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/apps-data.js"></script>
     
+
+
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     // --- START OF DOMCONTENTLOADED ---
+
+    
+
+    
     const TON_API_BASE = 'https://tonapi.io/v2';
     const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
     const USER_SESSION_KEY = 'BmassUserSession';
@@ -2443,25 +2448,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendBulkTelegramMessageBtn = document.getElementById('send-bulk-telegram-message-btn');
     const telegramSenderStatus = document.getElementById('telegram-sender-status');
     
-    // Maintenance Mode Switch
+    // [NEW] Maintenance Mode Switch
     const maintenanceModeSwitch = document.getElementById('maintenance-mode-switch');
     const adminSystemStatus = document.getElementById('admin-system-status');
     
-    // Leaderboard Total Users
+    // [NEW] Leaderboard Total Users
     const leaderboardTotalUsersEl = document.getElementById('leaderboard-total-users');
 
-    // Audit & Award Elements
+    // [NEW-FEATURE] Audit & Award Elements
     const adminAuditAwardForm = document.getElementById('admin-audit-award-form');
     const adminAuditConditionType = document.getElementById('admin-audit-condition-type');
     const adminAuditConditionWrapper = document.getElementById('admin-audit-condition-wrapper');
     const adminAuditAwardSubmitBtn = document.getElementById('admin-audit-award-submit-btn');
     const adminAuditAwardStatus = document.getElementById('admin-audit-award-status');
 
-    // Recalculate Button
+    // [FIX-BUG] Recalculate Button
     const recalculateUsersBtn = document.getElementById('recalculate-users-btn');
     const recalculateStatusEl = document.getElementById('recalculate-status');
     
-    // Admin Airdrop Panel Elements
+    // [NEW] Admin Airdrop Panel Elements
     const saveScoringSettingsBtn = document.getElementById('save-scoring-settings-btn');
     const saveClaimSettingsBtn = document.getElementById('save-claim-settings-btn');
     const exportClaimExcelBtn = document.getElementById('export-claim-excel-btn');
@@ -2472,10 +2477,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminClaimListContainer = document.getElementById('admin-claim-list-container');
     const adminLoadMoreClaimsBtn = document.getElementById('admin-load-more-claims-btn');
     const adminClaimFilterControls = document.getElementById('admin-claim-filter-controls');
-
-    // [NEW] Admin Log Elements
-    const adminLogListContainer = document.getElementById('admin-log-list-container');
-    const adminLoadMoreLogsBtn = document.getElementById('admin-load-more-logs-btn');
 
 
     const DEFAULT_LOGO_SRC = 'https://bmass.vercel.app/img/bmasslogo.png';
@@ -2498,8 +2499,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let checkinInterval = null;
     let lastVisibleAdminUser = null; // For admin pagination
     let lastVisibleAdminClaim = null; // For admin claim list pagination
-    let lastVisibleAdminLog = null; // [NEW] For admin log pagination
-    let userAirdropClaimData = null; // To store user's claim info
+    let userAirdropClaimData = null; // [NEW] To store user's claim info
 
     // [UPDATED] Level System Configuration - Now treated as a default/fallback
     let levelConfig = [
@@ -2548,9 +2548,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // [UPDATED] On-chain claim constants to match user request
     const ONCHAIN_CLAIM_WALLET_ADDRESS = "UQDu8vyZSZbAYvRRQ_jW4_0EiBGibAGq72wSZjYWRmNAGhRD"; // Admin wallet to receive gas fee
     const ONCHAIN_CLAIM_FEE_TON = 0.02;
+    const ONCHAIN_CLAIM_FEE_NANOTONS = "20000000";
 
-
-
+    const skeletonAsset = `<div class="d-flex align-items-center mb-3"><img class="skeleton-loader me-3" style="width: 48px; height: 48px; border-radius: 50%;"><div><div class="skeleton-loader skeleton-line" style="width: 100px;"></div><div class="skeleton-loader skeleton-line" style="width: 150px;"></div></div></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100 mb-3"></div><div class="skeleton-loader skeleton-line w-100"></div>`;
     const skeletonTx = `<div class="d-flex align-items-center mb-3"><div class="skeleton-loader me-3" style="width: 40px; height: 40px; border-radius: 50%;"></div><div style="flex-grow: 1;"><div class="skeleton-loader skeleton-line"></div><div class="skeleton-loader skeleton-line w-50"></div></div></div>`;
 
     // --- Core Logic ---
@@ -2602,26 +2602,23 @@ document.addEventListener('DOMContentLoaded', () => {
         return systemStatus;
     }
     
-    // [FIXED] Sửa lỗi logic khóa admin khi bảo trì
+    // [UPDATED] Check and apply maintenance mode
     function applyMaintenanceMode(walletAddress = null) {
-        // Chỉ cần kiểm tra địa chỉ ví thô trong lần đầu.
-        // Khi currentUserData đã được tải, các quyền admin khác sẽ được áp dụng tự động.
-        const isAdminOnLoad = walletAddress === ADMIN_ADDRESS;
-
         if (systemStatus.isMaintenanceMode) {
-            if (isAdminOnLoad) {
-                maintenanceOverlay.classList.remove('visible');
+            // Allow admin access by checking the specific wallet address
+            const isWalletAdmin = walletAddress === ADMIN_ADDRESS;
+            if (isWalletAdmin) {
                 adminMaintenanceBanner.style.display = 'block';
-                return false; // Admin không bị khóa
+                return false; // Admin is not blocked
             } else {
                 maintenanceOverlay.classList.add('visible');
-                return true; // Người dùng thường bị khóa
+                return true; // App flow should stop for non-admins
             }
         } else {
-            maintenanceOverlay.classList.remove('visible');
-            adminMaintenanceBanner.style.display = 'none';
+             maintenanceOverlay.classList.remove('visible');
+             adminMaintenanceBanner.style.display = 'none';
         }
-        return false; // Chế độ bảo trì tắt, cho phép tiếp tục
+        return false; // App flow can continue
     }
 
 
@@ -2641,37 +2638,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function isCurrentUserAdmin() {
+        if(systemStatus.isMaintenanceMode && connectedWalletAddress === ADMIN_ADDRESS){
+            return true;
+        }
         if (!currentUserData) return false;
         const isAdminByAddress = currentUserData.address === ADMIN_ADDRESS;
         const isAdminByUID = currentUserData.telegramId === ADMIN_UID;
         return isAdminByAddress || isAdminByUID;
     }
-
-
-    // [NEW] Log admin actions to Firestore
-    async function logAdminAction(actionType, details) {
-        if (!db || !currentUserData || !isCurrentUserAdmin()) {
-            console.log("Admin action not logged: Conditions not met.");
-            return;
-        }
-        
-        try {
-            const logData = {
-                adminId: currentUserData.telegramId || 'N/A',
-                adminName: currentUserData.fullName || currentUserData.username || shortenAddress(currentUserData.address),
-                adminAddress: currentUserData.address,
-                actionType: actionType,
-                details: details, // This is an object with all relevant data
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            await db.collection('admin_logs').add(logData);
-            console.log(`Admin action logged: ${actionType}`);
-        } catch (error) {
-            console.error("Error logging admin action:", error);
-        }
-    }
-
 
     async function checkMandatoryTasksCompletion(userAddress) {
         if (!db) return true;
@@ -2697,6 +2671,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function calculateBmassReward(user, settings) {
         if (!user || !settings) return 0;
+        
         const refCount = user.referralCount || 0;
         const checkinCount = user.checkinCount || 0;
         const expCount = user.points || 0;
@@ -4798,7 +4773,7 @@ function renderReferralMilestones() {
 
     // --- Initialization & Main Logic ---
     async function initializeApp() {
-        showLoadingOverlay();
+        showLoadingOverlay('Initializing...');
         if (window.Telegram && window.Telegram.WebApp) {
             const tg = window.Telegram.WebApp;
             tg.ready();
@@ -5456,9 +5431,8 @@ function renderReferralMilestones() {
         hamburgerBtn.classList.toggle('open');
     };
     
+    // [NEW] Save Airdrop SCORING Settings
     async function saveAirdropScoringSettings() {
-        if (!db) return;
-
         const refMultiplier = parseFloat(document.getElementById('ref-multiplier-input').value) || 0;
         const checkinMultiplier = parseFloat(document.getElementById('checkin-multiplier-input').value) || 0;
         const expMultiplier = parseFloat(document.getElementById('exp-multiplier-input').value) || 0;
@@ -5468,38 +5442,40 @@ function renderReferralMilestones() {
 
         const levelMultipliers = [];
         document.querySelectorAll('.level-multiplier-item').forEach(item => {
-            levelMultipliers.push({
-                level: parseInt(item.dataset.level, 10),
-                multiplier: parseFloat(item.querySelector('input').value) || 1.0
-            });
+            const level = parseInt(item.dataset.level, 10);
+            const multiplier = parseFloat(item.querySelector('input').value);
+            if (!isNaN(level) && !isNaN(multiplier)) {
+                levelMultipliers.push({ level, multiplier });
+            }
         });
         
+        if ([minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier].some(isNaN)) {
+             showAppToast('Lỗi', 'Vui lòng nhập giá trị số hợp lệ.', 'error');
+             return;
+        }
+
         saveScoringSettingsBtn.disabled = true;
         adminScoringSettingsStatusEl.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...`;
         
         try {
             const settingsRef = db.collection('admin_settings').doc('airdrop_criteria');
-            const newSettings = { refMultiplier, checkinMultiplier, expMultiplier, minCheckins, minReferrals, minExp, levelMultipliers };
+            const newSettings = { minCheckins, minReferrals, minExp, refMultiplier, checkinMultiplier, expMultiplier, levelMultipliers };
             await settingsRef.set(newSettings, { merge: true });
-
             airdropSettings = { ...airdropSettings, ...newSettings }; // Update local cache
             adminScoringSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
-            showAppToast('Thành công', 'Đã lưu cài đặt tính điểm Airdrop.', 'success');
-            logAdminAction('AIRDROP_SCORING_UPDATE', newSettings);
-
-        } catch (error) {
-            console.error("Lỗi khi lưu cài đặt tính điểm:", error);
+            showAppToast('Thành công', 'Đã lưu cài đặt tính điểm.', 'success');
+        } catch(error) {
+             console.error("Error saving airdrop scoring settings:", error);
             adminScoringSettingsStatusEl.innerHTML = `<span class="text-danger">Lưu thất bại.</span>`;
-            showAppToast('Lỗi', 'Không thể lưu cài đặt.', 'error');
+            showAppToast('Lỗi', 'Không thể lưu cài đặt tính điểm.', 'error');
         } finally {
             saveScoringSettingsBtn.disabled = false;
-            setTimeout(() => { adminScoringSettingsStatusEl.innerHTML = ''; }, 4000);
+            setTimeout(() => { adminScoringSettingsStatusEl.innerHTML = ''; }, 3000);
         }
     }
 
+    // [NEW] Save Airdrop CLAIM Settings
     async function saveAirdropClaimSettings() {
-        if (!db) return;
-
         const isAirdropLive = document.getElementById('airdrop-live-switch').checked;
         const isSnapshotActive = document.getElementById('snapshot-active-switch').checked;
         const allowClaimInfoEdit = document.getElementById('claim-edit-switch').checked;
@@ -5507,7 +5483,7 @@ function renderReferralMilestones() {
         const onchainClaimEnabled = document.getElementById('onchain-claim-enabled-switch').checked;
         const offchainClaimEnabled = document.getElementById('offchain-claim-enabled-switch').checked;
         
-        if (isSnapshotActive && (!airdropSettings || !airdropSettings.isSnapshotActive)) {
+        if (isSnapshotActive && !airdropSettings?.isSnapshotActive) {
             if (!confirm("CẢNH BÁO: Bạn sắp kích hoạt Snapshot. Hành động này sẽ DỪNG tất cả các hoạt động kiếm điểm và cho phép người dùng bắt đầu claim. Hành động này không thể hoàn tác. Bạn có chắc chắn muốn tiếp tục không?")) {
                 document.getElementById('snapshot-active-switch').checked = false;
                 return;
@@ -5534,14 +5510,12 @@ function renderReferralMilestones() {
             adminClaimSettingsStatusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
             showAppToast('Thành công', 'Đã lưu cài đặt Claim.', 'success');
 
-            logAdminAction('AIRDROP_CLAIM_SETTINGS_UPDATE', newSettings);
-
              if (shouldNotify) {
                 handleNotifyAirdropSent();
             }
 
         } catch (error) {
-            console.error("Lỗi khi lưu cài đặt Claim:", error);
+            console.error("Error saving airdrop claim settings:", error);
             adminClaimSettingsStatusEl.innerHTML = `<span class="text-danger">Lưu thất bại.</span>`;
             showAppToast('Lỗi', 'Không thể lưu cài đặt Claim.', 'error');
         } finally {
@@ -5699,9 +5673,12 @@ async function exportFilteredAirdropClaimData() {
                             <img src="${task.imageUrl}" alt="${task.projectName}" class="partner-task-img">
                             
                             <div class="partner-task-body">
-                                <h4 class="partner-task-title">${task.projectName}</h4>
+                                <h4 class="partner-task-title">
+                                    ${task.projectName}
+                                    ${task.taskType === 'mandatory' ? '<i class="fas fa-star mandatory-icon" title="Mandatory Task"></i>' : ''}
+                                </h4>
                                 <p class="partner-task-desc">${task.description}</p>
-                                ${isDescLong ? '<button class="task-details-toggle">Show more</button>' : ''}
+                                ${isDescLong ? '<button class="task-details-toggle">View Details</button>' : ''}
                             </div>
                         </div>
                         
@@ -5728,24 +5705,43 @@ async function exportFilteredAirdropClaimData() {
 
     function handlePartnerCardClick(e) {
         const toggleBtn = e.target.closest('.task-details-toggle');
+        const taskCard = e.target.closest('.partner-task-card');
+
         if (toggleBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+
             const desc = toggleBtn.previousElementSibling;
             desc.classList.toggle('expanded');
-            toggleBtn.textContent = desc.classList.contains('expanded') ? 'Show less' : 'Show more';
+            toggleBtn.textContent = desc.classList.contains('expanded') ? 'Collapse' : 'View Details';
             return;
         }
 
-        const taskCard = e.target.closest('.partner-task-card:not(.completed)');
         if (taskCard) {
-            handlePartnerTaskCompletion(taskCard);
+            handlePartnerTaskCompletion(e, taskCard);
         }
     }
 
-    async function handlePartnerTaskCompletion(taskCard) {
+    async function handlePartnerTaskCompletion(e, taskCard) {
+        if (airdropSettings?.isSnapshotActive) {
+            showAppToast('Halted', 'Point-earning activities are paused.', 'warning');
+            e.preventDefault();
+            return;
+        }
+        
+        if (taskCard.classList.contains('completed')) {
+            e.preventDefault();
+            return;
+        }
+
+        e.preventDefault();
+
         const taskId = taskCard.dataset.taskId;
-        const taskLink = taskCard.dataset.link;
         const expReward = parseInt(taskCard.dataset.exp, 10);
         const projectName = taskCard.dataset.name;
+        const taskLink = taskCard.dataset.link;
+
+        if (!taskId || isNaN(expReward)) return;
 
         const actionBar = taskCard.querySelector('.partner-task-action-bar');
         actionBar.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
@@ -5794,6 +5790,9 @@ async function exportFilteredAirdropClaimData() {
                 window.open(taskLink, '_blank');
             }
             
+            const updatedDoc = await userRef.get();
+            currentUserData = updatedDoc.data();
+            updateUIAfterLogin(); 
             taskCard.classList.add('completed');
             actionBar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Completed';
 
@@ -5851,12 +5850,10 @@ async function exportFilteredAirdropClaimData() {
             if (taskId) {
                 await db.collection('partner_tasks').doc(taskId).update(taskData);
                 showAppToast('Thành công', 'Đã cập nhật nhiệm vụ đối tác.', 'success');
-                logAdminAction('PARTNER_TASK_UPDATE', { taskId, ...taskData });
             } else {
                 taskData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                const newDoc = await db.collection('partner_tasks').add(taskData);
+                await db.collection('partner_tasks').add(taskData);
                 showAppToast('Thành công', 'Đã thêm nhiệm vụ đối tác mới.', 'success');
-                logAdminAction('PARTNER_TASK_CREATE', { taskId: newDoc.id, ...taskData });
             }
             
             clearPartnerTaskForm();
@@ -5901,51 +5898,53 @@ async function exportFilteredAirdropClaimData() {
                     
                 tableHtml += `
                     <tr data-id="${doc.id}">
-                        <td><img src="${task.imageUrl}" class="table-img-preview"></td>
-                        <td style="min-width: 200px;"><strong>${task.projectName}</strong><br><small class="text-secondary">${task.description.substring(0, 50)}...</small></td>
+                        <td><img src="${task.imageUrl || GENERIC_TASK_ICON}" class="table-img-preview" onerror="this.src='${GENERIC_TASK_ICON}'"></td>
+                        <td style="white-space: normal;"><strong>${task.projectName}</strong><br><small class="text-secondary">${task.description}</small></td>
                         <td>${typeBadge}</td>
                         <td class="fw-bold">${task.expReward.toLocaleString()}</td>
                         <td>
-                            <button class="btn btn-sm btn-outline-secondary me-2 admin-edit-task-btn" title="Edit"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-outline-danger admin-delete-task-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-sm btn-outline-light admin-edit-partner-task-btn" title="Chỉnh sửa"><i class="fas fa-pencil-alt"></i></button>
+                            <button class="btn btn-sm btn-outline-danger admin-delete-partner-task-btn" title="Xóa"><i class="fas fa-trash-alt"></i></button>
                         </td>
                     </tr>
                 `;
             });
-            adminPartnerTasksList.innerHTML = tableHtml + `</tbody></table>`;
+            
+            tableHtml += '</tbody></table>';
+            adminPartnerTasksList.innerHTML = tableHtml;
+
         } catch (error) {
             console.error("Error rendering admin partner tasks:", error);
-            adminPartnerTasksList.innerHTML = `<p class="text-danger text-center p-3">Lỗi khi tải danh sách.</p>`;
+            adminPartnerTasksList.innerHTML = `<p class="text-danger text-center p-3">Lỗi tải danh sách nhiệm vụ.</p>`;
         }
     }
     
     async function handleAdminPartnerTaskActions(e) {
-        const editBtn = e.target.closest('.admin-edit-task-btn');
-        const deleteBtn = e.target.closest('.admin-delete-task-btn');
+        const editBtn = e.target.closest('.admin-edit-partner-task-btn');
+        const deleteBtn = e.target.closest('.admin-delete-partner-task-btn');
 
-        if (deleteBtn) {
-            const row = deleteBtn.closest('tr');
-            const taskId = row.dataset.id;
-            const taskName = row.querySelector('strong').textContent;
-            if (confirm(`Bạn có chắc muốn xóa nhiệm vụ "${taskName}" không?`)) {
-                try {
-                    await db.collection('partner_tasks').doc(taskId).delete();
-                    showAppToast('Đã xóa', `Nhiệm vụ ${taskName} đã được xóa.`, 'success');
-                    logAdminAction('PARTNER_TASK_DELETE', { taskId, taskName });
-                    row.remove();
-                } catch (error) {
-                    console.error("Error deleting partner task:", error);
-                    showAppToast('Lỗi', 'Không thể xóa nhiệm vụ.', 'error');
-                }
-            }
-        }
+        if (!editBtn && !deleteBtn) return;
         
-        if (editBtn) {
-            const taskId = editBtn.closest('tr').dataset.id;
+        const row = e.target.closest('tr');
+        const taskId = row.dataset.id;
+        
+        if (deleteBtn) {
+            if (!confirm(`Bạn có chắc chắn muốn xóa nhiệm vụ này?`)) {
+                return;
+            }
             try {
-                const doc = await db.collection('partner_tasks').doc(taskId).get();
-                if (doc.exists) {
-                    const task = doc.data();
+                await db.collection('partner_tasks').doc(taskId).delete();
+                showAppToast('Thành công', 'Đã xóa nhiệm vụ.', 'success');
+                renderAdminPartnerTasks();
+            } catch (error) {
+                console.error("Error deleting partner task:", error);
+                showAppToast('Lỗi', 'Không thể xóa nhiệm vụ.', 'error');
+            }
+        } else if (editBtn) {
+            try {
+                const docSnap = await db.collection('partner_tasks').doc(taskId).get();
+                if (docSnap.exists) {
+                    const task = docSnap.data();
                     partnerTaskIdInput.value = taskId;
                     document.getElementById('partner-task-name-input').value = task.projectName || '';
                     document.getElementById('partner-task-desc-input').value = task.description || '';
@@ -5981,7 +5980,6 @@ async function exportFilteredAirdropClaimData() {
             await db.collection('admin_settings').doc('system_status').set({ isMaintenanceMode: isEnabled });
             systemStatus.isMaintenanceMode = isEnabled;
             showAppToast('Thành công', `Chế độ bảo trì đã được ${isEnabled ? 'BẬT' : 'TẮT'}.`, 'success');
-            logAdminAction('MAINTENANCE_MODE_CHANGE', { enabled: isEnabled });
             adminSystemStatus.innerHTML = `<span class="text-success">Đã cập nhật thành công!</span>`;
             setTimeout(() => window.location.reload(), 1500);
         } catch (error) {
@@ -6619,9 +6617,8 @@ async function exportFilteredAirdropClaimData() {
             try {
                 await db.collection('admin_settings').doc('reward_config').set(newSettings);
                 rewardConfig = newSettings; 
-                statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu thành công!</span>`;
+                statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu cài đặt!</span>`;
                 showAppToast('Thành công', 'Cài đặt thưởng đã được cập nhật.', 'success');
-                logAdminAction('REWARD_SETTINGS_UPDATE', newSettings);
             } catch (error) {
                 console.error("Error saving reward settings:", error);
                 statusEl.innerHTML = `<span class="text-danger">Lỗi: ${error.message}</span>`;
@@ -6642,19 +6639,28 @@ async function exportFilteredAirdropClaimData() {
 
             const newLevels = [];
             let isValid = true;
+            let lastExp = -1;
 
             document.querySelectorAll('.level-item').forEach(item => {
                 const level = parseInt(item.querySelector('.level-number').value, 10);
-                const exp = parseInt(item.querySelector('.level-exp').value, 10);
+                const expRequired = parseInt(item.querySelector('.level-exp').value, 10);
                 const benefit = item.querySelector('.level-benefit').value.trim();
-                if (isNaN(level) || isNaN(exp) || !benefit) {
+                
+                if (isNaN(level) || isNaN(expRequired)) {
                     isValid = false;
                 }
+                
+                if (level > 1 && expRequired <= lastExp) {
+                    showAppToast('Lỗi Cấu hình', `EXP yêu cầu cho Level ${level} phải lớn hơn Level ${level - 1}.`, 'error');
+                    isValid = false;
+                }
+                lastExp = expRequired;
+
                 newLevels.push({ 
-                    level: level, 
-                    expRequired: exp, 
-                    benefit: benefit,
-                    shieldClass: `level-shield-${level}` 
+                    level, 
+                    expRequired, 
+                    benefit,
+                    shieldClass: `level-shield-${level}` // Auto-generate shield class
                 });
             });
             
@@ -6669,7 +6675,6 @@ async function exportFilteredAirdropClaimData() {
                 levelConfig = newLevels; // Update local config
                 statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-2"></i>Đã lưu cài đặt level!</span>`;
                 showAppToast('Thành công', 'Cấu hình level đã được cập nhật.', 'success');
-                logAdminAction('LEVEL_SETTINGS_UPDATE', { levels: newLevels });
             } catch (error) {
                 console.error("Error saving level settings:", error);
                 statusEl.innerHTML = `<span class="text-danger">Lỗi: ${error.message}</span>`;
