@@ -4857,37 +4857,37 @@ tg.BackButton.show();
 }
 }
 }
-
 const handleRouteChange = () => {
-let hash = window.location.hash.substring(1);
-if (hash.startsWith('apps')) { hash = 'apps'; }
-if (!hash && connectedWalletAddress) hash = 'dashboard';
-if (!hash && !connectedWalletAddress) hash = 'hero-section';
-if (hash === 'dashboard' && !connectedWalletAddress) hash = 'hero-section';
+    let hash = window.location.hash.substring(1);
+    if (hash.startsWith('apps')) { hash = 'apps'; }
+    if (!hash && connectedWalletAddress) hash = 'dashboard';
+    if (!hash && !connectedWalletAddress) hash = 'hero-section';
+    if (hash === 'dashboard' && !connectedWalletAddress) hash = 'hero-section';
 
-if (hash === 'admin' && !isCurrentUserAdmin()){ 
-    showAppToast('Access Denied', 'You do not have permission to access this page.', 'error');
-    window.location.hash = '#dashboard';
-    hash = 'dashboard';
-}
+    // [FIXED] Sửa lỗi 'path is not defined' thành 'hash'
+    if (hash === 'admin' && !isCurrentUserAdmin()){
+        showAppToast('Access Denied', 'You do not have permission to access this page.', 'error');
+        window.location.hash = '#dashboard';
+        hash = 'dashboard'; // Cập nhật lại hash để switch view hoạt động đúng
+    }
 
-switch (hash) {
-case 'dashboard': switchView('dashboard'); break;
-case 'apps':
-switchView('apps');
-const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
-appSearchInput.value = urlParams.get('search') || '';
-renderApps();
-break;
-case 'task': switchView('task'); break;
-case 'partner': switchView('partner'); break;
-case 'referral': switchView('referral'); break;
-case 'airdrop': switchView('airdrop'); break;
-case 'leaderboard': switchView('leaderboard'); break;
-case 'account': switchView('account'); break;
-case 'admin': switchView('admin'); break;
-default: switchView(connectedWalletAddress ? 'dashboard' : 'hero-section');
-}
+    switch (hash) {
+        case 'dashboard': switchView('dashboard'); break;
+        case 'apps':
+            switchView('apps');
+            const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
+            appSearchInput.value = urlParams.get('search') || '';
+            renderApps();
+            break;
+        case 'task': switchView('task'); break;
+        case 'partner': switchView('partner'); break;
+        case 'referral': switchView('referral'); break;
+        case 'airdrop': switchView('airdrop'); break;
+        case 'leaderboard': switchView('leaderboard'); break;
+        case 'account': switchView('account'); break;
+        case 'admin': switchView('admin'); break;
+        default: switchView(connectedWalletAddress ? 'dashboard' : 'hero-section');
+    }
 }
 
 const handleManualReferralInput = async (e) => {
