@@ -2570,26 +2570,26 @@ systemStatus = { isMaintenanceMode: false }; // Default to off on error
 }
 return systemStatus;
 }
-
-// [UPDATED] Check and apply maintenance mode
+// [FIXED] Sửa lỗi logic khóa admin khi bảo trì
 function applyMaintenanceMode(walletAddress = null) {
-const isAdmin = walletAddress === ADMIN_ADDRESS || (currentUserData && (currentUserData.telegramId === ADMIN_UID || currentUserData.address === ADMIN_ADDRESS));
+    // Chỉ cần kiểm tra địa chỉ ví thô trong lần đầu.
+    // Khi currentUserData đã được tải, các quyền admin khác sẽ được áp dụng tự động.
+    const isAdminOnLoad = walletAddress === ADMIN_ADDRESS;
 
-if (systemStatus.isMaintenanceMode) {
-if (isAdmin) {
-// Admin can see the site but gets a banner
-maintenanceOverlay.classList.remove('visible');
-adminMaintenanceBanner.style.display = 'block';
-return false; // Admin is not blocked
-} else {
-maintenanceOverlay.classList.add('visible');
-return true; // App flow should stop for non-admins
-}
-} else {
-maintenanceOverlay.classList.remove('visible');
-adminMaintenanceBanner.style.display = 'none';
-}
-return false; // App flow can continue
+    if (systemStatus.isMaintenanceMode) {
+        if (isAdminOnLoad) {
+            maintenanceOverlay.classList.remove('visible');
+            adminMaintenanceBanner.style.display = 'block';
+            return false; // Admin không bị khóa
+        } else {
+            maintenanceOverlay.classList.add('visible');
+            return true; // Người dùng thường bị khóa
+        }
+    } else {
+        maintenanceOverlay.classList.remove('visible');
+        adminMaintenanceBanner.style.display = 'none';
+    }
+    return false; // Chế độ bảo trì tắt, cho phép tiếp tục
 }
 
 
@@ -4686,7 +4686,7 @@ async function handleOffchainClaim(exchange, address, memo, rewardAmount) {
     if (!address || address.length < 10) {
         showAppToast('Lỗi', 'Vui lòng nhập một địa chỉ hợp lệ.', 'error');
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Gửi thông tin Off-chain';
+        submitBtn.textContent = 'Submit Off-chain Info';
         return; 
     }
 
@@ -4713,15 +4713,16 @@ async function handleOffchainClaim(exchange, address, memo, rewardAmount) {
 
         await db.collection('airdrop_claims').doc(connectedWalletAddress).set(claimData);
         showAppToast('Thành công', 'Thông tin claim của bạn đã được lưu lại.', 'success');
-        await renderAirdropSection(); // Re-render to show completion status
+        await renderAirdropSection();
 
     } catch (error) {
         console.error("Off-chain claim failed:", error);
         showAppToast('Thất bại', 'Không thể lưu thông tin. Vui lòng thử lại.', 'error');
+    } finally {
+        // [IMPROVEMENT] Khối này đảm bảo nút luôn được kích hoạt lại
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Gửi thông tin Off-chain';
+        submitBtn.textContent = 'Submit Off-chain Info';
     }
-}
 
 
 // --- Initialization & Main Logic ---
