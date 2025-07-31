@@ -1,23 +1,4 @@
-Chào bạn, tôi đã nhận được yêu cầu của bạn về việc nâng cấp và thêm các tính năng mới cho ứng dụng Bmass. Dựa trên mã nguồn bạn cung cấp, tôi đã thực hiện các thay đổi cần thiết để đáp ứng các yêu cầu của bạn.
 
-Dưới đây là phiên bản mã đã được cập nhật. Bạn có thể sao chép và thay thế toàn bộ tệp HTML hiện tại của mình bằng mã này.
-
-### Tóm tắt các thay đổi chính:
-
-1.  **Hệ thống Thưởng Hàng Loạt với ID Sự Kiện & Lịch sử Admin:**
-    *   Khi sử dụng tính năng "Thưởng EXP Hàng Loạt", một `eventId` (ID sự kiện) duy nhất sẽ được tự động tạo ra dựa trên tên nhiệm vụ và thời gian.
-    *   `eventId` này được lưu lại trong lịch sử của mỗi người dùng nhận thưởng, giúp cho việc truy vết và kiểm tra sau này.
-    *   Một tab mới **"Lịch sử Admin"** đã được thêm vào Bảng điều khiển Quản trị. Mọi hành động quan trọng của admin (Thưởng hàng loạt, Rà soát thưởng, Chỉnh sửa EXP,...) sẽ được tự động ghi lại tại đây.
-
-2.  **Tính năng Rà soát & Thưởng Nâng cao:**
-    *   Tính năng "Rà soát và Thưởng" (`Kiểm tra & Thưởng`) đã được cải tiến để đảm bảo tính công bằng:
-        *   **Kiểm tra điều kiện thời gian:** Hệ thống sẽ chỉ thưởng cho những người dùng có thời gian đăng ký (`createdAt`) **trước** thời điểm admin bắt đầu quá trình thưởng. Điều này đảm bảo những người dùng mới tham gia sau đó sẽ không nhận được phần thưởng không dành cho họ.
-        *   **Kiểm tra trùng lặp:** Logic hiện tại đã đảm bảo mỗi người dùng chỉ nhận thưởng cho một `eventId` duy nhất một lần.
-
-3.  **Phản hồi rung trên Telegram:**
-    *   Đã thêm mã JavaScript để kích hoạt phản hồi rung (haptic feedback) mỗi khi người dùng nhấn vào một mục trên thanh điều hướng bên (sidebar). Tính năng này sẽ chỉ hoạt động khi ứng dụng được mở trong môi trường Telegram Mini App.
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
