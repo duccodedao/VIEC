@@ -4977,12 +4977,12 @@ const formattedPriceUsd = tonPriceUsd ? `$${tonPriceUsd.toLocaleString('en-US', 
 const formattedValueUsd = tonValueUsd ? `$${tonValueUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'N/A';
 const formattedValueVnd = tonValueVnd ? `${tonValueVnd.toLocaleString('vi-VN')} VND` : 'N/A';
 
-        mainAssetsContent.innerHTML = `
-            <div class="d-flex align-items-center mb-3">
-                <img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;">
-                <div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mb-3">
+mainAssetsContent.innerHTML = `
+<div class="d-flex align-items-center mb-3">
+<img src="https://ton.org/download/ton_symbol.png" class="me-3" style="width: 48px;">
+<div><h5 class="m-0">TON</h5><p class="m-0 text-secondary">The Open Network</p></div>
+</div>
+ <div class="d-flex justify-content-between align-items-center mb-3">
                 <span class="text-secondary">Balance</span><strong style="font-size: 1.1rem;">${formattedTonBalance}</strong>
             </div>
             <div class="d-flex justify-content-between align-items-center mb-3">
