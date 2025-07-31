@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -690,13 +689,13 @@
           object-fit: cover;
       }
       #admin-section .text-truncate { max-width: 150px; }
-      #admin-load-more-btn, #admin-load-more-claims-btn {
+      #admin-load-more-btn, #admin-load-more-claims-btn, #admin-load-more-feedback-btn {
           border-color: var(--accent-secondary);
           color: var(--accent-secondary);
           font-weight: 600;
           transition: var(--transition-smooth);
       }
-      #admin-load-more-btn:hover, #admin-load-more-claims-btn:hover { background-color: var(--accent-secondary); color: white; transform: scale(1.05); }
+      #admin-load-more-btn:hover, #admin-load-more-claims-btn:hover, #admin-load-more-feedback-btn:hover { background-color: var(--accent-secondary); color: white; transform: scale(1.05); }
       #admin-user-list-container .form-check-input:checked { background-color: var(--color-verified); border-color: var(--color-verified); }
       #admin-user-list-container .form-switch .form-check-input { height: 1.25em; width: 2.25em; }
     
@@ -971,6 +970,8 @@
         font-weight: 500;
         padding: 0.75rem 1.25rem;
         white-space: nowrap;
+        display: flex;
+        align-items: center;
     }
     #admin-nav-tabs .nav-link.active {
         color: var(--accent-primary);
@@ -1189,93 +1190,75 @@
     animation: rocket-fly 1.5s 0.5s ease-in forwards;
 }
 
-/* ========== [NEW] FEEDBACK/SUPPORT TICKET STYLES ========== */
-.feedback-ticket-list .list-group-item {
-    background-color: var(--card-color);
-    border-color: var(--border-color);
-    color: var(--text-primary);
-    transition: var(--transition-smooth);
+/* =================================================================== */
+/* [NEW] FEEDBACK/CHAT STYLES
+/* =================================================================== */
+.feedback-thread-item {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
 }
-.feedback-ticket-list .list-group-item:hover {
-    background-color: rgba(145, 94, 255, 0.15);
-    transform: translateX(5px);
+.feedback-thread-item:hover {
+    background-color: rgba(145, 94, 255, 0.1);
 }
-.status-badge {
-    font-size: 0.8em;
-    font-weight: 600;
-    padding: 0.4em 0.8em;
-    border-radius: 25px;
+.feedback-thread-item.unread {
+    font-weight: bold;
+    border-left: 3px solid var(--accent-secondary);
 }
-.status-new { background-color: var(--accent-primary); color: white; }
-.status-replied { background-color: var(--accent-secondary); color: white; }
-.status-closed { background-color: var(--color-out); color: white; }
 
-/* Chat Modal Styles */
-.chat-body {
-    max-height: 50vh;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1rem;
-}
 .chat-message {
     display: flex;
-    align-items: flex-end;
-    gap: 10px;
-    max-width: 80%;
+    margin-bottom: 1rem;
+    max-width: 85%;
 }
 .chat-message-bubble {
-    padding: 10px 15px;
+    padding: 0.75rem 1rem;
     border-radius: 18px;
-    white-space: pre-wrap; /* Preserve line breaks */
+    line-height: 1.4;
+    position: relative;
 }
-.chat-message .edited-indicator {
-    font-size: 0.7rem;
-    color: var(--text-secondary);
+.chat-message-bubble .message-text {
+    white-space: pre-wrap; /* Preserve line breaks */
+    word-wrap: break-word; /* Break long words */
+}
+.chat-message-bubble .message-meta {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.6);
+    margin-top: 5px;
+    display: block;
+}
+.chat-message-bubble .message-meta .edit-indicator {
     font-style: italic;
 }
+.chat-message-bubble .edit-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.7);
+    padding: 0 5px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.chat-message-bubble:hover .edit-btn {
+    opacity: 1;
+}
+
 .chat-message.user {
-    align-self: flex-end;
+    margin-left: auto;
     flex-direction: row-reverse;
 }
 .chat-message.user .chat-message-bubble {
-    background: linear-gradient(90deg, var(--accent-primary), #a885f7);
-    color: white;
+    background: linear-gradient(90deg, var(--accent-primary), #a882ff);
     border-bottom-right-radius: 4px;
 }
+
+.chat-message.admin {
+    margin-right: auto;
+}
 .chat-message.admin .chat-message-bubble {
-    background-color: #2c314a;
+    background-color: #2c314d;
     border-bottom-left-radius: 4px;
 }
-.chat-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-}
-.message-actions {
-    display: none;
-    align-items: center;
-    gap: 10px;
-    opacity: 0.7;
-}
-.chat-message:hover .message-actions {
-    display: flex;
-}
-.message-action-btn {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    padding: 2px;
-}
-.message-action-btn:hover {
-    color: var(--text-primary);
-}
-/* ========================================================= */
-
 </style>
 </head>
 <body>
@@ -1324,11 +1307,6 @@
             <a href="#leaderboard" class="sidebar-link" id="nav-leaderboard">
                 <i class="fas fa-trophy fa-fw me-3"></i>Leaderboard
             </a>
-            <!-- ========== [NEW] FEEDBACK LINK ========== -->
-            <a href="#feedback" class="sidebar-link" id="nav-feedback" style="display: none;">
-                <i class="fas fa-headset fa-fw me-3"></i>Phản hồi
-            </a>
-            <!-- ======================================= -->
             <a href="#account" class="sidebar-link" id="nav-account">
                 <i class="fas fa-user-circle fa-fw me-3"></i>Account
             </a>
@@ -1417,6 +1395,10 @@
                             <!-- END OF NEW NEXT LEVEL PERK DISPLAY -->
 
                             <div class="d-grid gap-2 mt-4">
+                                <!-- [NEW] Feedback Button -->
+                                <button id="feedback-btn" class="btn btn-outline-info">
+                                    <i class="fas fa-comment-dots me-2"></i>Gửi Phản Hồi / Xem Lịch Sử
+                                </button>
                                 <button id="contact-admin-btn" class="btn btn-outline-secondary">
                                     <i class="fab fa-telegram-plane me-2"></i>Contact Admin
                                 </button>
@@ -1824,13 +1806,6 @@
                             <i class="fas fa-clipboard-check me-1"></i> Claim List
                         </button>
                     </li>
-                     <!-- ========== [NEW] FEEDBACK TAB ========== -->
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" data-target="#admin-panel-feedback" type="button">
-                            <i class="fas fa-headset me-1"></i> Phản hồi
-                        </button>
-                    </li>
-                    <!-- ======================================== -->
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" data-target="#admin-panel-partner-tasks" type="button">
                             <i class="fas fa-handshake me-1"></i> Partner Tasks
@@ -1839,6 +1814,13 @@
                      <li class="nav-item" role="presentation">
                         <button class="nav-link" data-target="#admin-panel-messenger" type="button">
                             <i class="fab fa-telegram-plane me-1"></i> Messenger
+                        </button>
+                    </li>
+                    <!-- [NEW] Feedback Tab -->
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-target="#admin-panel-feedback" type="button">
+                            <i class="fas fa-comments me-1"></i> Phản hồi
+                            <span id="admin-feedback-unread-count" class="badge rounded-pill bg-danger ms-1" style="display: none;">0</span>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
@@ -1928,6 +1910,21 @@
                             </div>
                              <!-- ============================================= -->
 
+                        </div>
+                    </div>
+                    
+                    <!-- [NEW] Admin Feedback Panel -->
+                    <div id="admin-panel-feedback" class="admin-panel-wrapper" style="display: none;">
+                        <div class="col-12">
+                           <div class="card-glass">
+                                <h5 class="card-title">Danh sách Phản hồi</h5>
+                                <div id="admin-feedback-list-container" class="table-responsive">
+                                    <!-- Feedback list will be rendered here by JS -->
+                                </div>
+                                <div class="text-center mt-3">
+                                    <button id="admin-load-more-feedback-btn" class="btn btn-outline-secondary" style="display: none;">Tải thêm</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -2427,6 +2424,62 @@
             </div>
         </div>
     </div>
+    
+    <!-- [NEW] Feedback Modals -->
+    <!-- Feedback History/List Modal -->
+    <div class="modal fade" id="feedbackHistoryModal" tabindex="-1" aria-labelledby="feedbackHistoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="feedbackHistoryModalLabel"><i class="fas fa-history me-2"></i>Lịch Sử Phản Hồi</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="feedback-history-list" style="max-height: 60vh; overflow-y: auto;">
+                        <!-- User's feedback threads will be listed here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" id="create-new-feedback-btn" class="btn" style="background-color: var(--accent-primary); color: white;"><i class="fas fa-plus me-2"></i>Tạo Phản Hồi Mới</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Conversation/Thread Modal -->
+    <div class="modal fade" id="feedbackThreadModal" tabindex="-1" aria-labelledby="feedbackThreadModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="feedbackThreadModalLabel">Chi Tiết Phản Hồi</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="feedback-conversation-area" class="mb-3 p-3" style="max-height: 50vh; overflow-y: auto; background-color: rgba(0,0,0,0.2); border-radius: 12px; display: flex; flex-direction: column; gap: 0.5rem;">
+                        <!-- Chat messages go here -->
+                    </div>
+                    <div id="feedback-reply-area">
+                        <input type="hidden" id="feedback-thread-id-input">
+                        <input type="hidden" id="feedback-editing-message-id-input">
+                        <textarea id="feedback-message-input" class="form-control" rows="3" placeholder="Nhập nội dung..."></textarea>
+                        <div id="feedback-edit-controls" class="mt-2 text-end" style="display: none;">
+                            <button id="cancel-edit-feedback-btn" type="button" class="btn btn-sm btn-secondary">Hủy</button>
+                            <button id="save-edit-feedback-btn" type="button" class="btn btn-sm" style="background-color: var(--accent-secondary); color: white;">Lưu Thay Đổi</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="back-to-history-btn" type="button" class="btn btn-outline-secondary me-auto" style="display: none;">
+                        <i class="fas fa-arrow-left me-1"></i> Quay lại
+                    </button>
+                    <button id="send-feedback-message-btn" type="button" class="btn" style="background-color: var(--accent-primary); color: white;">
+                        <i class="fas fa-paper-plane me-2"></i>Gửi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/apps-data.js"></script>
@@ -2598,6 +2651,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminLoadMoreLogsBtn = document.getElementById('admin-load-more-logs-btn');
     // ============================================
 
+    // ========== [NEW] FEEDBACK SELECTORS ==========
+    const feedbackBtn = document.getElementById('feedback-btn');
+    const feedbackHistoryModalEl = document.getElementById('feedbackHistoryModal');
+    const feedbackHistoryModal = new bootstrap.Modal(feedbackHistoryModalEl);
+    const feedbackThreadModalEl = document.getElementById('feedbackThreadModal');
+    const feedbackThreadModal = new bootstrap.Modal(feedbackThreadModalEl);
+    const createNewFeedbackBtn = document.getElementById('create-new-feedback-btn');
+    const sendFeedbackMessageBtn = document.getElementById('send-feedback-message-btn');
+    const cancelEditFeedbackBtn = document.getElementById('cancel-edit-feedback-btn');
+    const saveEditFeedbackBtn = document.getElementById('save-edit-feedback-btn');
+    const adminFeedbackUnreadCountEl = document.getElementById('admin-feedback-unread-count');
+    const adminFeedbackListContainer = document.getElementById('admin-feedback-list-container');
+    const adminLoadMoreFeedbackBtn = document.getElementById('admin-load-more-feedback-btn');
+    // ============================================
+
 
     const DEFAULT_LOGO_SRC = 'https://bmass.vercel.app/img/bmasslogo.png';
     const GENERIC_WALLET_ICON = 'https://ton.org/download/ton_symbol.png';
@@ -2620,7 +2688,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastVisibleAdminUser = null; // For admin pagination
     let lastVisibleAdminClaim = null; // For admin claim list pagination
     let lastVisibleAdminLog = null; // For admin log pagination
+    let lastVisibleAdminFeedback = null; // [NEW] For admin feedback pagination
     let userAirdropClaimData = null; // [NEW] To store user's claim info
+    let feedbackUnsubscribe = null; // [NEW] To listen for feedback changes
+    let currentFeedbackListener = null; // [NEW] To listen to a single feedback thread
 
     // [UPDATED] Level System Configuration - Now treated as a default/fallback
     let levelConfig = [
@@ -3126,8 +3197,10 @@ function updateUIAfterLogin() {
     
     if (isCurrentUserAdmin()) {
         navAdmin.style.display = 'block';
+        fetchUnreadFeedbackCount();
     } else {
         navAdmin.style.display = 'none';
+        if(feedbackUnsubscribe) feedbackUnsubscribe();
     }
 }
     
@@ -3546,7 +3619,6 @@ async function fetchAndRenderAdminClaimList(isInitialLoad = true) {
                         <th scope="col">Số lượng ($BMASS)</th>
                         <th scope="col">Thời gian</th>
                         <th scope="col">Tình trạng</th>
-
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -4561,6 +4633,14 @@ function renderReferralMilestones() {
     container.innerHTML = html;
 }
 
+
+
+
+
+
+
+
+
     // [UPDATED] Function to fetch settings for BOTH scoring and claiming
     async function fetchAirdropSettings() {
         if (airdropSettings) return airdropSettings;
@@ -5082,6 +5162,7 @@ function renderReferralMilestones() {
             customWalletContainer.style.display = 'none';
             headerExpDisplay.classList.add('d-none');
             navAdmin.style.display = 'none';
+            if(feedbackUnsubscribe) feedbackUnsubscribe(); // [NEW] Stop listening on logout
             
             if (!sessionStorage.getItem(REFERRAL_SESSION_KEY)){
                  referralInputContainerHero.style.display = 'block';
@@ -5131,6 +5212,13 @@ function renderReferralMilestones() {
                 fetchAndRenderAdminLogs(true);
             }
             // ===============================================
+
+            // [NEW] Trigger admin feedback fetch
+            const adminFeedbackPanel = document.getElementById('admin-panel-feedback');
+             if (adminFeedbackPanel && adminFeedbackPanel.style.display !== 'none') {
+                fetchAndRenderAdminFeedbackList(true);
+            }
+
 
             maintenanceModeSwitch.checked = systemStatus.isMaintenanceMode;
             // Fetch and populate airdrop settings
@@ -6410,6 +6498,1488 @@ async function exportFilteredAirdropClaimData() {
     if (adminLoadMoreBtn) adminLoadMoreBtn.addEventListener('click', () => fetchAndRenderAdminUserList(false));
     if (adminLoadMoreClaimsBtn) adminLoadMoreClaimsBtn.addEventListener('click', () => fetchAndRenderAdminClaimList(false));
     if (adminLoadMoreLogsBtn) adminLoadMoreLogsBtn.addEventListener('click', () => fetchAndRenderAdminLogs(false)); // [NEW]
+    if (adminLoadMoreFeedbackBtn) adminLoadMoreFeedbackBtn.addEventListener('click', () => fetchAndRenderAdminFeedbackList(false)); // [NEW]
+
+    if (adminClaimFilterControls) adminClaimFilterControls.addEventListener('click', (e) => {
+        const target = e.target.closest('.app-filter-btn');
+        if (target) {
+            adminClaimFilterControls.querySelector('.active').classList.remove('active');
+            target.classList.add('active');
+            fetchAndRenderAdminClaimList(true); // Re-fetch with new filter
+        }
+    });
+
+    referralCodeSubmit.addEventListener('click', handleManualReferralInput);
+    referralCodeSubmitHero.addEventListener('click', handleManualReferralInput);
+    if(saveScoringSettingsBtn) saveScoringSettingsBtn.addEventListener('click', (e) => { e.preventDefault(); saveAirdropScoringSettings(); });
+    if(saveClaimSettingsBtn) saveClaimSettingsBtn.addEventListener('click', (e) => { e.preventDefault(); saveAirdropClaimSettings(); });
+    if(exportClaimExcelBtn) exportClaimExcelBtn.addEventListener('click', exportFilteredAirdropClaimData);    if (adminUserSearchInput) {
+        adminUserSearchInput.addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                fetchAndRenderAdminUserList(true);
+            }, 500); 
+        });
+    }
+    
+    if (partnerTasksContainer) partnerTasksContainer.addEventListener('click', handlePartnerCardClick);
+    if (adminPartnerTaskForm) adminPartnerTaskForm.addEventListener('submit', handleAdminPartnerTaskSave);
+    if (partnerTaskClearBtn) partnerTaskClearBtn.addEventListener('click', clearPartnerTaskForm);
+    if (adminPartnerTasksList) adminPartnerTasksList.addEventListener('click', handleAdminPartnerTaskActions);
+    if (offchainClaimEnabledSwitch) {
+        offchainClaimEnabledSwitch.addEventListener('change', (e) => {
+            offchainSettingsContainer.style.display = e.target.checked ? 'block' : 'none';
+        });
+    }
+
+    customWalletButton.addEventListener('click', () => { walletDropdown.style.display = walletDropdown.style.display === 'block' ? 'none' : 'block'; });
+    copyAddressBtn.addEventListener('click', (e) => { e.preventDefault(); const address = e.currentTarget.dataset.address; const textSpan = e.currentTarget.querySelector('span'); if (address) navigator.clipboard.writeText(address).then(() => { textSpan.textContent = 'Copied!'; setTimeout(() => { textSpan.textContent = 'Copy Address'; }, 2000); }); });
+    searchButton.addEventListener('click', handleFastSearch);
+    searchInput.addEventListener('keyup', (e) => { clearTimeout(searchTimeout); if (e.key === 'Enter') handleFastSearch(); else searchTimeout = setTimeout(handleFastSearch, 300); });
+    backToMyWalletBtn.addEventListener('click', () => { if (connectedWalletAddress) fetchAndDisplayAccountData(connectedWalletAddress); });
+    otherTokensContent.addEventListener('click', (e) => { const jettonItem = e.target.closest('.jetton-item'); if (jettonItem) showJettonDetails(jettonItem.dataset.jettonAddress); });
+    
+    if (saveEmailBtn) saveEmailBtn.addEventListener('click', handleEmailUpdate);
+    if (saveTempProfileBtn) saveTempProfileBtn.addEventListener('click', handleTempProfileSave);
+    if (maintenanceModeSwitch) maintenanceModeSwitch.addEventListener('change', handleMaintenanceToggle);
+    if (recalculateUsersBtn) recalculateUsersBtn.addEventListener('click', recalculateTotalUsers); // [FIX-BUG]
+
+    document.getElementById('temp-avatar-upload').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                document.getElementById('temp-avatar-preview').src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.body.addEventListener('click', (e) => { 
+        const copyAddressTarget = e.target.closest('.copyable-address');
+        const copyCodeTarget = e.target.closest('.copyable-code');
+
+        if (copyAddressTarget?.dataset?.address) { 
+            const target = copyAddressTarget;
+            navigator.clipboard.writeText(target.dataset.address).then(() => { const originalText = target.textContent; target.textContent = 'Copied!'; target.classList.add('copied'); setTimeout(() => { target.textContent = originalText; target.classList.remove('copied'); }, 1500); }); 
+        } else if (copyCodeTarget?.dataset?.code) {
+             const target = copyCodeTarget;
+             navigator.clipboard.writeText(target.dataset.code).then(() => { showAppToast('Success', 'Copied to clipboard!', 'success') }); 
+        }
+        
+        if (!customWalletContainer?.contains(e.target)) walletDropdown.style.display = 'none'; 
+        if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none'; 
+    });
+    
+    document.body.addEventListener('change', e => {
+        if (e.target.id === 'notifications-toggle') {
+            handleNotificationToggle(e);
+        }
+    });
+
+    [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(link => {
+        link.addEventListener('click', (e) => { 
+            // ========== [NEW] HAPTIC FEEDBACK ==========
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light'); 
+            }
+            // ============================================
+            if (sidebarMenu.classList.contains('open')) toggleSidebar(); 
+        });
+    });
+
+    appSearchInput.addEventListener('input', () => { renderApps(); const searchTerm = appSearchInput.value.trim(); const newUrl = searchTerm ? `#apps?search=${encodeURIComponent(searchTerm)}` : '#apps'; history.replaceState(null, '', newUrl); });
+    appSearchButton.addEventListener('click', renderApps);
+    appSearchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') renderApps(); });
+    appFilterControls.addEventListener('click', (e) => { const target = e.target.closest('.app-filter-btn'); if (target) { appFilterControls.querySelector('.active').classList.remove('active'); target.classList.add('active'); renderApps(); } });
+    window.addEventListener('hashchange', handleRouteChange);
+    
+    contactAdminBtn.addEventListener('click', () => contactAdminModal.show());
+
+    const heroConnectButton = document.createElement('button');
+    heroConnectButton.className = 'btn px-5 py-3';
+    heroConnectButton.style = 'background-color: var(--accent-primary); color: white; font-weight: 600;';
+    heroConnectButton.textContent = 'Connect Wallet';
+    heroConnectButton.addEventListener('click', () => tonConnectUI.openModal());
+    connectWalletHeroBtnContainer.appendChild(heroConnectButton);
+    
+    function applyPlatformSpecificStyling() {
+        if (window.Telegram && window.Telegram.WebApp) {
+            const platform = window.Telegram.WebApp.platform;
+            const body = document.body;
+            body.classList.remove('platform-ios', 'platform-android', 'platform-desktop');
+            
+            console.log(`Detected platform: ${platform}`);
+            switch (platform) {
+                case 'ios': body.classList.add('platform-ios'); break;
+                case 'android': body.classList.add('platform-android'); break;
+                default: body.classList.add('platform-desktop'); break;
+            }
+        }
+    }
+
+    async function fetchRewardSettings() {
+        if (!db) return;
+        try {
+            const docRef = db.collection('admin_settings').doc('reward_config');
+            const doc = await docRef.get();
+            if (doc.exists) {
+                const data = doc.data();
+                if (data.referralMilestones && Array.isArray(data.referralMilestones)) {
+                    data.referralMilestones.sort((a, b) => a.required - b.required);
+                }
+                rewardConfig = data;
+                console.log("Reward settings loaded from Firestore:", rewardConfig);
+            } else {
+                await docRef.set(rewardConfig);
+                console.log("No reward settings in Firestore, created with defaults.");
+            }
+        } catch (error) {
+            console.error("Error fetching reward settings:", error);
+        }
+    }
+
+    function renderRewardSettingsUI() {
+        const adminPanel = document.getElementById('admin-panel-reward-settings');
+        if (!adminPanel) return;
+
+        document.getElementById('checkin-exp-input').value = rewardConfig.checkinExp;
+        document.getElementById('base-referral-exp-input').value = rewardConfig.baseReferralExp;
+        
+        const container = document.getElementById('referral-milestones-container');
+        container.innerHTML = ''; 
+
+        (rewardConfig.referralMilestones || []).forEach((milestone) => {
+            addMilestoneRow(milestone.required, milestone.bonus);
+        });
+    }
+
+    function addMilestoneRow(required = '', bonus = '') {
+        const container = document.getElementById('referral-milestones-container');
+        const milestoneDiv = document.createElement('div');
+        milestoneDiv.className = 'row g-3 align-items-center mb-2 milestone-item';
+        milestoneDiv.innerHTML = `
+            <div class="col">
+                <label class="form-label small d-md-none">Mốc (lượt mời)</label>
+                <input type="number" class="form-control milestone-required" value="${required}" placeholder="Số lượt mời" min="1">
+            </div>
+            <div class="col">
+                <label class="form-label small d-md-none">Thưởng thêm (EXP)</label>
+                <input type="number" class="form-control milestone-bonus" value="${bonus}" placeholder="EXP thưởng thêm" min="0">
+            </div>
+            <div class="col-auto">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-milestone-btn mt-md-4"><i class="fas fa-trash"></i></button>
+            </div>
+        `;
+        container.appendChild(milestoneDiv);
+    }
+    
+    // ===================================================================
+    // [NEW] LEVEL SETTINGS FUNCTIONS
+    // ===================================================================
+
+    async function fetchLevelConfig() {
+        if (!db) return;
+        try {
+            const docRef = db.collection('admin_settings').doc('level_config');
+            const doc = await docRef.get();
+            if (doc.exists) {
+                const data = doc.data();
+                if (data.levels && Array.isArray(data.levels)) {
+                    levelConfig = data.levels.sort((a, b) => a.level - b.level);
+                    console.log("Level config loaded from Firestore:", levelConfig);
+                }
+            } else {
+                // If not found, save the default config to Firestore
+                await docRef.set({ levels: levelConfig });
+                console.log("No level config in Firestore, created with defaults.");
+            }
+        } catch (error) {
+            console.error("Error fetching level config, using defaults:", error);
+        }
+    }
+    
+    function renderLevelSettingsUI() {
+        const adminPanel = document.getElementById('admin-panel-level-settings');
+        if (!adminPanel) return;
+
+        const container = document.getElementById('level-settings-container');
+        container.innerHTML = ''; // Clear existing rows
+
+        (levelConfig || []).forEach((levelData) => {
+            addLevelRow(levelData);
+        });
+    }
+
+    // [NEW] Render Level Multipliers in Airdrop Settings
+    function renderLevelMultipliersUI(savedMultipliers = []) {
+        const container = document.getElementById('admin-level-multipliers-container');
+        container.innerHTML = '';
+
+        levelConfig.forEach(levelInfo => {
+            const savedData = savedMultipliers.find(m => m.level === levelInfo.level);
+            const multiplierValue = savedData ? savedData.multiplier : 1.0;
+
+            const row = document.createElement('div');
+            row.className = 'row g-3 align-items-center mb-2 level-multiplier-item';
+            row.dataset.level = levelInfo.level;
+            row.innerHTML = `
+                <div class="col-4">
+                    <label class="form-label mb-0">Level ${levelInfo.level}</label>
+                </div>
+                <div class="col-8">
+                    <div class="input-group">
+                        <span class="input-group-text">x</span>
+                        <input type="number" class="form-control" value="${multiplierValue}" step="0.1" min="0">
+                    </div>
+                </div>
+            `;
+            container.appendChild(row);
+        });
+    }
+
+    // [NEW] Render Exchange Checkboxes in Admin Panel
+    function renderAdminExchangeCheckboxes(enabledExchanges = []) {
+        const container = document.getElementById('exchange-checkboxes-container');
+        container.innerHTML = '';
+        exchanges.forEach(ex => {
+            const isChecked = enabledExchanges.includes(ex.id);
+            container.innerHTML += `
+                 <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="${ex.id}" id="ex-check-${ex.id}" ${isChecked ? 'checked' : ''}>
+                    <label class="form-check-label" for="ex-check-${ex.id}">
+                        ${ex.name}
+                    </label>
+                </div>
+            `;
+        });
+    }
+
+
+    function addLevelRow(levelData = {}) {
+        const container = document.getElementById('level-settings-container');
+        const levelDiv = document.createElement('div');
+        levelDiv.className = 'row g-3 align-items-center mb-3 level-item';
+        
+        const currentLevel = levelData.level || (container.children.length + 1);
+        const expRequired = levelData.expRequired ?? '';
+        const benefit = levelData.benefit ?? '';
+
+        levelDiv.innerHTML = `
+            <div class="col-2 col-md-1">
+                <input type="number" class="form-control text-center level-number" value="${currentLevel}" readonly>
+            </div>
+            <div class="col-5 col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text">EXP ≥</span>
+                    <input type="number" class="form-control level-exp" value="${expRequired}" placeholder="EXP yêu cầu" min="0">
+                </div>
+            </div>
+            <div class="col-5 col-md-6">
+                 <input type="text" class="form-control level-benefit" value="${benefit}" placeholder="Mô tả quyền lợi">
+            </div>
+            <div class="col-12 col-md-1 text-end">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-level-btn"><i class="fas fa-trash"></i></button>
+            </div>
+        `;
+        container.appendChild(levelDiv);
+        
+        // Disable editing for Level 1
+        if (currentLevel === 1) {
+            levelDiv.querySelector('.level-exp').readOnly = true;
+            levelDiv.querySelector('.remove-level-btn').style.display = 'none';
+        }
+    }
+    
+    function renumberLevels() {
+        const items = document.querySelectorAll('#level-settings-container .level-item');
+        items.forEach((item, index) => {
+            const levelInput = item.querySelector('.level-number');
+            levelInput.value = index + 1;
+        });
+    }
+
+    // ========== [NEW] ADMIN LOGGING FUNCTIONS ==========
+    async function logAdminAction(actionType, details) {
+        if (!db || !currentUserData || !isCurrentUserAdmin()) return;
+
+        try {
+            const logEntry = {
+                adminId: currentUserData.telegramId || 'N/A',
+                adminName: currentUserData.fullName || 'N/A',
+                action: actionType,
+                details: details, // This will be an object with relevant info
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            await db.collection('admin_logs').add(logEntry);
+        } catch (error) {
+            console.error("Failed to log admin action:", error);
+        }
+    }
+
+    async function fetchAndRenderAdminLogs(isInitialLoad = true) {
+        if (!adminLogListContainer || !db) return;
+
+        adminLoadMoreLogsBtn.disabled = true;
+        adminLoadMoreLogsBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Loading...`;
+
+        if (isInitialLoad) {
+            lastVisibleAdminLog = null;
+            adminLogListContainer.innerHTML = `
+                <table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;">
+                    <thead><tr>
+                        <th>Admin</th>
+                        <th>Hành động</th>
+                        <th>Chi tiết</th>
+                        <th>Thời gian</th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>`;
+        }
+
+        const tableBody = adminLogListContainer.querySelector('tbody');
+        if (isInitialLoad) tableBody.innerHTML = '';
+
+        try {
+            let query = db.collection('admin_logs').orderBy('timestamp', 'desc').limit(ADMIN_LIST_PER_PAGE);
+            if (!isInitialLoad && lastVisibleAdminLog) {
+                query = query.startAfter(lastVisibleAdminLog);
+            }
+            const snapshot = await query.get();
+
+            if (snapshot.empty && isInitialLoad) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="text-center text-secondary p-3">Không có hoạt động nào được ghi lại.</td></tr>`;
+                adminLoadMoreLogsBtn.style.display = 'none';
+                return;
+            }
+
+            lastVisibleAdminLog = snapshot.docs[snapshot.docs.length - 1];
+
+            snapshot.forEach(doc => {
+                const log = doc.data();
+                const logDate = log.timestamp ? log.timestamp.toDate().toLocaleString('vi-VN') : 'N/A';
+                
+                let detailsHtml = '';
+                // Format details for readability
+                for (const [key, value] of Object.entries(log.details)) {
+                    detailsHtml += `<strong>${key}:</strong> ${value}<br>`;
+                }
+
+                const row = tableBody.insertRow();
+                row.innerHTML = `
+                    <td>${log.adminName} (${log.adminId})</td>
+                    <td><span class="badge bg-secondary">${log.action}</span></td>
+                    <td style="white-space: normal; max-width: 400px;">${detailsHtml}</td>
+                    <td>${logDate}</td>
+                `;
+            });
+
+            adminLoadMoreLogsBtn.style.display = snapshot.docs.length < ADMIN_LIST_PER_PAGE ? 'none' : 'block';
+
+        } catch (error) {
+            console.error("Error fetching admin logs:", error);
+            tableBody.innerHTML = `<tr><td colspan="4" class="text-center text-danger p-3">Lỗi khi tải lịch sử.</td></tr>`;
+        } finally {
+            adminLoadMoreLogsBtn.disabled = false;
+            adminLoadMoreLogsBtn.innerHTML = 'Tải thêm';
+        }
+    }
+    // ===============================================
+
+    // [NEW] ALL FEEDBACK RELATED FUNCTIONS
+    
+    // For User: Open the main feedback history modal
+    async function openFeedbackHistory() {
+        if (!currentUserData) return;
+        const listEl = document.getElementById('feedback-history-list');
+        listEl.innerHTML = skeletonTx.repeat(3);
+        feedbackHistoryModal.show();
+
+        try {
+            const query = db.collection('feedback')
+                .where('userId', '==', currentUserData.telegramId)
+                .orderBy('lastUpdatedAt', 'desc');
+            
+            const snapshot = await query.get();
+            if (snapshot.empty) {
+                listEl.innerHTML = `<p class="text-secondary text-center p-3">Bạn chưa có phản hồi nào. Hãy tạo một phản hồi mới!</p>`;
+                return;
+            }
+
+            let html = '';
+            snapshot.forEach(doc => {
+                const thread = doc.data();
+                const lastMessage = thread.lastMessage.length > 80 ? thread.lastMessage.substring(0, 80) + '...' : thread.lastMessage;
+                const isUnread = !thread.isReadByUser;
+
+                html += `
+                    <div class="p-3 border-bottom feedback-thread-item ${isUnread ? 'unread' : ''}" data-thread-id="${doc.id}">
+                        <div class="d-flex justify-content-between">
+                            <h6 class="mb-1">Phản hồi #${doc.id.substring(0, 6)}</h6>
+                            <small class="text-secondary">${new Date(thread.lastUpdatedAt.toDate()).toLocaleString('vi-VN')}</small>
+                        </div>
+                        <p class="mb-0 text-secondary">${lastMessage}</p>
+                    </div>
+                `;
+            });
+            listEl.innerHTML = html;
+
+        } catch(error) {
+            console.error("Error fetching feedback history:", error);
+            listEl.innerHTML = `<p class="text-danger text-center p-3">Không thể tải lịch sử phản hồi.</p>`;
+        }
+    }
+
+    // For both User & Admin: Open a specific conversation thread
+    function openFeedbackThread(threadId) {
+        if (currentFeedbackListener) currentFeedbackListener(); // Detach old listener
+
+        const conversationArea = document.getElementById('feedback-conversation-area');
+        const messageInput = document.getElementById('feedback-message-input');
+        const threadIdInput = document.getElementById('feedback-thread-id-input');
+        
+        conversationArea.innerHTML = skeletonTx.repeat(2);
+        messageInput.value = '';
+        threadIdInput.value = threadId;
+        document.getElementById('feedbackThreadModalLabel').textContent = `Phản hồi #${threadId.substring(0, 6)}`;
+        document.getElementById('back-to-history-btn').style.display = isCurrentUserAdmin() ? 'none' : 'block';
+
+        feedbackHistoryModal.hide();
+        feedbackThreadModal.show();
+
+        const threadRef = db.collection('feedback').doc(threadId);
+        const messagesRef = threadRef.collection('messages').orderBy('createdAt', 'asc');
+
+        currentFeedbackListener = messagesRef.onSnapshot(snapshot => {
+            conversationArea.innerHTML = '';
+            snapshot.forEach(doc => {
+                renderChatMessage(doc.data(), doc.id);
+            });
+            conversationArea.scrollTop = conversationArea.scrollHeight;
+            
+            // Mark as read
+            if (isCurrentUserAdmin()) {
+                threadRef.update({ isReadByAdmin: true });
+            } else {
+                 threadRef.update({ isReadByUser: true });
+            }
+        }, error => {
+            console.error("Error listening to feedback thread:", error);
+            conversationArea.innerHTML = `<p class="text-danger text-center">Lỗi tải tin nhắn.</p>`;
+        });
+    }
+
+    // Render a single chat bubble
+    function renderChatMessage(msg, msgId) {
+        const conversationArea = document.getElementById('feedback-conversation-area');
+        const isUser = msg.sender === 'user';
+        const senderClass = isUser ? 'user' : 'admin';
+        const time = msg.createdAt ? new Date(msg.createdAt.toDate()).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '';
+        const edited = msg.editedAt ? `<span class="edit-indicator">(đã sửa)</span>` : '';
+        const canEdit = isCurrentUserAdmin() ? !isUser : isUser; // Admin can edit admin msgs, user can edit user msgs
+
+        const messageEl = document.createElement('div');
+        messageEl.className = `chat-message ${senderClass}`;
+        messageEl.dataset.messageId = msgId;
+
+        messageEl.innerHTML = `
+            <div class="chat-message-bubble">
+                <div class="message-text">${msg.text}</div>
+                <span class="message-meta">${time} ${edited}</span>
+                ${canEdit ? `<button class="edit-btn" title="Sửa"><i class="fas fa-pencil-alt"></i></button>` : ''}
+            </div>
+        `;
+        conversationArea.appendChild(messageEl);
+    }
+    
+    // Handle sending a new message or creating a new thread
+    async function handleFeedbackMessageSend() {
+        const messageInput = document.getElementById('feedback-message-input');
+        let threadId = document.getElementById('feedback-thread-id-input').value;
+        const text = messageInput.value.trim();
+
+        if (!text) return;
+
+        sendFeedbackMessageBtn.disabled = true;
+        
+        try {
+            const messageData = {
+                text: text,
+                sender: isCurrentUserAdmin() ? 'admin' : 'user',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            const threadUpdates = {
+                lastMessage: text,
+                lastUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                lastSender: isCurrentUserAdmin() ? 'admin' : 'user',
+            };
+            
+            if (isCurrentUserAdmin()) {
+                threadUpdates.isReadByUser = false;
+            } else {
+                threadUpdates.isReadByAdmin = false;
+            }
+
+            if (threadId) { // Replying to existing thread
+                const threadRef = db.collection('feedback').doc(threadId);
+                await threadRef.collection('messages').add(messageData);
+                await threadRef.update(threadUpdates);
+            } else { // Creating a new thread
+                const newThreadRef = db.collection('feedback').doc();
+                threadId = newThreadRef.id;
+                
+                const newThreadData = {
+                    ...threadUpdates,
+                    userId: currentUserData.telegramId,
+                    userName: currentUserData.fullName,
+                    userAddress: currentUserData.address,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    isReadByUser: true,
+                    isReadByAdmin: false
+                };
+                
+                await newThreadRef.set(newThreadData);
+                await newThreadRef.collection('messages').add(messageData);
+                
+                document.getElementById('feedback-thread-id-input').value = threadId; // Update input for subsequent messages
+            }
+            
+            messageInput.value = '';
+
+        } catch (error) {
+            console.error("Error sending feedback:", error);
+            showAppToast('Lỗi', 'Không thể gửi tin nhắn.', 'error');
+        } finally {
+            sendFeedbackMessageBtn.disabled = false;
+        }
+    }
+    
+    // For Admin: Fetch and render the list of feedback threads
+    async function fetchAndRenderAdminFeedbackList(isInitialLoad = true) {
+        if (!adminFeedbackListContainer || !db) return;
+
+        adminLoadMoreFeedbackBtn.disabled = true;
+        adminLoadMoreFeedbackBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Đang tải...`;
+
+        if (isInitialLoad) {
+            lastVisibleAdminFeedback = null;
+            adminFeedbackListContainer.innerHTML = `
+                <table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;">
+                    <thead><tr>
+                        <th>Người Dùng</th>
+                        <th>Nội dung cuối</th>
+                        <th>Cập nhật lần cuối</th>
+                        <th>Trạng thái</th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>`;
+        }
+        const tableBody = adminFeedbackListContainer.querySelector('tbody');
+
+        try {
+            let query = db.collection('feedback').orderBy('lastUpdatedAt', 'desc').limit(ADMIN_LIST_PER_PAGE);
+            if (!isInitialLoad && lastVisibleAdminFeedback) {
+                query = query.startAfter(lastVisibleAdminFeedback);
+            }
+            const snapshot = await query.get();
+
+            if (snapshot.empty && isInitialLoad) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="text-center text-secondary p-3">Chưa có phản hồi nào.</td></tr>`;
+                return;
+            }
+
+            lastVisibleAdminFeedback = snapshot.docs[snapshot.docs.length - 1];
+            
+            snapshot.forEach(doc => {
+                const thread = doc.data();
+                const row = tableBody.insertRow();
+                const isUnread = !thread.isReadByAdmin;
+                
+                row.className = `feedback-thread-item ${isUnread ? 'unread' : ''}`;
+                row.dataset.threadId = doc.id;
+                
+                const lastMessage = thread.lastMessage.length > 100 ? thread.lastMessage.substring(0, 100) + '...' : thread.lastMessage;
+                const senderPrefix = thread.lastSender === 'user' ? '<i class="fas fa-user-edit me-2 text-info"></i>' : '<i class="fas fa-user-shield me-2 text-warning"></i>';
+
+                row.innerHTML = `
+                    <td><strong>${thread.userName}</strong><br><small class="text-secondary">UID: ${thread.userId}</small></td>
+                    <td style="white-space: normal;">${senderPrefix} ${lastMessage}</td>
+                    <td>${new Date(thread.lastUpdatedAt.toDate()).toLocaleString('vi-VN')}</td>
+                    <td>${isUnread ? '<span class="badge bg-info">Mới</span>' : '<span class="badge bg-secondary">Đã đọc</span>'}</td>
+                `;
+            });
+            adminLoadMoreFeedbackBtn.style.display = snapshot.docs.length < ADMIN_LIST_PER_PAGE ? 'none' : 'block';
+        } catch(error) {
+            console.error("Error fetching feedback list for admin:", error);
+        } finally {
+            adminLoadMoreFeedbackBtn.disabled = false;
+            adminLoadMoreFeedbackBtn.innerHTML = 'Tải thêm';
+        }
+    }
+    
+    // For Admin: Listen for unread feedback count
+    function fetchUnreadFeedbackCount() {
+        if (feedbackUnsubscribe) feedbackUnsubscribe();
+
+        feedbackUnsubscribe = db.collection('feedback').where('isReadByAdmin', '==', false)
+            .onSnapshot(snapshot => {
+                const count = snapshot.size;
+                if (count > 0) {
+                    adminFeedbackUnreadCountEl.textContent = count;
+                    adminFeedbackUnreadCountEl.style.display = 'inline-block';
+                } else {
+                    adminFeedbackUnreadCountEl.style.display = 'none';
+                }
+            });
+    }
+
+    // Handle editing a message
+    async function handleMessageEdit(messageId, threadId) {
+        const messageInput = document.getElementById('feedback-message-input');
+        const editingIdInput = document.getElementById('feedback-editing-message-id-input');
+        const editControls = document.getElementById('feedback-edit-controls');
+        
+        const messageEl = document.querySelector(`.chat-message[data-message-id="${messageId}"] .message-text`);
+        if (!messageEl) return;
+        
+        // Check if this is the last message
+        const allMessages = document.querySelectorAll(`#feedback-conversation-area .chat-message`);
+        const lastMessageEl = allMessages[allMessages.length - 1];
+        if (lastMessageEl.dataset.messageId !== messageId) {
+            showAppToast('Thông báo', 'Bạn chỉ có thể sửa tin nhắn cuối cùng.', 'info');
+            return;
+        }
+
+        // Check if the other party has replied
+        const threadDoc = await db.collection('feedback').doc(threadId).get();
+        if (threadDoc.exists) {
+            const lastSender = threadDoc.data().lastSender;
+            const myRole = isCurrentUserAdmin() ? 'admin' : 'user';
+            if (lastSender !== myRole) {
+                showAppToast('Thông báo', 'Không thể sửa sau khi đã có phản hồi.', 'info');
+                return;
+            }
+        }
+        
+        editingIdInput.value = messageId;
+        messageInput.value = messageEl.textContent;
+        messageInput.focus();
+        sendFeedbackMessageBtn.style.display = 'none';
+        editControls.style.display = 'block';
+    }
+
+    // Handle saving an edited message
+    async function handleSaveEditedMessage() {
+        const threadId = document.getElementById('feedback-thread-id-input').value;
+        const messageId = document.getElementById('feedback-editing-message-id-input').value;
+        const newText = document.getElementById('feedback-message-input').value.trim();
+
+        if (!threadId || !messageId || !newText) return;
+        
+        saveEditFeedbackBtn.disabled = true;
+
+        try {
+            const messageRef = db.collection('feedback').doc(threadId).collection('messages').doc(messageId);
+            await messageRef.update({
+                text: newText,
+                editedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            // Also update the last message on the parent thread
+            await db.collection('feedback').doc(threadId).update({
+                lastMessage: newText
+            });
+
+            cancelEditMode();
+        } catch(error) {
+            console.error("Error saving edited message:", error);
+            showAppToast('Lỗi', 'Không thể lưu thay đổi.', 'error');
+        } finally {
+            saveEditFeedbackBtn.disabled = false;
+        }
+    }
+
+    // Cancel edit mode
+    function cancelEditMode() {
+        document.getElementById('feedback-editing-message-id-input').value = '';
+        document.getElementById('feedback-message-input').value = '';
+        document.getElementById('feedback-edit-controls').style.display = 'none';
+        document.getElementById('send-feedback-message-btn').style.display = 'block';
+    }
+
+
+    // --- Event Listeners ---
+    hamburgerBtn.addEventListener('click', toggleSidebar);
+    sidebarOverlay.addEventListener('click', toggleSidebar);
+    fullLogoutBtn.addEventListener('click', handleFullLogout);
+    disconnectWalletBtn.addEventListener('click', handleDisconnectWallet);
+    checkinButton.addEventListener('click', handleCheckin);
+    popupCheckinButton.addEventListener('click', handleCheckin);
+    if (adminExpForm) adminExpForm.addEventListener('submit', handleAdminExpUpdate);
+    
+    // [UPDATED] Use the same function for both bulk messaging types
+    if (sendBulkTelegramMessageBtn) sendBulkTelegramMessageBtn.addEventListener('click', () => sendBulkTelegramMessage(null));
+
+    if (adminMassAwardForm) adminMassAwardForm.addEventListener('submit', handleMassAward);
+    if (adminMassConditionType) {
+        adminMassConditionType.addEventListener('change', (e) => {
+            adminMassConditionWrapper.style.display = (e.target.value === 'all') ? 'none' : 'block';
+        });
+    }
+     // [NEW-FEATURE] Audit form listener
+    if (adminAuditAwardForm) adminAuditAwardForm.addEventListener('submit', handleAuditAndAward);
+    if (adminAuditConditionType) {
+        adminAuditConditionType.addEventListener('change', (e) => {
+            adminAuditConditionWrapper.style.display = (e.target.value === 'all') ? 'none' : 'block';
+        });
+    }
+
+    if (adminLoadMoreBtn) adminLoadMoreBtn.addEventListener('click', () => fetchAndRenderAdminUserList(false));
+    if (adminLoadMoreClaimsBtn) adminLoadMoreClaimsBtn.addEventListener('click', () => fetchAndRenderAdminClaimList(false));
+    if (adminLoadMoreLogsBtn) adminLoadMoreLogsBtn.addEventListener('click', () => fetchAndRenderAdminLogs(false)); // [NEW]
+    if (adminLoadMoreFeedbackBtn) adminLoadMoreFeedbackBtn.addEventListener('click', () => fetchAndRenderAdminFeedbackList(false)); // [NEW]
+
+    if (adminClaimFilterControls) adminClaimFilterControls.addEventListener('click', (e) => {
+        const target = e.target.closest('.app-filter-btn');
+        if (target) {
+            adminClaimFilterControls.querySelector('.active').classList.remove('active');
+            target.classList.add('active');
+            fetchAndRenderAdminClaimList(true); // Re-fetch with new filter
+        }
+    });
+
+    referralCodeSubmit.addEventListener('click', handleManualReferralInput);
+    referralCodeSubmitHero.addEventListener('click', handleManualReferralInput);
+    if(saveScoringSettingsBtn) saveScoringSettingsBtn.addEventListener('click', (e) => { e.preventDefault(); saveAirdropScoringSettings(); });
+    if(saveClaimSettingsBtn) saveClaimSettingsBtn.addEventListener('click', (e) => { e.preventDefault(); saveAirdropClaimSettings(); });
+    if(exportClaimExcelBtn) exportClaimExcelBtn.addEventListener('click', exportFilteredAirdropClaimData);    if (adminUserSearchInput) {
+        adminUserSearchInput.addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                fetchAndRenderAdminUserList(true);
+            }, 500); 
+        });
+    }
+    
+    if (partnerTasksContainer) partnerTasksContainer.addEventListener('click', handlePartnerCardClick);
+    if (adminPartnerTaskForm) adminPartnerTaskForm.addEventListener('submit', handleAdminPartnerTaskSave);
+    if (partnerTaskClearBtn) partnerTaskClearBtn.addEventListener('click', clearPartnerTaskForm);
+    if (adminPartnerTasksList) adminPartnerTasksList.addEventListener('click', handleAdminPartnerTaskActions);
+    if (offchainClaimEnabledSwitch) {
+        offchainClaimEnabledSwitch.addEventListener('change', (e) => {
+            offchainSettingsContainer.style.display = e.target.checked ? 'block' : 'none';
+        });
+    }
+
+    customWalletButton.addEventListener('click', () => { walletDropdown.style.display = walletDropdown.style.display === 'block' ? 'none' : 'block'; });
+    copyAddressBtn.addEventListener('click', (e) => { e.preventDefault(); const address = e.currentTarget.dataset.address; const textSpan = e.currentTarget.querySelector('span'); if (address) navigator.clipboard.writeText(address).then(() => { textSpan.textContent = 'Copied!'; setTimeout(() => { textSpan.textContent = 'Copy Address'; }, 2000); }); });
+    searchButton.addEventListener('click', handleFastSearch);
+    searchInput.addEventListener('keyup', (e) => { clearTimeout(searchTimeout); if (e.key === 'Enter') handleFastSearch(); else searchTimeout = setTimeout(handleFastSearch, 300); });
+    backToMyWalletBtn.addEventListener('click', () => { if (connectedWalletAddress) fetchAndDisplayAccountData(connectedWalletAddress); });
+    otherTokensContent.addEventListener('click', (e) => { const jettonItem = e.target.closest('.jetton-item'); if (jettonItem) showJettonDetails(jettonItem.dataset.jettonAddress); });
+    
+    if (saveEmailBtn) saveEmailBtn.addEventListener('click', handleEmailUpdate);
+    if (saveTempProfileBtn) saveTempProfileBtn.addEventListener('click', handleTempProfileSave);
+    if (maintenanceModeSwitch) maintenanceModeSwitch.addEventListener('change', handleMaintenanceToggle);
+    if (recalculateUsersBtn) recalculateUsersBtn.addEventListener('click', recalculateTotalUsers); // [FIX-BUG]
+
+    document.getElementById('temp-avatar-upload').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                document.getElementById('temp-avatar-preview').src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.body.addEventListener('click', (e) => { 
+        const copyAddressTarget = e.target.closest('.copyable-address');
+        const copyCodeTarget = e.target.closest('.copyable-code');
+
+        if (copyAddressTarget?.dataset?.address) { 
+            const target = copyAddressTarget;
+            navigator.clipboard.writeText(target.dataset.address).then(() => { const originalText = target.textContent; target.textContent = 'Copied!'; target.classList.add('copied'); setTimeout(() => { target.textContent = originalText; target.classList.remove('copied'); }, 1500); }); 
+        } else if (copyCodeTarget?.dataset?.code) {
+             const target = copyCodeTarget;
+             navigator.clipboard.writeText(target.dataset.code).then(() => { showAppToast('Success', 'Copied to clipboard!', 'success') }); 
+        }
+        
+        if (!customWalletContainer?.contains(e.target)) walletDropdown.style.display = 'none'; 
+        if (!document.getElementById('account-search-section')?.contains(e.target)) searchResultsContainer.style.display = 'none'; 
+    });
+    
+    document.body.addEventListener('change', e => {
+        if (e.target.id === 'notifications-toggle') {
+            handleNotificationToggle(e);
+        }
+    });
+
+    [navDashboard, navApps, navTask, navPartner, navLeaderboard, navAccount, navAdmin, navReferral, navAirdrop].forEach(link => {
+        link.addEventListener('click', (e) => { 
+            // ========== [NEW] HAPTIC FEEDBACK ==========
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light'); 
+            }
+            // ============================================
+            if (sidebarMenu.classList.contains('open')) toggleSidebar(); 
+        });
+    });
+
+    appSearchInput.addEventListener('input', () => { renderApps(); const searchTerm = appSearchInput.value.trim(); const newUrl = searchTerm ? `#apps?search=${encodeURIComponent(searchTerm)}` : '#apps'; history.replaceState(null, '', newUrl); });
+    appSearchButton.addEventListener('click', renderApps);
+    appSearchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') renderApps(); });
+    appFilterControls.addEventListener('click', (e) => { const target = e.target.closest('.app-filter-btn'); if (target) { appFilterControls.querySelector('.active').classList.remove('active'); target.classList.add('active'); renderApps(); } });
+    window.addEventListener('hashchange', handleRouteChange);
+    
+    contactAdminBtn.addEventListener('click', () => contactAdminModal.show());
+
+    const heroConnectButton = document.createElement('button');
+    heroConnectButton.className = 'btn px-5 py-3';
+    heroConnectButton.style = 'background-color: var(--accent-primary); color: white; font-weight: 600;';
+    heroConnectButton.textContent = 'Connect Wallet';
+    heroConnectButton.addEventListener('click', () => tonConnectUI.openModal());
+    connectWalletHeroBtnContainer.appendChild(heroConnectButton);
+    
+    function applyPlatformSpecificStyling() {
+        if (window.Telegram && window.Telegram.WebApp) {
+            const platform = window.Telegram.WebApp.platform;
+            const body = document.body;
+            body.classList.remove('platform-ios', 'platform-android', 'platform-desktop');
+            
+            console.log(`Detected platform: ${platform}`);
+            switch (platform) {
+                case 'ios': body.classList.add('platform-ios'); break;
+                case 'android': body.classList.add('platform-android'); break;
+                default: body.classList.add('platform-desktop'); break;
+            }
+        }
+    }
+
+    async function fetchRewardSettings() {
+        if (!db) return;
+        try {
+            const docRef = db.collection('admin_settings').doc('reward_config');
+            const doc = await docRef.get();
+            if (doc.exists) {
+                const data = doc.data();
+                if (data.referralMilestones && Array.isArray(data.referralMilestones)) {
+                    data.referralMilestones.sort((a, b) => a.required - b.required);
+                }
+                rewardConfig = data;
+                console.log("Reward settings loaded from Firestore:", rewardConfig);
+            } else {
+                await docRef.set(rewardConfig);
+                console.log("No reward settings in Firestore, created with defaults.");
+            }
+        } catch (error) {
+            console.error("Error fetching reward settings:", error);
+        }
+    }
+
+    function renderRewardSettingsUI() {
+        const adminPanel = document.getElementById('admin-panel-reward-settings');
+        if (!adminPanel) return;
+
+        document.getElementById('checkin-exp-input').value = rewardConfig.checkinExp;
+        document.getElementById('base-referral-exp-input').value = rewardConfig.baseReferralExp;
+        
+        const container = document.getElementById('referral-milestones-container');
+        container.innerHTML = ''; 
+
+        (rewardConfig.referralMilestones || []).forEach((milestone) => {
+            addMilestoneRow(milestone.required, milestone.bonus);
+        });
+    }
+
+    function addMilestoneRow(required = '', bonus = '') {
+        const container = document.getElementById('referral-milestones-container');
+        const milestoneDiv = document.createElement('div');
+        milestoneDiv.className = 'row g-3 align-items-center mb-2 milestone-item';
+        milestoneDiv.innerHTML = `
+            <div class="col">
+                <label class="form-label small d-md-none">Mốc (lượt mời)</label>
+                <input type="number" class="form-control milestone-required" value="${required}" placeholder="Số lượt mời" min="1">
+            </div>
+            <div class="col">
+                <label class="form-label small d-md-none">Thưởng thêm (EXP)</label>
+                <input type="number" class="form-control milestone-bonus" value="${bonus}" placeholder="EXP thưởng thêm" min="0">
+            </div>
+            <div class="col-auto">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-milestone-btn mt-md-4"><i class="fas fa-trash"></i></button>
+            </div>
+        `;
+        container.appendChild(milestoneDiv);
+    }
+    
+    // ===================================================================
+    // [NEW] LEVEL SETTINGS FUNCTIONS
+    // ===================================================================
+
+    async function fetchLevelConfig() {
+        if (!db) return;
+        try {
+            const docRef = db.collection('admin_settings').doc('level_config');
+            const doc = await docRef.get();
+            if (doc.exists) {
+                const data = doc.data();
+                if (data.levels && Array.isArray(data.levels)) {
+                    levelConfig = data.levels.sort((a, b) => a.level - b.level);
+                    console.log("Level config loaded from Firestore:", levelConfig);
+                }
+            } else {
+                // If not found, save the default config to Firestore
+                await docRef.set({ levels: levelConfig });
+                console.log("No level config in Firestore, created with defaults.");
+            }
+        } catch (error) {
+            console.error("Error fetching level config, using defaults:", error);
+        }
+    }
+    
+    function renderLevelSettingsUI() {
+        const adminPanel = document.getElementById('admin-panel-level-settings');
+        if (!adminPanel) return;
+
+        const container = document.getElementById('level-settings-container');
+        container.innerHTML = ''; // Clear existing rows
+
+        (levelConfig || []).forEach((levelData) => {
+            addLevelRow(levelData);
+        });
+    }
+
+    // [NEW] Render Level Multipliers in Airdrop Settings
+    function renderLevelMultipliersUI(savedMultipliers = []) {
+        const container = document.getElementById('admin-level-multipliers-container');
+        container.innerHTML = '';
+
+        levelConfig.forEach(levelInfo => {
+            const savedData = savedMultipliers.find(m => m.level === levelInfo.level);
+            const multiplierValue = savedData ? savedData.multiplier : 1.0;
+
+            const row = document.createElement('div');
+            row.className = 'row g-3 align-items-center mb-2 level-multiplier-item';
+            row.dataset.level = levelInfo.level;
+            row.innerHTML = `
+                <div class="col-4">
+                    <label class="form-label mb-0">Level ${levelInfo.level}</label>
+                </div>
+                <div class="col-8">
+                    <div class="input-group">
+                        <span class="input-group-text">x</span>
+                        <input type="number" class="form-control" value="${multiplierValue}" step="0.1" min="0">
+                    </div>
+                </div>
+            `;
+            container.appendChild(row);
+        });
+    }
+
+    // [NEW] Render Exchange Checkboxes in Admin Panel
+    function renderAdminExchangeCheckboxes(enabledExchanges = []) {
+        const container = document.getElementById('exchange-checkboxes-container');
+        container.innerHTML = '';
+        exchanges.forEach(ex => {
+            const isChecked = enabledExchanges.includes(ex.id);
+            container.innerHTML += `
+                 <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="${ex.id}" id="ex-check-${ex.id}" ${isChecked ? 'checked' : ''}>
+                    <label class="form-check-label" for="ex-check-${ex.id}">
+                        ${ex.name}
+                    </label>
+                </div>
+            `;
+        });
+    }
+
+
+    function addLevelRow(levelData = {}) {
+        const container = document.getElementById('level-settings-container');
+        const levelDiv = document.createElement('div');
+        levelDiv.className = 'row g-3 align-items-center mb-3 level-item';
+        
+        const currentLevel = levelData.level || (container.children.length + 1);
+        const expRequired = levelData.expRequired ?? '';
+        const benefit = levelData.benefit ?? '';
+
+        levelDiv.innerHTML = `
+            <div class="col-2 col-md-1">
+                <input type="number" class="form-control text-center level-number" value="${currentLevel}" readonly>
+            </div>
+            <div class="col-5 col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text">EXP ≥</span>
+                    <input type="number" class="form-control level-exp" value="${expRequired}" placeholder="EXP yêu cầu" min="0">
+                </div>
+            </div>
+            <div class="col-5 col-md-6">
+                 <input type="text" class="form-control level-benefit" value="${benefit}" placeholder="Mô tả quyền lợi">
+            </div>
+            <div class="col-12 col-md-1 text-end">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-level-btn"><i class="fas fa-trash"></i></button>
+            </div>
+        `;
+        container.appendChild(levelDiv);
+        
+        // Disable editing for Level 1
+        if (currentLevel === 1) {
+            levelDiv.querySelector('.level-exp').readOnly = true;
+            levelDiv.querySelector('.remove-level-btn').style.display = 'none';
+        }
+    }
+    
+    function renumberLevels() {
+        const items = document.querySelectorAll('#level-settings-container .level-item');
+        items.forEach((item, index) => {
+            const levelInput = item.querySelector('.level-number');
+            levelInput.value = index + 1;
+        });
+    }
+
+    // ========== [NEW] ADMIN LOGGING FUNCTIONS ==========
+    async function logAdminAction(actionType, details) {
+        if (!db || !currentUserData || !isCurrentUserAdmin()) return;
+
+        try {
+            const logEntry = {
+                adminId: currentUserData.telegramId || 'N/A',
+                adminName: currentUserData.fullName || 'N/A',
+                action: actionType,
+                details: details, // This will be an object with relevant info
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            await db.collection('admin_logs').add(logEntry);
+        } catch (error) {
+            console.error("Failed to log admin action:", error);
+        }
+    }
+
+    async function fetchAndRenderAdminLogs(isInitialLoad = true) {
+        if (!adminLogListContainer || !db) return;
+
+        adminLoadMoreLogsBtn.disabled = true;
+        adminLoadMoreLogsBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Loading...`;
+
+        if (isInitialLoad) {
+            lastVisibleAdminLog = null;
+            adminLogListContainer.innerHTML = `
+                <table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;">
+                    <thead><tr>
+                        <th>Admin</th>
+                        <th>Hành động</th>
+                        <th>Chi tiết</th>
+                        <th>Thời gian</th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>`;
+        }
+
+        const tableBody = adminLogListContainer.querySelector('tbody');
+        if (isInitialLoad) tableBody.innerHTML = '';
+
+        try {
+            let query = db.collection('admin_logs').orderBy('timestamp', 'desc').limit(ADMIN_LIST_PER_PAGE);
+            if (!isInitialLoad && lastVisibleAdminLog) {
+                query = query.startAfter(lastVisibleAdminLog);
+            }
+            const snapshot = await query.get();
+
+            if (snapshot.empty && isInitialLoad) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="text-center text-secondary p-3">Không có hoạt động nào được ghi lại.</td></tr>`;
+                adminLoadMoreLogsBtn.style.display = 'none';
+                return;
+            }
+
+            lastVisibleAdminLog = snapshot.docs[snapshot.docs.length - 1];
+
+            snapshot.forEach(doc => {
+                const log = doc.data();
+                const logDate = log.timestamp ? log.timestamp.toDate().toLocaleString('vi-VN') : 'N/A';
+                
+                let detailsHtml = '';
+                // Format details for readability
+                for (const [key, value] of Object.entries(log.details)) {
+                    detailsHtml += `<strong>${key}:</strong> ${value}<br>`;
+                }
+
+                const row = tableBody.insertRow();
+                row.innerHTML = `
+                    <td>${log.adminName} (${log.adminId})</td>
+                    <td><span class="badge bg-secondary">${log.action}</span></td>
+                    <td style="white-space: normal; max-width: 400px;">${detailsHtml}</td>
+                    <td>${logDate}</td>
+                `;
+            });
+
+            adminLoadMoreLogsBtn.style.display = snapshot.docs.length < ADMIN_LIST_PER_PAGE ? 'none' : 'block';
+
+        } catch (error) {
+            console.error("Error fetching admin logs:", error);
+            tableBody.innerHTML = `<tr><td colspan="4" class="text-center text-danger p-3">Lỗi khi tải lịch sử.</td></tr>`;
+        } finally {
+            adminLoadMoreLogsBtn.disabled = false;
+            adminLoadMoreLogsBtn.innerHTML = 'Tải thêm';
+        }
+    }
+    // ===============================================
+
+    // [NEW] ALL FEEDBACK RELATED FUNCTIONS
+    
+    // For User: Open the main feedback history modal
+    async function openFeedbackHistory() {
+        if (!currentUserData) return;
+        const listEl = document.getElementById('feedback-history-list');
+        listEl.innerHTML = skeletonTx.repeat(3);
+        feedbackHistoryModal.show();
+
+        try {
+            const query = db.collection('feedback')
+                .where('userId', '==', currentUserData.telegramId)
+                .orderBy('lastUpdatedAt', 'desc');
+            
+            const snapshot = await query.get();
+            if (snapshot.empty) {
+                listEl.innerHTML = `<p class="text-secondary text-center p-3">Bạn chưa có phản hồi nào. Hãy tạo một phản hồi mới!</p>`;
+                return;
+            }
+
+            let html = '';
+            snapshot.forEach(doc => {
+                const thread = doc.data();
+                const lastMessage = thread.lastMessage.length > 80 ? thread.lastMessage.substring(0, 80) + '...' : thread.lastMessage;
+                const isUnread = !thread.isReadByUser;
+
+                html += `
+                    <div class="p-3 border-bottom feedback-thread-item ${isUnread ? 'unread' : ''}" data-thread-id="${doc.id}">
+                        <div class="d-flex justify-content-between">
+                            <h6 class="mb-1">Phản hồi #${doc.id.substring(0, 6)}</h6>
+                            <small class="text-secondary">${new Date(thread.lastUpdatedAt.toDate()).toLocaleString('vi-VN')}</small>
+                        </div>
+                        <p class="mb-0 text-secondary">${lastMessage}</p>
+                    </div>
+                `;
+            });
+            listEl.innerHTML = html;
+
+        } catch(error) {
+            console.error("Error fetching feedback history:", error);
+            listEl.innerHTML = `<p class="text-danger text-center p-3">Không thể tải lịch sử phản hồi.</p>`;
+        }
+    }
+
+    // For both User & Admin: Open a specific conversation thread
+    function openFeedbackThread(threadId) {
+        if (currentFeedbackListener) currentFeedbackListener(); // Detach old listener
+
+        const conversationArea = document.getElementById('feedback-conversation-area');
+        const messageInput = document.getElementById('feedback-message-input');
+        const threadIdInput = document.getElementById('feedback-thread-id-input');
+        
+        conversationArea.innerHTML = skeletonTx.repeat(2);
+        messageInput.value = '';
+        threadIdInput.value = threadId;
+        document.getElementById('feedbackThreadModalLabel').textContent = `Phản hồi #${threadId.substring(0, 6)}`;
+        document.getElementById('back-to-history-btn').style.display = isCurrentUserAdmin() ? 'none' : 'block';
+        cancelEditMode();
+
+        feedbackHistoryModal.hide();
+        feedbackThreadModal.show();
+
+        const threadRef = db.collection('feedback').doc(threadId);
+        const messagesRef = threadRef.collection('messages').orderBy('createdAt', 'asc');
+
+        currentFeedbackListener = messagesRef.onSnapshot(snapshot => {
+            conversationArea.innerHTML = '';
+            snapshot.forEach(doc => {
+                renderChatMessage(doc.data(), doc.id);
+            });
+            conversationArea.scrollTop = conversationArea.scrollHeight;
+            
+            // Mark as read
+            if (isCurrentUserAdmin()) {
+                threadRef.update({ isReadByAdmin: true });
+            } else {
+                 threadRef.update({ isReadByUser: true });
+            }
+        }, error => {
+            console.error("Error listening to feedback thread:", error);
+            conversationArea.innerHTML = `<p class="text-danger text-center">Lỗi tải tin nhắn.</p>`;
+        });
+    }
+
+    // Render a single chat bubble
+    function renderChatMessage(msg, msgId) {
+        const conversationArea = document.getElementById('feedback-conversation-area');
+        const isUser = msg.sender === 'user';
+        const senderClass = isUser ? 'user' : 'admin';
+        const time = msg.createdAt ? new Date(msg.createdAt.toDate()).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '';
+        const edited = msg.editedAt ? `<span class="edit-indicator">(đã sửa)</span>` : '';
+        const canEdit = isCurrentUserAdmin() ? !isUser : isUser; // Admin can edit admin msgs, user can edit user msgs
+
+        const messageEl = document.createElement('div');
+        messageEl.className = `chat-message ${senderClass}`;
+        messageEl.dataset.messageId = msgId;
+
+        messageEl.innerHTML = `
+            <div class="chat-message-bubble">
+                <div class="message-text">${msg.text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+                <span class="message-meta">${time} ${edited}</span>
+                ${canEdit ? `<button class="edit-btn" title="Sửa"><i class="fas fa-pencil-alt"></i></button>` : ''}
+            </div>
+        `;
+        conversationArea.appendChild(messageEl);
+    }
+    
+    // Handle sending a new message or creating a new thread
+    async function handleFeedbackMessageSend() {
+        const messageInput = document.getElementById('feedback-message-input');
+        let threadId = document.getElementById('feedback-thread-id-input').value;
+        const text = messageInput.value.trim();
+
+        if (!text) return;
+
+        sendFeedbackMessageBtn.disabled = true;
+        
+        try {
+            const messageData = {
+                text: text,
+                sender: isCurrentUserAdmin() ? 'admin' : 'user',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            const threadUpdates = {
+                lastMessage: text,
+                lastUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                lastSender: isCurrentUserAdmin() ? 'admin' : 'user',
+            };
+            
+            if (isCurrentUserAdmin()) {
+                threadUpdates.isReadByUser = false;
+            } else {
+                threadUpdates.isReadByAdmin = false;
+            }
+
+            if (threadId) { // Replying to existing thread
+                const threadRef = db.collection('feedback').doc(threadId);
+                await threadRef.collection('messages').add(messageData);
+                await threadRef.update(threadUpdates);
+            } else { // Creating a new thread
+                const newThreadRef = db.collection('feedback').doc();
+                threadId = newThreadRef.id;
+                
+                const newThreadData = {
+                    ...threadUpdates,
+                    userId: currentUserData.telegramId,
+                    userName: currentUserData.fullName,
+                    userAddress: currentUserData.address,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    isReadByUser: true,
+                    isReadByAdmin: false
+                };
+                
+                await newThreadRef.set(newThreadData);
+                await newThreadRef.collection('messages').add(messageData);
+                
+                document.getElementById('feedback-thread-id-input').value = threadId; // Update input for subsequent messages
+            }
+            
+            messageInput.value = '';
+
+        } catch (error) {
+            console.error("Error sending feedback:", error);
+            showAppToast('Lỗi', 'Không thể gửi tin nhắn.', 'error');
+        } finally {
+            sendFeedbackMessageBtn.disabled = false;
+        }
+    }
+    
+    // For Admin: Fetch and render the list of feedback threads
+    async function fetchAndRenderAdminFeedbackList(isInitialLoad = true) {
+        if (!adminFeedbackListContainer || !db) return;
+
+        adminLoadMoreFeedbackBtn.disabled = true;
+        adminLoadMoreFeedbackBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Đang tải...`;
+
+        if (isInitialLoad) {
+            lastVisibleAdminFeedback = null;
+            adminFeedbackListContainer.innerHTML = `
+                <table class="table table-hover table-sm align-middle" style="font-size: 0.85rem;">
+                    <thead><tr>
+                        <th>Người Dùng</th>
+                        <th>Nội dung cuối</th>
+                        <th>Cập nhật lần cuối</th>
+                        <th>Trạng thái</th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>`;
+        }
+        const tableBody = adminFeedbackListContainer.querySelector('tbody');
+
+        try {
+            let query = db.collection('feedback').orderBy('lastUpdatedAt', 'desc').limit(ADMIN_LIST_PER_PAGE);
+            if (!isInitialLoad && lastVisibleAdminFeedback) {
+                query = query.startAfter(lastVisibleAdminFeedback);
+            }
+            const snapshot = await query.get();
+
+            if (snapshot.empty && isInitialLoad) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="text-center text-secondary p-3">Chưa có phản hồi nào.</td></tr>`;
+                return;
+            }
+
+            lastVisibleAdminFeedback = snapshot.docs[snapshot.docs.length - 1];
+            
+            snapshot.forEach(doc => {
+                const thread = doc.data();
+                const row = tableBody.insertRow();
+                const isUnread = !thread.isReadByAdmin;
+                
+                row.className = `feedback-thread-item ${isUnread ? 'unread' : ''}`;
+                row.dataset.threadId = doc.id;
+                
+                const lastMessage = thread.lastMessage.length > 100 ? thread.lastMessage.substring(0, 100) + '...' : thread.lastMessage;
+                const senderPrefix = thread.lastSender === 'user' ? '<i class="fas fa-user-edit me-2 text-info"></i>' : '<i class="fas fa-user-shield me-2 text-warning"></i>';
+
+                row.innerHTML = `
+                    <td><strong>${thread.userName}</strong><br><small class="text-secondary">UID: ${thread.userId}</small></td>
+                    <td style="white-space: normal;">${senderPrefix} ${lastMessage}</td>
+                    <td>${new Date(thread.lastUpdatedAt.toDate()).toLocaleString('vi-VN')}</td>
+                    <td>${isUnread ? '<span class="badge bg-info">Mới</span>' : '<span class="badge bg-secondary">Đã đọc</span>'}</td>
+                `;
+            });
+            adminLoadMoreFeedbackBtn.style.display = snapshot.docs.length < ADMIN_LIST_PER_PAGE ? 'none' : 'block';
+        } catch(error) {
+            console.error("Error fetching feedback list for admin:", error);
+        } finally {
+            adminLoadMoreFeedbackBtn.disabled = false;
+            adminLoadMoreFeedbackBtn.innerHTML = 'Tải thêm';
+        }
+    }
+    
+    // For Admin: Listen for unread feedback count
+    function fetchUnreadFeedbackCount() {
+        if (feedbackUnsubscribe) feedbackUnsubscribe();
+
+        feedbackUnsubscribe = db.collection('feedback').where('isReadByAdmin', '==', false)
+            .onSnapshot(snapshot => {
+                const count = snapshot.size;
+                if (count > 0) {
+                    adminFeedbackUnreadCountEl.textContent = count;
+                    adminFeedbackUnreadCountEl.style.display = 'inline-block';
+                } else {
+                    adminFeedbackUnreadCountEl.style.display = 'none';
+                }
+            });
+    }
+
+    // Handle editing a message
+    async function handleMessageEdit(messageId, threadId) {
+        const messageInput = document.getElementById('feedback-message-input');
+        const editingIdInput = document.getElementById('feedback-editing-message-id-input');
+        const editControls = document.getElementById('feedback-edit-controls');
+        
+        const messageEl = document.querySelector(`.chat-message[data-message-id="${messageId}"] .message-text`);
+        if (!messageEl) return;
+        
+        // Check if this is the last message
+        const allMessages = document.querySelectorAll(`#feedback-conversation-area .chat-message`);
+        const lastMessageEl = allMessages[allMessages.length - 1];
+        if (lastMessageEl.dataset.messageId !== messageId) {
+            showAppToast('Thông báo', 'Bạn chỉ có thể sửa tin nhắn cuối cùng.', 'info');
+            return;
+        }
+
+        // Check if the other party has replied
+        const threadDoc = await db.collection('feedback').doc(threadId).get();
+        if (threadDoc.exists) {
+            const lastSender = threadDoc.data().lastSender;
+            const myRole = isCurrentUserAdmin() ? 'admin' : 'user';
+            if (lastSender !== myRole) {
+                showAppToast('Thông báo', 'Không thể sửa sau khi đã có phản hồi.', 'info');
+                return;
+            }
+        }
+        
+        editingIdInput.value = messageId;
+        messageInput.value = messageEl.textContent;
+        messageInput.focus();
+        sendFeedbackMessageBtn.style.display = 'none';
+        editControls.style.display = 'block';
+    }
+
+    // Handle saving an edited message
+    async function handleSaveEditedMessage() {
+        const threadId = document.getElementById('feedback-thread-id-input').value;
+        const messageId = document.getElementById('feedback-editing-message-id-input').value;
+        const newText = document.getElementById('feedback-message-input').value.trim();
+
+        if (!threadId || !messageId || !newText) return;
+        
+        saveEditFeedbackBtn.disabled = true;
+
+        try {
+            const messageRef = db.collection('feedback').doc(threadId).collection('messages').doc(messageId);
+            await messageRef.update({
+                text: newText,
+                editedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            // Also update the last message on the parent thread
+            await db.collection('feedback').doc(threadId).update({
+                lastMessage: newText
+            });
+
+            cancelEditMode();
+        } catch(error) {
+            console.error("Error saving edited message:", error);
+            showAppToast('Lỗi', 'Không thể lưu thay đổi.', 'error');
+        } finally {
+            saveEditFeedbackBtn.disabled = false;
+        }
+    }
+
+    // Cancel edit mode
+    function cancelEditMode() {
+        document.getElementById('feedback-editing-message-id-input').value = '';
+        document.getElementById('feedback-message-input').value = '';
+        document.getElementById('feedback-edit-controls').style.display = 'none';
+        document.getElementById('send-feedback-message-btn').style.display = 'block';
+    }
+
+
+    // --- Event Listeners ---
+    hamburgerBtn.addEventListener('click', toggleSidebar);
+    sidebarOverlay.addEventListener('click', toggleSidebar);
+    fullLogoutBtn.addEventListener('click', handleFullLogout);
+    disconnectWalletBtn.addEventListener('click', handleDisconnectWallet);
+    checkinButton.addEventListener('click', handleCheckin);
+    popupCheckinButton.addEventListener('click', handleCheckin);
+    if (adminExpForm) adminExpForm.addEventListener('submit', handleAdminExpUpdate);
+    
+    // [UPDATED] Use the same function for both bulk messaging types
+    if (sendBulkTelegramMessageBtn) sendBulkTelegramMessageBtn.addEventListener('click', () => sendBulkTelegramMessage(null));
+
+    if (adminMassAwardForm) adminMassAwardForm.addEventListener('submit', handleMassAward);
+    if (adminMassConditionType) {
+        adminMassConditionType.addEventListener('change', (e) => {
+            adminMassConditionWrapper.style.display = (e.target.value === 'all') ? 'none' : 'block';
+        });
+    }
+     // [NEW-FEATURE] Audit form listener
+    if (adminAuditAwardForm) adminAuditAwardForm.addEventListener('submit', handleAuditAndAward);
+    if (adminAuditConditionType) {
+        adminAuditConditionType.addEventListener('change', (e) => {
+            adminAuditConditionWrapper.style.display = (e.target.value === 'all') ? 'none' : 'block';
+        });
+    }
+
+    if (adminLoadMoreBtn) adminLoadMoreBtn.addEventListener('click', () => fetchAndRenderAdminUserList(false));
+    if (adminLoadMoreClaimsBtn) adminLoadMoreClaimsBtn.addEventListener('click', () => fetchAndRenderAdminClaimList(false));
+    if (adminLoadMoreLogsBtn) adminLoadMoreLogsBtn.addEventListener('click', () => fetchAndRenderAdminLogs(false)); // [NEW]
+    if (adminLoadMoreFeedbackBtn) adminLoadMoreFeedbackBtn.addEventListener('click', () => fetchAndRenderAdminFeedbackList(false)); // [NEW]
 
     if (adminClaimFilterControls) adminClaimFilterControls.addEventListener('click', (e) => {
         const target = e.target.closest('.app-filter-btn');
@@ -6844,6 +8414,8 @@ async function exportFilteredAirdropClaimData() {
                     fetchAndRenderAdminClaimList(true);
                 } else if (targetId === '#admin-panel-activity-log') { // [NEW]
                     fetchAndRenderAdminLogs(true);
+                } else if (targetId === '#admin-panel-feedback') { // [NEW]
+                    fetchAndRenderAdminFeedbackList(true);
                 } else if (targetId === '#admin-panel-partner-tasks') {
                     renderAdminPartnerTasks();
                 } else if (targetId === '#admin-panel-airdrop') {
@@ -6954,6 +8526,43 @@ async function exportFilteredAirdropClaimData() {
             }
         }
     });
+    
+    // [NEW] Feedback Event Listeners
+    feedbackBtn.addEventListener('click', openFeedbackHistory);
+    createNewFeedbackBtn.addEventListener('click', () => {
+        document.getElementById('feedback-thread-id-input').value = '';
+        openFeedbackThread(''); // Open with empty ID to signify new thread
+    });
+    sendFeedbackMessageBtn.addEventListener('click', handleFeedbackMessageSend);
+    saveEditFeedbackBtn.addEventListener('click', handleSaveEditedMessage);
+    cancelEditFeedbackBtn.addEventListener('click', cancelEditMode);
+    
+    document.getElementById('feedback-history-list').addEventListener('click', (e) => {
+        const item = e.target.closest('.feedback-thread-item');
+        if (item) {
+            openFeedbackThread(item.dataset.threadId);
+        }
+    });
+    document.getElementById('back-to-history-btn').addEventListener('click', () => {
+        feedbackThreadModal.hide();
+        feedbackHistoryModal.show();
+        if (currentFeedbackListener) currentFeedbackListener();
+    });
+    document.getElementById('admin-feedback-list-container').addEventListener('click', (e) => {
+        const item = e.target.closest('.feedback-thread-item');
+        if(item) {
+            openFeedbackThread(item.dataset.threadId);
+        }
+    });
+    document.getElementById('feedback-conversation-area').addEventListener('click', (e) => {
+        const editBtn = e.target.closest('.edit-btn');
+        if (editBtn) {
+            const messageEl = editBtn.closest('.chat-message');
+            const threadId = document.getElementById('feedback-thread-id-input').value;
+            handleMessageEdit(messageEl.dataset.messageId, threadId);
+        }
+    });
+
 
     // --- App Initialization ---
     fetchCryptoNews();
