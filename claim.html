@@ -3446,6 +3446,7 @@ async function fetchAndRenderAdminClaimList(isInitialLoad = true) {
                         <th scope="col">Số lượng ($BMASS)</th>
                         <th scope="col">Thời gian</th>
                         <th scope="col">Tình trạng</th>
+
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -3532,7 +3533,7 @@ async function fetchAndRenderAdminClaimList(isInitialLoad = true) {
                 detailsHtml = `<code class="copyable-address" data-address="${claim.claimAddress}" title="Click to copy">${shortenAddress(claim.claimAddress)}</code>`;
             } else {
                 detailsHtml = `<strong>Địa chỉ:</strong> <code class="text-break">${claim.claimAddress}</code>
-                               ${claim.memo ? `<br><strong>Memo/Tag:</strong> code>${claim.memo}</code>` : ''}`;
+                               ${claim.memo ? `<br><strong>Memo/Tag:</strong> <code>${claim.memo}</code>` : ''}`;
             }
 
             const methodBadge = claim.method === 'onchain' ?
